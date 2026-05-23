@@ -1,0 +1,14 @@
+{
+  "name": "jean-pierre-gassin/ai-context",
+  "description": "Portable AI agent context, skills, and role guidance for software projects.",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "JeanPierreGassin\\AiContext\\": "bin/"
+    }
+  },
+  "require": {
+    "php": ">=8.1"
+  }
+}
