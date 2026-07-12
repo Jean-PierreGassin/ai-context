@@ -44,7 +44,15 @@ composer update jean-pierre-gassin/ai-context
 - `.codex/config.toml`
 - Managed ignore files for package-owned skills
 
-The `.claude` skill files point back to the matching `.agents` skills, so the main skill content stays in one place.
+## One Source, Multiple Agents
+
+This package lets you use both Claude Code and agents that rely on the Open Agent Specification (e.g. Codex) without maintaining two separate configurations or skillsets:
+
+- `.agents/skills/*` holds the canonical skill content, using only the `name`/`description` frontmatter fields that the Open Agent Specification defines.
+- `.claude/skills/*` holds a thin stub per skill (matching frontmatter, plus any Claude-specific fields such as `context`/`agent`) that points back to the matching file under `.agents/skills/*`, so Claude Code reads the same content without duplicating it.
+- `AGENTS.md` holds the canonical guidance; `CLAUDE.md` just includes it via `@AGENTS.md`.
+
+Update a skill or the guidance once, and every supported agent stays in sync.
 
 ## Existing Projects
 
