@@ -1,1 +1,29 @@
-# Shared AI-assistant configuration placeholder.
+# How Codex routes approvals via me, or the auto-review model
+approval_policy = "on-request"
+approvals_reviewer = "auto_review"
+
+# Use this permission profile by default
+default_permissions = "project-edit"
+
+sandbox_mode = "workspace-write"
+[permissions.project-edit]
+description = "Workspace editing, but deny secret files."
+extends = ":workspace"
+
+[permissions.project-edit.filesystem]
+# Needed for unbounded ** deny globs on Linux/WSL/native Windows
+glob_scan_max_depth = 6
+
+# What Codex is not allowed to read under workspace roots
+[permissions.project-edit.filesystem.":workspace_roots"]
+"**/.env" = "deny"
+"**/.env.*" = "deny"
+"**/auth.json" = "deny"
+"**/storage/oauth-*.key" = "deny"
+"**/storage/*.key" = "deny"
+"**/*secrets*" = "deny"
+"**/*credential*" = "deny"
+"**/*credentials*" = "deny"
+
+[sandbox_workspace_write]
+network_access = true

@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>{YYYY-MM-DD} - Plan: {PLAN_TITLE}</title>
+
+  <style>
+    :root{
+        color-scheme:light dark;
+
+        --bg:#faf9f5;
+        --surface:#ffffff;
+        --surface-2:#f5f3ec;
+        --surface-3:#eeebe1;
+        --border:#e5e1d6;
+        --text:#2d2a26;
+        --muted:#78746c;
+        --accent:#cc785c;
+        --accent-text:#bc5a34;
+        --accent-soft:#f3e3da;
+        --danger:#c0392b;
+        --danger-bg:#fbe9e5;
+        --warning-bg:#f5cf47;
+        --warning-text:#2b2100;
+        --shadow:0 8px 24px rgba(0,0,0,.06);
+        --radius:14px;
+        --sidebar-width:288px;
+    }
+
+    /*
+    color-scheme lets the browser render our own dark palette instead of
+    guessing one. Without it, browsers that auto-darken unstyled pages darken
+    element backgrounds without touching inherited text color, which is what
+    made the annotation highlight illegible. --accent stays constant (only
+    ever paired with white text on a button fill); --accent-text lightens in
+    dark mode since it sits on top of the page surface itself.
+    */
+    @media (prefers-color-scheme: dark){
+        :root{
+            --bg:#262624;
+            --surface:#30302e;
+            --surface-2:#383733;
+            --surface-3:#403f3a;
+            --border:#47453f;
+            --text:#f0eee6;
+            --muted:#a39d92;
+            --accent-text:#e39774;
+            --accent-soft:#40291f;
+            --danger:#ff8a75;
+            --danger-bg:#3a2420;
+            --shadow:0 8px 24px rgba(0,0,0,.5);
+        }
+    }
+
+    :root[data-theme="dark"]{
+        --bg:#262624;
+        --surface:#30302e;
+        --surface-2:#383733;
+        --surface-3:#403f3a;
+        --border:#47453f;
+        --text:#f0eee6;
+        --muted:#a39d92;
+        --accent-text:#e39774;
+        --accent-soft:#40291f;
+        --danger:#ff8a75;
+        --danger-bg:#3a2420;
+        --shadow:0 8px 24px rgba(0,0,0,.5);
+    }
+
+    :root[data-theme="light"]{
+        --bg:#faf9f5;
+        --surface:#ffffff;
+        --surface-2:#f5f3ec;
+        --surface-3:#eeebe1;
+        --border:#e5e1d6;
+        --text:#2d2a26;
+        --muted:#78746c;
+        --accent-text:#bc5a34;
+        --accent-soft:#f3e3da;
+        --danger:#c0392b;
+        --danger-bg:#fbe9e5;
+        --shadow:0 8px 24px rgba(0,0,0,.06);
+    }
+
+    *{
+        box-sizing:border-box;
+    }
+
+    html{
+        scroll-behavior:smooth;
+    }
+
+    body{
+        margin:0;
+        font:15px/1.7 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+        color:var(--text);
+        background:var(--bg);
+    }
+
+    .layout{
+        display:grid;
+        grid-template-columns:var(--sidebar-width) 1fr;
+        min-height:100vh;
+    }
+
+    /* ---------- Sidebar ---------- */
+
+    aside{
+        position:sticky;
+        top:0;
+        height:100vh;
+        background:var(--surface);
+        border-right:1px solid var(--border);
+        padding:28px;
+        overflow:auto;
+    }
+
+    .logo{
+        font-size:20px;
+        font-weight:700;
+    }
+
+    .subtitle{
+        color:var(--muted);
+        margin:8px 0 30px;
+    }
+
+    .nav-label{
+        font-size:12px;
+        text-transform:uppercase;
+        letter-spacing:.05em;
+        color:var(--muted);
+        font-weight:600;
+        margin-bottom:12px;
+    }
+
+    nav{
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+    }
+
+    .nav-link{
+        text-decoration:none;
+        color:var(--text);
+        padding:12px 14px;
+        border-radius:10px;
+        transition:.2s;
+    }
+
+    .nav-link:hover{
+        background:var(--surface-2);
+    }
+
+    .nav-link.active{
+        background:var(--accent-soft);
+        color:var(--accent-text);
+        font-weight:600;
+    }
+
+    /* ---------- Main ---------- */
+
+    main{
+        width:100%;
+        max-width:1050px;
+        margin:auto;
+        padding:48px 64px 140px;
+    }
+
+    header{
+        margin-bottom:42px;
+    }
+
+    header h1{
+        margin:0;
+        font-size:34px;
+    }
+
+    header p{
+        color:var(--muted);
+        max-width:820px;
+    }
+
+    /* ---------- Slice ---------- */
+
+    .slice{
+        background:var(--surface);
+        border:1px solid var(--border);
+        border-radius:var(--radius);
+        box-shadow:var(--shadow);
+        padding:34px;
+        margin-bottom:36px;
+        scroll-margin-top:24px;
+    }
+
+    .slice h2{
+        margin-top:0;
+    }
+
+    .summary{
+        background:var(--surface-2);
+        border-left:4px solid var(--accent-text);
+        padding:16px;
+        border-radius:8px;
+        margin:20px 0 28px;
+    }
+
+    .content{
+        margin-bottom:34px;
+    }
+
+    .content p{
+        margin:18px 0;
+    }
+
+    .content h3, .content h4{
+        margin:28px 0 12px;
+    }
+
+    .content ul, .content ol{
+        margin:14px 0;
+        padding-left:22px;
+    }
+
+    .content li{
+        margin:6px 0;
+    }
+
+    .content a{
+        color:var(--accent-text);
+    }
+
+    .content code{
+        background:var(--surface-3);
+        padding:2px 6px;
+        border-radius:4px;
+        font-size:.9em;
+    }
+
+    .content pre:not(.ascii){
+        background:var(--surface-3);
+        padding:14px 16px;
+        border-radius:8px;
+        overflow-x:auto;
+    }
+
+    /* ---------- Ascii layouts and diagrams ---------- */
+    /* Use a single hyphen for arrows ("->"), never two ("-->"): two hyphens
+       immediately before ">" terminates an HTML comment early, which spilled
+       raw diagram text onto earlier drafts of this page. Box-drawing corner
+       glyphs are also risky here, they rarely align across fonts, so prefer
+       a simple indented arrow chain over hand-drawn boxes. */
+
+    pre.ascii{
+        background:#1e1e1e;
+        color:#d4d4d4;
+        padding:16px 18px;
+        border-radius:10px;
+        overflow-x:auto;
+        font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+        margin:20px 0;
+    }
+
+    .diagram{
+        margin:24px 0;
+        padding:20px;
+        background:var(--surface-2);
+        border:1px solid var(--border);
+        border-radius:10px;
+        overflow-x:auto;
+    }
+
+    .diagram-label{
+        font-size:12px;
+        text-transform:uppercase;
+        letter-spacing:.05em;
+        color:var(--muted);
+        margin-bottom:12px;
+        font-weight:600;
+    }
+
+    .diagram pre.ascii{
+        margin:0;
+    }
+
+    /* ---------- Grilling (paged Q&A) ---------- */
+
+    .grilling{
+        margin-top:30px;
+        padding-top:28px;
+        border-top:1px solid var(--border);
+    }
+
+    .grilling h3{
+        margin-top:0;
+    }
+
+    .grill-progress{
+        color:var(--muted);
+        font-size:13px;
+        margin-bottom:16px;
+    }
+
+    .question{
+        display:none;
+    }
+
+    .question.active{
+        display:block;
+    }
+
+    .question.grill-in{
+        animation:grillIn .22s ease;
+    }
+
+    @keyframes grillIn{
+        from{ opacity:0; transform:translateX(8px); }
+        to{ opacity:1; transform:translateX(0); }
+    }
+
+    .question-prompt{
+        font-weight:600;
+        margin:0 0 10px;
+    }
+
+    .question-options{
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+    }
+
+    .option{
+        display:inline-flex;
+        gap:8px;
+        align-items:center;
+        padding:10px 14px;
+        background:var(--surface-2);
+        color:var(--text);
+        border:1px solid var(--border);
+        border-radius:999px;
+        cursor:pointer;
+        transition:.15s;
+    }
+
+    .option:hover{
+        border-color:var(--accent-text);
+    }
+
+    .option:has(input:checked){
+        border-color:var(--accent-text);
+        background:var(--accent-soft);
+        color:var(--accent-text);
+        font-weight:600;
+    }
+
+    .option input{
+        accent-color:var(--accent-text);
+    }
+
+    .grill-other{
+        width:100%;
+        margin-top:14px;
+        border-radius:10px;
+        border:1px solid var(--border);
+        background:var(--surface);
+        color:var(--text);
+        padding:10px 14px;
+        font:inherit;
+    }
+
+    .grill-other:focus{
+        outline:none;
+        border-color:var(--accent-text);
+    }
+
+    .grill-nav{
+        display:flex;
+        justify-content:space-between;
+        gap:10px;
+        margin-top:22px;
+    }
+
+    button:disabled{
+        opacity:.4;
+        cursor:not-allowed;
+    }
+
+    .notes{
+        margin-top:26px;
+    }
+
+    .notes label{
+        display:block;
+        margin-bottom:10px;
+    }
+
+    textarea{
+        width:100%;
+        resize:vertical;
+        min-height:90px;
+        border-radius:10px;
+        border:1px solid var(--border);
+        background:var(--surface);
+        color:var(--text);
+        padding:14px;
+        font:inherit;
+    }
+
+    textarea:focus{
+        outline:none;
+        border-color:var(--accent-text);
+    }
+
+    /* ---------- Annotation ---------- */
+
+    /* Fixed, not theme-driven: needs to stay legible in both light and dark
+       mode rather than inheriting text color that flips between themes. */
+    mark{
+        background:var(--warning-bg);
+        color:var(--warning-text);
+        padding:2px 3px;
+        border-radius:3px;
+        cursor:pointer;
+    }
+
+    mark:hover{
+        filter:brightness(.95);
+    }
+
+    .selection-popup{
+        position:absolute;
+        display:none;
+        width:340px;
+        max-width:calc(100vw - 32px);
+        background:var(--surface);
+        color:var(--text);
+        border:1px solid var(--border);
+        border-radius:12px;
+        box-shadow:var(--shadow);
+        padding:16px;
+        z-index:1000;
+    }
+
+    .selection-popup textarea{
+        min-height:80px;
+    }
+
+    .actions{
+        display:flex;
+        justify-content:flex-end;
+        gap:10px;
+        margin-top:12px;
+    }
+
+    button{
+        border:none;
+        border-radius:10px;
+        cursor:pointer;
+        padding:10px 18px;
+        font:inherit;
+    }
+
+    .primary{
+        background:var(--accent);
+        color:white;
+    }
+
+    .secondary{
+        background:var(--surface-3);
+        color:var(--text);
+    }
+
+    .danger{
+        background:var(--danger-bg);
+        color:var(--danger);
+        margin-right:auto;
+    }
+
+    /* ---------- Footer ---------- */
+
+    footer{
+        position:fixed;
+        left:var(--sidebar-width);
+        right:0;
+        bottom:0;
+        background:var(--surface);
+        border-top:1px solid var(--border);
+        padding:16px 30px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+    }
+
+    .stats{
+        display:flex;
+        gap:28px;
+        color:var(--muted);
+    }
+
+    .stats .incomplete{
+        color:var(--warning-text);
+        background:var(--warning-bg);
+        padding:1px 7px;
+        border-radius:6px;
+    }
+
+    .copy{
+        background:var(--accent);
+        color:white;
+        padding:12px 22px;
+        transition:background .15s;
+    }
+
+    .copy.warning{
+        background:var(--warning-bg);
+        color:var(--warning-text);
+    }
+
+    @keyframes copyPulse{
+        0%{ transform:scale(1); }
+        40%{ transform:scale(.95); }
+        100%{ transform:scale(1); }
+    }
+
+    .copy.pulse{
+        animation:copyPulse .3s ease;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    <aside>
+      <div class="logo">{{PLAN_TITLE}}</div>
+
+      <div class="subtitle">
+        {{PLAN_DESCRIPTION}}
+      </div>
+
+      <div class="nav-label">Slices</div>
+      <nav>
+        {{SIDEBAR}}
+        <!-- e.g. <a class="nav-link" href="#slice-auth">Authentication</a>, one per slice -->
+      </nav>
+    </aside>
+
+    <main>
+      <header>
+        <h1>{{PLAN_TITLE}}</h1>
+        <p>{{PLAN_DESCRIPTION}}</p>
+      </header>
+
+      <!-- ===================================================== -->
+
+      <section class="slice" id="{{SLICE_ID}}">
+        <h2>{{SLICE_TITLE}}</h2>
+
+        <div class="summary">
+          <strong>Goal</strong>
+          <p>{{SLICE_SUMMARY}}</p>
+        </div>
+
+        <div class="content">
+          {{SLICE_CONTENT}}
+          <!-- Rendered markdown/html. For file or directory layouts use a
+          <pre class="ascii"> tree, e.g.:
+          src/
+          ├── components/DynamicForm.tsx
+          └── api/submit.ts
+          -->
+        </div>
+
+        {{SLICE_DIAGRAM}}
+        <!--
+        Optional, omit the whole div when a diagram would not add clarity. Single
+        hyphen arrows, indented to show branching (see the note in <style>).
+
+        <div class="diagram">
+          <div class="diagram-label">Data flow</div>
+          <pre class="ascii">
+DynamicForm
+  -> onChange -> TextField
+  -> onSubmit (validated values) -> Submit fn
+       -> POST /api/submit -> Backend
+          </pre>
+        </div>
+        -->
+
+        <div class="grilling">
+          <h3>Grilling</h3>
+          <div class="grill-progress"></div>
+
+          <div class="grill-stage">
+            {{GRILLING_QUESTIONS}}
+            <!--
+            Optional, omit the whole .grilling div if a slice has nothing to ask. One
+            .question per thing to confirm, radio for a single choice or checkbox for
+            multiple, plus a free-text fallback:
+
+            <div class="question">
+              <p class="question-prompt">Which auth method should we use?</p>
+              <div class="question-options">
+                <label class="option"><input type="radio" name="g-auth" value="Session cookies"> Session cookies</label>
+                <label class="option"><input type="radio" name="g-auth" value="JWT"> JWT</label>
+              </div>
+              <input type="text" class="grill-other" placeholder="Something else? Add detail here">
+            </div>
+            -->
+          </div>
+
+          <div class="grill-nav">
+            <button class="secondary" data-grill-back type="button">Back</button>
+            <button class="primary" data-grill-next type="button">Next</button>
+          </div>
+        </div>
+
+        <div class="notes">
+          <label for="{{SLICE_ID}}-notes"><strong>Additional Notes</strong></label>
+          <textarea
+            id="{{SLICE_ID}}-notes"
+            class="slice-feedback"
+            placeholder="Anything that should be clarified before implementation?"
+          ></textarea>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+
+      {{ADDITIONAL_SLICES}}
+    </main>
+  </div>
+
+  <!-- Selection Comment -->
+  <div class="selection-popup" id="commentPopup">
+    <strong>Add Annotation</strong>
+    <textarea
+      id="annotationText"
+      placeholder="Add feedback for this selection... (Enter to save, Shift+Enter for a new line)"
+    ></textarea>
+
+    <div class="actions">
+      <button class="secondary" id="cancelComment" type="button">Cancel</button>
+      <button class="primary" id="saveComment" type="button">Save</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="stats">
+      <div>
+        Annotations
+        <strong id="annotationCount">0</strong>
+      </div>
+      <div>
+        Questions Answered
+        <strong id="questionsAnswered">0 / 0</strong>
+      </div>
+    </div>
+
+    <button class="copy" id="copyFeedback" type="button">Copy All Feedback as Prompt</button>
+  </footer>
+
+  <script>
+    (function(){
+
+      const state = { annotations: [] };
+      let editingId = null;
+      let pendingRange = null;
+      let deleteBtn = null;
+
+      const popup = document.getElementById('commentPopup');
+      const textarea = document.getElementById('annotationText');
+      const saveBtn = document.getElementById('saveComment');
+      const cancelBtn = document.getElementById('cancelComment');
+      const copyBtn = document.getElementById('copyFeedback');
+      const annotationCountEl = document.getElementById('annotationCount');
+      const questionsAnsweredEl = document.getElementById('questionsAnswered');
+
+      function isWordChar(ch){
+          return /[A-Za-z0-9_'-]/.test(ch);
+      }
+
+      function snapToWordBoundaries(range){
+          let node = range.startContainer;
+          let offset = range.startOffset;
+          if(node.nodeType === 3){
+              while(offset > 0 && isWordChar(node.data[offset - 1])) offset--;
+              range.setStart(node, offset);
+          }
+          node = range.endContainer; offset = range.endOffset;
+          if(node.nodeType === 3){
+              while(offset < node.data.length && isWordChar(node.data[offset])) offset++;
+              range.setEnd(node, offset);
+          }
+          return range;
+      }
+
+      function closestSlice(node){
+          while(node && node.nodeType !== 1) node = node.parentNode;
+          return node ? node.closest('.slice') : null;
+      }
+
+      function sliceTitleOf(slice){
+          const h2 = slice.querySelector('h2');
+          return h2 ? h2.textContent.trim() : slice.id;
+      }
+
+      function positionPopup(rect){
+          const top = rect.bottom + window.scrollY + 10;
+          const maxLeft = window.scrollX + document.documentElement.clientWidth - 356;
+          let left = rect.left + window.scrollX;
+          left = Math.min(left, maxLeft);
+          left = Math.max(left, 16);
+          popup.style.top = top + 'px';
+          popup.style.left = left + 'px';
+      }
+
+      function setDeleteButton(show){
+          if(show && !deleteBtn){
+              deleteBtn = document.createElement('button');
+              deleteBtn.type = 'button';
+              deleteBtn.className = 'secondary danger';
+              deleteBtn.textContent = 'Delete';
+              deleteBtn.addEventListener('click', function(e){
+                  e.stopPropagation();
+                  removeAnnotation(editingId);
+                  closePopup();
+                  updateStats();
+              });
+              popup.querySelector('.actions').prepend(deleteBtn);
+          }
+          if(!show && deleteBtn){
+              deleteBtn.remove();
+              deleteBtn = null;
+          }
+      }
+
+      function closePopup(){
+          popup.style.display = 'none';
+          pendingRange = null;
+          editingId = null;
+          textarea.value = '';
+          setDeleteButton(false);
+      }
+
+      function removeAnnotation(id){
+          let idx = -1;
+          for(let i = 0; i < state.annotations.length; i++){
+              if(state.annotations[i].id === id){ idx = i; break; }
+          }
+          if(idx === -1) return;
+          const ann = state.annotations[idx];
+          if(ann.markEl){
+              const parent = ann.markEl.parentNode;
+              while(ann.markEl.firstChild) parent.insertBefore(ann.markEl.firstChild, ann.markEl);
+              parent.removeChild(ann.markEl);
+              parent.normalize();
+          }
+          state.annotations.splice(idx, 1);
+      }
+
+      function openPopupForSelection(){
+          const sel = window.getSelection();
+          if(!sel || sel.isCollapsed) return;
+          const range = snapToWordBoundaries(sel.getRangeAt(0));
+          const text = range.toString().trim();
+          if(!text) return;
+          const slice = closestSlice(range.startContainer);
+          if(!slice) return;
+
+          if(popup.style.display === 'block') saveAnnotation();
+
+          pendingRange = range;
+          editingId = null;
+          textarea.value = '';
+          popup.dataset.sliceId = slice.id;
+          popup.dataset.sliceTitle = sliceTitleOf(slice);
+          popup.dataset.quote = text;
+
+          positionPopup(range.getBoundingClientRect());
+          popup.style.display = 'block';
+          sel.removeAllRanges();
+          textarea.focus();
+      }
+
+      function openPopupForExisting(mark){
+          const id = mark.dataset.annotationId;
+          let ann = null;
+          for(let i = 0; i < state.annotations.length; i++){
+              if(state.annotations[i].id === id){ ann = state.annotations[i]; break; }
+          }
+          if(!ann) return;
+
+          if(popup.style.display === 'block') saveAnnotation();
+
+          editingId = id;
+          pendingRange = null;
+          textarea.value = ann.comment;
+          setDeleteButton(true);
+          popup.dataset.sliceId = ann.sliceId;
+          popup.dataset.sliceTitle = ann.sliceTitle;
+          popup.dataset.quote = ann.quote;
+
+          positionPopup(mark.getBoundingClientRect());
+          popup.style.display = 'block';
+          textarea.focus();
+      }
+
+      function saveAnnotation(){
+          const comment = textarea.value.trim();
+
+          if(editingId){
+              let ann = null;
+              for(let i = 0; i < state.annotations.length; i++){
+                  if(state.annotations[i].id === editingId){ ann = state.annotations[i]; break; }
+              }
+              if(ann){
+                  if(comment){
+                      ann.comment = comment;
+                  }else{
+                      removeAnnotation(editingId);
+                  }
+              }
+              closePopup();
+              updateStats();
+              return;
+          }
+
+          if(!pendingRange || !comment){
+              closePopup();
+              return;
+          }
+
+          const id = 'ann-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+          let mark = document.createElement('mark');
+          mark.dataset.annotationId = id;
+          try{
+              pendingRange.surroundContents(mark);
+          }catch(e){
+              mark = null;
+          }
+          if(mark){
+              mark.addEventListener('click', function(ev){
+                  ev.stopPropagation();
+                  openPopupForExisting(mark);
+              });
+          }
+
+          state.annotations.push({
+              id: id,
+              sliceId: popup.dataset.sliceId,
+              sliceTitle: popup.dataset.sliceTitle,
+              quote: popup.dataset.quote,
+              comment: comment,
+              markEl: mark
+          });
+
+          closePopup();
+          updateStats();
+      }
+
+      function questionAnswer(q){
+          const checked = Array.prototype.map.call(q.querySelectorAll('input:checked'), function(i){ return i.value; });
+          const otherInput = q.querySelector('.grill-other');
+          const other = otherInput ? otherInput.value.trim() : '';
+          return { checked: checked, other: other, answered: checked.length > 0 || other.length > 0 };
+      }
+
+      function questionCounts(){
+          const questions = document.querySelectorAll('.question');
+          let answered = 0;
+          questions.forEach(function(q){
+              if(questionAnswer(q).answered) answered++;
+          });
+          return { total: questions.length, answered: answered };
+      }
+
+      function updateStats(){
+          annotationCountEl.textContent = state.annotations.length;
+          const counts = questionCounts();
+          questionsAnsweredEl.textContent = counts.answered + ' / ' + counts.total;
+          questionsAnsweredEl.classList.toggle('incomplete', counts.answered < counts.total);
+      }
+
+      /*
+      Annotation selection is allowed in .content, .summary (the Goal box),
+      and .diagram (the data flow section), but not in .grilling or .notes,
+      where a text selection is more likely to be the user editing an
+      answer than highlighting plan text to comment on.
+      */
+      document.addEventListener('mouseup', function(e){
+          if(popup.contains(e.target)) return;
+          if(!(e.target instanceof Element) || !e.target.closest('.content, .summary, .diagram')) return;
+          setTimeout(openPopupForSelection, 0);
+      });
+
+      document.addEventListener('mousedown', function(e){
+          if(popup.style.display !== 'block') return;
+          if(popup.contains(e.target)) return;
+          if(e.target instanceof Element && e.target.closest('mark[data-annotation-id]')) return;
+          saveAnnotation();
+      });
+
+      saveBtn.addEventListener('click', saveAnnotation);
+      cancelBtn.addEventListener('click', closePopup);
+
+      textarea.addEventListener('keydown', function(e){
+          if(e.key === 'Enter' && !e.shiftKey){
+              e.preventDefault();
+              saveAnnotation();
+          }else if(e.key === 'Escape'){
+              e.preventDefault();
+              closePopup();
+          }
+      });
+
+      const navLinks = document.querySelectorAll('.nav-link');
+      const slices = document.querySelectorAll('.slice');
+      if('IntersectionObserver' in window && slices.length){
+          const spy = new IntersectionObserver(function(entries){
+              entries.forEach(function(entry){
+                  if(!entry.isIntersecting) return;
+                  navLinks.forEach(function(link){
+                      link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+                  });
+              });
+          }, { rootMargin: '-20% 0px -70% 0px' });
+          slices.forEach(function(s){ spy.observe(s); });
+      }
+
+      function setupGrilling(container){
+          const questions = Array.prototype.slice.call(container.querySelectorAll('.question'));
+          if(!questions.length) return;
+
+          let index = 0;
+          const backBtn = container.querySelector('[data-grill-back]');
+          const nextBtn = container.querySelector('[data-grill-next]');
+          const progress = container.querySelector('.grill-progress');
+
+          function render(animate){
+              questions.forEach(function(q, i){
+                  q.classList.toggle('active', i === index);
+                  q.classList.remove('grill-in');
+              });
+              if(animate){
+                  const current = questions[index];
+                  void current.offsetWidth;
+                  current.classList.add('grill-in');
+              }
+              backBtn.disabled = index === 0;
+              nextBtn.disabled = index === questions.length - 1;
+              progress.textContent = 'Question ' + (index + 1) + ' of ' + questions.length;
+          }
+
+          backBtn.addEventListener('click', function(){
+              index--;
+              render(true);
+          });
+
+          nextBtn.addEventListener('click', function(){
+              index++;
+              render(true);
+          });
+
+          questions.forEach(function(q){
+              q.querySelectorAll('input').forEach(function(input){
+                  input.addEventListener('change', updateStats);
+                  input.addEventListener('input', updateStats);
+              });
+          });
+
+          render(false);
+      }
+
+      document.querySelectorAll('.grilling').forEach(setupGrilling);
+
+      function formatAnswer(answer){
+          if(answer.checked.length && answer.other) return answer.checked.join(', ') + ' (plus: ' + answer.other + ')';
+          if(answer.checked.length) return answer.checked.join(', ');
+          return answer.other;
+      }
+
+      function buildFeedbackText(){
+          const parts = [];
+
+          slices.forEach(function(slice){
+              const title = sliceTitleOf(slice);
+              const sliceAnnotations = state.annotations.filter(function(a){ return a.sliceId === slice.id; });
+
+              const answeredQuestions = [];
+              slice.querySelectorAll('.question').forEach(function(q){
+                  const answer = questionAnswer(q);
+                  if(!answer.answered) return;
+                  const prompt = q.querySelector('.question-prompt');
+                  answeredQuestions.push({
+                      prompt: prompt ? prompt.textContent.trim() : 'Question',
+                      answer: formatAnswer(answer)
+                  });
+              });
+
+              const notesEl = slice.querySelector('.slice-feedback');
+              const notes = notesEl ? notesEl.value.trim() : '';
+
+              if(!sliceAnnotations.length && !answeredQuestions.length && !notes) return;
+
+              const lines = ['## ' + title, ''];
+
+              if(sliceAnnotations.length){
+                  lines.push('Inline comments on the plan text:');
+                  sliceAnnotations.forEach(function(a){
+                      lines.push('- "' + a.quote + '"');
+                      lines.push('  ' + a.comment);
+                  });
+                  lines.push('');
+              }
+
+              if(answeredQuestions.length){
+                  lines.push('Answers to open questions:');
+                  answeredQuestions.forEach(function(q){
+                      lines.push('- Q: ' + q.prompt);
+                      lines.push('  A: ' + q.answer);
+                  });
+                  lines.push('');
+              }
+
+              if(notes){
+                  lines.push('Additional notes:');
+                  lines.push(notes);
+                  lines.push('');
+              }
+
+              parts.push(lines.join('\n').trim());
+          });
+
+          if(!parts.length) return '';
+
+          const heading = '# Plan Feedback: ' + document.title.trim();
+          const instruction = 'Apply the feedback below to the plan, one section per slice.';
+          return heading + '\n\n' + instruction + '\n\n' + parts.join('\n\n');
+      }
+
+      function fallbackCopy(text){
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.top = '-1000px';
+          ta.style.left = '-1000px';
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          let ok = false;
+          try{ ok = document.execCommand('copy'); }catch(e){ ok = false; }
+          document.body.removeChild(ta);
+          return ok;
+      }
+
+      function copyToClipboard(text){
+          if(navigator.clipboard && navigator.clipboard.writeText){
+              const attempt = navigator.clipboard.writeText(text);
+              const timeout = new Promise(function(resolve, reject){
+                  setTimeout(function(){ reject(new Error('clipboard write timed out')); }, 800);
+              });
+              return Promise.race([attempt, timeout]).catch(function(){
+                  return fallbackCopy(text) ? Promise.resolve() : Promise.reject();
+              });
+          }
+          return fallbackCopy(text) ? Promise.resolve() : Promise.reject();
+      }
+
+      let copyResetTimer = null;
+
+      function pulseCopyButton(){
+          copyBtn.classList.remove('pulse');
+          void copyBtn.offsetWidth;
+          copyBtn.classList.add('pulse');
+      }
+
+      function resetCopyButton(){
+          copyBtn.classList.remove('warning');
+          clearTimeout(copyResetTimer);
+          copyBtn.textContent = 'Copy All Feedback as Prompt';
+      }
+
+      function showCopyState(label, isWarning){
+          copyBtn.textContent = label;
+          copyBtn.classList.toggle('warning', !!isWarning);
+          clearTimeout(copyResetTimer);
+          copyResetTimer = setTimeout(resetCopyButton, 2800);
+      }
+
+      /*
+      Always copies on a single click, never gates the copy behind a
+      confirmation click: a first click that only warns and does nothing
+      else is easy to miss, and silently drops everything the user typed.
+      Unanswered questions are surfaced as part of the success message
+      instead, after the real feedback has already been copied.
+      */
+      copyBtn.addEventListener('click', function(){
+          pulseCopyButton();
+
+          const text = buildFeedbackText();
+          if(!text){
+              showCopyState('Nothing to copy yet', true);
+              return;
+          }
+
+          const counts = questionCounts();
+          const unanswered = counts.total - counts.answered;
+
+          copyToClipboard(text).then(function(){
+              if(unanswered > 0){
+                  showCopyState('Copied (' + unanswered + (unanswered === 1 ? ' question' : ' questions') + ' still unanswered)', true);
+              }else{
+                  showCopyState('Copied', false);
+              }
+          }).catch(function(){
+              showCopyState('Copy failed, select the text manually', true);
+          });
+      });
+
+      updateStats();
+
+    })();
+  </script>
+</body>
+</html>

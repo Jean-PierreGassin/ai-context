@@ -1,6 +1,60 @@
 {
   "permissions": {
     "allow": [],
-    "deny": []
-  }
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(auth.json)",
+      "Read(**/auth.json)",
+      "Read(storage/oauth-*.key)",
+      "Read(**/storage/oauth-*.key)",
+      "Read(storage/*.key)",
+      "Read(**/storage/*.key)",
+      "Read(*secrets*)",
+      "Read(**/*secrets*)",
+      "Read(*credential*)",
+      "Read(**/*credential*)",
+      "Read(*credentials*)",
+      "Read(**/*credentials*)",
+      "Edit(.env)",
+      "Edit(.env.*)",
+      "Edit(**/.env)",
+      "Edit(**/.env.*)",
+      "Edit(auth.json)",
+      "Edit(**/auth.json)",
+      "Edit(storage/*.key)",
+      "Edit(**/storage/*.key)",
+      "Edit(*secret*)",
+      "Edit(**/*secret*)",
+      "Edit(*credential*)",
+      "Edit(**/*credential*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "Did the users last message explicitly authorize running a git commit right now? If not, block it. $ARGUMENTS",
+            "if": "Bash(git commit *)"
+          },
+          {
+            "type": "agent",
+            "prompt": "Did the appropriate tests, linting, and checks run? $ARGUMENTS",
+            "if": "Bash(git commit *)"
+          },
+          {
+            "type": "agent",
+            "prompt": "Did the users last message explicitly authorize running a git push right now? If not, block it. $ARGUMENTS",
+            "if": "Bash(git push *)"
+          }
+        ]
+      }
+    ]
+  },
+  "includeCoAuthoredBy": false
 }
