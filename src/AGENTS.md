@@ -1,7 +1,3 @@
-# AI Work Guidelines
-
-Use this as the short operating agreement for AI-assisted work in this project. Project-local docs and explicit user instructions override these defaults.
-
 ## Conversational Overrides
 
 - Use a warm, collaborative tone. Acknowledge the user's framing before answering
