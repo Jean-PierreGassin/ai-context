@@ -1,6 +1,6 @@
 ---
 name: orchestrate-investigation
-description: Use when performing research, investigation, root-cause, or design tasks with a high-effort agent fleet and adversarial reviewers to avoid bias.
+description: Use when asked to investigate, perform research, find a root-cause, or assist in planning.
 context: fork
 agent: general-purpose
 ---
