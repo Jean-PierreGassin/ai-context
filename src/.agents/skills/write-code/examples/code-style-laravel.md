@@ -867,7 +867,8 @@ $orders = Order::with('customer')->get();
 const order = JSON.parse(document.getElementById('order').value)
 ```
 
-#### Create migrations via `php artisan make:migration` (or when using touch, timestamp properly), never hand-authored - the command timestamps the filename correctly so migrations run in the right order
+#### Create migrations via
+`php artisan make:migration` (or when using touch, timestamp properly), never hand-authored - the command timestamps the filename correctly so migrations run in the right order
 
 ```bash
 # Bad
