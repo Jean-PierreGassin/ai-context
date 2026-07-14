@@ -30,7 +30,8 @@
       "Edit(**/*secret*)",
       "Edit(*credential*)",
       "Edit(**/*credential*)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
   "hooks": {
     "PreToolUse": [
@@ -39,18 +40,13 @@
         "hooks": [
           {
             "type": "agent",
-            "prompt": "Did the users last message explicitly authorize running a git commit right now? If not, block it. $ARGUMENTS",
-            "if": "Bash(git commit *)"
+            "prompt": "If this is a git push, did the appropriate tests, linting, and checks run? If not, block it. $ARGUMENTS",
+            "if": "Bash(git *)"
           },
           {
             "type": "agent",
-            "prompt": "Did the appropriate tests, linting, and checks run? $ARGUMENTS",
-            "if": "Bash(git commit *)"
-          },
-          {
-            "type": "agent",
-            "prompt": "Did the users last message explicitly authorize running a git push right now? If not, block it. $ARGUMENTS",
-            "if": "Bash(git push *)"
+            "prompt": "If this is a git push, did the users last message authorize running a git push right now? If not, block it. $ARGUMENTS",
+            "if": "Bash(git *)"
           }
         ]
       }
