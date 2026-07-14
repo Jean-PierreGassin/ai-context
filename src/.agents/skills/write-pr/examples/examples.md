@@ -48,6 +48,18 @@ Description: This PR fixes duplicate charges created when Stripe retries a webho
 - Replaces the Title and Body sections with a numbered process, pairing each rule with a bad/good case to better demonstrate what is and isn't acceptable
 ```
 
+## Don't enumerate additions that are already visible in the diff - describe the final state, not the edit history
+
+```
+// Bad
+- Adds three more example pairs to examples.md: not referencing an external source of truth the reader can't see, showing a concrete instance instead of describing generated content abstractly, and reserving backticks for actual code identifiers rather than plain English section names
+```
+
+```
+// Good
+- Adds `template.md` (the body template) and `examples.md` (one bad/good case per rule) under a new `examples/` directory, replacing the template that used to live inline in `SKILL.md`
+```
+
 ## Prose explains the WHY and overall approach, not just a restatement of the diff
 
 ```
