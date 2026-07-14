@@ -1,6 +1,6 @@
 ---
 name: git-commit
-description: Use whenever committing changes to a repo - staging, splitting a diff into focused commits, or writing the commit message itself. Triggers on "commit this", "make a commit", "write a commit message", or when implementation work is ready to be checked in.
+description: Use whenever committing, staging, splitting a diff, or writing the commit message itself.
 context: fork
 agent: general-purpose
 ---

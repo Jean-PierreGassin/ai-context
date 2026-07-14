@@ -315,26 +315,6 @@ const pendingInvoices: Invoice[] = [];  // empty init needs the type
 const total = 0;                        // obvious from the literal
 ```
 
-#### Use `unknown`, not `any`, when a type is genuinely not known
-
-```ts
-// Bad
-function parseResponse(payload: any): Order {
-  return payload.order;
-}
-```
-
-```ts
-// Good
-function parseResponse(payload: unknown): Order {
-  if (!isOrderResponse(payload)) {
-    throw new Error('Unexpected response shape');
-  }
-
-  return payload.order;
-}
-```
-
 #### Use template literals for interpolation, not string concatenation
 
 ```ts
@@ -347,34 +327,6 @@ const message = 'Balance: ' + account.getBalance() + ' for ' + account.owner.ful
 // Good
 const greeting = `Hello, ${name}!`;
 const message = `Balance: ${account.getBalance()} for ${account.owner.fullName}`;
-```
-
-#### Never reuse one interface for read, edit, and write shapes of the same entity
-
-```ts
-// Bad
-interface Order {
-  id: string;
-  customerId: string;
-  lineItems: LineItem[];
-  status: OrderStatus;
-}
-function createOrder(order: Order): Promise<Order> {} // id/status don't exist yet
-```
-
-```ts
-// Good
-interface OrderItem {
-  id: string;
-  customerId: string;
-  lineItems: LineItem[];
-  status: OrderStatus;
-}
-interface CreateOrderPayload {
-  customerId: string;
-  lineItems: LineItem[];
-}
-function createOrder(payload: CreateOrderPayload): Promise<OrderItem> {}
 ```
 
 #### Derive a variant type via Omit/Pick/Partial composition, don't hand-duplicate the fields
@@ -553,39 +505,6 @@ class JsTaskHandler implements TaskHandler {
     
     return runJs(step);
   }
-}
-```
-
-#### Throw a narrow custom error, not a generic one
-
-```ts
-// Bad
-throw new Error('Context data not found: ' + key);
-```
-
-```ts
-// Good
-class ContextDataNotFoundError extends Error {}
-throw new ContextDataNotFoundError(`No context data found for path "${key}"`);
-```
-
-#### Chain the original error via `cause` when wrapping/translating it
-
-```ts
-// Bad
-try {
-  step = jsonPath.get(path);
-} catch (e) {
-  throw new ContextDataNotFoundError(`No context data found for path "${path}"`);
-}
-```
-
-```ts
-// Good
-try {
-  step = jsonPath.get(path);
-} catch (e) {
-  throw new ContextDataNotFoundError(`No context data found for path "${path}"`, { cause: e });
 }
 ```
 
@@ -802,26 +721,6 @@ if (event.target instanceof HTMLInputElement) {
 }
 ```
 
-#### Prefer Record (or a plain object) over Map for internal, string-keyed data; reach for Map only for non-string keys or untrusted/user-controlled keys
-
-```ts
-// Bad - Map adds overhead for a simple lookup with known, internal string keys
-const totalByCurrency = new Map<string, number>();
-totalByCurrency.set('usd', 100);
-```
-
-```ts
-// Good - Record is faster and simpler when keys are known and internal
-const totalByCurrency: Record<string, number> = { usd: 100 };
-```
-
-```ts
-// Good - Map earns its keep: non-string keys, or keys from user input where
-// a Record risks prototype pollution (e.g. a key literally named "__proto__")
-const sessionByUser = new Map<User, Session>();
-const voteCountByUserSuppliedTag = new Map<string, number>();
-```
-
 #### No defensive coercion the type says is impossible
 
 ```ts
@@ -832,22 +731,6 @@ const query = String(option.label ?? '').toLowerCase(); // label is required: st
 ```ts
 // Good
 const query = option.label.toLowerCase();
-```
-
-#### Constrain params to a literal union so illegal values can't compile; name the set in an `as const` object
-
-```ts
-// Bad
-function sortBy(field: string, direction: number) {} // any number is accepted
-sortBy('createdAt', -1);                              // magic value; illegal values still compile
-```
-
-```ts
-// Good
-type SortDirection = 1 | -1;
-const SORT_DIRECTION = { ascending: 1, descending: -1 } as const;
-function sortBy(field: string, direction: SortDirection) {}
-sortBy('createdAt', SORT_DIRECTION.descending);
 ```
 
 #### Name magic numbers as constants (or an enum for a related set), never inline literals
