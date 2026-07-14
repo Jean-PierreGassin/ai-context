@@ -36,6 +36,18 @@ Description: This PR fixes duplicate charges created when Stripe retries a webho
 - Adds an idempotency check keyed on Stripe's `event.id` in `PaymentWebhookController`
 ```
 
+## Only code identifiers get backticks or literal syntax markers - plain English reads naturally
+
+```
+// Bad
+- Replaces the `Title`/`Body` sections with a numbered `Process`, pairing each rule with a `// Bad` / `// Good` case
+```
+
+```
+// Good
+- Replaces the Title and Body sections with a numbered process, pairing each rule with a bad/good case to better demonstrate what is and isn't acceptable
+```
+
 ## Prose explains the WHY and overall approach, not just a restatement of the diff
 
 ```
@@ -109,6 +121,38 @@ Description: This PR updates the Claude `settings.json` to align with what's cur
   - A narrow `if` pattern still fires on any command containing `$()`, backticks, or `$VAR`, whether or not it actually resolves to that subcommand ([Claude Code docs](https://code.claude.com/docs/en/hooks#bash-if-matching))
   - So splitting hooks by subcommand doesn't reliably narrow anything - broadening is just as safe and lets the prompt itself judge intent
 ```
+
+## Don't reference an external source of truth the reader can't see - describe the change on its own terms
+
+```
+// Bad
+Description: This PR brings the packaged write-pr skill back in line with the global one.
+```
+
+```
+// Good
+Description: This PR updates the packaged write-pr skill with a numbered process, a rule about stating real reasons, and a bad/good examples file.
+```
+
+## Show a concrete instance instead of describing generated content abstractly
+
+```
+// Bad
+- Adds `examples.md`, pairing each rule with a `// Bad` / `// Good` case, including corrected technical claims and doc links worked out against real Claude Code behavior
+```
+
+````
+// Good
+- Adds `examples.md`, pairing each rule with a `// Bad` / `// Good` case, for example:
+
+  ```
+  // Bad
+  - Broadens the PreToolUse git hooks from Bash(git commit *) / Bash(git push *) to Bash(git *)
+
+  // Good
+  - Broadens the PreToolUse git hooks from Bash(git commit *) / Bash(git push *) to Bash(git *), since a narrow if pattern still fires on any command containing $(), backticks, or $VAR (Claude Code docs)
+  ```
+````
 
 ## When a bug PR has both reproduction steps and a what-changed list, give each its own bold header
 
