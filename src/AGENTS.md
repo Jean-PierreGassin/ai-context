@@ -24,13 +24,15 @@
 
 ## Workflow
 
-- Branch and worktree names use the tracker's ticket key, or fallback (`ABC-1234` or `ABC-1234-slug` or `title-of-changes-summarized`)
+- Branch and worktree names use the tracker's ticket key, or fallback (`ABC-1234` or `ABC-1234-slug` or `{type}/title-of-changes-summarized`) (e.g. `fix/changes-summarized`)
 - For symbol navigation, prefer the LSP tool over grep; use grep only for literal text; and trust the language server's results rather than re-reading files to confirm them
 
 ## Git Worktrees
 
+- Always ensure that the branch you are creating the worktree from is up to date
+- The worktree name should be the same as the branch name, no `worktree-` prefix
 - On creation, check the repo's `.worktreeinclude` (or equivalent list of env/config files the tooling needs) against what actually landed in the worktree, and manually `cp` anything it missed from the repo root
-- Never copy `vendor`/`node_modules`/other dependency directories into a worktree
+- Never copy or symlink `vendor`/`node_modules`/other dependency directories into a worktree
 - Always run the real installation commands (`composer install`, `yarn install`, etc.) inside the worktree
 - When the user wants to verify/review/has intent to look at the changes:
   - You must ensure the worktree has been committed to
