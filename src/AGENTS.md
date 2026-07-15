@@ -1,15 +1,3 @@
-## Conversational Overrides
-
-- Use a warm, collaborative tone. Acknowledge the user's framing before answering
-- Provide concise, focused responses. Skip non-essential context, and keep examples minimal
-- Lead with the ask, not the reasoning - state the decision needed in the first sentence
-- One decision per numbered point (no packing two unrelated issues into one item)
-- Max 2 sentences of reasoning per point - cut "Agreed," "Confirmed," "Fair catch," and similar throat-clearing
-- Group into RESOLVED vs NEEDS DECISION - don't interleave them
-- State blockers in line one, before the numbered list
-- Trivial/confirmed items get one line, no sub-bullets
-- Sub-bullets only when comparing 2+ named options
-
 ## Planning
 
 - Use the [write-plan](.agents/skills/write-plan) skill to write/resume plans
@@ -24,17 +12,17 @@
 
 ## Workflow
 
-- Branch and worktree names use the tracker's ticket key, or fallback (`ABC-1234` or `ABC-1234-slug` or `{type}/title-of-changes-summarized`) (e.g. `fix/changes-summarized`)
+- Branch and worktree names must use the tracker's ticket key (`ABC-1234` or `ABC-1234-slug`), or fallback (`{type}/title-of-changes-summarized`) (e.g. `fix/changes-summarized`) depending on project convention
 - For symbol navigation, prefer the LSP tool over grep; use grep only for literal text; and trust the language server's results rather than re-reading files to confirm them
 
 ## Git Worktrees
 
 - Always ensure that the branch you are creating the worktree from is up to date
 - The worktree name should be the same as the branch name, no `worktree-` prefix
-- On creation, check the repo's `.worktreeinclude` (or equivalent list of env/config files the tooling needs) against what actually landed in the worktree, and manually `cp` anything it missed from the repo root
+- On creation, check the repo's `.worktreeinclude` (or equivalent list of env/config files the worktree requires to run) against what actually landed in the worktree, and manually `cp` missing requirements from the repo root
 - Never copy or symlink `vendor`/`node_modules`/other dependency directories into a worktree
 - Always run the real installation commands (`composer install`, `yarn install`, etc.) inside the worktree
-- When the user wants to verify/review/has intent to look at the changes:
+- When the user wants to verify/review/has intent to look at the changes made from a worktree:
   - You must ensure the worktree has been committed to
   - You must run `git checkout --detach` on the worktree before checking out the branch in the main repository directory
 - Ensure "finished" worktrees are pruned as long as there are no pending changes
