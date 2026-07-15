@@ -27,5 +27,6 @@ description: Use whenever opening, drafting, creating, or editing a pull request
   issue
 - Keep the author's direct voice. Brief first-person hedges or caveats ("correct me if I'm wrong", "not 100% sure this
   covers every case") are fine and match the author's real voice - just no throat-clearing filler that adds nothing
+- Never append a Claude Code session link (`https://claude.ai/code/session_...`) to the PR body
 
 See `examples/template.md` for the body template and `examples/examples.md` for literal bad examples
