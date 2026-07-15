@@ -2,10 +2,6 @@
   "permissions": {
     "allow": [],
     "deny": [
-      "Read(.env)",
-      "Read(.env.*)",
-      "Read(**/.env)",
-      "Read(**/.env.*)",
       "Read(auth.json)",
       "Read(**/auth.json)",
       "Read(storage/oauth-*.key)",
@@ -52,5 +48,8 @@
       }
     ]
   },
-  "includeCoAuthoredBy": false
+  "includeCoAuthoredBy": false,
+  "remoteControlAtStartup": true,
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true
 }
