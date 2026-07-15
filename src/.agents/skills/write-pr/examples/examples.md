@@ -166,6 +166,24 @@ Description: This PR updates the packaged write-pr skill with a numbered process
   ```
 ````
 
+## Never append a Claude Code session link to the PR body
+
+```
+// Bad
+Description: This PR fixes duplicate charges created when Stripe retries a webhook delivery.
+
+- Adds an idempotency check keyed on Stripe's `event.id` in `PaymentWebhookController`
+
+https://claude.ai/code/session_01AbCdEfGhIjKlMnOpQrStUv
+```
+
+```
+// Good
+Description: This PR fixes duplicate charges created when Stripe retries a webhook delivery.
+
+- Adds an idempotency check keyed on Stripe's `event.id` in `PaymentWebhookController`
+```
+
 ## When a bug PR has both reproduction steps and a what-changed list, give each its own bold header
 
 ```
