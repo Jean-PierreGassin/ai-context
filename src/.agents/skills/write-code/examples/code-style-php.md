@@ -1,5 +1,23 @@
 # PHP Style Examples
 
+Follow PER coding style (latest) unless the project differs.
+
+#### No spaces before logical NOT
+
+```php
+// Bad
+if (! config('geo.llms_txt.enabled')) {
+    return;
+}
+```
+
+```php
+// Good
+if (!config('geo.llms_txt.enabled')) {
+    return;
+}
+```
+
 #### Prefer readability to brevity
 
 ```php
@@ -16,7 +34,9 @@ $activeUsers = $repository->users()->where('active', 1)->get();
 
 ```php
 // Bad
-function createInvoice(Customer $customer, array $lineItems, ?DateTime $dueDate = null, bool $sendEmail = true) {}
+function createInvoice(Customer $customer, array $lineItems, ?DateTime $dueDate = null, bool $sendEmail = true)
+{
+}
 ```
 
 ```php
@@ -26,19 +46,44 @@ function createInvoice(
     array $lineItems,
     ?DateTime $dueDate = null,
     ?bool $sendEmail = true,
-): void {}
+): void {
+}
+```
+
+#### When a call is passed as an argument to another call, give it its own line; don't open the inner call on the outer's paren
+
+```php
+// Bad
+return new SiteSectionCollection(array_map(
+    fn (array $section): SiteSection => $this->buildSection(section: $section),
+    $sections,
+));
+```
+
+```php
+// Good
+return new SiteSectionCollection(
+    array_map(
+        fn (array $section): SiteSection => $this->buildSection(section: $section),
+        $sections,
+    ),
+);
 ```
 
 #### Name methods with an active verb describing the action, not a noun
 
 ```php
 // Bad
-function payment(Order $order): bool {}
+function payment(Order $order): bool
+{
+}
 ```
 
 ```php
 // Good
-function chargeOrder(Order $order): bool {}
+function chargeOrder(Order $order): bool
+{
+}
 ```
 
 #### Prefix booleans with is/has/can/should
@@ -71,36 +116,55 @@ $userIdsToDiscard = ['user-3'];
 
 ```php
 // Bad
-function createInvoice(Customer $cust, array $items, ?DateTime $dt = null) {}
+function createInvoice(Customer $cust, array $items, ?DateTime $dt = null)
+{
+}
 ```
 
 ```php
 // Good
-function createInvoice(Customer $customer, array $lineItems, ?DateTime $dueDate = null) {}
+function createInvoice(Customer $customer, array $lineItems, ?DateTime $dueDate = null)
+{
+}
 ```
 
-#### Never suffix a name with its generic type (Array, List, Data)
+#### Never suffix a name with its generic type (Array, List, Data) — applies to variables, params, and class names
 
 ```php
 // Bad
-function process($myArray) {}
+function process($myArray)
+{
+}
+
+final class StructuredData
+{
+}
 ```
 
 ```php
 // Good
-function sendWelcomeEmail(array $userIdsToNotify): bool {}
+function sendWelcomeEmail(array $userIdsToNotify): bool
+{
+}
+
+// Name the concept, not the shape: this is a schema.org graph
+final class SchemaGraph
+{
+}
 ```
 
 #### Search for an existing enum/constant before hardcoding a named value
 
 ```php
 // Bad
-if ($order->status === 'shipped') {}
+if ($order->status === 'shipped') {
+}
 ```
 
 ```php
 // Good
-if ($order->status === OrderStatus::Shipped) {}
+if ($order->status === OrderStatus::Shipped) {
+}
 ```
 
 #### Import classes with `use`, not inline fully-qualified names
@@ -108,7 +172,9 @@ if ($order->status === OrderStatus::Shipped) {}
 ```php
 // Bad
 $now = \Carbon\Carbon::now();
-function pay(\App\Services\PaymentGateway $gateway): void {}
+function pay(\App\Services\PaymentGateway $gateway): void
+{
+}
 ```
 
 ```php
@@ -117,7 +183,9 @@ use App\Services\PaymentGateway;
 use Carbon\Carbon;
 
 $now = Carbon::now();
-function pay(PaymentGateway $gateway): void {}
+function pay(PaymentGateway $gateway): void
+{
+}
 ```
 
 #### Group related properties by role, blank line between groups, none within
@@ -143,20 +211,34 @@ public MailerInterface $mailer;
 
 ```php
 // Bad
-private function formatAmount() {}
-public function charge() {}
-public function refund() {}
+private function formatAmount()
+{
+}
+public function charge()
+{
+}
+public function refund()
+{
+}
 ```
 
 ```php
 // Good
-public function charge(): bool {}
+public function charge(): bool
+{
+}
 
-public function refund(): bool {}
+public function refund(): bool
+{
+}
 
-public function receiptFor(): array {}
+public function receiptFor(): array
+{
+}
 
-private function formatAmount(): float {}
+private function formatAmount(): float
+{
+}
 ```
 
 #### Group related variable assignments together; blank line before a control block only when the assignment above is unrelated
@@ -164,7 +246,8 @@ private function formatAmount(): float {}
 ```php
 // Bad
 $total = $order->total();
-if ($isEligibleForDiscount) {}
+if ($isEligibleForDiscount) {
+}
 ```
 
 ```php
@@ -172,21 +255,25 @@ if ($isEligibleForDiscount) {}
 $total = $order->total();
 $discountRate = $customer->discountRate();
 
-if ($discountRate > 0) {}
+if ($discountRate > 0) {
+}
 ```
 
 ```php
 // Good
 $total = $order->total();
 $discountRate = $customer->discountRate();
-if ($discountRate > 0) {}
+if ($discountRate > 0) {
+}
 ```
 
 #### Method params: injected dependencies/services, then scalar config, then collections/complex args last; within a tier order by centrality, then type (Service, generics, optionals)
 
 ```php
 // Bad
-function charge(array $lineItems, PaymentGateway $gateway, bool $sendReceipt, int $amount) {}
+function charge(array $lineItems, PaymentGateway $gateway, bool $sendReceipt, int $amount)
+{
+}
 ```
 
 ```php
@@ -197,14 +284,16 @@ function charge(
     bool $sendReceipt,
     array $lineItems,
     ?bool $shouldReturn = false,
-): bool {}
+): bool {
+}
 ```
 
-#### Use named arguments when calling multi-param methods/functions
+#### Use named arguments when calling methods
 
 ```php
 // Bad
 createInvoice($customer, $items, null, true);
+createInvoice($customer);
 ```
 
 ```php
@@ -214,15 +303,30 @@ createInvoice(
     lineItems: $items,
     sendEmail: true,
 );
+createInvoice(customer: $customer);
+```
+
+#### Class constants must have types defined
+
+```php
+// Bad
+private const CONFIG_PATH = '/../config/geo.php';
+```
+
+```php
+// Good
+private const string CONFIG_PATH = '/../config/geo.php';
 ```
 
 #### Promote constructor parameters directly to properties, don't hand-assign them
 
 ```php
 // Bad
-class Invoice {
+class Invoice
+{
     public Customer $customer;
-    public function __construct(Customer $customer) {
+    public function __construct(Customer $customer)
+    {
         $this->customer = $customer;
     }
 }
@@ -230,10 +334,13 @@ class Invoice {
 
 ```php
 // Good
-class Invoice {
+class Invoice
+{
     public function __construct(
         public Customer $customer,
-    ) {}
+    ) {
+        // something
+    }
 }
 ```
 
@@ -241,19 +348,70 @@ class Invoice {
 
 ```php
 // Bad
-class Invoice {
+class Invoice
+{
     public function __construct(
         public Customer $customer,
-    ) {}
+    ) {
+        // something
+    }
 }
 ```
 
 ```php
 // Good
-class Invoice {
+class Invoice
+{
     public function __construct(
         public readonly Customer $customer,
-    ) {}
+    ) {
+    }
+}
+```
+
+#### When every promoted property is readonly, mark the whole class `readonly` and drop the per-property `readonly` (add `final` too only for leaf DTOs, per the `final` rule)
+
+```php
+// Bad
+final class SiteLink
+{
+    public function __construct(
+        public readonly string $title,
+        public readonly string $url,
+        public readonly ?string $notes = null,
+    ) {
+    }
+}
+
+class GeoManager
+{
+    public function __construct(
+        private readonly Repository $config,
+        private readonly LlmsTxtRenderer $renderer,
+    ) {
+    }
+}
+```
+
+```php
+// Good
+final readonly class SiteLink // leaf immutable DTO: readonly at the class level, and final
+{
+    public function __construct(
+        public string $title,
+        public string $url,
+        public ?string $notes = null,
+    ) {
+    }
+}
+
+readonly class GeoManager // all deps readonly, so the class is readonly; not final — it stays extendable
+{
+    public function __construct(
+        private Repository $config,
+        private LlmsTxtRenderer $renderer,
+    ) {
+    }
 }
 ```
 
@@ -263,7 +421,7 @@ class Invoice {
 // Bad
 function charge(Order $order): bool
 {
-    $gateway = new PaymentGateway;
+    $gateway = new PaymentGateway();
 
     return $gateway->process($order);
 }
@@ -271,10 +429,12 @@ function charge(Order $order): bool
 
 ```php
 // Good
-class OrderProcessor {
+class OrderProcessor
+{
     public function __construct(
         private readonly PaymentGateway $gateway,
-    ) {}
+    ) {
+    }
 
     function charge(Order $order): bool
     {
@@ -287,7 +447,8 @@ class OrderProcessor {
 
 ```php
 // Bad
-function charge($amount, $gateway) {
+function charge($amount, $gateway)
+{
     return $gateway->process($amount);
 }
 private $customer;
@@ -295,7 +456,8 @@ private $customer;
 
 ```php
 // Good
-function charge(int $amount, PaymentGateway $gateway): bool {
+function charge(int $amount, PaymentGateway $gateway): bool
+{
     return $gateway->process($amount);
 }
 private readonly Customer $customer;
@@ -386,12 +548,17 @@ $label = $isActive ? 'Active' : 'Inactive';
 
 ```php
 // Bad
-function appendTax(array &$lineItems) {}
+function appendTax(array &$lineItems)
+{
+}
 ```
 
 ```php
 // Good
-function withTax(array $lineItems): array { return [...$lineItems, $taxLineItem]; }
+function withTax(array $lineItems): array
+{
+    return [...$lineItems, $taxLineItem];
+}
 $lineItems = withTax($lineItems);
 ```
 
@@ -400,13 +567,15 @@ $lineItems = withTax($lineItems);
 ```php
 // Bad
 $data = $query->get();
-foreach ($data as $item) {}
+foreach ($data as $item) {
+}
 ```
 
 ```php
 // Good
 $overdueInvoices = $query->get();
-foreach ($overdueInvoices as $invoice) {}
+foreach ($overdueInvoices as $invoice) {
+}
 ```
 
 #### Methods should do just one thing; split branching logic into named helpers
@@ -450,7 +619,8 @@ function shortCustomerName(Customer $customer): string
 
 ```php
 // Bad
-function charge(Order $order): bool {
+function charge(Order $order): bool
+{
     if ($order->isPaid()) {
         if ($order->hasGateway()) {
             return $this->gateway->process($order);
@@ -462,7 +632,8 @@ function charge(Order $order): bool {
 
 ```php
 // Good
-function charge(Order $order): bool {
+function charge(Order $order): bool
+{
     if (!$order->isPaid()) {
         return false;
     }
@@ -477,7 +648,8 @@ function charge(Order $order): bool {
 
 ```php
 // Bad
-function charge(Order $order): bool {
+function charge(Order $order): bool
+{
     if (!$order->isPaid()) {
         return false;
     }
@@ -490,7 +662,8 @@ function charge(Order $order): bool {
 
 ```php
 // Good
-function charge(Order $order): bool {
+function charge(Order $order): bool
+{
     if (!$order->isPaid() || !$order->hasGateway()) {
         return false;
     }
@@ -522,7 +695,8 @@ $activeInvoiceTotals = array_map(
 
 ```php
 // Bad
-function handle(Step $step) {
+function handle(Step $step)
+{
     if ($step->type === 'js') {
         return $this->runJs($step);
     } elseif ($step->type === 'proxy_choice') {
@@ -533,11 +707,14 @@ function handle(Step $step) {
 
 ```php
 // Good
-interface TaskHandler {
+interface TaskHandler
+{
     function handle(Step $step, Closure $next): mixed;
 }
-class JsTaskHandler implements TaskHandler {
-    function handle(Step $step, Closure $next): mixed {
+class JsTaskHandler implements TaskHandler
+{
+    function handle(Step $step, Closure $next): mixed
+    {
         if (!$step->isJs()) {
             return $next($step);
         }
@@ -583,45 +760,44 @@ try {
 }
 ```
 
+#### Always pass `JSON_THROW_ON_ERROR` to `json_encode`/`json_decode` and catch `JsonException`; never branch on the `false`/`null` return
+
+```php
+// Bad
+$payload = json_encode($graph);
+if ($payload === false) {
+    // silently swallowed
+}
+
+$attributes = json_decode($body, true);
+```
+
+```php
+// Good
+try {
+    $payload = json_encode($graph, JSON_THROW_ON_ERROR);
+    $attributes = json_decode($body, associative: true, flags: JSON_THROW_ON_ERROR);
+} catch (JsonException $exception) {
+    throw new SchemaGraphEncodingException(
+        'Failed to encode the schema.org graph as JSON-LD.',
+        previous: $exception,
+    );
+}
+```
+
 #### TODO comments are allowed to mark known, deliberate tech debt (not to explain what code does)
 
 ```php
 // Bad
 // loop through and validate each step
-foreach ($steps as $step) {}
-```
-
-```php
-// Good
-// TODO: remove once legacy workflows are migrated (WF-412)
-if ($workflow->isLegacyFormat()) {}
-```
-
-#### Document @throws whenever a method throws, even on private helpers
-
-```php
-// Bad
-/**
- * Resolves the step for the given context.
- */
-private function resolveStep(Context $context): Step {
-    if (!$context->hasStep()) {
-        throw new ContextDataNotFoundException('No step in context');
-    }
+foreach ($steps as $step) {
 }
 ```
 
 ```php
 // Good
-/**
- * Resolves the step for the given context.
- *
- * @throws ContextDataNotFoundException
- */
-private function resolveStep(Context $context): Step {
-    if (!$context->hasStep()) {
-        throw new ContextDataNotFoundException('No step in context');
-    }
+// TODO: remove once legacy workflows are migrated (WF-412)
+if ($workflow->isLegacyFormat()) {
 }
 ```
 
@@ -629,11 +805,13 @@ private function resolveStep(Context $context): Step {
 
 ```php
 // Bad
-function createEmail(Bundle $bundle): Response {
+function createEmail(Bundle $bundle): Response
+{
     $token = $this->login($bundle);
     return $this->client->post($this->emailUrl, ['headers' => ['Authorization' => $token]]);
 }
-function createSms(Bundle $bundle): Response {
+function createSms(Bundle $bundle): Response
+{
     $token = $this->login($bundle);
     return $this->client->post($this->smsUrl, ['headers' => ['Authorization' => $token]]);
 }
@@ -641,10 +819,12 @@ function createSms(Bundle $bundle): Response {
 
 ```php
 // Good
-function createEmail(Bundle $bundle): Response {
+function createEmail(Bundle $bundle): Response
+{
     return $this->perform($bundle, $this->emailConfig, $this->buildEmailBody($bundle));
 }
-function createSms(Bundle $bundle): Response {
+function createSms(Bundle $bundle): Response
+{
     return $this->perform($bundle, $this->smsConfig, $this->buildSmsBody($bundle));
 }
 ```
@@ -653,26 +833,36 @@ function createSms(Bundle $bundle): Response {
 
 ```php
 // Bad
-abstract class BaseHandler {
-    protected function isJs(Step $step): bool {
+abstract class BaseHandler
+{
+    protected function isJs(Step $step): bool
+    {
         return $step->type === StepType::Js;
     }
 }
-class WebhookTaskHandler extends BaseHandler {}
-class ScheduledTaskHandler extends BaseHandler {}
+class WebhookTaskHandler extends BaseHandler
+{
+}
+class ScheduledTaskHandler extends BaseHandler
+{
+}
 ```
 
 ```php
 // Good
-trait ChecksStepType {
-    protected function isJs(Step $step): bool {
+trait ChecksStepType
+{
+    protected function isJs(Step $step): bool
+    {
         return $step->type === StepType::Js;
     }
 }
-class WebhookTaskHandler {
+class WebhookTaskHandler
+{
     use ChecksStepType;
 }
-class ScheduledTaskHandler {
+class ScheduledTaskHandler
+{
     use ChecksStepType;
 }
 ```
@@ -682,7 +872,8 @@ class ScheduledTaskHandler {
 ```php
 // Bad
 // loop through users and send emails
-foreach ($users as $user) {}
+foreach ($users as $user) {
+}
 ```
 
 ```php
@@ -692,7 +883,9 @@ foreach ($users as $user) {}
  * of the statement period, flagging each single entry which
  * lacks a matching transaction in the ledger for review.
  */
-function reconcileStatement(StatementPeriod $period) {}
+function reconcileStatement(StatementPeriod $period)
+{
+}
 ```
 
 #### Wrap multi-line comments (docblocks or inline) into short paragraphs at a consistent width, not one long run-on line
@@ -709,6 +902,267 @@ function reconcileStatement(StatementPeriod $period) {}
  * name of the calling function. We will use that function name as the
  * title of this relation since that is a great convention to apply.
  */
+```
+
+#### PHPDoc only carries what the signature can't: drop `@param`/`@return` (the types already declare them), keep `@throws` (a PHP signature has no throws clause)
+
+```php
+// Bad
+/**
+ * @param array{heading: string, links?: array<int, array<string, mixed>>} $section
+ * @return void
+ */
+public function addSection(array $section): void
+{
+}
+
+private function resolveStep(Context $context): Step
+{
+    if (!$context->hasStep()) {
+        throw new ContextDataNotFoundException('No step in context');
+    }
+}
+```
+
+```php
+// Good
+public function addSection(SiteSection $section): void
+{
+}
+
+/**
+ * @throws ContextDataNotFoundException
+ */
+private function resolveStep(Context $context): Step
+{
+    if (!$context->hasStep()) {
+        throw new ContextDataNotFoundException('No step in context');
+    }
+}
+```
+
+#### A return value's type is documentation too — return a DTO, not `array` with a `@return` shape annotation
+
+```php
+// Bad
+/**
+ * @return array<string, mixed>
+ */
+public function structuredData(): array
+{
+    return [
+        '@type' => $this->config->get(key: 'geo.structured_data.type'),
+        'name' => $this->config->get(key: 'geo.site.name'),
+    ];
+}
+```
+
+```php
+// Good
+public function structuredData(): SchemaGraph
+{
+    return new SchemaGraph(
+        type: $this->config->get(key: 'geo.structured_data.type'),
+        name: $this->config->get(key: 'geo.site.name'),
+    );
+}
+
+final readonly class SchemaGraph implements JsonSerializable
+{
+    public function __construct(
+        public string $type,
+        public string $name,
+    ) {
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            '@type' => $this->type,
+            'name' => $this->name,
+        ];
+    }
+}
+```
+
+#### Type a collection of DTOs with a dedicated collection class, never `array` plus a docblock
+
+```php
+// Bad
+final readonly class SiteSection
+{
+    /**
+     * @param array<int, SiteLink> $links
+     */
+    public function __construct(
+        public string $heading,
+        public array $links = [],
+    ) {
+    }
+}
+```
+
+```php
+// Good
+use Illuminate\Support\Collection;
+
+/**
+ * @extends Collection<int, SiteLink>
+ */
+class SiteLinkCollection extends Collection
+{
+}
+
+final readonly class SiteSection
+{
+    public function __construct(
+        public string $heading,
+        public SiteLinkCollection $links = new SiteLinkCollection(),
+    ) {
+    }
+}
+```
+
+#### Group classes into namespaces by role; don't mix DTOs, collections, and services in one bucket
+
+```php
+// Bad
+// src/Data/ holding everything
+namespace App\Data;
+
+final readonly class SiteLink {}
+class SiteLinkCollection extends Collection {}
+class SiteProfileFactory {}
+```
+
+```php
+// Good
+namespace App\Data;         // DTOs
+
+final readonly class SiteLink {}
+```
+
+```php
+// Good
+namespace App\Collections;  // typed collections
+
+class SiteLinkCollection extends Collection {}
+```
+
+```php
+// Good
+namespace App\Support;      // services / factories
+
+class SiteProfileFactory {}
+```
+
+#### `final` is a deliberate choice, never a default: reserve it for leaf types that must not be extended (immutable DTOs); leave contract implementations and routinely-extended classes open, and only `final` a method when a design decision requires locking it
+
+```php
+// Bad
+// final applied reflexively to every class
+final class SiteProfileFactory {}
+final class MarkdownLlmsTxtRenderer implements LlmsTxtRenderer {}
+final class SiteLinkCollection extends Collection {}
+```
+
+```php
+// Good
+final readonly class SiteLink {}                              // leaf immutable DTO — nothing to extend
+
+class SiteProfileFactory {}                                   // a consumer may subclass to customise parsing
+class MarkdownLlmsTxtRenderer implements LlmsTxtRenderer {}   // contract impl — the seam is meant to be extended
+class SiteLinkCollection extends Collection {}                // collections are routinely extended
+```
+
+#### Isolate raw-array parsing (config, decoded JSON) in a factory that returns DTOs; keep the untyped `array` at that one boundary
+
+```php
+// Bad
+final readonly class SiteProfile
+{
+    /**
+     * @param array{name: string, sections?: array<int, array<string, mixed>>} $config
+     */
+    public static function fromConfig(array $config): self
+    {
+        // parsing mixed with the DTO
+    }
+}
+```
+
+```php
+// Good
+final readonly class SiteProfile
+{
+    public function __construct(
+        public string $name,
+        public SiteSectionCollection $sections = new SiteSectionCollection(),
+    ) {
+    }
+}
+
+final class SiteProfileFactory
+{
+    public function fromConfig(array $config): SiteProfile
+    {
+        return new SiteProfile(
+            name: $config['name'],
+            sections: $this->sections($config['sections'] ?? []),
+        );
+    }
+
+    private function sections(array $sections): SiteSectionCollection
+    {
+        return new SiteSectionCollection(array_map(
+            fn (array $section): SiteSection => new SiteSection(heading: $section['heading']),
+            $sections,
+        ));
+    }
+}
+```
+
+#### Depend on a contract, not a concrete class; the interface documents behaviour and consumers can swap the implementation
+
+Don't mark the implementation `final` - a contract is a deliberate extension
+point, and `final` would stop a consumer subclassing the default to tweak it.
+
+```php
+// Bad
+class GeoManager
+{
+    public function __construct(
+        private readonly MarkdownLlmsTxtRenderer $renderer,
+    ) {
+    }
+}
+```
+
+```php
+// Good
+interface LlmsTxtRenderer
+{
+    /**
+     * Render the site profile as an llms.txt Markdown document.
+     */
+    public function render(SiteProfile $profile): string;
+}
+
+class GeoManager
+{
+    public function __construct(
+        private readonly LlmsTxtRenderer $renderer,
+    ) {
+    }
+}
+
+class MarkdownLlmsTxtRenderer implements LlmsTxtRenderer
+{
+    public function render(SiteProfile $profile): string
+    {
+        // ...
+    }
+}
 ```
 
 #### Use Carbon for date/time, not native DateTime/date/strtotime

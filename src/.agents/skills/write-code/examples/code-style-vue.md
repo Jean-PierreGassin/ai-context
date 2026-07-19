@@ -13,7 +13,7 @@
 ```vue
 <!-- Good -->
 <script setup lang="ts">
-  // logic first
+// logic first
 </script>
 <template>...</template>
 ```
@@ -153,7 +153,9 @@ const { query, filteredOptions } = useTypeToSearch({ options, isOpen });
 
 function useDisclosure(initial = false) {
   const isOpen = ref(initial);
-  const toggle = () => { isOpen.value = !isOpen.value; };
+  const toggle = () => {
+    isOpen.value = !isOpen.value;
+  };
   return { isOpen, toggle };
 }
 ```
@@ -190,7 +192,11 @@ const { modelValue = null } = defineProps<Props>();
 ```vue
 <!-- Good - dispatch through a typed map -->
 <script setup lang="ts">
-  const ROW_COMPONENTS: Record<MemberType, Component> = { user: UserRow, team: TeamRow, guest: GuestRow };
+const ROW_COMPONENTS: Record<MemberType, Component> = {
+  user: UserRow,
+  team: TeamRow,
+  guest: GuestRow,
+};
 </script>
 <template>
   <component :is="ROW_COMPONENTS[member.type]" :member="member" />
@@ -254,7 +260,18 @@ const { modelValue = null } = defineProps<Props>();
 
 ```html
 <!-- Good - matches eslint-plugin-vue's vue/attributes-order -->
-<div v-if="open" :id="listId" ref="list" role="listbox" data-cy="list" :aria-label="label" :style="style" @keydown="onKey">...</div>
+<div
+  v-if="open"
+  :id="listId"
+  ref="list"
+  role="listbox"
+  data-cy="list"
+  :aria-label="label"
+  :style="style"
+  @keydown="onKey"
+>
+  ...
+</div>
 ```
 
 #### Order `<script setup>`: imports, props, emits, constants, refs, composables, computed, handlers
@@ -273,7 +290,9 @@ const inputRef = ref<HTMLElement | null>(null);
 const { filteredOptions } = useTypeToSearch({ options: () => options });
 const selected = computed(() => options.find(match) ?? null);
 
-function onInput() { /* ... */ }
+function onInput() {
+  /* ... */
+}
 ```
 
 #### Extract a repeated or markup-heavy list item into its own child component

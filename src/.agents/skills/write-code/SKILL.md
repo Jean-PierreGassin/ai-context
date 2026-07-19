@@ -7,9 +7,17 @@ description: Use when writing, editing, or reviewing code in any language or fra
 
 ## Process
 
-1. Gather a list of the required examples you need to fully implement the task
-2. Before you write, ensure that you have looked for examples to abide by for the task
-3. After you write, validate the code against the examples to ensure conformance, and adjust if necessary
+1. Create a checklist for the below steps for each block of output you write which must be checked off before proceeding
+2. Look for [examples](#examples) of code preferences to implement for the task, do not spot check, be thorough
+3. Once you have written the code, thoroughly verify it doesn't contradict the examples
+
+## Rules
+
+- Do not output code changes or diffs to the terminal
+- Examples are enforced preferences
+- Examples can be overridden if they contradict with project standards
+
+## Examples
 
 See `examples/code-style-{language}.md` for a bad/good pair matching each rule for languages:
 

@@ -115,7 +115,8 @@ if (order.status === 'shipped') {}
 
 ```ts
 // Good
-if (order.status === OrderStatus.Shipped) {}
+if (order.status === OrderStatus.Shipped) {
+}
 ```
 
 #### Group related properties by role, blank line between groups, none within
@@ -185,7 +186,8 @@ if (discountRate > 0) {}
 // Good
 const total = order.total();
 const discountRate = customer.discountRate();
-if (discountRate > 0) {}
+if (discountRate > 0) {
+}
 ```
 
 #### Within a group of declarations, put single-line ones first and multi-line/expanded ones last (roughly shortest to longest)
@@ -245,9 +247,7 @@ class Invoice {
 ```ts
 // Good
 class Invoice {
-  constructor(
-    public customer: Customer,
-  ) {}
+  constructor(public customer: Customer) {}
 }
 ```
 
@@ -265,9 +265,7 @@ class Invoice {
 ```ts
 // Good
 class Invoice {
-  constructor(
-    public readonly customer: Customer,
-  ) {}
+  constructor(public readonly customer: Customer) {}
 }
 ```
 
@@ -285,9 +283,7 @@ function charge(order: Order): boolean {
 ```ts
 // Good
 class OrderProcessor {
-  constructor(
-    private readonly gateway: PaymentGateway,
-  ) {}
+  constructor(private readonly gateway: PaymentGateway) {}
 
   charge(order: Order): boolean {
     return this.gateway.process(order);
@@ -310,9 +306,9 @@ function charge(amount: number, gateway: PaymentGateway): boolean {
   return gateway.process(amount);
 }
 
-let customer: Customer;                 // ambiguous without a type
-const pendingInvoices: Invoice[] = [];  // empty init needs the type
-const total = 0;                        // obvious from the literal
+let customer: Customer; // ambiguous without a type
+const pendingInvoices: Invoice[] = []; // empty init needs the type
+const total = 0; // obvious from the literal
 ```
 
 #### Use template literals for interpolation, not string concatenation
@@ -356,10 +352,13 @@ export const noteCreate = { key: 'note_create', operation: { perform: performNot
 ```ts
 // Good
 function generateCrudTrigger(resource: string, actions: Action[]): Record<string, Trigger> {
-  return actions.reduce((triggers, action) => ({
-    ...triggers,
-    [`${resource}_${action}`]: buildTrigger(resource, action),
-  }), {});
+  return actions.reduce(
+    (triggers, action) => ({
+      ...triggers,
+      [`${resource}_${action}`]: buildTrigger(resource, action),
+    }),
+    {},
+  );
 }
 
 export const leadTriggers = generateCrudTrigger('lead', ['create', 'update']);
@@ -502,7 +501,7 @@ class JsTaskHandler implements TaskHandler {
     if (!step.isJs()) {
       return next(step);
     }
-    
+
     return runJs(step);
   }
 }
@@ -519,7 +518,8 @@ for (const step of steps) {}
 ```ts
 // Good
 // TODO: remove once legacy workflows are migrated (WF-412)
-if (workflow.isLegacyFormat()) {}
+if (workflow.isLegacyFormat()) {
+}
 ```
 
 #### Document @throws whenever a function throws, even on non-exported helpers

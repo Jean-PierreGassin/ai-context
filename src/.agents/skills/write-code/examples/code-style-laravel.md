@@ -1,5 +1,12 @@
 # Laravel Style Examples
 
+#### No declaring strict types
+
+```php
+// Bad
+declare(strict_types=1);
+```
+
 #### Use Request::input(), not Request::get() - get() falls through to Symfony's ParameterBag and can silently return a route parameter instead of the input value
 
 ```php
@@ -25,7 +32,7 @@ public function store(Request $request): RedirectResponse
 
     $order = $this->orderService->create(CreateOrderPayload::fromArray($request->all()));
 
-    return redirect()->route('orders.show', $order->id);
+    return redirect()->route(route: 'orders.show', parameters: $order->id);
 }
 ```
 
@@ -35,7 +42,7 @@ public function store(StoreOrderRequest $request): RedirectResponse
 {
     $order = $this->orderService->create($request->toPayload());
 
-    return redirect()->route('orders.show', $order->id);
+    return redirect()->route(route: 'orders.show', parameters: $order->id);
 }
 
 class StoreOrderRequest extends FormRequest
@@ -100,7 +107,7 @@ public function store(StoreOrderRequest $request): RedirectResponse
 {
     $order = Order::create($request->validated());
 
-    return redirect()->route('orders.show', $order->id);
+    return redirect()->route(route: 'orders.show', parameters: $order->id);
 }
 ```
 
@@ -110,7 +117,7 @@ public function store(StoreOrderRequest $request): RedirectResponse
 {
     $order = $this->orderService->create($request->toPayload());
 
-    return redirect()->route('orders.show', $order->id);
+    return redirect()->route(route: 'orders.show', parameters: $order->id);
 }
 ```
 
@@ -138,7 +145,8 @@ class OrderService
 {
     public function __construct(
         private readonly OrderRepository $orders,
-    ) {}
+    ) {
+    }
 
     public function create(CreateOrderPayload $payload): OrderRecord
     {
@@ -168,7 +176,7 @@ public function store(StoreOrderRequest $request): RedirectResponse
 {
     $order = $this->orderService->create($request->validated());
 
-    return redirect()->route('orders.show', $order->id);
+    return redirect()->route(route: 'orders.show', parameters: $order->id);
 }
 
 class OrderService
@@ -186,7 +194,7 @@ public function store(StoreOrderRequest $request): RedirectResponse
 {
     $order = $this->orderService->create($request->toPayload());
 
-    return redirect()->route('orders.show', $order->id);
+    return redirect()->route(route: 'orders.show', parameters: $order->id);
 }
 
 class StoreOrderRequest extends FormRequest
@@ -202,7 +210,8 @@ final class CreateOrderPayload
     private function __construct(
         public readonly string $customerId,
         public readonly array $lineItems,
-    ) {}
+    ) {
+    }
 
     public static function fromArray(array $attributes): self
     {
@@ -248,7 +257,8 @@ final class OrderRecord
         public readonly OrderStatus $status,
         public readonly ?Collection $lineItems = null,
         public readonly ?float $amountDue = null,
-    ) {}
+    ) {
+    }
 
     public static function fromModel(Order $order): self
     {
@@ -290,7 +300,8 @@ final class OrderRecord
         public readonly int $id,
         public readonly int $customerId,
         public readonly OrderStatus $status,
-    ) {}
+    ) {
+    }
 
     public function with(array $values): self
     {
@@ -322,7 +333,8 @@ final class UpdateOrderPayload
         public readonly int $id,
         public readonly int $customerId,
         public readonly OrderStatus $status,
-    ) {}
+    ) {
+    }
 }
 
 class OrderRepository
@@ -340,7 +352,8 @@ class OrderService
 {
     public function __construct(
         private readonly OrderRepository $orders,
-    ) {}
+    ) {
+    }
 
     public function ship(int $orderId, int $customerId): OrderRecord
     {
@@ -406,7 +419,8 @@ class OrderService
 {
     public function __construct(
         private readonly OrderRepository $orders,
-    ) {}
+    ) {
+    }
 
     public function allWithCustomer(): Collection
     {
@@ -631,7 +645,7 @@ class InvoiceRepository
 {
     public function remindOverdue(ReminderService $reminders): void
     {
-        Invoice::overdue()->chunk(500, function (Collection $overdueInvoices) use ($reminders) {
+        Invoice::overdue()->chunk(count: 500, callback: function (Collection $overdueInvoices) use ($reminders) {
             $overdueInvoices->each(fn (Invoice $invoice) => $reminders->send($invoice));
         });
     }
@@ -646,7 +660,7 @@ class InvoiceRepository
 
     public function chunkOverdue(callable $callback): void
     {
-        Invoice::overdue()->chunk(self::CHUNK_SIZE, $callback);
+        Invoice::overdue()->chunk(count: self::CHUNK_SIZE, callback: $callback);
     }
 }
 
@@ -654,7 +668,8 @@ class ReminderService
 {
     public function __construct(
         private readonly InvoiceRepository $invoices,
-    ) {}
+    ) {
+    }
 
     public function sendOverdueReminders(): void
     {
@@ -663,7 +678,9 @@ class ReminderService
         );
     }
 
-    public function send(Invoice $invoice): void {}
+    public function send(Invoice $invoice): void
+    {
+    }
 }
 ```
 
@@ -671,14 +688,14 @@ class ReminderService
 
 ```php
 // Bad
-return back()->with('message', 'Your order has shipped!');
+return back()->with(key: 'message', value: 'Your order has shipped!');
 
 $apiTimeout = 30;
 ```
 
 ```php
 // Good
-return back()->with('message', __('orders.shipped'));
+return back()->with(key: 'message', value: __('orders.shipped'));
 
 $apiTimeout = config('services.payment_gateway.timeout');
 ```
@@ -687,42 +704,50 @@ $apiTimeout = config('services.payment_gateway.timeout');
 
 ```php
 // Bad
-class ArticlesController extends Controller {}
+class ArticlesController extends Controller
+{
+}
 
-class Articles extends Model {}
+class Articles extends Model
+{
+}
 ```
 
 ```php
 // Good
-class ArticleController extends Controller {}
+class ArticleController extends Controller
+{
+}
 
-class Article extends Model {}
+class Article extends Model
+{
+}
 ```
 
 #### Routes and route parameters are plural, not singular
 
 ```php
 // Bad
-Route::get('article/{id}', [ArticleController::class, 'show']);
+Route::get(uri: 'article/{id}', action: [ArticleController::class, 'show']);
 ```
 
 ```php
 // Good
-Route::get('articles/{id}', [ArticleController::class, 'show']);
+Route::get(uri: 'articles/{id}', action: [ArticleController::class, 'show']);
 ```
 
 #### Route names and database columns are snake_case
 
 ```php
 // Bad
-Route::get('articles/{id}', [ArticleController::class, 'show'])->name('show-article');
+Route::get(uri: 'articles/{id}', action: [ArticleController::class, 'show'])->name('show-article');
 
 $article->MetaTitle;
 ```
 
 ```php
 // Good
-Route::get('articles/{id}', [ArticleController::class, 'show'])->name('articles.show');
+Route::get(uri: 'articles/{id}', action: [ArticleController::class, 'show'])->name('articles.show');
 
 $article->meta_title;
 ```
@@ -790,7 +815,9 @@ $apiKey = config('services.payment_gateway.key');
 
 ```php
 // Bad
-class Order extends Model {}
+class Order extends Model
+{
+}
 
 $formattedDate = Carbon::createFromFormat('Y-m-d H:i:s', $order->shipped_at)->toDateString();
 ```
@@ -814,7 +841,7 @@ $formattedDate = $order->shipped_at->toDateString();
 
 ```php
 // Bad
-Route::get('/orders/summary', function () {
+Route::get(uri: '/orders/summary', action: function () {
     $orders = Order::where('status', OrderStatus::Shipped)
         ->whereMonth('created_at', now()->month)
         ->get();
@@ -825,7 +852,7 @@ Route::get('/orders/summary', function () {
 
 ```php
 // Good
-Route::get('/orders/summary', [OrderSummaryController::class, 'index']);
+Route::get(uri: '/orders/summary', action: [OrderSummaryController::class, 'index']);
 ```
 
 #### Do not execute queries inside Blade templates; eager load to avoid N+1
@@ -902,5 +929,25 @@ class OrderNotification
     {
         return view('emails.order-shipped');
     }
+}
+```
+
+#### Bind package contracts to a default implementation in the service provider so consumers can swap them via the container
+
+```php
+// Bad
+public function register(): void
+{
+    // GeoManager depends on the concrete renderer; consumers cannot replace it
+    $this->app->singleton(GeoManager::class);
+}
+```
+
+```php
+// Good
+public function register(): void
+{
+    $this->app->bind(LlmsTxtRenderer::class, MarkdownLlmsTxtRenderer::class);
+    $this->app->singleton(GeoManager::class);
 }
 ```
