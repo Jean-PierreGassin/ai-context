@@ -894,18 +894,16 @@ $orders = Order::with('customer')->get();
 const order = JSON.parse(document.getElementById('order').value)
 ```
 
-#### Create migrations via
-`php artisan make:migration` (or when using touch, timestamp properly), never hand-authored - the command timestamps the filename correctly so migrations run in the right order
+#### Migrations must have appropriate and real timestamps
 
 ```bash
 # Bad
-touch database/migrations/2026_07_11_000000_create_form_submissions_table.php
+database/migrations/2026_07_11_000000_create_form_submissions_table.php
 ```
 
 ```bash
 # Good
-php artisan make:migration create_form_submissions_table
-touch database/migrations/2026_07_11_123456_create_form_submissions_table.php
+database/migrations/2026_07_11_123456_create_form_submissions_table.php
 ```
 
 #### No HTML in PHP classes

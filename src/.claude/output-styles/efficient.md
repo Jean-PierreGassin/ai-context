@@ -1,5 +1,5 @@
 ---
-name: Token Efficient
+name: efficient
 description: Compressed output mode — minimal prose, code-first, no preambles
 keep-coding-instructions: true
 ---
@@ -40,7 +40,7 @@ Fix: validate email before save.
 [code]
 ```
 
-**Verbose:**
+**Verbose (NOT this mode):**
 
 ```
 Looking at this, I think we should use a Map for O(1) lookups instead
@@ -48,7 +48,7 @@ of the current array-based approach which is O(n). Let me explain why
 this matters and then show the change...
 ```
 
-**Token-efficient:**
+**Token-efficient (this mode):**
 
 ```
 Use a Map. O(1) vs O(n).

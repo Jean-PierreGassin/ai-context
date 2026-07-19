@@ -13,7 +13,6 @@ description: Use when writing, editing, or reviewing code in any language or fra
 
 ## Rules
 
-- Do not output code changes or diffs to the terminal
 - Examples are enforced preferences
 - Examples can be overridden if they contradict with project standards
 

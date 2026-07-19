@@ -2,22 +2,6 @@
 
 Follow PER coding style (latest) unless the project differs.
 
-#### No spaces before logical NOT
-
-```php
-// Bad
-if (! config('geo.llms_txt.enabled')) {
-    return;
-}
-```
-
-```php
-// Good
-if (!config('geo.llms_txt.enabled')) {
-    return;
-}
-```
-
 #### Prefer readability to brevity
 
 ```php
@@ -50,7 +34,7 @@ function createInvoice(
 }
 ```
 
-#### When a call is passed as an argument to another call, give it its own line; don't open the inner call on the outer's paren
+#### When a call is passed as an argument to another call, give it its own line
 
 ```php
 // Bad
@@ -98,37 +82,7 @@ $flag = true;
 $isEligibleForDiscount = true;
 ```
 
-#### Name related collections contrastively (keep vs discard), not by index or suffix
-
-```php
-// Bad
-$userList = ['user-1', 'user-2'];
-$userList2 = ['user-3'];
-```
-
-```php
-// Good
-$userIdsToKeep = ['user-1', 'user-2'];
-$userIdsToDiscard = ['user-3'];
-```
-
-#### Use full parameter names, never abbreviated
-
-```php
-// Bad
-function createInvoice(Customer $cust, array $items, ?DateTime $dt = null)
-{
-}
-```
-
-```php
-// Good
-function createInvoice(Customer $customer, array $lineItems, ?DateTime $dueDate = null)
-{
-}
-```
-
-#### Never suffix a name with its generic type (Array, List, Data) — applies to variables, params, and class names
+#### Never suffix a name with its generic type (Array, List, Data)
 
 ```php
 // Bad
@@ -136,7 +90,7 @@ function process($myArray)
 {
 }
 
-final class StructuredData
+class StructuredData
 {
 }
 ```
@@ -147,8 +101,7 @@ function sendWelcomeEmail(array $userIdsToNotify): bool
 {
 }
 
-// Name the concept, not the shape: this is a schema.org graph
-final class SchemaGraph
+class SchemaGraph
 {
 }
 ```
@@ -188,21 +141,20 @@ function pay(PaymentGateway $gateway): void
 }
 ```
 
-#### Group related properties by role, blank line between groups, none within
+#### Group related properties by role
 
 ```php
 // Bad
+public MailerInterface $mailer;
 public string $firstName;
 public string $lastName;
 public LoggerInterface $logger;
-public MailerInterface $mailer;
 ```
 
 ```php
 // Good
 public string $firstName;
 public string $lastName;
-
 public LoggerInterface $logger;
 public MailerInterface $mailer;
 ```
@@ -315,7 +267,7 @@ private const CONFIG_PATH = '/../config/geo.php';
 
 ```php
 // Good
-private const string CONFIG_PATH = '/../config/geo.php';
+private const string CONFIG_PATH = __DIR__ . '/../config/geo.php';
 ```
 
 #### Promote constructor parameters directly to properties, don't hand-assign them
@@ -369,53 +321,7 @@ class Invoice
 }
 ```
 
-#### When every promoted property is readonly, mark the whole class `readonly` and drop the per-property `readonly` (add `final` too only for leaf DTOs, per the `final` rule)
-
-```php
-// Bad
-final class SiteLink
-{
-    public function __construct(
-        public readonly string $title,
-        public readonly string $url,
-        public readonly ?string $notes = null,
-    ) {
-    }
-}
-
-class GeoManager
-{
-    public function __construct(
-        private readonly Repository $config,
-        private readonly LlmsTxtRenderer $renderer,
-    ) {
-    }
-}
-```
-
-```php
-// Good
-final readonly class SiteLink // leaf immutable DTO: readonly at the class level, and final
-{
-    public function __construct(
-        public string $title,
-        public string $url,
-        public ?string $notes = null,
-    ) {
-    }
-}
-
-readonly class GeoManager // all deps readonly, so the class is readonly; not final — it stays extendable
-{
-    public function __construct(
-        private Repository $config,
-        private LlmsTxtRenderer $renderer,
-    ) {
-    }
-}
-```
-
-#### Inject dependencies through the constructor; don't instantiate collaborators with `new` inside methods
+#### Inject dependencies; don't instantiate collaborators with `new` inside methods
 
 ```php
 // Bad
@@ -439,6 +345,11 @@ class OrderProcessor
     function charge(Order $order): bool
     {
         return $this->gateway->process($order);
+    }
+    
+    function refund(RefundGateway $refundGateway, Order $order): bool
+    {
+        return $refundGateway->process($order);
     }
 }
 ```
@@ -489,7 +400,7 @@ $label = "Item #$items[0]";
 $message = "Balance: {$account->getBalance()}";
 ```
 
-#### Name magic numbers as constants (or an enum for a related set), never inline literals
+#### Name magic numbers/string as constants (or an enum for a related set), never inline literals
 
 ```php
 // Bad
@@ -509,8 +420,8 @@ sleep(self::REFRESH_DELAY_SECONDS);
 
 ```php
 // Bad
-$firstName = 'Ana';
-$lastName  = 'Lee';
+$firstName  = 'Ana';
+$lastName   = 'Lee';
 $firstArray = [
     'name'   => 'John',
     'gender' => 'M',
@@ -562,7 +473,7 @@ function withTax(array $lineItems): array
 $lineItems = withTax($lineItems);
 ```
 
-#### No generic variable names ever (result, rows, ids, data, item, arr, total, single letters) - every name describes what it holds
+#### No generic variable names ever (result, rows, ids, data, item, arr, total, single letters)
 
 ```php
 // Bad
@@ -634,10 +545,7 @@ function charge(Order $order): bool
 // Good
 function charge(Order $order): bool
 {
-    if (!$order->isPaid()) {
-        return false;
-    }
-    if (!$order->hasGateway()) {
+    if (!$order->isPaid() || !$order->hasGateway()) {
         return false;
     }
     return $this->gateway->process($order);
@@ -686,12 +594,12 @@ foreach ($invoices as $invoice) {
 ```php
 // Good
 $activeInvoiceTotals = array_map(
-    fn (Invoice $invoice) => $invoice->total(),
-    array_filter($invoices, fn (Invoice $invoice) => $invoice->isActive()),
+    fn(Invoice $invoice) => $invoice->total(),
+    array_filter($invoices, fn(Invoice $invoice) => $invoice->isActive()),
 );
 ```
 
-#### Polymorphic dispatch over switch/if-elseif chains for type-based behavior
+#### Polymorphic dispatch over switch/if-elseif chains for type-based behavior, and match over switch
 
 ```php
 // Bad
@@ -723,7 +631,7 @@ class JsTaskHandler implements TaskHandler
 }
 ```
 
-#### Throw a narrow custom exception, not a generic one
+#### Throw a narrow custom exception for business logic, not a generic one
 
 ```php
 // Bad
@@ -760,7 +668,7 @@ try {
 }
 ```
 
-#### Always pass `JSON_THROW_ON_ERROR` to `json_encode`/`json_decode` and catch `JsonException`; never branch on the `false`/`null` return
+#### Always pass `JSON_THROW_ON_ERROR` to `json_encode`/`json_decode` and catch `JsonException`
 
 ```php
 // Bad
@@ -892,7 +800,7 @@ function reconcileStatement(StatementPeriod $period)
 
 ```php
 // Bad
-// If no relationship name was passed, we will pull backtraces to get the name of the calling function, use that as the title of this relation since that's a convenient convention, then create a new query builder for the related model along with the relationship instance, which applies the correct query constraints and fully manages hydration.
+// If no relationship name was passed, we will pull backtraces to get the name of the calling function, use that as...
 ```
 
 ```php
@@ -904,7 +812,7 @@ function reconcileStatement(StatementPeriod $period)
  */
 ```
 
-#### PHPDoc only carries what the signature can't: drop `@param`/`@return` (the types already declare them), keep `@throws` (a PHP signature has no throws clause)
+#### PHPDoc only carries what the signature can't: keep `@throws`
 
 ```php
 // Bad
@@ -1037,26 +945,26 @@ class SiteProfileFactory {}
 
 ```php
 // Good
-namespace App\Data;         // DTOs
+namespace App\Data; // DTOs
 
 final readonly class SiteLink {}
 ```
 
 ```php
 // Good
-namespace App\Collections;  // typed collections
+namespace App\Collections; // typed collections
 
 class SiteLinkCollection extends Collection {}
 ```
 
 ```php
 // Good
-namespace App\Support;      // services / factories
+namespace App\Support; // services / factories
 
 class SiteProfileFactory {}
 ```
 
-#### `final` is a deliberate choice, never a default: reserve it for leaf types that must not be extended (immutable DTOs); leave contract implementations and routinely-extended classes open, and only `final` a method when a design decision requires locking it
+#### `final` is a deliberate choice, never a default: reserve it for leaf types that must not be extended 
 
 ```php
 // Bad
@@ -1068,64 +976,14 @@ final class SiteLinkCollection extends Collection {}
 
 ```php
 // Good
-final readonly class SiteLink {}                              // leaf immutable DTO — nothing to extend
+final readonly class SiteLink {} // leaf immutable DTO — nothing to extend
 
-class SiteProfileFactory {}                                   // a consumer may subclass to customise parsing
-class MarkdownLlmsTxtRenderer implements LlmsTxtRenderer {}   // contract impl — the seam is meant to be extended
-class SiteLinkCollection extends Collection {}                // collections are routinely extended
-```
-
-#### Isolate raw-array parsing (config, decoded JSON) in a factory that returns DTOs; keep the untyped `array` at that one boundary
-
-```php
-// Bad
-final readonly class SiteProfile
-{
-    /**
-     * @param array{name: string, sections?: array<int, array<string, mixed>>} $config
-     */
-    public static function fromConfig(array $config): self
-    {
-        // parsing mixed with the DTO
-    }
-}
-```
-
-```php
-// Good
-final readonly class SiteProfile
-{
-    public function __construct(
-        public string $name,
-        public SiteSectionCollection $sections = new SiteSectionCollection(),
-    ) {
-    }
-}
-
-final class SiteProfileFactory
-{
-    public function fromConfig(array $config): SiteProfile
-    {
-        return new SiteProfile(
-            name: $config['name'],
-            sections: $this->sections($config['sections'] ?? []),
-        );
-    }
-
-    private function sections(array $sections): SiteSectionCollection
-    {
-        return new SiteSectionCollection(array_map(
-            fn (array $section): SiteSection => new SiteSection(heading: $section['heading']),
-            $sections,
-        ));
-    }
-}
+class SiteProfileFactory {} // a consumer may subclass to customise parsing
+class MarkdownLlmsTxtRenderer implements LlmsTxtRenderer {} // contract impl — the seam is meant to be extended
+class SiteLinkCollection extends Collection {} // collections are routinely extended
 ```
 
 #### Depend on a contract, not a concrete class; the interface documents behaviour and consumers can swap the implementation
-
-Don't mark the implementation `final` - a contract is a deliberate extension
-point, and `final` would stop a consumer subclassing the default to tweak it.
 
 ```php
 // Bad
@@ -1142,9 +1000,6 @@ class GeoManager
 // Good
 interface LlmsTxtRenderer
 {
-    /**
-     * Render the site profile as an llms.txt Markdown document.
-     */
     public function render(SiteProfile $profile): string;
 }
 

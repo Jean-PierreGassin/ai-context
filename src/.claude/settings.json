@@ -51,7 +51,7 @@
   "includeCoAuthoredBy": false,
   "includeGitInstructions": false,
   "disableClaudeAiConnectors": true,
-  "outputStyle": "Token Efficient",
+  "outputStyle": "efficient",
   "remoteControlAtStartup": true,
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true
