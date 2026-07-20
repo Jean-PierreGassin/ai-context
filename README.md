@@ -42,6 +42,7 @@ composer update jean-pierre-gassin/ai-context
 - `.claude/skills/*`
 - `.claude/settings.json`
 - `.claude/output-styles/*`
+- `.claude/statusline.sh`
 - `.codex/config.toml`
 - Managed ignore files for package-owned skills
 

@@ -48,6 +48,10 @@
       }
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/statusline.sh\""
+  },
   "includeCoAuthoredBy": false,
   "includeGitInstructions": false,
   "disableClaudeAiConnectors": true,
