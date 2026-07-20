@@ -1,4 +1,4 @@
-# Give every AI agent in your project the same instructions
+# Agnostic Agentic Engineering Context
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/jean-pierre-gassin/ai-context.svg?style=flat-square)](https://packagist.org/packages/jean-pierre-gassin/ai-context)
 [![Total Downloads](https://img.shields.io/packagist/dt/jean-pierre-gassin/ai-context.svg?style=flat-square)](https://packagist.org/packages/jean-pierre-gassin/ai-context)
