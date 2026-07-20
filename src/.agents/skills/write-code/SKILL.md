@@ -7,19 +7,14 @@ description: Use when writing, editing, or reviewing code in any language or fra
 
 ## Process
 
-1. Consume the [rules](#rules) which will be the enforcement of your implementation
-2. Create a [checklist](#checklist) for each block of code that you write/have output
-3. Proceed through the checklist until you have verified that output doesn't contradict examples
+1. Gather [examples](#examples) that relate to the task at hand, be thorough
+2. Consume the [rules](#rules) which will be the enforcement of your implementation
+3. After writing code, verify that output doesn't contradict examples or standards
 
 ## Rules
 
 - Examples are enforced preferences
 - Examples can be overridden if they contradict with project standards
-
-## Checklist
-
-- [ ] Thoroughly looked for an [example](#examples) that relates to the current output
-- [ ] Verified that the output conforms to our examples
 
 ## Examples
 

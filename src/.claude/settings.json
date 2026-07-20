@@ -36,12 +36,12 @@
         "hooks": [
           {
             "type": "agent",
-            "prompt": "If this is a git push, did the appropriate tests, linting, and checks run? If not, block it. $ARGUMENTS",
+            "prompt": "If this is a git push, did the appropriate tests, linting, analysis, coverage, and checks run? $ARGUMENTS",
             "if": "Bash(git *)"
           },
           {
             "type": "agent",
-            "prompt": "If this is a git push, did the users last message authorize running a git push right now? If not, block it. $ARGUMENTS",
+            "prompt": "If this is a git push, did the users last message authorize running a git push right now? $ARGUMENTS",
             "if": "Bash(git *)"
           }
         ]
@@ -54,5 +54,5 @@
   "outputStyle": "efficient",
   "remoteControlAtStartup": true,
   "inputNeededNotifEnabled": true,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": false
 }

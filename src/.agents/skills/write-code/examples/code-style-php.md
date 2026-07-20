@@ -267,7 +267,7 @@ private const CONFIG_PATH = '/../config/geo.php';
 
 ```php
 // Good
-private const string CONFIG_PATH = __DIR__ . '/../config/geo.php';
+private const string CONFIG_PATH = __DIR__.'/../config/geo.php';
 ```
 
 #### Promote constructor parameters directly to properties, don't hand-assign them
