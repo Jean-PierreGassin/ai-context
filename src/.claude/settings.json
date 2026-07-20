@@ -82,18 +82,11 @@
   },
   "model": "opus",
   "includeCoAuthoredBy": false,
-  "includeGitInstructions": false,
+  "includeGitInstructions": true,
   "disableClaudeAiConnectors": true,
   "outputStyle": "efficient",
-  "tui": "fullscreen",
-  "theme": "auto",
-  "voice": {
-    "enabled": false,
-    "mode": "hold"
-  },
-  "autoCompactEnabled": true,
   "autoConnectIde": true,
   "remoteControlAtStartup": true,
-  "inputNeededNotifEnabled": false,
+  "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": false
 }
