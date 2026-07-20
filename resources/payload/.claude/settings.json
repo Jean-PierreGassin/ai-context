@@ -84,8 +84,14 @@
   "includeCoAuthoredBy": false,
   "includeGitInstructions": true,
   "disableClaudeAiConnectors": true,
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
   "outputStyle": "efficient",
   "autoConnectIde": true,
+  "preferredNotifChannel": "auto",
   "remoteControlAtStartup": true,
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": false
