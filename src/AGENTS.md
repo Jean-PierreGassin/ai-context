@@ -21,6 +21,9 @@
   (`{type}/title-of-changes-summarized`) (e.g `fix/changes-summarized`) depending on project convention
 - For symbol navigation, prefer the LSP tool over grep; use grep only for literal text; and trust the language server's
   results rather than re-reading files to confirm them
+- Do not spawn a subagent for work you can complete directly in a single response (e.g. refactoring a function you can
+  already see)
+- Spawn multiple subagents in the same turn when fanning out across items or reading multiple files
 
 ## Git worktrees
 
