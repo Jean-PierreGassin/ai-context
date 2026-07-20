@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Spaceship-style status line for Claude Code — two-line layout
 # Line 1: dir (cyan) · git branch/dirty marker (magenta/yellow)
-# Line 2: context window bar (colour-coded, red at >=50%) · session cost · model
+# Line 2: context window bar (colour-coded, red at >=40%) · session cost · model
 #
 # Cost is read directly from .cost.total_cost_usd supplied by Claude Code.
 
@@ -35,10 +35,11 @@ _parse=$(echo "$input" | jq -r '[
   (.model.id // ""),
   (.context_window.used_percentage | if . != null then tostring else "" end),
   (.context_window.context_window_size | if . != null then tostring else "" end),
-  (.cost.total_cost_usd | if . != null then tostring else "" end)
+  (.cost.total_cost_usd | if . != null then tostring else "" end),
+  (.effort.level // "")
 ] | join("")')
 
-IFS=$'\x1f' read -r cwd model_name model_id used ctx_size total_cost <<< "$_parse"
+IFS=$'\x1f' read -r cwd model_name model_id used ctx_size total_cost effort <<< "$_parse"
 
 # ---------------------------------------------------------------------------
 # LINE 1 — Directory segment (cyan)
@@ -64,23 +65,26 @@ if git -C "$cwd" rev-parse --git-dir 2>/dev/null 1>/dev/null; then
 fi
 
 # ---------------------------------------------------------------------------
-# LINE 2 — Model segment (blue)
+# LINE 2 — Model segment (blue) with reasoning effort when supplied
 # ---------------------------------------------------------------------------
 model_part="${BLUE}${model_name}${RESET}"
+if [ -n "$effort" ]; then
+    model_part="${model_part} ${DIM}-${RESET} ${BLUE}${effort}${RESET}"
+fi
 
 # ---------------------------------------------------------------------------
-# LINE 2 — Context window bar (colour-coded; red at >=50% — time to /compact)
+# LINE 2 — Context window bar (colour-coded; red at >=40% — time to /compact)
 # ---------------------------------------------------------------------------
 context_line=""
 if [ -n "$used" ]; then
     used_int=${used%.*}
 
-    # Colour thresholds: green < 50, yellow 50-74, red >= 75
-    # Red starts at 50% so you are prompted to /compact before it's critical
+    # Colour thresholds: green < 40, yellow 40-74, red >= 75
+    # Red starts at 40% so you are prompted to /compact before it's critical
     if [ "$used_int" -ge 75 ]; then
         ctx_colour="${BOLD_RED}"
         ctx_label=" ${BOLD_RED}COMPACT NOW${RESET}"
-    elif [ "$used_int" -ge 50 ]; then
+    elif [ "$used_int" -ge 40 ]; then
         ctx_colour="${RED}"
         ctx_label=" ${RED}consider /compact${RESET}"
     else
