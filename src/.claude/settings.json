@@ -47,6 +47,17 @@
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "If this is a code write/edit, has the output been verified against the appropriate skill? $ARGUMENTS"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "",
@@ -64,11 +75,25 @@
     "type": "command",
     "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/statusline.sh\""
   },
+  "enabledPlugins": {
+    "php-lsp@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
+  },
+  "model": "opus",
   "includeCoAuthoredBy": false,
   "includeGitInstructions": false,
   "disableClaudeAiConnectors": true,
   "outputStyle": "efficient",
+  "tui": "fullscreen",
+  "theme": "auto",
+  "voice": {
+    "enabled": false,
+    "mode": "hold"
+  },
+  "autoCompactEnabled": true,
+  "autoConnectIde": true,
   "remoteControlAtStartup": true,
-  "inputNeededNotifEnabled": true,
+  "inputNeededNotifEnabled": false,
   "agentPushNotifEnabled": false
 }
