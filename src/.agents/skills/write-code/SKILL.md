@@ -15,6 +15,7 @@ description: Use when writing, editing, or reviewing code in any language or fra
 
 - Examples are enforced preferences
 - Examples can be overridden if they contradict with project standards
+- If the changes seem large enough, ask the user to consider thin vertical slices
 
 ## Examples
 
