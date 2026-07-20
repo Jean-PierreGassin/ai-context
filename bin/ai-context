@@ -1,0 +1,35 @@
+#!/usr/bin/env php
+<?php
+
+use JeanPierreGassin\AiContext\Console\Application;
+
+/**
+ * Composer's bin proxy hands us the consuming project's autoloader
+ * here. Relative lookups are only a fallback, because __DIR__ resolves
+ * through the symlink a path repository creates and would otherwise
+ * point back into the package's own checkout.
+ */
+$autoloadCandidates = [
+    $GLOBALS['_composer_autoload_path'] ?? null,
+    __DIR__ . '/../../../autoload.php',
+    __DIR__ . '/../vendor/autoload.php',
+];
+
+$loadedAutoloader = null;
+foreach ($autoloadCandidates as $autoloadCandidate) {
+    if ($autoloadCandidate !== null && file_exists($autoloadCandidate)) {
+        $loadedAutoloader = $autoloadCandidate;
+
+        break;
+    }
+}
+
+if ($loadedAutoloader === null) {
+    fwrite(STDERR, 'ai-context: run "composer install" before using this command.' . PHP_EOL);
+
+    exit(1);
+}
+
+require $loadedAutoloader;
+
+exit((new Application())->run());
