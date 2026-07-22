@@ -291,7 +291,7 @@ class OrderProcessor {
 }
 ```
 
-#### Declare explicit types where they aren't obvious from the value: params, returns, and empty/ambiguous inits - let obvious initializers infer
+#### Declare explicit types where they aren't obvious from the value: params, returns, and empty/ambiguous inits
 
 ```ts
 // Bad
@@ -364,7 +364,26 @@ function generateCrudTrigger(resource: string, actions: Action[]): Record<string
 export const leadTriggers = generateCrudTrigger('lead', ['create', 'update']);
 ```
 
-#### Extract repeated multi-step async operations into one shared helper
+#### Build a domain value with a named factory, not a repeated "magic" object literal
+
+```ts
+// Bad
+return { isSent: false, reason: 'cancelled', code: -128 };
+```
+
+```ts
+// Good
+function createFailedTransfer(
+  reason: FailureReason,
+  code: number,
+): FailedTransfer {
+  return { isSent: false, reason, code };
+}
+
+return createFailedTransfer('cancelled', USER_CANCELLED_CODE);
+```
+
+#### Extract repeated multistep async operations into one shared helper
 
 ```ts
 // Bad
@@ -380,6 +399,35 @@ async function createEmail(z: ZObject, bundle: Bundle) {
 async function createEmail(z: ZObject, bundle: Bundle) {
   return perform(z, bundle, emailConfig, buildEmailBody(bundle));
 }
+```
+
+#### Keep side effects out of a parse/transform helper; the caller gets the result, then acts on it
+
+```ts
+// Bad - parsing and spinner logic tangled inside the inline listener
+engineOutput.on('line', (line) => {
+  const transferEvent = parseEngineEvent(line);
+  if (transferEvent?.type === 'started') {
+    spinner.start();
+  } else if (transferEvent?.type === 'failed') {
+    spinner.fail(transferEvent.reason);
+  }
+});
+```
+
+```ts
+// Good - the pure helper returns the event; the caller owns the spinner
+engineOutput.on('line', (line) => {
+  const transferEvent = parseEngineEvent(line);
+  if (transferEvent === undefined) {
+    return;
+  }
+
+  reflectInSpinner(spinner, transferEvent);
+});
+
+/** Pure: one NDJSON line to an event, or undefined if unrecognised. No UI. */
+function parseEngineEvent(line: string): TransferEvent | undefined {}
 ```
 
 #### async/await over .then() chains
@@ -478,7 +526,7 @@ const activeInvoiceTotals = invoices
   .map((invoice) => invoice.total());
 ```
 
-#### Polymorphic dispatch over switch/if-else chains for type-based behavior
+#### Polymorphic dispatch over switch/if-else chains for type-based behaviour
 
 ```ts
 // Bad
@@ -504,6 +552,103 @@ class JsTaskHandler implements TaskHandler {
 
     return runJs(step);
   }
+}
+```
+
+#### Model variants as a discriminated union backed by an `as const` value map, so each literal has one home referenced everywhere (no enum)
+
+```ts
+// Bad - stringly-typed, the same literal re-typed at every call site
+interface TransferEvent {
+  event: string;
+}
+if (transferEvent.event === 'started') {
+  console.log(transferEvent.files);
+}
+```
+
+```ts
+// Good - the const owns the values; the type is derived, checks reference it
+const TransferEventType = {
+  started: 'started',
+  complete: 'complete',
+  failed: 'failed',
+} as const;
+
+type TransferEventType =
+  (typeof TransferEventType)[keyof typeof TransferEventType];
+
+interface StartedEvent {
+  type: typeof TransferEventType.started;
+  files: string[];
+}
+interface CompleteEvent {
+  type: typeof TransferEventType.complete;
+}
+interface FailedEvent {
+  type: typeof TransferEventType.failed;
+  reason: FailureReason;
+  code: number;
+}
+
+type TransferEvent = StartedEvent | CompleteEvent | FailedEvent;
+
+// narrow by referencing the const, never a raw string
+if (transferEvent.type === TransferEventType.started) {
+  console.log(transferEvent.files);
+}
+```
+
+#### Dispatch through a `Record` keyed by the discriminant, never a literal comparison; the key type forces an entry per variant
+
+```ts
+// Bad - literal compared inline, and a new variant silently falls through
+function labelFor(transferEvent: TransferEvent): string {
+  if (transferEvent.type === 'started') {
+    return 'Sending';
+  }
+  if (transferEvent.type === 'complete') {
+    return 'Sent';
+  }
+  return 'Failed';
+}
+```
+
+```ts
+// Good - literals live only as Record keys, validated against the union
+const TRANSFER_LABELS: Record<TransferEventType, string> = {
+  started: 'Sending',
+  complete: 'Sent',
+  failed: 'Failed',
+};
+
+const label = TRANSFER_LABELS[transferEvent.type];
+```
+
+#### Depend on an interface, not a concrete implementation, so a new one drops in without touching callers
+
+```ts
+// Bad - welded to one transport
+async function share(filePaths: string[]): Promise<TransferResult> {
+  return sendViaAirDrop(filePaths);
+}
+```
+
+```ts
+// Good - AirDrop is one TransferEngine; another protocol implements it
+interface TransferEngine {
+  send(filePaths: string[]): Promise<TransferResult>;
+}
+
+class AirDropEngine implements TransferEngine {
+  async send(filePaths: string[]): Promise<TransferResult> {}
+}
+
+async function share(
+  engine: TransferEngine,
+  filePaths: string[],
+): Promise<TransferResult> {
+  return engine.send(filePaths);
 }
 ```
 
@@ -665,7 +810,7 @@ const classes = computed(() => buildClasses(variant, isOpen)); // buildClasses i
 ```ts
 // Good
 // buildClasses.d.ts - give the untyped helper a real signature
-export function buildClasses(variant: Variant, isOpen: boolean): Record<string, boolean>;
+export function buildClasses(variant: Variant, isOpen: boolean): Record<string, boolean> {}
 
 // component - now genuinely type-checked, not a blind cast
 const classes = computed<Record<string, boolean>>(() => buildClasses(variant, isOpen));
@@ -676,14 +821,53 @@ const classes = computed<Record<string, boolean>>(() => buildClasses(variant, is
 ```ts
 // Bad
 function findById(id: string | number): Entity {}
-let selectedId: string | number | null;
+let selectedId: string | number | undefined;
 ```
 
 ```ts
 // Good
 type EntityId = string | number;
 function findById(id: EntityId): Entity {}
-let selectedId: EntityId | null;
+let selectedId: EntityId | undefined;
+```
+
+#### Model "things" (entities, value objects) as an `interface`; reserve `type` for unions, aliases, and compositions
+
+```ts
+// Bad
+type Customer = {
+  id: string;
+  name: string;
+};
+```
+
+```ts
+// Good
+interface Customer {
+  id: string;
+  name: string;
+}
+
+type EntityId = string | number;
+type TransferResult = SuccessfulTransfer | FailedTransfer;
+```
+
+#### Prefer `undefined` for an absent value; use `null` only where an external contract (JSON) needs the key present
+
+```ts
+// Bad
+let selectedCustomer: Customer | null = null;
+function findCustomer(id: EntityId): Customer | null {}
+```
+
+```ts
+// Good
+let selectedCustomer: Customer | undefined;
+function findCustomer(id: EntityId): Customer | undefined {}
+
+interface PatchPayload {
+  cancelledAt: string | null; // JSON: null clears the field; undefined would omit the key
+}
 ```
 
 #### Avoid `as` type assertions; `as const` is the only one that's fine by default
@@ -787,7 +971,58 @@ interface OrderSummaryProps {
 function renderOrderSummary(props: OrderSummaryProps) {}
 ```
 
-#### Within a shared types.ts, group all `type` aliases together and all `interface`s together (not interleaved); order within each group so a type appears before anything that depends on it
+#### Group a feature's code into `types/`, `lib/`, and `components/` folders (only the ones it uses); nest sub-features the same way; no catch-all root
+
+```ts
+// Bad - a grab-bag every feature reaches into
+src/
+  types.ts        // Transfer, Invoice, User, EngineEvent all in one file
+  transfer.ts
+  invoice.ts
+```
+
+```ts
+// Good - each feature groups by kind; sub-features nest with the same shape
+src/
+  transfer/
+    types/
+      transfer-result.ts   // TransferResult and its variants
+      transfer-engine.ts   // TransferEngine port (shared contract)
+    lib/
+      create-failed-transfer.ts
+    engines/               // one self-contained sub-feature per implementation
+      airdrop/
+        types/
+          airdrop-event.ts
+        lib/
+          airdrop-engine.ts
+          parse-airdrop-engine-events.ts
+```
+
+#### Define a package's public API with package.json `exports`, not an `index.ts` barrel; re-export barrels defeat tree-shaking and invite import cycles
+
+```ts
+// Bad - a barrel re-exporting the feature; consumers pull the whole graph in, internals leak
+// transfer/index.ts
+export { AirDropEngine } from './engine/airdrop-engine.js';
+export type { TransferResult } from './types.js';
+```
+
+```jsonc
+// Good - package.json maps a public subpath straight to the owning module
+{
+  "exports": {
+    "./transfer": "./dist/transfer/airdrop-engine.js"
+  }
+}
+```
+
+```ts
+// consumer imports the mapped entry; internal files stay unreachable
+import { AirDropEngine } from 'sendit/transfer';
+```
+
+#### Within a genuinely shared types.ts (cross-feature only; the default is one type per file, co-located), group all `type` aliases together and all `interface`s together (not interleaved); order within each group so a type appears before anything that depends on it
 
 ```ts
 // Bad - type aliases and interfaces interleaved
