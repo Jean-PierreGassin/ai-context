@@ -46,17 +46,6 @@
         ]
       }
     ],
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "agent",
-            "prompt": "If this is a code write/edit, has the output been verified against the appropriate skill? $ARGUMENTS"
-          }
-        ]
-      }
-    ],
     "Stop": [
       {
         "matcher": "",
