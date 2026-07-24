@@ -33,8 +33,10 @@ Use these skills for the work they cover. Load the skill before starting, not af
 ## Workflow
 
 - You must consider using worktrees for medium-long tasks
-- Delegate to a subagent only for large tasks that are genuinely independent and parallelizable, such as a wide
-  multi-file investigation; when you do, run those tracks in parallel rather than one after another
+- Delegate to a subagent when the user asks you to, or for large tasks that are genuinely independent and
+  parallelizable, such as a wide multi-file investigation; when you do, run those tracks in parallel rather than one
+  after another
+- An explicit request to delegate is an instruction, not a suggestion; do it rather than offering to
 - Do not delegate work you can finish yourself in a handful of tool calls, and do not use subagents to verify or
   double-check your own work
 - If one subagent can complete the task, use one rather than several, and keep spawn counts low

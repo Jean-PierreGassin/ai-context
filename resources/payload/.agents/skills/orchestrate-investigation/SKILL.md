@@ -7,7 +7,8 @@ description: Use when asked to investigate, perform research, find a root-cause,
 
 ## Process
 
-1. Check if the task at hand requires deep or complex thinking/reasoning, otherwise skip this process
+1. Check if the task at hand requires deep or complex thinking/reasoning, otherwise skip this process. If the user
+   asked for the fan-out explicitly, run it as asked rather than gating on this step
 2. Run the task from a high-thinking orchestrator agent
 3. Fan out isolated investigators (4 max) in parallel, each cover a different angle or area
 4. Fan out reviewers (2 max) [with principles](#principles) only where the findings are contested, the investigators

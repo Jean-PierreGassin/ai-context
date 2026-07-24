@@ -40,7 +40,7 @@
         "hooks": [
           {
             "type": "agent",
-            "prompt": "If this is a git push, did the appropriate tests, linting, analysis, coverage, and checks run? And did the users last message authorize running a git push right now? $ARGUMENTS",
+            "prompt": "Allow this command unless it is a git push. If it is a git push, allow it only when the appropriate tests, linting, analysis, coverage, and checks have run, and the user's last message authorized pushing right now. Anything that is not a git push, including git status, diff, log, add, and commit, should be allowed. $ARGUMENTS",
             "if": "Bash(git *)"
           }
         ]
