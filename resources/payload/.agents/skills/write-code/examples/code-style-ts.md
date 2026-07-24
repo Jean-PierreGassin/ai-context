@@ -852,11 +852,7 @@ type EntityId = string | number;
 type TransferResult = SuccessfulTransfer | FailedTransfer;
 ```
 
-#### Return a named type, never an inline object shape, a tuple, or an open `Record` standing in for a structure
-
-A shape written inline in the return position has no name to import, no place for a doc comment, and no single
-definition to change. Name it, and nest named types for nested shapes rather than nesting anonymous ones. `Record` is
-for a genuine lookup keyed by a value; when the keys are fixed and mean different things, it is a structure.
+#### Return a named type; an inline object shape, a tuple, or a `Record` standing in for fixed keys has no name to import and no single definition to change
 
 ```ts
 // Bad
@@ -888,10 +884,12 @@ interface DateRange {
 }
 
 function parseRange(input: string): DateRange {}
-```
 
-A composable or hook returning its own state and handlers (`return { isOpen, toggle }`) is a binding surface, not a
-data structure, and stays as it is.
+// Good - a composable's state and handlers are a binding surface, not a structure
+function useDisclosure() {
+  return { isOpen, toggle };
+}
+```
 
 #### Prefer `undefined` for an absent value; use `null` only where an external contract (JSON) needs the key present
 

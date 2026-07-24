@@ -398,25 +398,30 @@ class OrderService
 }
 ```
 
-#### Create framework-owned files with their artisan generator, then edit what it produces
-
-Migrations, models, factories, FormRequests, and the rest have a `make:` command that decides the filename, the
-location, and the stub the project has configured. Migrations depend on it most: the timestamp in the filename is the
-run order, and it comes from the moment the generator runs.
+#### Create framework-owned files with their `make:` generator and edit what it produces; a migration's filename timestamp is its run order and comes from the moment the generator runs
 
 ```bash
-# Good
+# Bad - no timestamp to order it, and the project's configured stub never applies
+write database/migrations/create_orders_table.php
+```
+
+```bash
+# Good - then write the real up(), columns, and casts into the generated file
 php artisan make:migration create_orders_table --create=orders
 php artisan make:model Order -mf
 php artisan make:request StoreOrderRequest
 ```
 
-Then open the generated file and write the real `up()`, columns, and casts into it.
+#### Framework-defined signatures keep their `array`; the DTO rule applies everywhere the signature is yours
 
-#### Framework contract signatures are the exception to returning a DTO
+```php
+// Good
+public function rules(): array {}
 
-`rules()`, `casts()`, `toArray()`, and `jsonSerialize()` return `array` because the framework defines them that way.
-Keep the array there, at the boundary where the framework consumes it, and use DTOs everywhere the signature is yours.
+public function casts(): array {}
+
+public function toArray(Request $request): array {}
+```
 
 #### Use JsonResource classes for API responses, not raw models/arrays
 
