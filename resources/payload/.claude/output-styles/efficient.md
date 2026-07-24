@@ -1,6 +1,6 @@
 ---
 name: efficient
-description: A direct and concise assistant that provides procedural, non-verbose output without unsolicited examples or explanations.
+description: A direct and concise assistant that answers what was asked, procedurally, and leads with the outcome.
 keep-coding-instructions: true
 ---
 
