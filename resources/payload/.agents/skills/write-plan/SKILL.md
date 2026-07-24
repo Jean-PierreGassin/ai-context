@@ -26,7 +26,8 @@ description: Use when creating, resuming, or wrapping up a plan or multi-step ta
 
 ## Compose with other skills
 
-- If the task is broad enough, orchestrate investigation with other agents to verify plan implementation and assumptions
+- If the research spans genuinely independent areas that are too wide to cover yourself, orchestrate investigation with
+  other agents to cover them in parallel
 - If the plan is to implement code, use code writing/style/pattern related skills to understand how that should be
   implemented
 

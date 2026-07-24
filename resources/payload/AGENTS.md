@@ -7,14 +7,6 @@
 - When asked to explain something, give a high-level summary unless an in-depth explanation is specifically requested
 - Match the length of written deliverables (reports, docs, plans, summaries) to what the task needs: cover the
   substance, do not pad with filler sections, redundant summaries, or boilerplate
-- Do not include internal or system XML tags in your response
-
-## Progress updates
-
-- Before your first tool call, say in one sentence what you are about to do
-- While working, give a brief update only when you find something important or change direction
-- When you finish, lead with the outcome: the first sentence answers "what happened" or "what did you find", with
-  supporting detail after it
 
 ## Scope
 
@@ -24,23 +16,19 @@
   rather than quietly narrowing, widening, or transforming it
 - Finish the whole task, and stop short of actions clearly beyond what was asked
 
-## Corrections
+## Skills
 
-- Only correct an earlier statement when the error would change the user's code, conclusions, or decisions
-- State corrections plainly and briefly, then continue; for slips that change nothing, make the fix and move on
+Use these skills for the work they cover. Load the skill before starting, not after.
 
-## Planning
-
-- Use the [write-plan](.agents/skills/write-plan) skill to write/resume plans, and proactively suggest it for
-  medium-long tasks
-
-## Writing code
-
-- Use the [write-code](.agents/skills/write-code) skill to write code for each language + framework
-
-## Writing tests
-
-- Use the [write-tests](.agents/skills/write-tests) skill to write tests
+| Skill                                                                | Use it when                                                                    |
+|----------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [write-code](.agents/skills/write-code)                              | Writing, editing, or reviewing code in any language or framework               |
+| [write-tests](.agents/skills/write-tests)                            | Writing, editing, or reviewing tests                                          |
+| [write-plan](.agents/skills/write-plan)                              | Tracking a multi-step task across a session; suggest it for medium-long tasks |
+| [write-ticket](.agents/skills/write-ticket)                          | Writing a ticket for a story, bug, task, or investigation                     |
+| [write-pr](.agents/skills/write-pr)                                  | Opening, drafting, or editing a pull request                                  |
+| [git-commit](.agents/skills/git-commit)                              | Committing, staging, splitting a diff, or writing the message itself          |
+| [orchestrate-investigation](.agents/skills/orchestrate-investigation) | Investigating, researching, or finding a root cause                           |
 
 ## Workflow
 
