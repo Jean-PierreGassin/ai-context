@@ -184,7 +184,7 @@ public function refund(): bool
 {
 }
 
-public function receiptFor(): array
+public function receiptFor(): Receipt
 {
 }
 
@@ -459,18 +459,18 @@ $label = $isActive ? 'Active' : 'Inactive';
 
 ```php
 // Bad
-function appendTax(array &$lineItems)
+function appendTax(LineItemCollection &$lineItems)
 {
 }
 ```
 
 ```php
 // Good
-function withTax(array $lineItems): array
+function withTax(LineItemCollection $lineItems): LineItemCollection
 {
-    return [...$lineItems, $taxLineItem];
+    return $lineItems->push($taxLineItem);
 }
-$lineItems = withTax($lineItems);
+$lineItems = withTax(lineItems: $lineItems);
 ```
 
 #### No generic variable names ever (result, rows, ids, data, item, arr, total, single letters)
@@ -850,6 +850,13 @@ private function resolveStep(Context $context): Step
 ```
 
 #### A return value's type is documentation too — return a DTO, not `array` with a `@return` shape annotation
+
+An array whose keys mean different things is a structure with no definition. Return a DTO instead, and nest DTOs for
+nested shapes rather than nesting arrays. This applies to what a method accepts as well as what it returns: a param
+typed `array` that the body reads keys out of should be a DTO the caller builds.
+
+The exception is a signature the framework or an interface defines (`rules()`, `casts()`, `toArray()`,
+`jsonSerialize()`), and a genuine list of one type, which belongs in a typed collection rather than a DTO.
 
 ```php
 // Bad

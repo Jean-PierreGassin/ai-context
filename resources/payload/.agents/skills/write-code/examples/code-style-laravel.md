@@ -255,7 +255,7 @@ final class OrderRecord
         public readonly int $id,
         public readonly int $customerId,
         public readonly OrderStatus $status,
-        public readonly ?Collection $lineItems = null,
+        public readonly ?LineItemCollection $lineItems = null,
         public readonly ?float $amountDue = null,
     ) {
     }
@@ -397,6 +397,11 @@ class OrderService
     }
 }
 ```
+
+#### Framework contract signatures are the exception to returning a DTO
+
+`rules()`, `casts()`, `toArray()`, and `jsonSerialize()` return `array` because the framework defines them that way.
+Keep the array there, at the boundary where the framework consumes it, and use DTOs everywhere the signature is yours.
 
 #### Use JsonResource classes for API responses, not raw models/arrays
 

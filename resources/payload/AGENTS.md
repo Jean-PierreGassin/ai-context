@@ -30,6 +30,18 @@ Use these skills for the work they cover. Load the skill before starting, not af
 | [git-commit](.agents/skills/git-commit)                              | Committing, staging, splitting a diff, or writing the message itself          |
 | [orchestrate-investigation](.agents/skills/orchestrate-investigation) | Investigating, researching, or finding a root cause                           |
 
+Skill guidance is the standard, and what the repository already happens to look like does not replace it.
+
+- Defer to what the project enforces: hooks, linters, static analysis, CI, `.editorconfig`, framework and interface
+  contracts, and conventions written down in committed docs (`CONTRIBUTING.md`, `AGENTS.md`, `CLAUDE.md`, templates,
+  `.claude/rules`). Enforcement wins over a skill on the point it covers
+- Do not infer the standard from precedent: previous commit messages, past PR or ticket wording, and surrounding code
+  that predates the skill are observations, not instructions. Matching them is how a codebase's oldest habits outlive
+  every attempt to change them
+- Reading the surrounding code to fit its structure, naming, and layout is still right; it is the style and format
+  rules a skill defines that precedent does not get to override
+- Where a skill and enforcement genuinely conflict, follow enforcement and say so in a sentence
+
 ## Workflow
 
 - You must consider using worktrees for medium-long tasks

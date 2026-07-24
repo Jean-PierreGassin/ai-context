@@ -19,6 +19,7 @@ description: Use whenever opening, drafting, creating, or editing a pull request
 ## Rules
 
 - No em dashes or emojis anywhere
+- Follow the repo's PR template and any enforced checks; do not take the format of previous PRs as the standard
 - No ticket link in the description body - the title already links the ticket
 - Wrap all code references (class names, method names, column names, file paths) in backticks
 - Prose explains the WHY and overall approach, not just a restatement of the diff

@@ -852,6 +852,47 @@ type EntityId = string | number;
 type TransferResult = SuccessfulTransfer | FailedTransfer;
 ```
 
+#### Return a named type, never an inline object shape, a tuple, or an open `Record` standing in for a structure
+
+A shape written inline in the return position has no name to import, no place for a doc comment, and no single
+definition to change. Name it, and nest named types for nested shapes rather than nesting anonymous ones. `Record` is
+for a genuine lookup keyed by a value; when the keys are fixed and mean different things, it is a structure.
+
+```ts
+// Bad
+function summarise(order: Order): { subtotal: number; tax: number; lines: { sku: string; qty: number }[] } {}
+
+function parseRange(input: string): [Date, Date] {}
+
+function auditFields(order: Order): Record<string, unknown> {}
+```
+
+```ts
+// Good
+interface OrderLineSummary {
+  sku: string;
+  quantity: number;
+}
+
+interface OrderSummary {
+  subtotal: number;
+  tax: number;
+  lines: OrderLineSummary[];
+}
+
+function summarise(order: Order): OrderSummary {}
+
+interface DateRange {
+  start: Date;
+  end: Date;
+}
+
+function parseRange(input: string): DateRange {}
+```
+
+A composable or hook returning its own state and handlers (`return { isOpen, toggle }`) is a binding surface, not a
+data structure, and stays as it is.
+
 #### Prefer `undefined` for an absent value; use `null` only where an external contract (JSON) needs the key present
 
 ```ts

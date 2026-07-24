@@ -14,7 +14,8 @@ description: Use when writing, editing, or reviewing code in any language or fra
 
 - Code that contradicts the examples or project standards is not finished code
 - Examples are enforced preferences
-- Examples can be overridden if they contradict with project standards
+- Examples can be overridden by what the project enforces (linters, static analysis, CI, framework and interface
+  contracts, conventions in committed docs), not by surrounding code that happens to predate them
 - If the changes seem large enough, ask the user to consider thin vertical slices
 
 ## Examples
