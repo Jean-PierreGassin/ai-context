@@ -398,6 +398,21 @@ class OrderService
 }
 ```
 
+#### Create framework-owned files with their artisan generator, then edit what it produces
+
+Migrations, models, factories, FormRequests, and the rest have a `make:` command that decides the filename, the
+location, and the stub the project has configured. Migrations depend on it most: the timestamp in the filename is the
+run order, and it comes from the moment the generator runs.
+
+```bash
+# Good
+php artisan make:migration create_orders_table --create=orders
+php artisan make:model Order -mf
+php artisan make:request StoreOrderRequest
+```
+
+Then open the generated file and write the real `up()`, columns, and casts into it.
+
 #### Framework contract signatures are the exception to returning a DTO
 
 `rules()`, `casts()`, `toArray()`, and `jsonSerialize()` return `array` because the framework defines them that way.

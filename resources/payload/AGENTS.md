@@ -49,10 +49,9 @@ Skill guidance is the standard, and what the repository already happens to look 
   parallelizable, such as a wide multi-file investigation; when you do, run those tracks in parallel rather than one
   after another
 - An explicit request to delegate is an instruction, not a suggestion; do it rather than offering to
-- Do not delegate work you can finish yourself in a handful of tool calls, and do not use subagents to verify or
-  double-check your own work
+- Work you can finish in a handful of tool calls is yours to do, and checking it is part of doing it
 - If one subagent can complete the task, use one rather than several, and keep spawn counts low
-- Do not add verification or re-check passes that were not asked for; verify inline as part of the work
+- Verification belongs inline, at the point you would catch the mistake anyway
 - Branch and worktree names must use the tracker's ticket key (`ABC-1234` or `ABC-1234-slug`), or fallback
   (`{type}/title-of-changes-summarized`) (e.g `fix/changes-summarized`) depending on project conventions
 - For symbol navigation, prefer the LSP tool over grep; use grep only for literal text; and trust the language server's
@@ -60,12 +59,18 @@ Skill guidance is the standard, and what the repository already happens to look 
 
 ## Git worktrees
 
+The steps below are the fallback for a project that brings nothing of its own. Where a project or the developer's
+environment already has worktree tooling, that tooling is the process: a setup or bootstrap script, a Makefile or
+composer/npm task, automated port allocation and routing, seeded env files, a devcontainer, or commands that belong
+inside a container or VM. Look for it first, run the worktree through it, and let it own the steps it covers. Ask the
+user when the environment looks like it has tooling you can't find the entry point for.
+
 - You must ensure that the branch you are creating the worktree from is up to date
-- The worktree name should be the same as the branch name, no `worktree-` prefix
+- Name the worktree exactly as the branch is named
 - On creation, check the repo's `.worktreeinclude` (or equivalent list of env/config files the worktree requires to run)
   against what actually landed in the worktree, and manually `cp` missing requirements from the repo root
-- Never copy or symlink `vendor`/`node_modules`/other dependency directories into a worktree
-- You must run real installation commands (`composer install`, `yarn install`, etc.) inside a worktree after setup
+- Let each worktree build its own `vendor`/`node_modules` by running the real installation commands
+  (`composer install`, `yarn install`, etc.) inside it
 - When the user wants to verify/review/has intent to look at the changes made from a worktree:
     - You must ensure the worktree has been committed to
     - You must run `git checkout --detach` on the worktree before checking out the branch in the main repository
