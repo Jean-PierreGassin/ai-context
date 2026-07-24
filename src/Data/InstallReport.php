@@ -27,6 +27,17 @@ final class InstallReport
         return $this->listFailures()->count() > 0;
     }
 
+    /**
+     * Skips that leave the project in a state worth knowing about, such
+     * as guidance that is installed but will never be read.
+     */
+    public function listNotableSkips(): DeployedFileCollection
+    {
+        return $this->deployedFiles
+            ->filterByOutcome(DeployOutcome::Skipped)
+            ->filter(fn (DeployedFile $skipped): bool => $skipped->reason !== null);
+    }
+
     public function summarise(): string
     {
         return sprintf(

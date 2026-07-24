@@ -23,8 +23,21 @@ class PayloadDeployer
     ) {
     }
 
-    public function deploy(string $payloadRoot, string $projectRoot): DeployedFileCollection
-    {
+    /**
+     * @param string[] $skipRelativePaths paths another step has already
+     *                                    reconciled, so this one leaves
+     *                                    them alone
+     */
+    public function deploy(
+        string $payloadRoot,
+        string $projectRoot,
+        array $skipRelativePaths = [],
+    ): DeployedFileCollection {
+        $pathsToDeploy = array_filter(
+            $this->filesystem->listRelativeFilePaths($payloadRoot),
+            fn (string $relativePath): bool => !in_array($relativePath, $skipRelativePaths, true),
+        );
+
         return new DeployedFileCollection(
             ...array_map(
                 fn (string $relativePath): DeployedFile => $this->deployFile(
@@ -32,7 +45,7 @@ class PayloadDeployer
                     projectRoot: $projectRoot,
                     relativePath: $relativePath,
                 ),
-                $this->filesystem->listRelativeFilePaths($payloadRoot),
+                $pathsToDeploy,
             ),
         );
     }

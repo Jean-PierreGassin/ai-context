@@ -90,6 +90,12 @@ class InstallCommand extends Command
             ),
         );
 
+        $notableSkips = $report->listNotableSkips();
+        if ($notableSkips->count() > 0) {
+            $style->warning('Some files were left alone:');
+            $style->listing($notableSkips->describeAll());
+        }
+
         if (!$report->hasFailures()) {
             $style->success('Your project is up to date.');
 

@@ -10,4 +10,9 @@ class ForcedOverwriteApproval implements OverwriteApproval
     {
         return true;
     }
+
+    public function shouldAddAgentsImport(string $relativePath): bool
+    {
+        return true;
+    }
 }

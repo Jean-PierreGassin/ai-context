@@ -19,4 +19,16 @@ class ComposerOverwriteApproval implements OverwriteApproval
             false,
         );
     }
+
+    public function shouldAddAgentsImport(string $relativePath): bool
+    {
+        return $this->composerIo->askConfirmation(
+            sprintf(
+                'ai-context: %s does not import AGENTS.md, so the packaged guidance will not load. '
+                . 'Add the import to the top? [Y/n] ',
+                $relativePath,
+            ),
+            true,
+        );
+    }
 }

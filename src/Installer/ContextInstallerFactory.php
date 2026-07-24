@@ -26,6 +26,7 @@ class ContextInstallerFactory
             payloadDeployer: new PayloadDeployer(filesystem: $this->filesystem, approval: $approval),
             skillIgnoreWriter: new SkillIgnoreWriter(filesystem: $this->filesystem),
             legacyIgnoreCleaner: new LegacyIgnoreCleaner(filesystem: $this->filesystem),
+            claudeMdImportWriter: new ClaudeMdImportWriter(filesystem: $this->filesystem, approval: $approval),
         );
     }
 }
