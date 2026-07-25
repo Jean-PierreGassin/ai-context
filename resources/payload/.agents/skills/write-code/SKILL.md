@@ -9,12 +9,16 @@ description: Use when writing, editing, or reviewing code in any language or fra
 
 1. Gather [examples](#examples) that relate to the task at hand, be thorough
 2. Consume the [rules](#rules) which will be the enforcement of your implementation
-3. After writing code, verify that output doesn't contradict examples or standards
 
 ## Rules
 
+- Code that contradicts the examples or project standards is not finished code
 - Examples are enforced preferences
-- Examples can be overridden if they contradict with project standards
+- The project's own architecture pattern decides where code goes: Actions, DDD, service/repository, modular monolith,
+  or whatever it already uses. The examples show one arrangement, and their rules hold in any of them. Follow the
+  pattern in use unless the user names a different one
+- Examples can be overridden by what the project enforces (linters, static analysis, CI, framework and interface
+  contracts, conventions in committed docs), not by surrounding code that happens to predate them
 - If the changes seem large enough, ask the user to consider thin vertical slices
 
 ## Examples

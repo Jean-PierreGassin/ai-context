@@ -15,4 +15,9 @@ class DeclinedOverwriteApproval implements OverwriteApproval
     {
         return false;
     }
+
+    public function shouldAddAgentsImport(string $relativePath): bool
+    {
+        return false;
+    }
 }

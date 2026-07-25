@@ -10,7 +10,8 @@ description: Use whenever committing, staging, splitting a diff, or writing the 
 1. Run Lint/format/relevant tests/coverage to ensure we're ready to proceed
 2. Split commits by concern: Run `git status`/`git diff` and group changes into thin vertical slices
 3. Find the ticket key: Extract it from the current branch name (e.g. `ABC-1234-fix-timeout` -> `ABC-1234`)
-4. No ticket found? Stop and ask the user for the ticket number rather than inventing, omitting, or substituting one
+4. No ticket found? Ask the user for it rather than inventing, omitting, or substituting one. If they confirm there
+   isn't one, or the project doesn't use ticket keys, use the no-ticket format in the [example](#example)
 5. Look for a `commit-msg` hook (`.git/hooks/commit-msg`), or other message guidance/enforcement
 6. Use the [template](#template) to structure the commit message, and the [example](#example) for guidance
 

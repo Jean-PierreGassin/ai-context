@@ -1,5 +1,8 @@
 # Laravel Style Examples
 
+Follow the architecture pattern the project already uses (Actions, DDD, service/repository, modular); the layers named
+below are one arrangement, and each rule holds wherever that pattern puts the equivalent layer.
+
 #### No declaring strict types
 
 ```php
@@ -99,7 +102,7 @@ public function rules(): array
 }
 ```
 
-#### Controllers orchestrate and delegate; they never touch Eloquent directly
+#### Controllers orchestrate and delegate, leaving persistence to the layer the project designates for it
 
 ```php
 // Bad
@@ -121,7 +124,7 @@ public function store(StoreOrderRequest $request): RedirectResponse
 }
 ```
 
-#### Services hold business logic and call Repositories; Repositories are the only class that touches the database
+#### Business logic lives in the project's designated layer (Service, Action, domain model); database access stays behind its own (Repository, query object, the model)
 
 ```php
 // Bad
@@ -168,7 +171,7 @@ class OrderRepository
 }
 ```
 
-#### FormRequests expose a typed DTO accessor; Services and Repositories take that DTO, not a raw validated() array
+#### FormRequests expose a typed DTO accessor, and whatever consumes the request takes that DTO rather than a raw `validated()` array
 
 ```php
 // Bad
@@ -231,7 +234,7 @@ class OrderService
 }
 ```
 
-#### Repository reads return a DTO built from whatever the query returns (Eloquent model, DB row, etc.); the raw result never leaves the repository
+#### Reads return a DTO built from whatever the query returns (Eloquent model, DB row, etc.); the raw result stays behind the layer that queried it
 
 ```php
 // Bad
@@ -255,7 +258,7 @@ final class OrderRecord
         public readonly int $id,
         public readonly int $customerId,
         public readonly OrderStatus $status,
-        public readonly ?Collection $lineItems = null,
+        public readonly ?LineItemCollection $lineItems = null,
         public readonly ?float $amountDue = null,
     ) {
     }
@@ -290,7 +293,7 @@ class OrderRepository
 }
 ```
 
-#### Repository writes take the explicit, purpose-named payload for that operation, not a dynamically-derived one
+#### Writes take the explicit, purpose-named payload for that operation, not a dynamically-derived one
 
 ```php
 // Bad
@@ -366,7 +369,7 @@ class OrderService
 }
 ```
 
-#### Wrap multi-step writes that must succeed or fail together in DB::transaction(), in the Service that orchestrates the repositories
+#### Wrap multi-step writes that must succeed or fail together in DB::transaction(), in the layer that orchestrates them
 
 ```php
 // Bad
@@ -396,6 +399,31 @@ class OrderService
         });
     }
 }
+```
+
+#### Create framework-owned files with their `make:` generator and edit what it produces; a migration's filename timestamp is its run order and comes from the moment the generator runs
+
+```bash
+# Bad - no timestamp to order it, and the project's configured stub never applies
+write database/migrations/create_orders_table.php
+```
+
+```bash
+# Good - then write the real up(), columns, and casts into the generated file
+php artisan make:migration create_orders_table --create=orders
+php artisan make:model Order -mf
+php artisan make:request StoreOrderRequest
+```
+
+#### Framework-defined signatures keep their `array`; the DTO rule applies everywhere the signature is yours
+
+```php
+// Good
+public function rules(): array {}
+
+public function casts(): array {}
+
+public function toArray(Request $request): array {}
 ```
 
 #### Use JsonResource classes for API responses, not raw models/arrays
@@ -837,7 +865,7 @@ class Order extends Model
 $formattedDate = $order->shipped_at->toDateString();
 ```
 
-#### No logic in route files; routes wire URIs to controllers, nothing else
+#### Route files wire URIs to their handler and nothing else; the logic lives in the handler (controller, invokable action, whatever the project uses)
 
 ```php
 // Bad

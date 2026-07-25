@@ -17,6 +17,7 @@ class ContextInstaller
         private readonly PayloadDeployer $payloadDeployer,
         private readonly SkillIgnoreWriter $skillIgnoreWriter,
         private readonly LegacyIgnoreCleaner $legacyIgnoreCleaner,
+        private readonly ClaudeMdImportWriter $claudeMdImportWriter,
     ) {
     }
 
@@ -27,7 +28,17 @@ class ContextInstaller
     {
         $payloadRoot = $this->packagePaths->resolvePayloadRoot();
         $projectRoot = rtrim($projectRoot, DIRECTORY_SEPARATOR);
-        $deployedFiles = $this->payloadDeployer->deploy($payloadRoot, $projectRoot);
+
+        $reconciledClaudeMd = $this->claudeMdImportWriter->write($projectRoot);
+        $deployedFiles = $this->payloadDeployer->deploy(
+            payloadRoot: $payloadRoot,
+            projectRoot: $projectRoot,
+            skipRelativePaths: $reconciledClaudeMd === null ? [] : [ClaudeMdImportWriter::CLAUDE_MD],
+        );
+
+        if ($reconciledClaudeMd !== null) {
+            $deployedFiles = $deployedFiles->merge(new DeployedFileCollection($reconciledClaudeMd));
+        }
 
         return new InstallReport(
             $deployedFiles

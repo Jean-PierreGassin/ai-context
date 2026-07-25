@@ -40,6 +40,14 @@ class DeployedFileCollection implements IteratorAggregate, Countable
     }
 
     /**
+     * @param callable(DeployedFile): bool $predicate
+     */
+    public function filter(callable $predicate): self
+    {
+        return new self(...array_filter($this->deployedFiles, $predicate));
+    }
+
+    /**
      * @return string[]
      */
     public function describeAll(): array

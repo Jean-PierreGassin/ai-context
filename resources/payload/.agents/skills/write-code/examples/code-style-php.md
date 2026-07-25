@@ -184,7 +184,7 @@ public function refund(): bool
 {
 }
 
-public function receiptFor(): array
+public function receiptFor(): Receipt
 {
 }
 
@@ -459,18 +459,18 @@ $label = $isActive ? 'Active' : 'Inactive';
 
 ```php
 // Bad
-function appendTax(array &$lineItems)
+function appendTax(LineItemCollection &$lineItems)
 {
 }
 ```
 
 ```php
 // Good
-function withTax(array $lineItems): array
+function withTax(LineItemCollection $lineItems): LineItemCollection
 {
-    return [...$lineItems, $taxLineItem];
+    return $lineItems->push($taxLineItem);
 }
-$lineItems = withTax($lineItems);
+$lineItems = withTax(lineItems: $lineItems);
 ```
 
 #### No generic variable names ever (result, rows, ids, data, item, arr, total, single letters)
@@ -889,6 +889,33 @@ final readonly class SchemaGraph implements JsonSerializable
             '@type' => $this->type,
             'name' => $this->name,
         ];
+    }
+}
+```
+
+#### A keyed `array` the body reads by key is a DTO too, params included; nested shapes nest DTOs (a framework-defined signature keeps its `array`)
+
+```php
+// Bad
+public function render(array $invoice): string
+{
+    return $this->view($invoice['customer']['name'], $invoice['lines']);
+}
+```
+
+```php
+// Good
+public function render(Invoice $invoice): string
+{
+    return $this->view($invoice->customer->name, $invoice->lines);
+}
+
+final readonly class Invoice
+{
+    public function __construct(
+        public Customer $customer,
+        public LineItemCollection $lines,
+    ) {
     }
 }
 ```

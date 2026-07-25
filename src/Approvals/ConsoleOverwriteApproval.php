@@ -19,4 +19,15 @@ class ConsoleOverwriteApproval implements OverwriteApproval
             false,
         );
     }
+
+    public function shouldAddAgentsImport(string $relativePath): bool
+    {
+        return $this->style->confirm(
+            sprintf(
+                '%s does not import AGENTS.md, so the packaged guidance will not load. Add the import to the top?',
+                $relativePath,
+            ),
+            true,
+        );
+    }
 }

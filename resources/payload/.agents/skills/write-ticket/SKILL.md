@@ -10,7 +10,8 @@ description: Use when writing or editing a ticket for a story, bug, task, or inv
 1. Determine the ticket type: story, bug, task, or investigation
 2. Read the matching example file and follow its panel structure and field rules exactly - don't reuse another type's
    structure
-3. Apply the [shared principles](#shared-principles) below regardless of type
+3. Apply the [shared principles](#shared-principles) below regardless of type, in preference to how existing tickets in
+   the tracker happen to be written
 4. Before finishing, check the draft against the type's field rules and the shared principles, and adjust if it drifts
 
 ## Shared principles

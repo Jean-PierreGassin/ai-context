@@ -25,12 +25,9 @@ description: Use whenever writing, editing, or reviewing tests, in any language 
 ## Process
 
 1. Write the tests
-2. Dispatch an independent subagent (fresh context, no memory of writing these tests) to review them
-   against the implementation. Ask it to flag: tautological/fake assertions, coverage gaps, junk tests, and
-   near-duplicate cases that should collapse into a data provider/remove
-3. Apply real findings, then finish. Don't substitute self-review for this step - the point is a reviewer with no stake
-   in the tests just written
-4. Re-check and verify
+2. Read them back against the implementation for tautological/fake assertions, coverage gaps, junk tests, and
+   near-duplicate cases that should collapse into a data provider or be removed
+3. Apply what that surfaces, then finish
 
 See `examples/test-style-{language}.md` for bad/good examples based on our principles:
 

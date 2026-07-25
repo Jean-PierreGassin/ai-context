@@ -852,6 +852,45 @@ type EntityId = string | number;
 type TransferResult = SuccessfulTransfer | FailedTransfer;
 ```
 
+#### Return a named type; an inline object shape, a tuple, or a `Record` standing in for fixed keys has no name to import and no single definition to change
+
+```ts
+// Bad
+function summarise(order: Order): { subtotal: number; tax: number; lines: { sku: string; qty: number }[] } {}
+
+function parseRange(input: string): [Date, Date] {}
+
+function auditFields(order: Order): Record<string, unknown> {}
+```
+
+```ts
+// Good
+interface OrderLineSummary {
+  sku: string;
+  quantity: number;
+}
+
+interface OrderSummary {
+  subtotal: number;
+  tax: number;
+  lines: OrderLineSummary[];
+}
+
+function summarise(order: Order): OrderSummary {}
+
+interface DateRange {
+  start: Date;
+  end: Date;
+}
+
+function parseRange(input: string): DateRange {}
+
+// Good - a composable's state and handlers are a binding surface, not a structure
+function useDisclosure() {
+  return { isOpen, toggle };
+}
+```
+
 #### Prefer `undefined` for an absent value; use `null` only where an external contract (JSON) needs the key present
 
 ```ts
