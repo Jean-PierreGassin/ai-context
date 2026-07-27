@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Spaceship-style status line for Claude Code — two-line layout
+# Author: Jean-Pierre Gassin (https://github.com/Jean-PierreGassin)
+#
+# Custom status line for Claude Code with a two-line layout
 # Line 1: dir (cyan) · git branch/dirty marker (magenta/yellow)
 # Line 2: context window bar (colour-coded, red at >=40%) · session cost · model
 #
