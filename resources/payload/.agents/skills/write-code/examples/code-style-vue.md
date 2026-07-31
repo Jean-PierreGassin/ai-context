@@ -1,5 +1,9 @@
 # Vue Style Examples
 
+## Always apply
+
+Apply these even where the surrounding code predates them.
+
 #### `<script setup>` goes before `<template>` in an SFC
 
 ```vue
@@ -18,18 +22,6 @@
 <template>...</template>
 ```
 
-#### No `<style>` block; style via utility classes or design-system components
-
-```vue
-<!-- Bad -->
-<style scoped>.card { margin-top: 8px; }</style>
-```
-
-```vue
-<!-- Good -->
-<!-- styling via utility classes / design-system components; no <style> block -->
-```
-
 #### Define props as typed destructuring with defaults, not withDefaults
 
 ```ts
@@ -40,6 +32,152 @@ const props = withDefaults(defineProps<Props>(), { disabled: false });
 ```ts
 // Good - reactive destructure requires Vue 3.5+
 const { disabled = false } = defineProps<Props>();
+```
+
+#### Use `computed` to derive from reactive state, not to rename or pass through
+
+```ts
+// Bad
+const label = computed(() => props.label); // no calculation
+```
+
+```ts
+// Good
+const fullName = computed(() => `${props.firstName} ${props.lastName}`);
+```
+
+#### When the project provides a spacing/size scale, use it instead of custom pixel values
+
+```vue
+<!-- Bad -->
+<div class="mt-[7px]" style="height: 33px">...</div>
+```
+
+```vue
+<!-- Good -->
+<div class="mt-2 h-8">...</div>
+```
+
+#### Self-close components with no content
+
+```vue
+<!-- Bad -->
+<OrderSummaryCard></OrderSummaryCard>
+```
+
+```vue
+<!-- Good -->
+<OrderSummaryCard />
+```
+
+#### Use directive shorthands consistently - always `:`/`@`/`#`, never mixed with the long form
+
+```vue
+<!-- Bad -->
+<OrderRow v-bind:order="order" @select="onSelect" v-on:hover="onHover" />
+```
+
+```vue
+<!-- Good -->
+<OrderRow :order="order" @select="onSelect" @hover="onHover" />
+```
+
+#### Order template attributes: v-if/v-for, then id, then ref/key, then static attrs, then bound (:) attrs, then events (@)
+
+```html
+<!-- Bad -->
+<div v-if="open" data-cy="list" :aria-label="label" role="listbox" ref="list" :id="listId">...</div>
+```
+
+```html
+<!-- Good - matches eslint-plugin-vue's vue/attributes-order -->
+<div
+  v-if="open"
+  :id="listId"
+  ref="list"
+  role="listbox"
+  data-cy="list"
+  :aria-label="label"
+  :style="style"
+  @keydown="onKey"
+>
+  ...
+</div>
+```
+
+#### Order `<script setup>`: imports, props, emits, constants, refs, composables, computed, handlers
+
+```ts
+// Good - each group together with a blank line between (dependency order breaks ties)
+import { computed, ref } from 'vue';
+import useTypeToSearch from './composables/useTypeToSearch';
+
+const { modelValue = null } = defineProps<Props>();
+const emit = defineEmits(['update:modelValue']);
+
+const ROW_HEIGHT_PX = 40;
+const inputRef = ref<HTMLElement | null>(null);
+
+const { filteredOptions } = useTypeToSearch({ options: () => options });
+const selected = computed(() => options.find(match) ?? null);
+
+function onInput() {
+  /* ... */
+}
+```
+
+#### Extract a repeated or markup-heavy list item into its own child component
+
+```vue
+<!-- Bad - the parent inlines the row markup plus a per-item class map -->
+<button v-for="(option, index) in options" :key="option.id" :class="rowClasses(option, index)">
+  {{ option.label }}
+</button>
+```
+
+```vue
+<!-- Good - the parent renders the list; the child owns one item's markup, classes and a11y -->
+<OptionRow
+  v-for="option in options"
+  :key="option.id"
+  :option="option"
+  :selected="option.id === selectedId"
+  :active="option.id === activeId"
+  @select="select(option)"
+/>
+```
+
+#### Clean up side effects a composable sets up (listeners, timers, subscriptions) on unmount
+
+```ts
+// Bad - listener is added but never removed; it leaks and fires after unmount
+export default function useResize(onResize: () => void) {
+  window.addEventListener('resize', onResize);
+}
+```
+
+```ts
+// Good - tie teardown to the owning component's lifecycle
+export default function useResize(onResize: () => void) {
+  onMounted(() => window.addEventListener('resize', onResize));
+  onUnmounted(() => window.removeEventListener('resize', onResize));
+}
+```
+
+## Follow the project where it is consistent
+
+Where the project does something consistently, follow it. These are the default for a greenfield choice.
+
+#### No `<style>` block; style via utility classes or design-system components
+
+```vue
+<!-- Bad -->
+<style scoped>.card { margin-top: 8px; }</style>
+```
+
+```vue
+<!-- Good -->
+<!-- styling via utility classes / design-system components; no <style> block -->
 ```
 
 #### Props down, events up - keep components generic and loosely coupled
@@ -78,18 +216,6 @@ const emit = defineEmits(['toggle']); // clickable, but no standard event contra
 ```ts
 // Good
 const emit = defineEmits(['focus', 'blur', 'click', 'change']);
-```
-
-#### Use `computed` to derive from reactive state, not to rename or pass through
-
-```ts
-// Bad
-const label = computed(() => props.label); // no calculation
-```
-
-```ts
-// Good
-const fullName = computed(() => `${props.firstName} ${props.lastName}`);
 ```
 
 #### Prefer `ref` over `reactive`
@@ -213,122 +339,4 @@ const ROW_COMPONENTS: Record<MemberType, Component> = {
 ```vue
 <!-- Good: parent positions the component, e.g. <Card class="mt-4" /> -->
 <div class="rounded border">...</div>
-```
-
-#### When the project provides a spacing/size scale, use it instead of custom pixel values
-
-```vue
-<!-- Bad -->
-<div class="mt-[7px]" style="height: 33px">...</div>
-```
-
-```vue
-<!-- Good -->
-<div class="mt-2 h-8">...</div>
-```
-
-#### Self-close components with no content
-
-```vue
-<!-- Bad -->
-<OrderSummaryCard></OrderSummaryCard>
-```
-
-```vue
-<!-- Good -->
-<OrderSummaryCard />
-```
-
-#### Use directive shorthands consistently - always `:`/`@`/`#`, never mixed with the long form
-
-```vue
-<!-- Bad -->
-<OrderRow v-bind:order="order" @select="onSelect" v-on:hover="onHover" />
-```
-
-```vue
-<!-- Good -->
-<OrderRow :order="order" @select="onSelect" @hover="onHover" />
-```
-
-#### Order template attributes: v-if/v-for, then id, then ref/key, then static attrs, then bound (:) attrs, then events (@)
-
-```html
-<!-- Bad -->
-<div v-if="open" data-cy="list" :aria-label="label" role="listbox" ref="list" :id="listId">...</div>
-```
-
-```html
-<!-- Good - matches eslint-plugin-vue's vue/attributes-order -->
-<div
-  v-if="open"
-  :id="listId"
-  ref="list"
-  role="listbox"
-  data-cy="list"
-  :aria-label="label"
-  :style="style"
-  @keydown="onKey"
->
-  ...
-</div>
-```
-
-#### Order `<script setup>`: imports, props, emits, constants, refs, composables, computed, handlers
-
-```ts
-// Good - each group together with a blank line between (dependency order breaks ties)
-import { computed, ref } from 'vue';
-import useTypeToSearch from './composables/useTypeToSearch';
-
-const { modelValue = null } = defineProps<Props>();
-const emit = defineEmits(['update:modelValue']);
-
-const ROW_HEIGHT_PX = 40;
-const inputRef = ref<HTMLElement | null>(null);
-
-const { filteredOptions } = useTypeToSearch({ options: () => options });
-const selected = computed(() => options.find(match) ?? null);
-
-function onInput() {
-  /* ... */
-}
-```
-
-#### Extract a repeated or markup-heavy list item into its own child component
-
-```vue
-<!-- Bad - the parent inlines the row markup plus a per-item class map -->
-<button v-for="(option, index) in options" :key="option.id" :class="rowClasses(option, index)">
-  {{ option.label }}
-</button>
-```
-
-```vue
-<!-- Good - the parent renders the list; the child owns one item's markup, classes and a11y -->
-<OptionRow
-  v-for="option in options"
-  :key="option.id"
-  :option="option"
-  :selected="option.id === selectedId"
-  :active="option.id === activeId"
-  @select="select(option)"
-/>
-```
-
-#### Clean up side effects a composable sets up (listeners, timers, subscriptions) on unmount
-
-```ts
-// Bad - listener is added but never removed; it leaks and fires after unmount
-export default function useResize(onResize: () => void) {
-  window.addEventListener('resize', onResize);
-}
-```
-
-```ts
-// Good - tie teardown to the owning component's lifecycle
-export default function useResize(onResize: () => void) {
-  onMounted(() => window.addEventListener('resize', onResize));
-  onUnmounted(() => window.removeEventListener('resize', onResize));
-}
 ```

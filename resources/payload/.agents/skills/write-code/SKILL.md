@@ -13,10 +13,8 @@ description: Use when writing, editing, or reviewing code in any language or fra
 ## Rules
 
 - Finished code satisfies the examples, and the project's own standards where the two differ
-- Examples are enforced preferences for naming, formatting, and comments: apply them even where the surrounding code
-  predates them
-- Where an example carries a semantic or architectural choice (strict types, inheritance, error handling, module
-  layout), follow what the project does consistently and treat the example as the default for a greenfield choice
+- Each example file splits its rules into "Always apply" and "Follow the project where it is consistent"; treat the
+  section a rule sits in as its precedence
 - The project's own architecture pattern decides where code goes: Actions, DDD, service/repository, modular monolith,
   or whatever it already uses. The examples show one arrangement, and their rules hold in any of them. Follow the
   pattern in use unless the user names a different one
