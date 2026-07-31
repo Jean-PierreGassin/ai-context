@@ -16,8 +16,8 @@ description: Use when creating, running work inside, reviewing from, or tearing 
 2. Name the worktree exactly as the branch is named
 3. Check the repo's `.worktreeinclude` (or equivalent list of env/config files the worktree requires to run) against
    what actually landed in the worktree, and manually `cp` missing requirements from the repo root
-4. Let each worktree build its own `vendor`/`node_modules` by running the real installation commands
-   (`composer install`, `yarn install`, etc.) inside it
+4. Let each worktree build its own dependencies e.g `vendor`/`node_modules` by running the real installation commands
+   (`composer install`, `pnpm install`, etc.) inside it
 
 ## Handing a worktree back for review
 

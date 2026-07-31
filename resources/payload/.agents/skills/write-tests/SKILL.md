@@ -21,7 +21,7 @@ description: Use whenever writing, editing, or reviewing tests, in any language 
 - Be succinct: minimal arrange, one clear act, a focused assert. Mock only what crosses a real boundary
 - Prefer data providers/parameterized cases over near-duplicate test methods that differ only in input/expected values
 - Coverage is measured against the implementation's branches, edge cases, and error paths, not against whether the tests
-  you wrote pass
+  you wrote pass (think "what would this look/feel like from a users perspective, and what might fail?")
 
 See `examples/test-style-{language}.md` for bad/good examples based on our principles:
 

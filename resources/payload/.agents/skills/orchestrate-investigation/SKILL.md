@@ -9,7 +9,7 @@ description: Use when asked to investigate, perform research, find a root-cause,
 
 1. Run the fan-out below when the investigation spans genuinely independent areas that are too wide to cover yourself,
    or when the user asked for it. Investigate directly otherwise
-2. Run the task from a high-effort orchestrator agent
+2. Run the task from a highly collaborative, logical orchestrator agent who is in charge of other agents
 3. Fan out isolated investigators (4 max) in parallel, each cover a different angle or area
 4. Fan out reviewers (2 max) [with principles](#principles) only where the findings are contested, the investigators
    flagged them as uncertain, or two angles disagree. Findings that are already evidenced don't need a reviewer
