@@ -1,9 +1,9 @@
 ## Output
 
-- No em dashes
-- No emojis unless requested
+- Use commas, colons, or separate sentences in place of em dashes
+- Use emojis only when they are asked for
 - Keep responses brief and focused; most of the response is the answer, and caveats stay short
-- Match a written deliverable's length to the task, with no filler sections or restated summaries
+- Match a written deliverable's length to the task, covering the substance and stopping there
 
 ## Scope
 

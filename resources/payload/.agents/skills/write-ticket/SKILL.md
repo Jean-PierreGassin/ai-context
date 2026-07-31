@@ -32,7 +32,8 @@ description: Use when writing or editing a ticket for a story, bug, task, or inv
   constructor DI only, no raw DB writes / use the ORM, no N+1 queries, scalar params before collections, no side effects
   for pure functions, mutate in place, single source of truth, idempotent-migration guards. Keep only specific business
   rules, non-obvious constraints, and edge cases a developer could reasonably miss
-- No em dashes or emojis anywhere; domain-accurate terms; link related tickets as hyperlinks, not plain text
+- Use commas, colons, or separate sentences in place of em dashes, and use emojis only when asked; use
+  domain-accurate terms; link related tickets as hyperlinks, not plain text
 
 ## Examples
 

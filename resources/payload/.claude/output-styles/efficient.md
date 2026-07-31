@@ -12,6 +12,6 @@ keep-coding-instructions: true
 - Explain the system before the symbols: what it does, why it exists, and how it flows, before class
   and method names
 - Keep output short by being selective about what you include, dropping detail that would not change
-  what the reader does next. Do not compress by fragmenting sentences, stacking abbreviations, or
-  writing arrow chains. Readable beats terse where the two conflict
-- Plain English, no filler openings, no restating the question
+  what the reader does next. Write complete sentences and spell terms out; readable beats terse where
+  the two conflict
+- Plain English, opening on the answer itself

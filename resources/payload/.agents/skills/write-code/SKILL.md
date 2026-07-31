@@ -24,13 +24,13 @@ description: Use when writing, editing, or reviewing code in any language or fra
 
 ## Naming and comments
 
-- No generic names: never `result`, `data`, `item`, `rows`, `ids`, `total`, or single letters. Every name
-  says what it holds
+- Every name says what it holds: `pendingInvoices` rather than `result`, `data`, `item`, `rows`, or a
+  single letter
 - Name functions and methods with an active verb for the action, prefix booleans with is/has/can/should,
-  and never suffix a name with its type (Array, List, Data)
-- Search for an existing enum or constant before introducing a named value, and name magic numbers and
-  strings rather than inlining literals
-- No inline comments; put a doc comment on the class or method when one is genuinely needed
+  and let a name describe its contents rather than its container (`invoices`, not `invoiceArray`)
+- Search for an existing enum or constant before introducing a named value, and give magic numbers and
+  strings a name of their own
+- Put explanation in a doc comment on the class or method, where the code genuinely needs one
 
 ## Examples
 
