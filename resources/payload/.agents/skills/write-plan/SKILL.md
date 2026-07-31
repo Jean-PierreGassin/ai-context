@@ -16,13 +16,13 @@ description: Use when creating, resuming, or wrapping up a plan or multi-step ta
 2. [Load relevant skills](#compose-with-other-skills) that will help you write a more aligned plan
 3. Ask and confirm what should be thin vertically sliced with the user (give options)
 4. Perform research/investigation/context gathering
-5. Make or edit a new/existing artifact that walks through the plan (
-   see [artifacts](#context-gatheringartifactsopen-questions) for rules you must follow)
+5. Make or edit a new/existing artifact that walks through the plan
+   (see [artifacts](#context-gatheringartifactsopen-questions) for rules you must follow)
 6. If the user has feedback from the presented plan, repeat the artifact step again until the user is satisfied and has
    no feedback
 7. Perform research/investigation/context gathering based on gathered user context as a result of that artifact
-8. Hand over rather than implement: end the session referencing the plan locations, so implementation starts on
-   fresh context. Carry on into implementation only where the user asked for both
+8. Hand over rather than implement: end the session referencing the plan locations, so implementation starts on fresh
+   context. Carry on into implementation only where the user asked for both
 
 ## Compose with other skills
 
