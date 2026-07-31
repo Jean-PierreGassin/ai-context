@@ -8,8 +8,7 @@ description: Use when writing, editing, or reviewing code in any language or fra
 ## Process
 
 1. Read only the [example](#examples) files matching the languages and frameworks of the files you are
-   changing. Each runs to hundreds of lines and stays in context for the rest of the session once read,
-   so one you did not need is paid for repeatedly
+   changing
 2. Consume the [rules](#rules) which will be the enforcement of your implementation
 
 ## Rules
@@ -22,6 +21,16 @@ description: Use when writing, editing, or reviewing code in any language or fra
 - Examples can be overridden by what the project enforces (linters, static analysis, CI, framework and interface
   contracts, conventions in committed docs), not by surrounding code that happens to predate them
 - If the changes seem large enough, ask the user to consider thin vertical slices
+
+## Naming and comments
+
+- No generic names: never `result`, `data`, `item`, `rows`, `ids`, `total`, or single letters. Every name
+  says what it holds
+- Name functions and methods with an active verb for the action, prefix booleans with is/has/can/should,
+  and never suffix a name with its type (Array, List, Data)
+- Search for an existing enum or constant before introducing a named value, and name magic numbers and
+  strings rather than inlining literals
+- No inline comments; put a doc comment on the class or method when one is genuinely needed
 
 ## Examples
 
