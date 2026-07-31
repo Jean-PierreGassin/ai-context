@@ -21,15 +21,15 @@ description: Use when creating, resuming, or wrapping up a plan or multi-step ta
 6. If the user has feedback from the presented plan, repeat the artifact step again until the user is satisfied and has
    no feedback
 7. Perform research/investigation/context gathering based on gathered user context as a result of that artifact
-8. Never start implementation after planning/within the current session, instruct the user to handover to another
-   session, referencing the plan locations
+8. Hand over rather than implement: end the session referencing the plan locations, so implementation starts on
+   fresh context. Carry on into implementation only where the user asked for both
 
 ## Compose with other skills
 
 - If the research spans genuinely independent areas that are too wide to cover yourself, orchestrate investigation with
   other agents to cover them in parallel
 - If the plan is to implement code, use code writing/style/pattern related skills to understand how that should be
-  implemented
+  implemented, reading only the parts covering the languages in scope
 
 ## Looking for existing docs
 

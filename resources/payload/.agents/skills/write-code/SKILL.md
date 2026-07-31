@@ -7,19 +7,21 @@ description: Use when writing, editing, or reviewing code in any language or fra
 
 ## Process
 
-1. Read only the [example](#examples) files matching the languages and frameworks of the files you are
-   changing
+1. Read only the [example](#examples) files matching the languages and frameworks in scope
 2. Consume the [rules](#rules) which will be the enforcement of your implementation
 
 ## Rules
 
-- Code that contradicts the examples or project standards is not finished code
-- Examples are enforced preferences
+- Finished code satisfies the examples, and the project's own standards where the two differ
+- Examples are enforced preferences for naming, formatting, and comments: apply them even where the surrounding code
+  predates them
+- Where an example carries a semantic or architectural choice (strict types, inheritance, error handling, module
+  layout), follow what the project does consistently and treat the example as the default for a greenfield choice
 - The project's own architecture pattern decides where code goes: Actions, DDD, service/repository, modular monolith,
   or whatever it already uses. The examples show one arrangement, and their rules hold in any of them. Follow the
   pattern in use unless the user names a different one
-- Examples can be overridden by what the project enforces (linters, static analysis, CI, framework and interface
-  contracts, conventions in committed docs), not by surrounding code that happens to predate them
+- What the project enforces (linters, static analysis, CI, framework and interface contracts, conventions in committed
+  docs) overrides an example, and say so in a sentence when it does
 - If the changes seem large enough, ask the user to consider thin vertical slices
 
 ## Naming and comments

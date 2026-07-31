@@ -16,7 +16,8 @@ description: Use whenever writing, editing, or reviewing tests, in any language 
 - Write maintainable tests:
     - Use clear names, minimal setup, meaningful assertions, and keep tests resilient to refactoring that doesn't change
       behavior
-- No junk: don't test language/framework internals, trivial getters/setters, or the same branch twice
+- Test your own code: language and framework internals, trivial getters/setters, and branches already covered
+  belong to someone else's suite
 - Be succinct: minimal arrange, one clear act, a focused assert. Mock only what crosses a real boundary
 - Prefer data providers/parameterized cases over near-duplicate test methods that differ only in input/expected values
 - Coverage is measured against the implementation's branches, edge cases, and error paths, not against

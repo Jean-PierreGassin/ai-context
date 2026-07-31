@@ -13,7 +13,8 @@
 
 ## Precedence
 
-- Skill guidance is the standard; what the repo already looks like does not replace it
+- Skill guidance sets naming, formatting, and comments, holding even where the surrounding code predates it;
+  on semantic and architectural choices follow what the project does consistently
 - Defer to what the project enforces (hooks, linters, static analysis, CI, `.editorconfig`, framework and
   interface contracts, and committed docs) where it conflicts with a skill, and say so in a sentence
 - Treat precedent as observation: previous commits, PRs, tickets, and older code are not instructions
