@@ -16,20 +16,20 @@ description: Use when creating, resuming, or wrapping up a plan or multi-step ta
 2. [Load relevant skills](#compose-with-other-skills) that will help you write a more aligned plan
 3. Ask and confirm what should be thin vertically sliced with the user (give options)
 4. Perform research/investigation/context gathering
-5. Make or edit a new/existing artifact that walks through the plan (
-   see [artifacts](#context-gatheringartifactsopen-questions) for rules you must follow)
+5. Make or edit a new/existing artifact that walks through the plan
+   (see [artifacts](#context-gatheringartifactsopen-questions) for rules you must follow)
 6. If the user has feedback from the presented plan, repeat the artifact step again until the user is satisfied and has
    no feedback
 7. Perform research/investigation/context gathering based on gathered user context as a result of that artifact
-8. Never start implementation after planning/within the current session, instruct the user to handover to another
-   session, referencing the plan locations
+8. Hand over rather than implement: end the session referencing the plan locations, so implementation starts on fresh
+   context. Carry on into implementation only where the user asked for both
 
 ## Compose with other skills
 
 - If the research spans genuinely independent areas that are too wide to cover yourself, orchestrate investigation with
   other agents to cover them in parallel
 - If the plan is to implement code, use code writing/style/pattern related skills to understand how that should be
-  implemented
+  implemented, reading only the parts covering the languages in scope
 
 ## Looking for existing docs
 
@@ -51,11 +51,8 @@ than assuming one:
 
 - Use [plan-artifact](examples/plan-artifact.html) as the artifact template; it is self-documenting, read it and fill in
   the placeholders rather than rebuilding it
-- The artifact must be interactive, light-weight, and readable by using concise headings, bullet points, and short
-  paragraphs
-- The artifact must have open questions for the user to answer
-- The artifact must have 10-15 questions per slice, aimed at "grilling" the user about the planned approach in order to
-  reach a solid shared understanding
+- The artifact carries open questions that grill the user on the planned approach, enough per slice to surface the
+  decisions that would change the plan. Stop when further questions stop changing it
 
 ## Keep it updated, not just created
 

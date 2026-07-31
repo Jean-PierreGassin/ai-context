@@ -71,6 +71,7 @@ CI and container builds don't stall.
 | `write-pr`                  | Opening, drafting, or editing a pull request                                              |
 | `git-commit`                | Committing, staging, splitting a diff, or writing the message itself                      |
 | `orchestrate-investigation` | Investigating, researching, or finding a root cause                                       |
+| `use-worktrees`             | Creating, working inside, reviewing from, or tearing down a git worktree                  |
 
 `.agents/skills/*` holds the real content, using only the frontmatter the Open Agent Specification defines.
 `.claude/skills/*` holds a stub per skill carrying any Claude-specific fields and a pointer back to the canonical file.

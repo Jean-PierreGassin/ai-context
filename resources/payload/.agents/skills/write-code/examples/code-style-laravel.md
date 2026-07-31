@@ -3,12 +3,9 @@
 Follow the architecture pattern the project already uses (Actions, DDD, service/repository, modular); the layers named
 below are one arrangement, and each rule holds wherever that pattern puts the equivalent layer.
 
-#### No declaring strict types
+## Always apply
 
-```php
-// Bad
-declare(strict_types=1);
-```
+Apply these even where the surrounding code predates them.
 
 #### Use Request::input(), not Request::get() - get() falls through to Symfony's ParameterBag and can silently return a route parameter instead of the input value
 
@@ -20,6 +17,371 @@ $email = $request->get('email');
 ```php
 // Good
 $email = $request->input('email');
+```
+
+#### Split validation rules into one-per-line arrays, not bunched pipe-delimited strings
+
+```php
+// Bad
+public function rules(): array
+{
+    return [
+        'customer_id' => 'required|exists:customers,id',
+        'line_items' => 'required|array|min:1',
+    ];
+}
+```
+
+```php
+// Good
+public function rules(): array
+{
+    return [
+        'customer_id' => [
+            'required',
+            'exists:customers,id',
+        ],
+        'line_items' => [
+            'required',
+            'array',
+            'min:1',
+        ],
+    ];
+}
+```
+
+#### Wrap multi-step writes that must succeed or fail together in DB::transaction(), in the layer that orchestrates them
+
+```php
+// Bad
+class OrderService
+{
+    public function create(CreateOrderPayload $payload): OrderRecord
+    {
+        $order = $this->orders->create($payload);
+        $this->ledger->recordSale($order);
+
+        return $order;
+    }
+}
+```
+
+```php
+// Good
+class OrderService
+{
+    public function create(CreateOrderPayload $payload): OrderRecord
+    {
+        return DB::transaction(function () use ($payload) {
+            $order = $this->orders->create($payload);
+            $this->ledger->recordSale($order);
+
+            return $order;
+        });
+    }
+}
+```
+
+#### Create framework-owned files with their `make:` generator and edit what it produces; a migration's filename timestamp is its run order and comes from the moment the generator runs
+
+```bash
+# Bad - no timestamp to order it, and the project's configured stub never applies
+write database/migrations/create_orders_table.php
+```
+
+```bash
+# Good - then write the real up(), columns, and casts into the generated file
+php artisan make:migration create_orders_table --create=orders
+php artisan make:model Order -mf
+php artisan make:request StoreOrderRequest
+```
+
+#### Use when()/whenNotNull() for conditional response fields, not an if-branch that reshapes the array
+
+```php
+// Bad
+public function toArray(Request $request): array
+{
+    $fields = ['id' => $this->id, 'status' => $this->status];
+
+    if ($this->amountDue !== null) {
+        $fields['amount_due'] = $this->amountDue;
+    }
+
+    return $fields;
+}
+```
+
+```php
+// Good
+public function toArray(Request $request): array
+{
+    return [
+        'id' => $this->id,
+        'status' => $this->status,
+        'amount_due' => $this->whenNotNull($this->amountDue),
+    ];
+}
+```
+
+#### Eager load relationships before looping over them, to avoid N+1 queries
+
+```php
+// Bad
+class OrderRepository
+{
+    public function allActive(): Collection
+    {
+        return Order::where('status', OrderStatus::Active)->get();
+    }
+}
+```
+
+```php
+// Good
+class OrderRepository
+{
+    public function allActiveWithCustomer(): Collection
+    {
+        return Order::where('status', OrderStatus::Active)->with('customer')->get();
+    }
+}
+```
+
+#### Collection pipelines (Illuminate\Support\Collection) over foreach for anything transformable
+
+```php
+// Bad
+$activeInvoiceTotals = [];
+foreach ($invoices as $invoice) {
+    if ($invoice->isActive()) {
+        $activeInvoiceTotals[] = $invoice->total();
+    }
+}
+```
+
+```php
+// Good
+$activeInvoiceTotals = collect($invoices)
+    ->filter(fn (Invoice $invoice) => $invoice->isActive())
+    ->map(fn (Invoice $invoice) => $invoice->total());
+```
+
+#### Mass assignment via create()/fill(), not property-by-property assignment
+
+```php
+// Bad
+class OrderRepository
+{
+    public function createForCustomer(Customer $customer, array $attributes): Order
+    {
+        $order = new Order;
+        $order->customer_id = $customer->id;
+        $order->status = $attributes['status'];
+        $order->save();
+
+        return $order;
+    }
+}
+```
+
+```php
+// Good
+class OrderRepository
+{
+    public function createForCustomer(Customer $customer, array $attributes): Order
+    {
+        return $customer->orders()->create($attributes);
+    }
+}
+```
+
+#### Chunk large datasets instead of loading them all into memory
+
+```php
+// Bad
+class InvoiceRepository
+{
+    public function remindOverdue(ReminderService $reminders): void
+    {
+        Invoice::overdue()->chunk(count: 500, callback: function (Collection $overdueInvoices) use ($reminders) {
+            $overdueInvoices->each(fn (Invoice $invoice) => $reminders->send($invoice));
+        });
+    }
+}
+```
+
+```php
+// Good
+class InvoiceRepository
+{
+    private const CHUNK_SIZE = 500;
+
+    public function chunkOverdue(callable $callback): void
+    {
+        Invoice::overdue()->chunk(count: self::CHUNK_SIZE, callback: $callback);
+    }
+}
+
+class ReminderService
+{
+    public function __construct(
+        private readonly InvoiceRepository $invoices,
+    ) {
+    }
+
+    public function sendOverdueReminders(): void
+    {
+        $this->invoices->chunkOverdue(
+            fn (Collection $overdueInvoices) => $overdueInvoices->each(fn (Invoice $invoice) => $this->send($invoice)),
+        );
+    }
+
+    public function send(Invoice $invoice): void
+    {
+    }
+}
+```
+
+#### Use config/language files instead of hardcoded strings
+
+```php
+// Bad
+return back()->with(key: 'message', value: 'Your order has shipped!');
+
+$apiTimeout = 30;
+```
+
+```php
+// Good
+return back()->with(key: 'message', value: __('orders.shipped'));
+
+$apiTimeout = config('services.payment_gateway.timeout');
+```
+
+#### Controllers and models are singular, not plural
+
+```php
+// Bad
+class ArticlesController extends Controller
+{
+}
+
+class Articles extends Model
+{
+}
+```
+
+```php
+// Good
+class ArticleController extends Controller
+{
+}
+
+class Article extends Model
+{
+}
+```
+
+#### Routes and route parameters are plural, not singular
+
+```php
+// Bad
+Route::get(uri: 'article/{id}', action: [ArticleController::class, 'show']);
+```
+
+```php
+// Good
+Route::get(uri: 'articles/{id}', action: [ArticleController::class, 'show']);
+```
+
+#### Route names and database columns are snake_case
+
+```php
+// Bad
+Route::get(uri: 'articles/{id}', action: [ArticleController::class, 'show'])->name('show-article');
+
+$article->MetaTitle;
+```
+
+```php
+// Good
+Route::get(uri: 'articles/{id}', action: [ArticleController::class, 'show'])->name('articles.show');
+
+$article->meta_title;
+```
+
+#### PHP variables and methods are camelCase, not snake_case
+
+```php
+// Bad
+$articles_with_author = Article::with('author')->get();
+```
+
+```php
+// Good
+$articlesWithAuthor = Article::with('author')->get();
+```
+
+#### Read config values via config(), never env() outside config files
+
+```php
+// Bad
+$apiKey = env('PAYMENT_GATEWAY_KEY');
+```
+
+```php
+// Good
+// config/services.php
+'payment_gateway' => [
+    'key' => env('PAYMENT_GATEWAY_KEY'),
+],
+
+// Usage
+$apiKey = config('services.payment_gateway.key');
+```
+
+#### Do not execute queries inside Blade templates; eager load to avoid N+1
+
+```blade
+{{-- Bad --}}
+@foreach (Order::all() as $order)
+    {{ $order->customer->name }}
+@endforeach
+```
+
+```php
+// Good
+$orders = Order::with('customer')->get();
+```
+
+```blade
+@foreach ($orders as $order)
+    {{ $order->customer->name }}
+@endforeach
+```
+
+#### Migrations must have appropriate and real timestamps
+
+```bash
+# Bad
+database/migrations/2026_07_11_000000_create_form_submissions_table.php
+```
+
+```bash
+# Good
+database/migrations/2026_07_11_123456_create_form_submissions_table.php
+```
+
+## Follow the project where it is consistent
+
+Where the project does something consistently, follow it. These are the default for a greenfield choice.
+
+#### No declaring strict types
+
+```php
+// Bad
+declare(strict_types=1);
 ```
 
 #### Validation belongs in FormRequest classes, not controller methods
@@ -68,37 +430,6 @@ class StoreOrderRequest extends FormRequest
     {
         return CreateOrderPayload::fromArray($this->validated());
     }
-}
-```
-
-#### Split validation rules into one-per-line arrays, not bunched pipe-delimited strings
-
-```php
-// Bad
-public function rules(): array
-{
-    return [
-        'customer_id' => 'required|exists:customers,id',
-        'line_items' => 'required|array|min:1',
-    ];
-}
-```
-
-```php
-// Good
-public function rules(): array
-{
-    return [
-        'customer_id' => [
-            'required',
-            'exists:customers,id',
-        ],
-        'line_items' => [
-            'required',
-            'array',
-            'min:1',
-        ],
-    ];
 }
 ```
 
@@ -369,52 +700,6 @@ class OrderService
 }
 ```
 
-#### Wrap multi-step writes that must succeed or fail together in DB::transaction(), in the layer that orchestrates them
-
-```php
-// Bad
-class OrderService
-{
-    public function create(CreateOrderPayload $payload): OrderRecord
-    {
-        $order = $this->orders->create($payload);
-        $this->ledger->recordSale($order);
-
-        return $order;
-    }
-}
-```
-
-```php
-// Good
-class OrderService
-{
-    public function create(CreateOrderPayload $payload): OrderRecord
-    {
-        return DB::transaction(function () use ($payload) {
-            $order = $this->orders->create($payload);
-            $this->ledger->recordSale($order);
-
-            return $order;
-        });
-    }
-}
-```
-
-#### Create framework-owned files with their `make:` generator and edit what it produces; a migration's filename timestamp is its run order and comes from the moment the generator runs
-
-```bash
-# Bad - no timestamp to order it, and the project's configured stub never applies
-write database/migrations/create_orders_table.php
-```
-
-```bash
-# Good - then write the real up(), columns, and casts into the generated file
-php artisan make:migration create_orders_table --create=orders
-php artisan make:model Order -mf
-php artisan make:request StoreOrderRequest
-```
-
 #### Framework-defined signatures keep their `array`; the DTO rule applies everywhere the signature is yours
 
 ```php
@@ -473,34 +758,6 @@ class OrderResource extends JsonResource
             'status' => $this->status,
         ];
     }
-}
-```
-
-#### Use when()/whenNotNull() for conditional response fields, not an if-branch that reshapes the array
-
-```php
-// Bad
-public function toArray(Request $request): array
-{
-    $fields = ['id' => $this->id, 'status' => $this->status];
-
-    if ($this->amountDue !== null) {
-        $fields['amount_due'] = $this->amountDue;
-    }
-
-    return $fields;
-}
-```
-
-```php
-// Good
-public function toArray(Request $request): array
-{
-    return [
-        'id' => $this->id,
-        'status' => $this->status,
-        'amount_due' => $this->whenNotNull($this->amountDue),
-    ];
 }
 ```
 
@@ -593,205 +850,6 @@ class OrderResource extends JsonApiResource
 }
 ```
 
-#### Eager load relationships before looping over them, to avoid N+1 queries
-
-```php
-// Bad
-class OrderRepository
-{
-    public function allActive(): Collection
-    {
-        return Order::where('status', OrderStatus::Active)->get();
-    }
-}
-```
-
-```php
-// Good
-class OrderRepository
-{
-    public function allActiveWithCustomer(): Collection
-    {
-        return Order::where('status', OrderStatus::Active)->with('customer')->get();
-    }
-}
-```
-
-#### Collection pipelines (Illuminate\Support\Collection) over foreach for anything transformable
-
-```php
-// Bad
-$activeInvoiceTotals = [];
-foreach ($invoices as $invoice) {
-    if ($invoice->isActive()) {
-        $activeInvoiceTotals[] = $invoice->total();
-    }
-}
-```
-
-```php
-// Good
-$activeInvoiceTotals = collect($invoices)
-    ->filter(fn (Invoice $invoice) => $invoice->isActive())
-    ->map(fn (Invoice $invoice) => $invoice->total());
-```
-
-#### Mass assignment via create()/fill(), not property-by-property assignment
-
-```php
-// Bad
-class OrderRepository
-{
-    public function createForCustomer(Customer $customer, array $attributes): Order
-    {
-        $order = new Order;
-        $order->customer_id = $customer->id;
-        $order->status = $attributes['status'];
-        $order->save();
-
-        return $order;
-    }
-}
-```
-
-```php
-// Good
-class OrderRepository
-{
-    public function createForCustomer(Customer $customer, array $attributes): Order
-    {
-        return $customer->orders()->create($attributes);
-    }
-}
-```
-
-#### Chunk large datasets instead of loading them all into memory
-
-```php
-// Bad
-class InvoiceRepository
-{
-    public function remindOverdue(ReminderService $reminders): void
-    {
-        Invoice::overdue()->chunk(count: 500, callback: function (Collection $overdueInvoices) use ($reminders) {
-            $overdueInvoices->each(fn (Invoice $invoice) => $reminders->send($invoice));
-        });
-    }
-}
-```
-
-```php
-// Good
-class InvoiceRepository
-{
-    private const CHUNK_SIZE = 500;
-
-    public function chunkOverdue(callable $callback): void
-    {
-        Invoice::overdue()->chunk(count: self::CHUNK_SIZE, callback: $callback);
-    }
-}
-
-class ReminderService
-{
-    public function __construct(
-        private readonly InvoiceRepository $invoices,
-    ) {
-    }
-
-    public function sendOverdueReminders(): void
-    {
-        $this->invoices->chunkOverdue(
-            fn (Collection $overdueInvoices) => $overdueInvoices->each(fn (Invoice $invoice) => $this->send($invoice)),
-        );
-    }
-
-    public function send(Invoice $invoice): void
-    {
-    }
-}
-```
-
-#### Use config/language files instead of hardcoded strings
-
-```php
-// Bad
-return back()->with(key: 'message', value: 'Your order has shipped!');
-
-$apiTimeout = 30;
-```
-
-```php
-// Good
-return back()->with(key: 'message', value: __('orders.shipped'));
-
-$apiTimeout = config('services.payment_gateway.timeout');
-```
-
-#### Controllers and models are singular, not plural
-
-```php
-// Bad
-class ArticlesController extends Controller
-{
-}
-
-class Articles extends Model
-{
-}
-```
-
-```php
-// Good
-class ArticleController extends Controller
-{
-}
-
-class Article extends Model
-{
-}
-```
-
-#### Routes and route parameters are plural, not singular
-
-```php
-// Bad
-Route::get(uri: 'article/{id}', action: [ArticleController::class, 'show']);
-```
-
-```php
-// Good
-Route::get(uri: 'articles/{id}', action: [ArticleController::class, 'show']);
-```
-
-#### Route names and database columns are snake_case
-
-```php
-// Bad
-Route::get(uri: 'articles/{id}', action: [ArticleController::class, 'show'])->name('show-article');
-
-$article->MetaTitle;
-```
-
-```php
-// Good
-Route::get(uri: 'articles/{id}', action: [ArticleController::class, 'show'])->name('articles.show');
-
-$article->meta_title;
-```
-
-#### PHP variables and methods are camelCase, not snake_case
-
-```php
-// Bad
-$articles_with_author = Article::with('author')->get();
-```
-
-```php
-// Good
-$articlesWithAuthor = Article::with('author')->get();
-```
-
 #### Convention over configuration: rely on Laravel's defaults instead of explicit config
 
 ```php
@@ -819,24 +877,6 @@ class Order extends Model
         return $this->belongsTo(Customer::class);
     }
 }
-```
-
-#### Read config values via config(), never env() outside config files
-
-```php
-// Bad
-$apiKey = env('PAYMENT_GATEWAY_KEY');
-```
-
-```php
-// Good
-// config/services.php
-'payment_gateway' => [
-    'key' => env('PAYMENT_GATEWAY_KEY'),
-],
-
-// Usage
-$apiKey = config('services.payment_gateway.key');
 ```
 
 #### Cast dates to Carbon instances; format only in the display layer
@@ -883,26 +923,6 @@ Route::get(uri: '/orders/summary', action: function () {
 Route::get(uri: '/orders/summary', action: [OrderSummaryController::class, 'index']);
 ```
 
-#### Do not execute queries inside Blade templates; eager load to avoid N+1
-
-```blade
-{{-- Bad --}}
-@foreach (Order::all() as $order)
-    {{ $order->customer->name }}
-@endforeach
-```
-
-```php
-// Good
-$orders = Order::with('customer')->get();
-```
-
-```blade
-@foreach ($orders as $order)
-    {{ $order->customer->name }}
-@endforeach
-```
-
 #### Keep JS/CSS out of Blade templates
 
 ```blade
@@ -920,18 +940,6 @@ $orders = Order::with('customer')->get();
 ```javascript
 // Good
 const order = JSON.parse(document.getElementById('order').value)
-```
-
-#### Migrations must have appropriate and real timestamps
-
-```bash
-# Bad
-database/migrations/2026_07_11_000000_create_form_submissions_table.php
-```
-
-```bash
-# Good
-database/migrations/2026_07_11_123456_create_form_submissions_table.php
 ```
 
 #### No HTML in PHP classes

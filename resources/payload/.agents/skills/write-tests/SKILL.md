@@ -16,18 +16,12 @@ description: Use whenever writing, editing, or reviewing tests, in any language 
 - Write maintainable tests:
     - Use clear names, minimal setup, meaningful assertions, and keep tests resilient to refactoring that doesn't change
       behavior
-- No junk: don't test language/framework internals, trivial getters/setters, or the same branch twice
+- Test your own code: language and framework internals, trivial getters/setters, and branches already covered belong to
+  someone else's suite
 - Be succinct: minimal arrange, one clear act, a focused assert. Mock only what crosses a real boundary
 - Prefer data providers/parameterized cases over near-duplicate test methods that differ only in input/expected values
-- Before calling it done, re-read the implementation and check for uncovered branches, edge cases,
-  and error paths - don't just check that what you wrote passes
-
-## Process
-
-1. Write the tests
-2. Read them back against the implementation for tautological/fake assertions, coverage gaps, junk tests, and
-   near-duplicate cases that should collapse into a data provider or be removed
-3. Apply what that surfaces, then finish
+- Coverage is measured against the implementation's branches, edge cases, and error paths, not against whether the tests
+  you wrote pass (think "what would this look/feel like from a users perspective, and what might fail?")
 
 See `examples/test-style-{language}.md` for bad/good examples based on our principles:
 

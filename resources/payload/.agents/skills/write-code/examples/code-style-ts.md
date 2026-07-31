@@ -1,5 +1,9 @@
 # TypeScript Style Examples
 
+## Always apply
+
+Apply these even where the surrounding code predates them.
+
 #### Prefer readability to brevity
 
 ```ts
@@ -251,66 +255,6 @@ class Invoice {
 }
 ```
 
-#### Mark constructor-promoted properties readonly when the class never reassigns them
-
-```ts
-// Bad
-class Invoice {
-  constructor(
-    public customer: Customer,
-  ) {}
-}
-```
-
-```ts
-// Good
-class Invoice {
-  constructor(public readonly customer: Customer) {}
-}
-```
-
-#### Inject dependencies through the constructor; don't instantiate collaborators with `new` inside methods
-
-```ts
-// Bad
-function charge(order: Order): boolean {
-  const gateway = new PaymentGateway();
-
-  return gateway.process(order);
-}
-```
-
-```ts
-// Good
-class OrderProcessor {
-  constructor(private readonly gateway: PaymentGateway) {}
-
-  charge(order: Order): boolean {
-    return this.gateway.process(order);
-  }
-}
-```
-
-#### Declare explicit types where they aren't obvious from the value: params, returns, and empty/ambiguous inits
-
-```ts
-// Bad
-function charge(amount, gateway) { return gateway.process(amount); } // untyped params/return
-let customer;                          // no type, no initializer
-const total: number = 0;               // annotation the literal already proves
-```
-
-```ts
-// Good
-function charge(amount: number, gateway: PaymentGateway): boolean {
-  return gateway.process(amount);
-}
-
-let customer: Customer; // ambiguous without a type
-const pendingInvoices: Invoice[] = []; // empty init needs the type
-const total = 0; // obvious from the literal
-```
-
 #### Use template literals for interpolation, not string concatenation
 
 ```ts
@@ -323,64 +267,6 @@ const message = 'Balance: ' + account.getBalance() + ' for ' + account.owner.ful
 // Good
 const greeting = `Hello, ${name}!`;
 const message = `Balance: ${account.getBalance()} for ${account.owner.fullName}`;
-```
-
-#### Derive a variant type via Omit/Pick/Partial composition, don't hand-duplicate the fields
-
-```ts
-// Bad
-interface CreateOrderPayload {
-  customerId: string;
-  lineItems: LineItem[];
-}
-```
-
-```ts
-// Good
-type CreateOrderPayload = Omit<OrderItem, 'id' | 'status'>;
-```
-
-#### Config-driven factory over near-duplicate sibling files/exports
-
-```ts
-// Bad
-export const leadCreate = { key: 'lead_create', operation: { perform: performLead } };
-export const contactCreate = { key: 'contact_create', operation: { perform: performContact } };
-export const noteCreate = { key: 'note_create', operation: { perform: performNote } };
-```
-
-```ts
-// Good
-function generateCrudTrigger(resource: string, actions: Action[]): Record<string, Trigger> {
-  return actions.reduce(
-    (triggers, action) => ({
-      ...triggers,
-      [`${resource}_${action}`]: buildTrigger(resource, action),
-    }),
-    {},
-  );
-}
-
-export const leadTriggers = generateCrudTrigger('lead', ['create', 'update']);
-```
-
-#### Build a domain value with a named factory, not a repeated "magic" object literal
-
-```ts
-// Bad
-return { isSent: false, reason: 'cancelled', code: -128 };
-```
-
-```ts
-// Good
-function createFailedTransfer(
-  reason: FailureReason,
-  code: number,
-): FailedTransfer {
-  return { isSent: false, reason, code };
-}
-
-return createFailedTransfer('cancelled', USER_CANCELLED_CODE);
 ```
 
 #### Extract repeated multistep async operations into one shared helper
@@ -399,35 +285,6 @@ async function createEmail(z: ZObject, bundle: Bundle) {
 async function createEmail(z: ZObject, bundle: Bundle) {
   return perform(z, bundle, emailConfig, buildEmailBody(bundle));
 }
-```
-
-#### Keep side effects out of a parse/transform helper; the caller gets the result, then acts on it
-
-```ts
-// Bad - parsing and spinner logic tangled inside the inline listener
-engineOutput.on('line', (line) => {
-  const transferEvent = parseEngineEvent(line);
-  if (transferEvent?.type === 'started') {
-    spinner.start();
-  } else if (transferEvent?.type === 'failed') {
-    spinner.fail(transferEvent.reason);
-  }
-});
-```
-
-```ts
-// Good - the pure helper returns the event; the caller owns the spinner
-engineOutput.on('line', (line) => {
-  const transferEvent = parseEngineEvent(line);
-  if (transferEvent === undefined) {
-    return;
-  }
-
-  reflectInSpinner(spinner, transferEvent);
-});
-
-/** Pure: one NDJSON line to an event, or undefined if unrecognised. No UI. */
-function parseEngineEvent(line: string): TransferEvent | undefined {}
 ```
 
 #### async/await over .then() chains
@@ -524,6 +381,353 @@ for (const invoice of invoices) {
 const activeInvoiceTotals = invoices
   .filter((invoice) => invoice.isActive())
   .map((invoice) => invoice.total());
+```
+
+#### TODO comments are allowed to mark known, deliberate tech debt (not to explain what code does)
+
+```ts
+// Bad
+// loop through and validate each step
+for (const step of steps) {}
+```
+
+```ts
+// Good
+// TODO: remove once legacy workflows are migrated (WF-412)
+if (workflow.isLegacyFormat()) {
+}
+```
+
+#### Document @throws whenever a function throws, even on non-exported helpers
+
+```ts
+// Bad
+/**
+ * Resolves the step for the given context.
+ */
+function resolveStep(context: Context): Step {
+  if (!context.hasStep()) {
+    throw new ContextDataNotFoundError('No step in context');
+  }
+}
+```
+
+```ts
+// Good
+/**
+ * Resolves the step for the given context.
+ *
+ * @throws ContextDataNotFoundError
+ */
+function resolveStep(context: Context): Step {
+  if (!context.hasStep()) {
+    throw new ContextDataNotFoundError('No step in context');
+  }
+}
+```
+
+#### No assignment or key alignment
+
+```ts
+// Bad
+const firstName = 'Ana';
+const lastName  = 'Lee';
+const personalInfo = {
+  name:   'John',
+  gender: 'M',
+};
+```
+
+```ts
+// Good
+const firstName = 'Ana';
+const lastName = 'Lee';
+const personalInfo = {
+  name: 'John',
+  gender: 'M',
+};
+```
+
+#### No nested or long ternaries; simple single-line ternaries are fine
+
+```ts
+// Bad
+const nestedLabel = isActive ? (isAdmin ? 'Active admin' : 'Active user') : 'Inactive';
+const wrappedLabel = isActive ?
+  'Active' : 'Inactive';
+const stackedLabel = isActive ?
+  'Active' :
+  'Inactive';
+```
+
+```ts
+// Good
+const label = isActive ? 'Active' : 'Inactive';
+```
+
+#### No generic variable names ever (result, rows, ids, data, item, arr, total, single letters) - every name describes what it holds
+
+```ts
+// Bad
+const data = query.get();
+data.forEach((item) => {});
+```
+
+```ts
+// Good
+const overdueInvoices = query.get();
+overdueInvoices.forEach((invoice) => {});
+```
+
+#### No inline comments; use a doc comment instead for complex classes/methods
+
+```ts
+// Bad
+// loop through users and send emails
+users.forEach((user) => {});
+```
+
+```ts
+// Good
+/**
+ * Reconciles ledger entries against the bank feed for the given
+ * statement period, flagging any entry with no matching
+ * transaction in the ledger for manual review.
+ */
+function reconcileStatement(period: StatementPeriod) {}
+```
+
+#### Wrap multi-line comments (docblocks or //) into short paragraphs at a consistent width, not one long run-on line
+
+```ts
+// Bad
+// If no cache key was provided we derive one from the request URL and query params, normalizing key order so equivalent requests always hit the same cache entry regardless of how the params were originally ordered by the caller.
+```
+
+```ts
+// Good
+/**
+ * If no cache key was provided, we derive one from the request URL and
+ * query params, normalizing key order so equivalent requests always
+ * hit the same cache entry regardless of how params are ordered.
+ */
+```
+
+#### Name magic numbers as constants (or an enum for a related set), never inline literals
+
+```ts
+// Bad
+const maxHeight = visibleResults * 40;
+setTimeout(refresh, 300);
+```
+
+```ts
+// Good
+const ROW_HEIGHT_PX = 40;
+const REFRESH_DELAY_MS = 300;
+const maxHeight = visibleResults * ROW_HEIGHT_PX;
+setTimeout(refresh, REFRESH_DELAY_MS);
+```
+
+#### Group imports: external packages, then internal alias imports, then relative imports
+
+```ts
+// Bad
+import { formatCurrency } from './format-currency';
+import { ref } from 'vue';
+import { OrderItem } from 'src/types/order';
+import axios from 'axios';
+```
+
+```ts
+// Good
+import axios from 'axios';
+import { ref } from 'vue';
+import { OrderItem } from 'src/types/order';
+import { formatCurrency } from './format-currency';
+```
+
+#### Within a genuinely shared types.ts (cross-feature only; the default is one type per file, co-located), group all `type` aliases together and all `interface`s together (not interleaved); order within each group so a type appears before anything that depends on it
+
+```ts
+// Bad - type aliases and interfaces interleaved
+export type OrderId = string;
+export interface LineItem {
+  sku: string;
+  quantity: number;
+}
+export type OrderTotals = { subtotal: number; tax: number };
+export interface Order {
+  id: OrderId;
+  lineItems: LineItem[];
+}
+```
+
+```ts
+// Good - aliases grouped first (in dependency order), then interfaces (in dependency order)
+export type OrderId = string;
+export type OrderTotals = { subtotal: number; tax: number };
+
+export interface LineItem {
+  sku: string;
+  quantity: number;
+}
+
+export interface Order {
+  id: OrderId;
+  lineItems: LineItem[];
+}
+```
+
+## Follow the project where it is consistent
+
+Where the project does something consistently, follow it. These are the default for a greenfield choice.
+
+#### Mark constructor-promoted properties readonly when the class never reassigns them
+
+```ts
+// Bad
+class Invoice {
+  constructor(
+    public customer: Customer,
+  ) {}
+}
+```
+
+```ts
+// Good
+class Invoice {
+  constructor(public readonly customer: Customer) {}
+}
+```
+
+#### Inject dependencies through the constructor; don't instantiate collaborators with `new` inside methods
+
+```ts
+// Bad
+function charge(order: Order): boolean {
+  const gateway = new PaymentGateway();
+
+  return gateway.process(order);
+}
+```
+
+```ts
+// Good
+class OrderProcessor {
+  constructor(private readonly gateway: PaymentGateway) {}
+
+  charge(order: Order): boolean {
+    return this.gateway.process(order);
+  }
+}
+```
+
+#### Declare explicit types where they aren't obvious from the value: params, returns, and empty/ambiguous inits
+
+```ts
+// Bad
+function charge(amount, gateway) { return gateway.process(amount); } // untyped params/return
+let customer;                          // no type, no initializer
+const total: number = 0;               // annotation the literal already proves
+```
+
+```ts
+// Good
+function charge(amount: number, gateway: PaymentGateway): boolean {
+  return gateway.process(amount);
+}
+
+let customer: Customer; // ambiguous without a type
+const pendingInvoices: Invoice[] = []; // empty init needs the type
+const total = 0; // obvious from the literal
+```
+
+#### Derive a variant type via Omit/Pick/Partial composition, don't hand-duplicate the fields
+
+```ts
+// Bad
+interface CreateOrderPayload {
+  customerId: string;
+  lineItems: LineItem[];
+}
+```
+
+```ts
+// Good
+type CreateOrderPayload = Omit<OrderItem, 'id' | 'status'>;
+```
+
+#### Config-driven factory over near-duplicate sibling files/exports
+
+```ts
+// Bad
+export const leadCreate = { key: 'lead_create', operation: { perform: performLead } };
+export const contactCreate = { key: 'contact_create', operation: { perform: performContact } };
+export const noteCreate = { key: 'note_create', operation: { perform: performNote } };
+```
+
+```ts
+// Good
+function generateCrudTrigger(resource: string, actions: Action[]): Record<string, Trigger> {
+  return actions.reduce(
+    (triggers, action) => ({
+      ...triggers,
+      [`${resource}_${action}`]: buildTrigger(resource, action),
+    }),
+    {},
+  );
+}
+
+export const leadTriggers = generateCrudTrigger('lead', ['create', 'update']);
+```
+
+#### Build a domain value with a named factory, not a repeated "magic" object literal
+
+```ts
+// Bad
+return { isSent: false, reason: 'cancelled', code: -128 };
+```
+
+```ts
+// Good
+function createFailedTransfer(
+  reason: FailureReason,
+  code: number,
+): FailedTransfer {
+  return { isSent: false, reason, code };
+}
+
+return createFailedTransfer('cancelled', USER_CANCELLED_CODE);
+```
+
+#### Keep side effects out of a parse/transform helper; the caller gets the result, then acts on it
+
+```ts
+// Bad - parsing and spinner logic tangled inside the inline listener
+engineOutput.on('line', (line) => {
+  const transferEvent = parseEngineEvent(line);
+  if (transferEvent?.type === 'started') {
+    spinner.start();
+  } else if (transferEvent?.type === 'failed') {
+    spinner.fail(transferEvent.reason);
+  }
+});
+```
+
+```ts
+// Good - the pure helper returns the event; the caller owns the spinner
+engineOutput.on('line', (line) => {
+  const transferEvent = parseEngineEvent(line);
+  if (transferEvent === undefined) {
+    return;
+  }
+
+  reflectInSpinner(spinner, transferEvent);
+});
+
+/** Pure: one NDJSON line to an event, or undefined if unrecognised. No UI. */
+function parseEngineEvent(line: string): TransferEvent | undefined {}
 ```
 
 #### Polymorphic dispatch over switch/if-else chains for type-based behaviour
@@ -652,88 +856,6 @@ async function share(
 }
 ```
 
-#### TODO comments are allowed to mark known, deliberate tech debt (not to explain what code does)
-
-```ts
-// Bad
-// loop through and validate each step
-for (const step of steps) {}
-```
-
-```ts
-// Good
-// TODO: remove once legacy workflows are migrated (WF-412)
-if (workflow.isLegacyFormat()) {
-}
-```
-
-#### Document @throws whenever a function throws, even on non-exported helpers
-
-```ts
-// Bad
-/**
- * Resolves the step for the given context.
- */
-function resolveStep(context: Context): Step {
-  if (!context.hasStep()) {
-    throw new ContextDataNotFoundError('No step in context');
-  }
-}
-```
-
-```ts
-// Good
-/**
- * Resolves the step for the given context.
- *
- * @throws ContextDataNotFoundError
- */
-function resolveStep(context: Context): Step {
-  if (!context.hasStep()) {
-    throw new ContextDataNotFoundError('No step in context');
-  }
-}
-```
-
-#### No assignment or key alignment
-
-```ts
-// Bad
-const firstName = 'Ana';
-const lastName  = 'Lee';
-const personalInfo = {
-  name:   'John',
-  gender: 'M',
-};
-```
-
-```ts
-// Good
-const firstName = 'Ana';
-const lastName = 'Lee';
-const personalInfo = {
-  name: 'John',
-  gender: 'M',
-};
-```
-
-#### No nested or long ternaries; simple single-line ternaries are fine
-
-```ts
-// Bad
-const nestedLabel = isActive ? (isAdmin ? 'Active admin' : 'Active user') : 'Inactive';
-const wrappedLabel = isActive ?
-  'Active' : 'Inactive';
-const stackedLabel = isActive ?
-  'Active' :
-  'Inactive';
-```
-
-```ts
-// Good
-const label = isActive ? 'Active' : 'Inactive';
-```
-
 #### No pass-by-reference params; manage mutable state at the call site
 
 ```ts
@@ -750,54 +872,6 @@ function withTax(lineItems: LineItem[]): LineItem[] {
 }
 
 lineItems = withTax(lineItems);
-```
-
-#### No generic variable names ever (result, rows, ids, data, item, arr, total, single letters) - every name describes what it holds
-
-```ts
-// Bad
-const data = query.get();
-data.forEach((item) => {});
-```
-
-```ts
-// Good
-const overdueInvoices = query.get();
-overdueInvoices.forEach((invoice) => {});
-```
-
-#### No inline comments; use a doc comment instead for complex classes/methods
-
-```ts
-// Bad
-// loop through users and send emails
-users.forEach((user) => {});
-```
-
-```ts
-// Good
-/**
- * Reconciles ledger entries against the bank feed for the given
- * statement period, flagging any entry with no matching
- * transaction in the ledger for manual review.
- */
-function reconcileStatement(period: StatementPeriod) {}
-```
-
-#### Wrap multi-line comments (docblocks or //) into short paragraphs at a consistent width, not one long run-on line
-
-```ts
-// Bad
-// If no cache key was provided we derive one from the request URL and query params, normalizing key order so equivalent requests always hit the same cache entry regardless of how the params were originally ordered by the caller.
-```
-
-```ts
-// Good
-/**
- * If no cache key was provided, we derive one from the request URL and
- * query params, normalizing key order so equivalent requests always
- * hit the same cache entry regardless of how params are ordered.
- */
 ```
 
 #### Type untyped JS at the source (a declaration), not with a cast at each call site
@@ -956,40 +1030,6 @@ const query = String(option.label ?? '').toLowerCase(); // label is required: st
 const query = option.label.toLowerCase();
 ```
 
-#### Name magic numbers as constants (or an enum for a related set), never inline literals
-
-```ts
-// Bad
-const maxHeight = visibleResults * 40;
-setTimeout(refresh, 300);
-```
-
-```ts
-// Good
-const ROW_HEIGHT_PX = 40;
-const REFRESH_DELAY_MS = 300;
-const maxHeight = visibleResults * ROW_HEIGHT_PX;
-setTimeout(refresh, REFRESH_DELAY_MS);
-```
-
-#### Group imports: external packages, then internal alias imports, then relative imports
-
-```ts
-// Bad
-import { formatCurrency } from './format-currency';
-import { ref } from 'vue';
-import { OrderItem } from 'src/types/order';
-import axios from 'axios';
-```
-
-```ts
-// Good
-import axios from 'axios';
-import { ref } from 'vue';
-import { OrderItem } from 'src/types/order';
-import { formatCurrency } from './format-currency';
-```
-
 #### Declare a type where it's used; extract to a shared types.ts only when sibling files share it
 
 ```ts
@@ -1059,36 +1099,4 @@ export type { TransferResult } from './types.js';
 ```ts
 // consumer imports the mapped entry; internal files stay unreachable
 import { AirDropEngine } from 'sendit/transfer';
-```
-
-#### Within a genuinely shared types.ts (cross-feature only; the default is one type per file, co-located), group all `type` aliases together and all `interface`s together (not interleaved); order within each group so a type appears before anything that depends on it
-
-```ts
-// Bad - type aliases and interfaces interleaved
-export type OrderId = string;
-export interface LineItem {
-  sku: string;
-  quantity: number;
-}
-export type OrderTotals = { subtotal: number; tax: number };
-export interface Order {
-  id: OrderId;
-  lineItems: LineItem[];
-}
-```
-
-```ts
-// Good - aliases grouped first (in dependency order), then interfaces (in dependency order)
-export type OrderId = string;
-export type OrderTotals = { subtotal: number; tax: number };
-
-export interface LineItem {
-  sku: string;
-  quantity: number;
-}
-
-export interface Order {
-  id: OrderId;
-  lineItems: LineItem[];
-}
 ```

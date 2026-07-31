@@ -2,6 +2,10 @@
 
 Follow PER coding style (latest) unless the project differs.
 
+## Always apply
+
+Apply these even where the surrounding code predates them.
+
 #### Prefer readability to brevity
 
 ```php
@@ -258,18 +262,6 @@ createInvoice(
 createInvoice(customer: $customer);
 ```
 
-#### Class constants must have types defined
-
-```php
-// Bad
-private const CONFIG_PATH = '/../config/geo.php';
-```
-
-```php
-// Good
-private const string CONFIG_PATH = __DIR__.'/../config/geo.php';
-```
-
 #### Promote constructor parameters directly to properties, don't hand-assign them
 
 ```php
@@ -294,84 +286,6 @@ class Invoice
         // something
     }
 }
-```
-
-#### Mark constructor-promoted properties readonly when the class never reassigns them
-
-```php
-// Bad
-class Invoice
-{
-    public function __construct(
-        public Customer $customer,
-    ) {
-        // something
-    }
-}
-```
-
-```php
-// Good
-class Invoice
-{
-    public function __construct(
-        public readonly Customer $customer,
-    ) {
-    }
-}
-```
-
-#### Inject dependencies; don't instantiate collaborators with `new` inside methods
-
-```php
-// Bad
-function charge(Order $order): bool
-{
-    $gateway = new PaymentGateway();
-
-    return $gateway->process($order);
-}
-```
-
-```php
-// Good
-class OrderProcessor
-{
-    public function __construct(
-        private readonly PaymentGateway $gateway,
-    ) {
-    }
-
-    function charge(Order $order): bool
-    {
-        return $this->gateway->process($order);
-    }
-    
-    function refund(RefundGateway $refundGateway, Order $order): bool
-    {
-        return $refundGateway->process($order);
-    }
-}
-```
-
-#### Always declare explicit types; never rely on inference
-
-```php
-// Bad
-function charge($amount, $gateway)
-{
-    return $gateway->process($amount);
-}
-private $customer;
-```
-
-```php
-// Good
-function charge(int $amount, PaymentGateway $gateway): bool
-{
-    return $gateway->process($amount);
-}
-private readonly Customer $customer;
 ```
 
 #### Use string interpolation, not concatenation
@@ -453,24 +367,6 @@ $label = $isActive ?
 ```php
 // Good
 $label = $isActive ? 'Active' : 'Inactive';
-```
-
-#### No pass-by-reference params; manage mutable state at the call site
-
-```php
-// Bad
-function appendTax(LineItemCollection &$lineItems)
-{
-}
-```
-
-```php
-// Good
-function withTax(LineItemCollection $lineItems): LineItemCollection
-{
-    return $lineItems->push($taxLineItem);
-}
-$lineItems = withTax(lineItems: $lineItems);
 ```
 
 #### No generic variable names ever (result, rows, ids, data, item, arr, total, single letters)
@@ -599,6 +495,236 @@ $activeInvoiceTotals = array_map(
 );
 ```
 
+#### TODO comments are allowed to mark known, deliberate tech debt (not to explain what code does)
+
+```php
+// Bad
+// loop through and validate each step
+foreach ($steps as $step) {
+}
+```
+
+```php
+// Good
+// TODO: remove once legacy workflows are migrated (WF-412)
+if ($workflow->isLegacyFormat()) {
+}
+```
+
+#### Extract repeated multi-step operations into one shared helper
+
+```php
+// Bad
+function createEmail(Bundle $bundle): Response
+{
+    $token = $this->login($bundle);
+    return $this->client->post($this->emailUrl, ['headers' => ['Authorization' => $token]]);
+}
+function createSms(Bundle $bundle): Response
+{
+    $token = $this->login($bundle);
+    return $this->client->post($this->smsUrl, ['headers' => ['Authorization' => $token]]);
+}
+```
+
+```php
+// Good
+function createEmail(Bundle $bundle): Response
+{
+    return $this->perform($bundle, $this->emailConfig, $this->buildEmailBody($bundle));
+}
+function createSms(Bundle $bundle): Response
+{
+    return $this->perform($bundle, $this->smsConfig, $this->buildSmsBody($bundle));
+}
+```
+
+#### No inline comments; use a doc comment instead for complex classes/methods
+
+```php
+// Bad
+// loop through users and send emails
+foreach ($users as $user) {
+}
+```
+
+```php
+// Good
+/**
+ * Reconciles ledger entries against the bank feed for the days
+ * of the statement period, flagging each single entry which
+ * lacks a matching transaction in the ledger for review.
+ */
+function reconcileStatement(StatementPeriod $period)
+{
+}
+```
+
+#### Wrap multi-line comments (docblocks or inline) into short paragraphs at a consistent width, not one long run-on line
+
+```php
+// Bad
+// If no relationship name was passed, we will pull backtraces to get the name of the calling function, use that as...
+```
+
+```php
+// Good
+/**
+ * If no relationship name was passed, we will pull backtraces to get the
+ * name of the calling function. We will use that function name as the
+ * title of this relation since that is a great convention to apply.
+ */
+```
+
+#### PHPDoc only carries what the signature can't: keep `@throws`
+
+```php
+// Bad
+/**
+ * @param array{heading: string, links?: array<int, array<string, mixed>>} $section
+ * @return void
+ */
+public function addSection(array $section): void
+{
+}
+
+private function resolveStep(Context $context): Step
+{
+    if (!$context->hasStep()) {
+        throw new ContextDataNotFoundException('No step in context');
+    }
+}
+```
+
+```php
+// Good
+public function addSection(SiteSection $section): void
+{
+}
+
+/**
+ * @throws ContextDataNotFoundException
+ */
+private function resolveStep(Context $context): Step
+{
+    if (!$context->hasStep()) {
+        throw new ContextDataNotFoundException('No step in context');
+    }
+}
+```
+
+## Follow the project where it is consistent
+
+Where the project does something consistently, follow it. These are the default for a greenfield choice.
+
+#### Class constants must have types defined
+
+```php
+// Bad
+private const CONFIG_PATH = '/../config/geo.php';
+```
+
+```php
+// Good
+private const string CONFIG_PATH = __DIR__.'/../config/geo.php';
+```
+
+#### Mark constructor-promoted properties readonly when the class never reassigns them
+
+```php
+// Bad
+class Invoice
+{
+    public function __construct(
+        public Customer $customer,
+    ) {
+        // something
+    }
+}
+```
+
+```php
+// Good
+class Invoice
+{
+    public function __construct(
+        public readonly Customer $customer,
+    ) {
+    }
+}
+```
+
+#### Inject dependencies; don't instantiate collaborators with `new` inside methods
+
+```php
+// Bad
+function charge(Order $order): bool
+{
+    $gateway = new PaymentGateway();
+
+    return $gateway->process($order);
+}
+```
+
+```php
+// Good
+class OrderProcessor
+{
+    public function __construct(
+        private readonly PaymentGateway $gateway,
+    ) {
+    }
+
+    function charge(Order $order): bool
+    {
+        return $this->gateway->process($order);
+    }
+    
+    function refund(RefundGateway $refundGateway, Order $order): bool
+    {
+        return $refundGateway->process($order);
+    }
+}
+```
+
+#### Always declare explicit types; never rely on inference
+
+```php
+// Bad
+function charge($amount, $gateway)
+{
+    return $gateway->process($amount);
+}
+private $customer;
+```
+
+```php
+// Good
+function charge(int $amount, PaymentGateway $gateway): bool
+{
+    return $gateway->process($amount);
+}
+private readonly Customer $customer;
+```
+
+#### No pass-by-reference params; manage mutable state at the call site
+
+```php
+// Bad
+function appendTax(LineItemCollection &$lineItems)
+{
+}
+```
+
+```php
+// Good
+function withTax(LineItemCollection $lineItems): LineItemCollection
+{
+    return $lineItems->push($taxLineItem);
+}
+$lineItems = withTax(lineItems: $lineItems);
+```
+
 #### Polymorphic dispatch over switch/if-elseif chains for type-based behavior, and match over switch
 
 ```php
@@ -693,50 +819,6 @@ try {
 }
 ```
 
-#### TODO comments are allowed to mark known, deliberate tech debt (not to explain what code does)
-
-```php
-// Bad
-// loop through and validate each step
-foreach ($steps as $step) {
-}
-```
-
-```php
-// Good
-// TODO: remove once legacy workflows are migrated (WF-412)
-if ($workflow->isLegacyFormat()) {
-}
-```
-
-#### Extract repeated multi-step operations into one shared helper
-
-```php
-// Bad
-function createEmail(Bundle $bundle): Response
-{
-    $token = $this->login($bundle);
-    return $this->client->post($this->emailUrl, ['headers' => ['Authorization' => $token]]);
-}
-function createSms(Bundle $bundle): Response
-{
-    $token = $this->login($bundle);
-    return $this->client->post($this->smsUrl, ['headers' => ['Authorization' => $token]]);
-}
-```
-
-```php
-// Good
-function createEmail(Bundle $bundle): Response
-{
-    return $this->perform($bundle, $this->emailConfig, $this->buildEmailBody($bundle));
-}
-function createSms(Bundle $bundle): Response
-{
-    return $this->perform($bundle, $this->smsConfig, $this->buildSmsBody($bundle));
-}
-```
-
 #### Traits for cross-cutting reusable behavior, not base-class inheritance
 
 ```php
@@ -772,80 +854,6 @@ class WebhookTaskHandler
 class ScheduledTaskHandler
 {
     use ChecksStepType;
-}
-```
-
-#### No inline comments; use a doc comment instead for complex classes/methods
-
-```php
-// Bad
-// loop through users and send emails
-foreach ($users as $user) {
-}
-```
-
-```php
-// Good
-/**
- * Reconciles ledger entries against the bank feed for the days
- * of the statement period, flagging each single entry which
- * lacks a matching transaction in the ledger for review.
- */
-function reconcileStatement(StatementPeriod $period)
-{
-}
-```
-
-#### Wrap multi-line comments (docblocks or inline) into short paragraphs at a consistent width, not one long run-on line
-
-```php
-// Bad
-// If no relationship name was passed, we will pull backtraces to get the name of the calling function, use that as...
-```
-
-```php
-// Good
-/**
- * If no relationship name was passed, we will pull backtraces to get the
- * name of the calling function. We will use that function name as the
- * title of this relation since that is a great convention to apply.
- */
-```
-
-#### PHPDoc only carries what the signature can't: keep `@throws`
-
-```php
-// Bad
-/**
- * @param array{heading: string, links?: array<int, array<string, mixed>>} $section
- * @return void
- */
-public function addSection(array $section): void
-{
-}
-
-private function resolveStep(Context $context): Step
-{
-    if (!$context->hasStep()) {
-        throw new ContextDataNotFoundException('No step in context');
-    }
-}
-```
-
-```php
-// Good
-public function addSection(SiteSection $section): void
-{
-}
-
-/**
- * @throws ContextDataNotFoundException
- */
-private function resolveStep(Context $context): Step
-{
-    if (!$context->hasStep()) {
-        throw new ContextDataNotFoundException('No step in context');
-    }
 }
 ```
 
