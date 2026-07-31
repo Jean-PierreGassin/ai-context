@@ -7,7 +7,9 @@ description: Use when writing, editing, or reviewing code in any language or fra
 
 ## Process
 
-1. Gather [examples](#examples) that relate to the task at hand, be thorough
+1. Read only the [example](#examples) files matching the languages and frameworks of the files you are
+   changing. Each runs to hundreds of lines and stays in context for the rest of the session once read,
+   so one you did not need is paid for repeatedly
 2. Consume the [rules](#rules) which will be the enforcement of your implementation
 
 ## Rules
