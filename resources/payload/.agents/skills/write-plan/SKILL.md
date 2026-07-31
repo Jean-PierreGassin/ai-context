@@ -51,11 +51,8 @@ than assuming one:
 
 - Use [plan-artifact](examples/plan-artifact.html) as the artifact template; it is self-documenting, read it and fill in
   the placeholders rather than rebuilding it
-- The artifact must be interactive, light-weight, and readable by using concise headings, bullet points, and short
-  paragraphs
-- The artifact must have open questions for the user to answer
-- The artifact must have 10-15 questions per slice, aimed at "grilling" the user about the planned approach in order to
-  reach a solid shared understanding
+- The artifact carries open questions that grill the user on the planned approach, enough per slice to surface the
+  decisions that would change the plan. Stop when further questions stop changing it
 
 ## Keep it updated, not just created
 
