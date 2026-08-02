@@ -9,6 +9,8 @@ description: Use when writing, editing, or reviewing code in any language or fra
 
 1. Read only the [example](#examples) files matching the languages and frameworks in scope
 2. Consume the [rules](#rules) which will be the enforcement of your implementation
+3. For anything beyond a contained edit, [decide how the change is shaped](#shape-the-change-before-writing-it) before
+   writing code
 
 ## Rules
 
@@ -20,7 +22,26 @@ description: Use when writing, editing, or reviewing code in any language or fra
   in use unless the user names a different one
 - What the project enforces (linters, static analysis, CI, framework and interface contracts, conventions in committed
   docs) overrides an example, and say so in a sentence when it does
-- If the changes seem large enough, ask the user to consider thin vertical slices
+
+## Shape the change before writing it
+
+Don't start typing on a large change. Name what it is first, then take the matching route:
+
+| The change is                     | Write it as                                                                  |
+|-----------------------------------|------------------------------------------------------------------------------|
+| A new capability                  | Thin vertical slices, each usable end to end                                 |
+| Replacing existing behaviour      | Branch by abstraction: abstract, add the new path, switch consumers, delete  |
+| A schema, API, or contract change | Expand and contract: add compatible structure, migrate usage, remove the old |
+| Primarily refactoring             | A mechanical change stack, no behaviour change in any step                   |
+
+- Keep mechanical edits out of behavioural ones. A rename, a move, or a formatting sweep lands on its own, so the diff
+  that changes behaviour stays small enough to read
+- Where the switch is risky or needs a staged rollout, put it behind a feature flag so rollback is config, not a deploy
+- Only introduce an abstraction that lowers review risk or enables a safer rollout, never one that only exists to look
+  extensible
+- If the work spans more than one of these, say so and offer the split rather than merging them into one change. Where
+  a plan already exists, follow its change stack and its ordering
+- Proportion matters: a contained fix is one change, and saying so is the whole decision
 
 ## Naming and comments
 

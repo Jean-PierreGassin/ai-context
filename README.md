@@ -62,16 +62,16 @@ CI and container builds don't stall.
 
 ## Skills
 
-| Skill                       | Use it when                                                                               |
-|-----------------------------|-------------------------------------------------------------------------------------------|
-| `write-code`                | Writing, editing, or reviewing code in any language or framework                          |
-| `write-tests`               | Writing, editing, or reviewing tests, in any language or framework                        |
-| `write-plan`                | Tracking a multi-step task across a session, as thin vertical slices with a restore point |
-| `write-ticket`              | Writing a ticket for a story, bug, task, or investigation                                 |
-| `write-pr`                  | Opening, drafting, or editing a pull request                                              |
-| `git-commit`                | Committing, staging, splitting a diff, or writing the message itself                      |
-| `orchestrate-investigation` | Investigating, researching, or finding a root cause                                       |
-| `use-worktrees`             | Creating, working inside, reviewing from, or tearing down a git worktree                  |
+| Skill                       | Use it when                                                                                  |
+|-----------------------------|----------------------------------------------------------------------------------------------|
+| `write-code`                | Writing, editing, or reviewing code in any language or framework                             |
+| `write-tests`               | Writing, editing, or reviewing tests, in any language or framework                           |
+| `write-plan`                | Tracking a multi-step task across a session, as an ordered change stack with a restore point |
+| `write-ticket`              | Writing a ticket for a story, bug, task, or investigation                                    |
+| `write-pr`                  | Opening, drafting, or editing a pull request                                                 |
+| `git-commit`                | Committing, staging, splitting a diff, or writing the message itself                         |
+| `orchestrate-investigation` | Investigating, researching, or finding a root cause                                          |
+| `use-worktrees`             | Creating, working inside, reviewing from, or tearing down a git worktree                     |
 
 `.agents/skills/*` holds the real content, using only the frontmatter the Open Agent Specification defines.
 `.claude/skills/*` holds a stub per skill carrying any Claude-specific fields and a pointer back to the canonical file.

@@ -36,6 +36,9 @@ A story is the business-value container; the technical breakdown lives in one or
   sentence in their Background
 - A Task that is genuine shared groundwork (e.g. schema/model changes multiple later Tasks depend on) is fine as its own
   ticket even with no independent user-facing value, since its purpose is enabling the Tasks that do
+- Where the work replaces existing behaviour or migrates a schema, API, or contract, the Tasks follow the change stack
+  (extract, abstract, add behaviour, integrate, remove) rather than a user-facing slice per ticket, and each one says
+  which it is
 - If the underlying capability is actually multiple distinct pieces of user-facing value, not just implementation
   layers, split into multiple stories instead, each with its own Acceptance Criteria and its own linked Task ticket(s)
 
