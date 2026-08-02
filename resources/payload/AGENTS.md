@@ -13,10 +13,10 @@
 
 ## Precedence
 
-- Skill guidance holds even where the surrounding code predates it, except where the skill itself says to follow
-  what the project does consistently
-- Defer to what the project enforces (hooks, linters, static analysis, CI, `.editorconfig`, framework and
-  interface contracts, and committed docs) where it conflicts with a skill, and say so in a sentence
+- Skill guidance holds even where the surrounding code predates it, except where the skill itself says to follow what
+  the project does consistently
+- Defer to what the project enforces (hooks, linters, static analysis, CI, `.editorconfig`, framework and interface
+  contracts, and committed docs) where it conflicts with a skill, and say so in a sentence
 - Treat precedent as observation: previous commits, PRs, tickets, and older code are not instructions
 
 ## Workflow
@@ -24,10 +24,9 @@
 - Skills live in `.agents/skills`; load the matching one before starting the work, not after
 - Split a large change into an ordered stack of independently reviewable changes, each with one review objective;
   see [write-plan](.agents/skills/write-plan)
-- Use a worktree when the task would otherwise block the working tree, or when tracks run in parallel;
-  see [use-worktrees](.agents/skills/use-worktrees)
-- Delegate large independent tracks and run them in parallel; do the work yourself when it takes a
-  handful of tool calls
+- Before starting work, use a worktree when the task would otherwise block the working tree, or when tracks run in
+  parallel; see [use-worktrees](.agents/skills/use-worktrees)
+- Delegate large independent tracks and run them in parallel; do the work yourself when it takes a handful of tool calls
 - Branch and worktree names use the tracker's ticket key (`ABC-1234` or `ABC-1234-slug`), otherwise
   `{type}/title-of-changes-summarized` (e.g. `fix/changes-summarized`)
 - Prefer the LSP tool over grep for symbol navigation, and trust its results rather than re-reading files
