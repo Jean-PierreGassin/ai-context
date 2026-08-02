@@ -24,6 +24,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class InstallCommand extends Command
 {
     private const OPTION_FORCE = 'force';
+    private const OPTION_DRY_RUN = 'dry-run';
     private const OPTION_PROJECT_DIR = 'project-dir';
 
     public function __construct(
@@ -41,6 +42,12 @@ class InstallCommand extends Command
             'Overwrite locally modified files without asking',
         );
         $this->addOption(
+            self::OPTION_DRY_RUN,
+            null,
+            InputOption::VALUE_NONE,
+            'Report what a full install would change without writing anything',
+        );
+        $this->addOption(
             self::OPTION_PROJECT_DIR,
             null,
             InputOption::VALUE_REQUIRED,
@@ -54,9 +61,13 @@ class InstallCommand extends Command
         $style = new SymfonyStyle($input, $output);
         $style->title('ai-context');
 
+        $isDryRun = $input->getOption(self::OPTION_DRY_RUN) === true;
         try {
             $report = $this->installerFactory
-                ->create($this->resolveApproval($input, $style))
+                ->create(
+                    approval: $this->resolveApproval($input, $style),
+                    isPreview: $isDryRun,
+                )
                 ->install((string) $input->getOption(self::OPTION_PROJECT_DIR));
         } catch (PayloadNotFoundException $exception) {
             $style->error($exception->getMessage());
@@ -64,12 +75,19 @@ class InstallCommand extends Command
             return Command::FAILURE;
         }
 
-        return $this->report($report, $style);
+        return $this->report($report, $style, $isDryRun);
     }
 
+    /**
+     * A dry run never prompts, because there is nothing to approve when
+     * nothing is written. It assumes approval instead, so the report
+     * covers every file a full install would touch.
+     */
     private function resolveApproval(InputInterface $input, SymfonyStyle $style): OverwriteApproval
     {
-        if ($input->getOption(self::OPTION_FORCE) === true) {
+        $isForced = $input->getOption(self::OPTION_FORCE) === true;
+        $isDryRun = $input->getOption(self::OPTION_DRY_RUN) === true;
+        if ($isForced || $isDryRun) {
             return new ForcedOverwriteApproval();
         }
 
@@ -80,7 +98,7 @@ class InstallCommand extends Command
         return new ConsoleOverwriteApproval($style);
     }
 
-    private function report(InstallReport $report, SymfonyStyle $style): int
+    private function report(InstallReport $report, SymfonyStyle $style, bool $isDryRun): int
     {
         $style->table(
             ['Outcome', 'Files'],
@@ -97,7 +115,8 @@ class InstallCommand extends Command
         }
 
         if (!$report->hasFailures()) {
-            $style->success('Your project is up to date.');
+            $successMessage = $isDryRun ? 'Dry run: nothing was written.' : 'Your project is up to date.';
+            $style->success($successMessage);
 
             return Command::SUCCESS;
         }
