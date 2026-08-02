@@ -22,6 +22,8 @@
 ## Workflow
 
 - Skills live in `.agents/skills`; load the matching one before starting the work, not after
+- Split a large change into an ordered stack of independently reviewable changes, each with one review objective;
+  see [write-plan](.agents/skills/write-plan)
 - Use a worktree when the task would otherwise block the working tree, or when tracks run in parallel;
   see [use-worktrees](.agents/skills/use-worktrees)
 - Delegate large independent tracks and run them in parallel; do the work yourself when it takes a

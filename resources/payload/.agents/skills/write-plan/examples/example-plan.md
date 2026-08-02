@@ -5,6 +5,15 @@
 
 Remove the deprecation warning on the candidate overview page caused by formatting a missing expiry-type field
 
+## Change Stack Position
+
+Single change, no stack required.
+
+- **Kind** - behavioural, template only
+- **Depends on** - nothing
+- **Reviewer focus** - that output is unchanged wherever an expiry type is present
+- **Rollback** - revert the commit
+
 ## Requirements
 
 - Fix the deprecation warning in the overview template around the induction/licence expiry links

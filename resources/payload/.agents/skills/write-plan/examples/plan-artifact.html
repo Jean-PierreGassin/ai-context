@@ -207,6 +207,39 @@
         margin:20px 0 28px;
     }
 
+    /* Per-change review metadata, sits directly under the Goal box. */
+    .review-meta{
+        display:grid;
+        grid-template-columns:auto 1fr;
+        gap:6px 14px;
+        margin:0 0 28px;
+        font-size:14px;
+    }
+
+    .review-meta dt{
+        color:var(--muted);
+        font-weight:600;
+        text-transform:uppercase;
+        letter-spacing:.04em;
+        font-size:12px;
+        padding-top:2px;
+    }
+
+    .review-meta dd{
+        margin:0;
+    }
+
+    @media (max-width:640px){
+        .review-meta{
+            grid-template-columns:1fr;
+            gap:2px;
+        }
+
+        .review-meta dd{
+            margin-bottom:10px;
+        }
+    }
+
     .content{
         margin-bottom:34px;
     }
@@ -539,7 +572,7 @@
         {{PLAN_DESCRIPTION}}
       </div>
 
-      <div class="nav-label">Slices</div>
+      <div class="nav-label">Change stack</div>
       <nav>
         {{SIDEBAR}}
         <!-- e.g. <a class="nav-link" href="#slice-auth">Authentication</a>, one per slice -->
@@ -561,6 +594,20 @@
           <strong>Goal</strong>
           <p>{{SLICE_SUMMARY}}</p>
         </div>
+
+        <dl class="review-meta">
+          {{SLICE_REVIEW_META}}
+          <!--
+          One change in the stack per section, in the order they land. Kind is
+          mechanical, structural/refactor, behavioural, user-facing, or cleanup.
+          Drop a row only where it genuinely says nothing, e.g.:
+
+          <dt>Kind</dt><dd>Behavioural</dd>
+          <dt>Depends on</dt><dd>Extract refund calculation, RefundCalculator abstraction</dd>
+          <dt>Reviewer focus</dt><dd>Rounding, and the boundary at exactly one shipped item</dd>
+          <dt>Rollback</dt><dd>Revert the commit, no data migration to undo</dd>
+          -->
+        </dl>
 
         <div class="content">
           {{SLICE_CONTENT}}
@@ -885,13 +932,14 @@ DynamicForm
 
       /*
       Annotation selection is allowed in .content, .summary (the Goal box),
-      and .diagram (the data flow section), but not in .grilling or .notes,
+      .review-meta (kind, dependencies, reviewer focus, rollback), and
+      .diagram (the data flow section), but not in .grilling or .notes,
       where a text selection is more likely to be the user editing an
       answer than highlighting plan text to comment on.
       */
       document.addEventListener('mouseup', function(e){
           if(popup.contains(e.target)) return;
-          if(!(e.target instanceof Element) || !e.target.closest('.content, .summary, .diagram')) return;
+          if(!(e.target instanceof Element) || !e.target.closest('.content, .summary, .review-meta, .diagram')) return;
           setTimeout(openPopupForSelection, 0);
       });
 
