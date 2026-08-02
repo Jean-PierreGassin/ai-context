@@ -43,11 +43,15 @@ To have this package automatically install after an update, wire the installer i
 | Option                   | Effect                                             |
 |--------------------------|----------------------------------------------------|
 | `--force`, `-f`          | Overwrite modified files without asking            |
+| `--dry-run`              | Report what would change without writing anything  |
 | `--no-interaction`, `-n` | Never prompt; leave modified files alone           |
 | `--project-dir`          | Install somewhere other than the current directory |
 
 Default behaviour will prompt for anything destructive. With no terminal to prompt on, `--no-interaction` is assumed, so
 CI and container builds don't stall.
+
+`--dry-run` never prompts and never writes. It assumes every overwrite is approved, so the report covers every file a
+`--force` install would touch.
 
 ## What's included
 
