@@ -1,5 +1,50 @@
 # PR Description Examples
 
+## One review objective per PR - don't make the reviewer judge five things at once
+
+```
+// Bad
+Description: This PR reworks refunds.
+
+- Extracts the refund calculation out of `OrderService`
+- Adds partial refund eligibility rules
+- Exposes refund eligibility on the API
+- Updates the refund screen
+- Renames `refund_amt` to `refund_amount` throughout
+```
+
+```
+// Good
+Description: This PR adds partial refund eligibility, so orders that shipped in more than one parcel can be
+refunded per parcel instead of all or nothing.
+
+- Adds the eligibility rules to `RefundCalculator`
+  - A part-shipped order is eligible for the value of the shipped parcels, less any prior refund
+  - An order with no shipped parcels keeps the existing all-or-nothing behaviour
+
+**Review focus:** The rounding, and the boundary at exactly one shipped parcel. The extraction it sits on landed
+in #402, the API and screen follow in #405.
+```
+
+## Say what is mechanical, so the reviewer skips it
+
+```
+// Bad
+Description: This PR moves the refund calculation into its own class and tidies things up along the way.
+```
+
+```
+// Good
+Description: This PR moves the refund calculation out of `OrderService` into `RefundCalculator`, ahead of the
+eligibility rules landing in #404.
+
+- Moves `calculateRefund()` and its three private helpers into `RefundCalculator`, unchanged
+- Points the two existing call sites at the new class
+
+**Review focus:** Nothing behavioural, this is a move. The existing refund tests pass untouched, which is the
+check that matters here.
+```
+
 ## No em dashes or emojis anywhere
 
 ```
