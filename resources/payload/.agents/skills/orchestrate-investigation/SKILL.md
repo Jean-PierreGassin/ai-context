@@ -36,3 +36,6 @@ The report is the deliverable, so it earns its length by what it settles, not by
   you just said, and recommendations the reader did not ask for
 - A finding that is a repeat of another one is a single finding with a list of locations, not N findings
 - Evidence beats adjectives: show the input and the wrong output rather than describing it as critical or severe
+- Where the investigation feeds an implementation, close with the seams a fix would split along: which parts are
+  mechanical, which change behaviour, and which touch a schema, API, or external contract. That is what the plan's
+  change stack is built from, and you are the one who just learned it
