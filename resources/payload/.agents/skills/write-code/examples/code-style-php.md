@@ -124,6 +124,26 @@ if ($order->status === OrderStatus::Shipped) {
 }
 ```
 
+#### Never add `declare(strict_types=1)`, even when the file copied as a template has it
+
+```php
+// Bad
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services;
+```
+
+```php
+// Good
+<?php
+
+namespace App\Services;
+```
+
+Treat its presence in an existing file as precedent to leave alone, not to follow.
+
 #### Import classes with `use`, not inline fully-qualified names
 
 ```php
@@ -244,6 +264,10 @@ function charge(
 }
 ```
 
+The tiering orders auxiliary arguments; a DTO that is the method's subject stays first
+(`valueFor(TableColumn $column, int $rowOffset)`), since pushing the subject behind its own modifiers makes every call
+site read backwards.
+
 #### Use named arguments when calling methods
 
 ```php
@@ -261,6 +285,9 @@ createInvoice(
 );
 createInvoice(customer: $customer);
 ```
+
+Applies to every first-party call, single-argument ones included. Leave PHP built-ins, framework and third-party calls
+positional; spreads and first-class callable syntax cannot take names.
 
 #### Promote constructor parameters directly to properties, don't hand-assign them
 

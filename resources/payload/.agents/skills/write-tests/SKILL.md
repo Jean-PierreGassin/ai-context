@@ -20,6 +20,10 @@ description: Use whenever writing, editing, or reviewing tests, in any language 
   someone else's suite
 - Be succinct: minimal arrange, one clear act, a focused assert. Mock only what crosses a real boundary
 - Prefer data providers/parameterized cases over near-duplicate test methods that differ only in input/expected values
+- Never introduce a test style the repo has no precedent for: find the existing test covering the nearest equivalent
+  change and copy its shape. Where the change cannot be expressed that way, say so and let the existing suite be the
+  gate rather than inventing a mechanism. This governs whether a new kind of test is warranted, not whether to add
+  coverage where a suite already exists
 - Coverage is measured against the implementation's branches, edge cases, and error paths, not against whether the tests
   you wrote pass (think "what would this look/feel like from a users perspective, and what might fail?")
 

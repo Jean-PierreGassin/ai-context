@@ -16,4 +16,15 @@ keep-coding-instructions: true
 - Separate facts, assumptions, and recommendations when they could be confused
 - Prefer concrete examples over abstract explanations
 - Explain tradeoffs when there are multiple valid approaches
-- Plain English, opening on the answer itself
+- Active voice; state the doer, except in procedural steps where the imperative's implicit reader is the doer
+- One topic per sentence; a consequence clause joined with "so" or "which" stays in the same sentence. One instruction
+  per step
+- Keep sentences to about 20 words when procedural and 25 when descriptive; these are targets, not counters, and code
+  spans and literals do not count
+- Simple tenses only (past, present, future); no stacked modals or perfect-conditional constructions
+- One term per concept, used consistently; never vary a name for style
+- No noun clusters longer than three words
+- State conclusions directly. No "might", "perhaps", "it seems" when the evidence supports a claim. When genuinely
+  uncertain, state the uncertainty once, as a fact, with the reason
+- Written deliverables speak in the author's voice to their real audience. No meta-commentary addressed to the requester
+  ("as requested", "I've updated"), no first-person references to an assistant

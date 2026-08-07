@@ -49,7 +49,8 @@ one the diff cannot show them.
 
 ## Rules
 
-- Hyphen after the ticket key, no colon
+- Hyphen after the ticket key, no colon. This governs commit subjects you write; PR titles take a colon per the
+  write-pr skill, and where the repo squash-merges, the merged subject deliberately inherits the PR title's colon
 - Short description is a concise summary of the whole commit, not the first bullet restated
 - One bullet per distinct change, no trailing periods
 - If no hook/conventions are found, this format is the sane default - don't invent a different one

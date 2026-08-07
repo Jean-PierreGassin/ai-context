@@ -18,8 +18,8 @@ description: Use when creating, resuming, or wrapping up a plan or multi-step ta
 2. [Load relevant skills](#compose-with-other-skills) that will help you write a more aligned plan
 3. Classify the change and [choose a decomposition strategy](#choose-a-decomposition-strategy)
 4. Perform research/investigation/context gathering
-5. Draft [the change stack](#the-change-stack), and confirm the split with the user (give options) before detailing
-   each change
+5. Draft [the change stack](#the-change-stack), and confirm the split with the user (give options) before detailing each
+   change
 6. Make or edit a new/existing artifact that walks through the plan
    (see [artifacts](#context-gatheringartifactsopen-questions) for rules you must follow)
 7. If the user has feedback from the presented plan, repeat the artifact step again until the user is satisfied and has
@@ -61,8 +61,19 @@ Order the stack so risk arrives late and alone:
 5. User-facing integration
 6. Cleanup and removal
 
-The test for a good stack: each entry has one review objective, and a reviewer can approve it without holding the
-rest of the stack in their head.
+The test for a good stack: each entry has one review objective, and a reviewer can approve it without holding the rest
+of the stack in their head.
+
+## Shipping the stack as stacked PRs
+
+- Per-slice budget: 10 files or fewer, under 1,000 lines changed. Slice count is not capped, so prefer more thin layers
+  over fewer fat ones
+- A guard lands below the change it guards: a parity or regression capture goes in a lower slice than the refactor it
+  protects, so the test is demonstrably not authored against the new behaviour
+- Pull genuinely independent fixes out of the stack entirely; if nothing depends on it, it is its own PR off trunk
+- A file touched by several layers is fine in a linear stack; say which layers share it
+- Never create the branches or PRs before the split is agreed. Verify the plan by assigning every file in the diff to
+  exactly one slice and reporting per-slice file and line counts; an unassigned file means the plan is wrong
 
 ## Branch by abstraction
 
@@ -75,8 +86,8 @@ behaviour change.
 4. Switch consumers over gradually, behind a feature flag where the switch is risky or needs staged rollout
 5. Remove the old implementation and, once it is unused, the flag
 
-Don't introduce an abstraction that only exists to satisfy the pattern. It earns its place when it lowers review risk
-or enables a safer rollout, and not otherwise.
+Don't introduce an abstraction that only exists to satisfy the pattern. It earns its place when it lowers review risk or
+enables a safer rollout, and not otherwise.
 
 ## Expand and contract
 

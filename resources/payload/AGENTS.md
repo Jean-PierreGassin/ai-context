@@ -30,3 +30,10 @@
 - Branch and worktree names use the tracker's ticket key (`ABC-1234` or `ABC-1234-slug`), otherwise
   `{type}/title-of-changes-summarized` (e.g. `fix/changes-summarized`)
 - Prefer the LSP tool over grep for symbol navigation, and trust its results rather than re-reading files
+
+## Tickets and PRs
+
+- Assign the ticket to me and move it to In Progress before writing any code; prefer the tracker CLI where one exists
+- Move the ticket to In Review and link the PR the moment the PR is marked ready for review; nothing automates this
+- Never post a comment on a PR or ticket without explicit approval for that specific comment; offer the text and wait.
+  Opening or editing my own PRs, transitioning tickets, and pushing to feature branches stay in bounds
