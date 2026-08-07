@@ -63,7 +63,7 @@
           {
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/play-sound.sh\"",
-            "async": true
+            "timeout": 10
           }
         ]
       }
