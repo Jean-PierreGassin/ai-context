@@ -9,34 +9,82 @@ tasks:
     silent: true
     cmds:
       - task --list
+      - |
+        printf '\nShow command options without running a command:\n'
+        printf '  task --summary install\n'
+        printf '  task install -- --help\n'
 
   help:
     desc: Show help for an ai-context command
+    summary: |
+      Show CLI help without running the selected command.
+
+      Examples:
+        task help -- install
+        task install -- --help
     cmds:
       - ./bin/ai-context --task-run --caller-dir '{{.CALLER_DIR}}' help {{.CLI_ARGS}}
 
   install:
     desc: Install context into the current project or global configuration
+    summary: |
+      Preview and install ai-context. Project scope is the default.
+
+      Options after --:
+        --project, --global, --force, --replace-config, --dry-run,
+        --verbose, --no-interaction
+
+      Examples:
+        task install
+        task install -- --global
+        task install -- --dry-run --verbose
+        task install -- --help
+
+      Task treats "task install help" as two tasks. Use one of the help
+      examples above so that installation does not run.
     cmds:
       - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' install {{.CLI_ARGS}}
 
   doctor:
     desc: Check dependencies and the selected installation
+    summary: |
+      Diagnose the selected installation and show the next action.
+
+      Examples:
+        task doctor
+        task doctor -- --global
+        task doctor -- --help
     cmds:
       - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' doctor {{.CLI_ARGS}}
 
   history:
     desc: List rollback versions for the selected target
+    summary: |
+      List saved project or global versions.
+
+      Examples:
+        task history
+        task history -- --global
+        task history -- --help
     cmds:
       - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' history {{.CLI_ARGS}}
 
   rollback:
     desc: Restore a rollback version for the selected target
+    summary: |
+      Select or name a saved version to restore.
+
+      Examples:
+        task rollback
+        task rollback -- SNAPSHOT_ID
+        task rollback -- SNAPSHOT_ID --global
+        task rollback -- --help
     cmds:
       - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' rollback {{.CLI_ARGS}}
 
   test:
     desc: Run installer regressions and public CLI contracts
+    summary: Run all installer and public CLI regression tests.
     cmds:
       - ./tests/install.sh
       - ./tests/cli.sh

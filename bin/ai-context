@@ -21,7 +21,7 @@ usage() {
 ai-context
 
 Usage:
-  ai-context install [--project | --global] [--force] [--replace-config] [--dry-run] [--no-interaction]
+  ai-context install [--project | --global] [--force] [--replace-config] [--dry-run] [--verbose] [--no-interaction]
   ai-context doctor [--project | --global]
   ai-context history [--project | --global]
   ai-context rollback [snapshot] [--project | --global]
@@ -36,7 +36,7 @@ usage_command() {
   case "$1" in
     install)
       cat <<'EOF'
-Usage: ai-context install [--project | --global] [--force] [--replace-config] [--dry-run] [--no-interaction]
+Usage: ai-context install [--project | --global] [--force] [--replace-config] [--dry-run] [--verbose] [--no-interaction]
 
 Install managed instructions, skills, hooks, and agent configuration. Project
 configuration is the default. The command shows its plan and asks for approval
@@ -48,6 +48,7 @@ Options:
   --force, -f         Replace changed managed payload files
   --replace-config    Replace structured configuration instead of merging it
   --dry-run           Show changes without writing files or saving a snapshot
+  --verbose           List every path in the installation preview
   --no-interaction    Run without confirmation prompts
 EOF
       ;;
@@ -121,6 +122,7 @@ force=false
 dry_run=false
 interactive=true
 replace_config=false
+verbose=false
 snapshot_id=
 
 while [[ $# -gt 0 ]]; do
@@ -138,6 +140,7 @@ while [[ $# -gt 0 ]]; do
     --force|-f) force=true ;;
     --replace-config) replace_config=true ;;
     --dry-run) dry_run=true ;;
+    --verbose) verbose=true ;;
     --no-interaction|-n) interactive=false ;;
     help|-h|--help)
       usage_command "$command_name"
@@ -155,7 +158,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ "$command_name" != install \
-  && ("$force" == true || "$replace_config" == true || "$dry_run" == true || "$interactive" == false) ]]; then
+  && ("$force" == true || "$replace_config" == true || "$dry_run" == true || "$verbose" == true || "$interactive" == false) ]]; then
   fail "$command_name accepts only a scope and, for rollback, an optional snapshot"
 fi
 
@@ -184,7 +187,7 @@ fi
 case "$command_name" in
   install)
     exec "$repository_root/scripts/install.sh" \
-      "$scope" "$caller_dir" "$force" "$dry_run" "$interactive" "$replace_config"
+      "$scope" "$caller_dir" "$force" "$dry_run" "$interactive" "$replace_config" "$verbose"
     ;;
   doctor|history)
     exec "$repository_root/scripts/$command_name.sh" "$scope" "$caller_dir"

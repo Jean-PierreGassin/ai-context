@@ -11,92 +11,145 @@ source "$repository_root/scripts/lib.sh"
 
 failures=0
 warnings=0
+results=
+readonly target_root="$(resolve_target_root "$scope" "$caller_dir")"
+readonly payload_root="$repository_root/resources/payload"
+readonly state_root="$(resolve_state_root)"
+
 if [[ "$scope" == global ]]; then
-  readonly target_root="$(resolve_target_root "$scope" "$caller_dir")"
   readonly agents_path="$target_root/.codex/AGENTS.md"
   readonly claude_path="$target_root/.claude/CLAUDE.md"
   readonly claude_import='@~/.codex/AGENTS.md'
-  readonly skills_path="$target_root/.agents/skills"
-  readonly claude_settings="$target_root/.claude/settings.json"
-  readonly codex_settings="$target_root/.codex/config.toml"
 else
-  readonly target_root="$(resolve_target_root "$scope" "$caller_dir")"
   readonly agents_path="$target_root/AGENTS.md"
   readonly claude_path="$target_root/CLAUDE.md"
   readonly claude_import='@AGENTS.md'
-  readonly skills_path="$target_root/.agents/skills"
-  readonly claude_settings="$target_root/.claude/settings.json"
-  readonly codex_settings="$target_root/.codex/config.toml"
 fi
+readonly skills_path="$target_root/.agents/skills"
+readonly claude_settings="$target_root/.claude/settings.json"
+readonly codex_settings="$target_root/.codex/config.toml"
+readonly codex_hooks="$target_root/.codex/hooks.json"
 
-pass_check() { info "ok: $1"; }
-fail_check() { error "fail: $1"; failures=$((failures + 1)); }
-warn_check() { warn "warn: $1"; warnings=$((warnings + 1)); }
+add_result() {
+  results+="$1"$'\t'"$2"$'\t'"$3"$'\n'
+}
 
 render_header 'ai-context doctor' "$scope" "$target_root"
 
-if command -v jq >/dev/null 2>&1; then
-  pass_check 'jq is available'
+missing_tools=
+command -v jq >/dev/null 2>&1 || missing_tools+='jq '
+if ! command -v python3 >/dev/null 2>&1 \
+  || ! python3 -c 'import sys; raise SystemExit(sys.version_info < (3, 11))' >/dev/null 2>&1; then
+  missing_tools+='Python-3.11+ '
+fi
+if [[ -n "$missing_tools" ]]; then
+  add_result 'Required tools' 'FAIL' "Install ${missing_tools% }"
+  failures=$((failures + 1))
 else
-  fail_check 'jq is required'
+  add_result 'Required tools' 'PASS' 'jq and Python 3.11+'
 fi
 
-if command -v python3 >/dev/null 2>&1 \
-  && python3 -c 'import sys; raise SystemExit(sys.version_info < (3, 11))' >/dev/null 2>&1; then
-  pass_check 'Python 3.11 or newer is available'
+optional_tools=
+command -v task >/dev/null 2>&1 || optional_tools+='Task '
+command -v gum >/dev/null 2>&1 || optional_tools+='Gum '
+if [[ -n "$optional_tools" ]]; then
+  add_result 'Optional UI' 'WARN' "${optional_tools% } missing; shell fallback is active"
+  warnings=$((warnings + 1))
 else
-  fail_check 'Python 3.11 or newer is required'
+  add_result 'Optional UI' 'PASS' 'Task and Gum'
 fi
 
-command -v task >/dev/null 2>&1 && pass_check 'Task is available' || warn_check 'Task is not available; direct shell execution is active'
-command -v gum >/dev/null 2>&1 && pass_check 'Gum is available' || warn_check 'Gum is not available; plain terminal output is active'
+agent_tools=
+command -v codex >/dev/null 2>&1 || agent_tools+='Codex '
+command -v claude >/dev/null 2>&1 || agent_tools+='Claude '
+if [[ -n "$agent_tools" ]]; then
+  add_result 'Agent CLIs' 'WARN' "${agent_tools% } not found"
+  warnings=$((warnings + 1))
+else
+  add_result 'Agent CLIs' 'PASS' 'Codex and Claude'
+fi
 
 if [[ -d "$target_root" && -w "$target_root" ]]; then
-  pass_check 'target is writable'
+  add_result 'Target' 'PASS' 'Writable'
 else
-  fail_check 'target is not writable'
+  add_result 'Target' 'FAIL' 'Directory is missing or not writable'
+  failures=$((failures + 1))
 fi
 
-[[ -f "$agents_path" ]] && pass_check 'AGENTS.md is installed' || fail_check 'AGENTS.md is missing'
-[[ -d "$skills_path" ]] && pass_check 'shared skills are installed' || fail_check 'shared skills are missing'
-
-if [[ -f "$claude_path" ]] && grep -Fq "$claude_import" "$claude_path"; then
-  pass_check 'Claude imports the shared instructions'
+installed_parts=0
+[[ -f "$agents_path" ]] && installed_parts=$((installed_parts + 1))
+[[ -d "$skills_path" ]] && installed_parts=$((installed_parts + 1))
+[[ -f "$claude_path" ]] && installed_parts=$((installed_parts + 1))
+if [[ "$installed_parts" -eq 0 ]]; then
+  installation_state=missing
+  add_result 'Installation' 'MISSING' 'No managed installation found'
+  failures=$((failures + 1))
+elif [[ "$installed_parts" -lt 3 ]]; then
+  installation_state=partial
+  add_result 'Installation' 'FAIL' 'Managed installation is incomplete'
+  failures=$((failures + 1))
 else
-  fail_check 'Claude does not import the shared instructions'
+  installation_state=installed
+  add_result 'Installation' 'PASS' 'Instructions and shared tools found'
 fi
 
-if [[ -f "$claude_settings" ]] && jq empty "$claude_settings" >/dev/null 2>&1; then
-  pass_check 'Claude settings contain valid JSON'
-  if jq -e '.permissions.deny | index("Read(auth.json)") != null' "$claude_settings" >/dev/null 2>&1; then
-    pass_check 'Claude safety settings are installed'
+if [[ "$installation_state" == installed ]]; then
+  if grep -Fq "$claude_import" "$claude_path"; then
+    add_result 'Claude import' 'PASS' "$claude_import"
   else
-    fail_check 'Claude safety settings are incomplete'
+    add_result 'Claude import' 'FAIL' 'Shared instructions are not imported'
+    failures=$((failures + 1))
+  fi
+
+  config_errors=
+  [[ -f "$claude_settings" ]] && jq empty "$claude_settings" >/dev/null 2>&1 || config_errors+='Claude JSON; '
+  [[ -f "$codex_hooks" ]] && jq empty "$codex_hooks" >/dev/null 2>&1 || config_errors+='Codex hooks; '
+  if [[ -f "$codex_settings" ]] && command -v python3 >/dev/null 2>&1; then
+    python3 -c 'import pathlib, sys, tomllib; tomllib.loads(pathlib.Path(sys.argv[1]).read_text())' \
+      "$codex_settings" >/dev/null 2>&1 || config_errors+='Codex TOML; '
+  else
+    config_errors+='Codex TOML; '
+  fi
+  if [[ -n "$config_errors" ]]; then
+    add_result 'Configuration' 'FAIL' "Invalid or missing: ${config_errors%; }"
+    failures=$((failures + 1))
+  else
+    add_result 'Configuration' 'PASS' 'Claude JSON, Codex JSON, and TOML are valid'
+
+    safety_errors=
+    jq -e '(.permissions.deny // []) | index("Read(auth.json)") != null' \
+      "$claude_settings" >/dev/null 2>&1 || safety_errors+='Claude deny rules; '
+    python3 -c \
+      'import pathlib, sys, tomllib; data=tomllib.loads(pathlib.Path(sys.argv[1]).read_text()); assert "project-edit" in data.get("permissions", {})' \
+      "$codex_settings" >/dev/null 2>&1 || safety_errors+='Codex permissions; '
+    if [[ -n "$safety_errors" ]]; then
+      add_result 'Safety settings' 'FAIL' "Missing: ${safety_errors%; }"
+      failures=$((failures + 1))
+    else
+      add_result 'Safety settings' 'PASS' 'Claude deny rules and Codex permissions'
+    fi
   fi
 else
-  fail_check 'Claude settings are missing or invalid'
+  add_result 'Configuration' 'SKIP' 'Install context first'
 fi
 
-if [[ -f "$codex_settings" ]] \
-  && python3 -c 'import pathlib, sys, tomllib; tomllib.loads(pathlib.Path(sys.argv[1]).read_text())' \
-    "$codex_settings" >/dev/null 2>&1; then
-  pass_check 'Codex settings contain valid TOML'
-  if python3 -c \
-    'import pathlib, sys, tomllib; data=tomllib.loads(pathlib.Path(sys.argv[1]).read_text()); assert "project-edit" in data.get("permissions", {})' \
-    "$codex_settings" >/dev/null 2>&1; then
-    pass_check 'Codex permission profile is installed'
-  else
-    fail_check 'Codex permission profile is incomplete'
-  fi
-else
-  fail_check 'Codex settings are missing or invalid'
+history_count=0
+if command -v python3 >/dev/null 2>&1; then
+  history_count="$(python3 "$repository_root/scripts/state.py" history \
+    --scope "$scope" --target "$target_root" --payload "$payload_root" --state-root "$state_root" 2>/dev/null \
+    | wc -l | tr -d ' ')"
 fi
+add_result 'Rollback history' 'INFO' "$history_count saved version(s)"
 
-command -v codex >/dev/null 2>&1 && pass_check 'Codex CLI is available' || warn_check 'Codex CLI is not available'
-command -v claude >/dev/null 2>&1 && pass_check 'Claude Code is available' || warn_check 'Claude Code is not available'
-
+render_doctor_results "${results%$'\n'}"
 if [[ "$failures" -gt 0 ]]; then
-  error "doctor found $failures failure(s) and $warnings warning(s)"
+  if [[ "$scope" == global ]]; then
+    next_command='ai-context install --global --dry-run'
+  else
+    next_command='ai-context install --dry-run'
+  fi
+  error "doctor found $failures problem(s) and $warnings warning(s)"
+  printf 'Next: %s\n' "$next_command"
   exit 1
 fi
 success "doctor passed with $warnings warning(s)"
