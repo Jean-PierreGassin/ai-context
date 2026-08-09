@@ -16,20 +16,26 @@ tasks:
     silent: true
     cmds:
       - |
-        printf '%-28s %s\n' 'COMMAND' 'RESULT'
+        printf 'Discover:\n'
+        printf '%-28s %s\n' 'task help' 'Show this command guide'
+        printf '%-28s %s\n' 'task list' 'Show this command guide'
+        printf '\nInstall:\n'
         printf '%-28s %s\n' 'task install' 'Install in the current project'
         printf '%-28s %s\n' 'task install:global' 'Install global configuration'
+        printf '%-28s %s\n' 'task install:help' 'Show all install options'
         printf '%-28s %s\n' 'task install:apply' 'Install a project without a prompt'
         printf '%-28s %s\n' 'task install:global:apply' 'Install globally without a prompt'
-        printf '%-28s %s\n' 'task install:help' 'Show all install options'
+        printf '\nCheck:\n'
         printf '%-28s %s\n' 'task doctor' 'Check the current project'
         printf '%-28s %s\n' 'task doctor:global' 'Check global configuration'
         printf '%-28s %s\n' 'task doctor:help' 'Show doctor options'
+        printf '\nRestore:\n'
         printf '%-28s %s\n' 'task history' 'List project versions'
         printf '%-28s %s\n' 'task history:global' 'List global versions'
         printf '%-28s %s\n' 'task rollback' 'Restore a project version'
         printf '%-28s %s\n' 'task rollback:global' 'Restore a global version'
         printf '%-28s %s\n' 'task rollback:help' 'Show rollback options'
+        printf '\nDevelopment:\n'
         printf '%-28s %s\n' 'task test' 'Run the regression suite'
 
   install:
