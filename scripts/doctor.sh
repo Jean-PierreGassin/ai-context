@@ -6,7 +6,7 @@ source "$AI_CONTEXT_ROOT/scripts/lib.sh"
 failures=0
 warnings=0
 if [[ "$AI_CONTEXT_SCOPE" == global ]]; then
-  readonly target_root="${AI_CONTEXT_HOME_OVERRIDE:-$HOME}"
+  readonly target_root="$(resolve_target_root "$AI_CONTEXT_SCOPE" "$AI_CONTEXT_CALLER_DIR")"
   readonly agents_path="$target_root/.codex/AGENTS.md"
   readonly claude_path="$target_root/.claude/CLAUDE.md"
   readonly claude_import='@~/.codex/AGENTS.md'
@@ -14,7 +14,7 @@ if [[ "$AI_CONTEXT_SCOPE" == global ]]; then
   readonly claude_settings="$target_root/.claude/settings.json"
   readonly codex_settings="$target_root/.codex/config.toml"
 else
-  readonly target_root="$AI_CONTEXT_CALLER_DIR"
+  readonly target_root="$(resolve_target_root "$AI_CONTEXT_SCOPE" "$AI_CONTEXT_CALLER_DIR")"
   readonly agents_path="$target_root/AGENTS.md"
   readonly claude_path="$target_root/CLAUDE.md"
   readonly claude_import='@AGENTS.md'

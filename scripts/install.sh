@@ -11,11 +11,7 @@ AI_CONTEXT_FAILURES=0
 export AI_CONTEXT_CHANGED AI_CONTEXT_SKIPPED AI_CONTEXT_FAILURES
 
 readonly payload_root="$AI_CONTEXT_ROOT/resources/payload"
-if [[ "$AI_CONTEXT_SCOPE" == global ]]; then
-  readonly target_root="${AI_CONTEXT_HOME_OVERRIDE:-$HOME}"
-else
-  readonly target_root="$AI_CONTEXT_CALLER_DIR"
-fi
+readonly target_root="$(resolve_target_root "$AI_CONTEXT_SCOPE" "$AI_CONTEXT_CALLER_DIR")"
 
 install_project() {
   while IFS= read -r -d '' source_path; do
@@ -130,7 +126,7 @@ AI_CONTEXT_DRY_RUN=false
 AI_CONTEXT_PLANNING=false
 export AI_CONTEXT_CHANGED AI_CONTEXT_SKIPPED AI_CONTEXT_FAILURES AI_CONTEXT_DRY_RUN AI_CONTEXT_PLANNING
 
-readonly state_root="${AI_CONTEXT_STATE_ROOT:-${XDG_STATE_HOME:-$HOME/.local/state}/ai-context}"
+readonly state_root="$(resolve_state_root)"
 snapshot_id="$(python3 "$AI_CONTEXT_ROOT/scripts/state.py" snapshot \
   --scope "$AI_CONTEXT_SCOPE" \
   --target "$target_root" \
