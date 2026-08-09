@@ -57,6 +57,10 @@ grep -Fxq '# Existing' "$project_root/CLAUDE.md"
 [[ "$(grep -Fxc '@AGENTS.md' "$project_root/CLAUDE.md")" -eq 1 ]]
 [[ -f "$project_root/.agents/skills/write-code/.gitignore" ]]
 [[ -f "$project_root/.claude/skills/write-code/.gitignore" ]]
+cmp -s "$repository_root/resources/payload/.agents/skills/write-code/examples/code-style-php.md" \
+  "$project_root/.agents/skills/write-code/examples/code-style-php.md"
+cmp -s "$repository_root/resources/payload/.claude/skills/write-code/SKILL.md" \
+  "$project_root/.claude/skills/write-code/SKILL.md"
 assert_jq '.enabledPlugins["custom@example"] == true' "$project_root/.claude/settings.json"
 assert_jq '.permissions.deny | index("Read(private.txt)") != null' "$project_root/.claude/settings.json"
 assert_jq '.permissions.deny | index("Read(auth.json)") != null' "$project_root/.claude/settings.json"
@@ -103,11 +107,20 @@ previous_home="$HOME"
 HOME="$global_root"
 export HOME
 run_install
+grep -Fxq '# Personal' "$global_root/.claude/CLAUDE.md"
+force_install=true
 run_install
+run_install
+force_install=false
 
-grep -Fxq '@~/.codex/AGENTS.md' "$global_root/.claude/CLAUDE.md"
+[[ "$(cat "$global_root/.claude/CLAUDE.md")" == '@~/.codex/AGENTS.md' ]]
+! grep -Fq '# Personal' "$global_root/.claude/CLAUDE.md"
 [[ -f "$global_root/.codex/AGENTS.md" ]]
 [[ -d "$global_root/.agents/skills/write-code" ]]
+cmp -s "$repository_root/resources/payload/.agents/skills/write-plan/examples/plan-structure.md" \
+  "$global_root/.agents/skills/write-plan/examples/plan-structure.md"
+cmp -s "$repository_root/resources/payload/.claude/skills/write-plan/SKILL.md" \
+  "$global_root/.claude/skills/write-plan/SKILL.md"
 assert_jq '.enabledPlugins["personal@example"] == true' "$global_root/.claude/settings.json"
 assert_toml 'data["marketplaces"]["personal"]["source"] == "local"' "$global_root/.codex/config.toml"
 

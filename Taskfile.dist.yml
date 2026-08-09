@@ -8,83 +8,97 @@ tasks:
   default:
     silent: true
     cmds:
-      - task --list
-      - |
-        printf '\nShow command options without running a command:\n'
-        printf '  task --summary install\n'
-        printf '  task install -- --help\n'
+      - task help
 
   help:
-    desc: Show help for an ai-context command
-    summary: |
-      Show CLI help without running the selected command.
-
-      Examples:
-        task help -- install
-        task install -- --help
+    aliases: [list]
+    desc: Show every ai-context Task command
+    silent: true
     cmds:
-      - ./bin/ai-context --task-run --caller-dir '{{.CALLER_DIR}}' help {{.CLI_ARGS}}
+      - |
+        printf '%-28s %s\n' 'COMMAND' 'RESULT'
+        printf '%-28s %s\n' 'task install' 'Install in the current project'
+        printf '%-28s %s\n' 'task install:global' 'Install global configuration'
+        printf '%-28s %s\n' 'task install:apply' 'Install a project without a prompt'
+        printf '%-28s %s\n' 'task install:global:apply' 'Install globally without a prompt'
+        printf '%-28s %s\n' 'task install:help' 'Show all install options'
+        printf '%-28s %s\n' 'task doctor' 'Check the current project'
+        printf '%-28s %s\n' 'task doctor:global' 'Check global configuration'
+        printf '%-28s %s\n' 'task doctor:help' 'Show doctor options'
+        printf '%-28s %s\n' 'task history' 'List project versions'
+        printf '%-28s %s\n' 'task history:global' 'List global versions'
+        printf '%-28s %s\n' 'task rollback' 'Restore a project version'
+        printf '%-28s %s\n' 'task rollback:global' 'Restore a global version'
+        printf '%-28s %s\n' 'task rollback:help' 'Show rollback options'
+        printf '%-28s %s\n' 'task test' 'Run the regression suite'
 
   install:
-    desc: Install context into the current project or global configuration
-    summary: |
-      Preview and install ai-context. Project scope is the default.
-
-      Options after --:
-        --project, --global, --force, --replace-config, --dry-run,
-        --verbose, --no-interaction
-
-      Examples:
-        task install
-        task install -- --global
-        task install -- --dry-run --verbose
-        task install -- --help
-
-      Task treats "task install help" as two tasks. Use one of the help
-      examples above so that installation does not run.
+    desc: Install in the current project
     cmds:
       - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' install {{.CLI_ARGS}}
 
-  doctor:
-    desc: Check dependencies and the selected installation
-    summary: |
-      Diagnose the selected installation and show the next action.
+  install:global:
+    desc: Install global configuration
+    cmds:
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' install --global
 
-      Examples:
-        task doctor
-        task doctor -- --global
-        task doctor -- --help
+  install:apply:
+    desc: Install in the current project without a prompt
+    cmds:
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' install --no-interaction
+
+  install:global:apply:
+    desc: Install global configuration without a prompt
+    cmds:
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' install --global --no-interaction
+
+  install:help:
+    desc: Show all install options
+    cmds:
+      - ./bin/ai-context --task-run --caller-dir '{{.CALLER_DIR}}' install --help
+
+  doctor:
+    desc: Check the current project
     cmds:
       - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' doctor {{.CLI_ARGS}}
 
-  history:
-    desc: List rollback versions for the selected target
-    summary: |
-      List saved project or global versions.
+  doctor:global:
+    desc: Check global configuration
+    cmds:
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' doctor --global
 
-      Examples:
-        task history
-        task history -- --global
-        task history -- --help
+  doctor:help:
+    desc: Show doctor options
+    cmds:
+      - ./bin/ai-context --task-run --caller-dir '{{.CALLER_DIR}}' doctor --help
+
+  history:
+    desc: List project versions
     cmds:
       - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' history {{.CLI_ARGS}}
 
-  rollback:
-    desc: Restore a rollback version for the selected target
-    summary: |
-      Select or name a saved version to restore.
+  history:global:
+    desc: List global versions
+    cmds:
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' history --global
 
-      Examples:
-        task rollback
-        task rollback -- SNAPSHOT_ID
-        task rollback -- SNAPSHOT_ID --global
-        task rollback -- --help
+  rollback:
+    desc: Restore a project version
     cmds:
       - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' rollback {{.CLI_ARGS}}
 
+  rollback:global:
+    desc: Restore a global version
+    cmds:
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' rollback --global
+
+  rollback:help:
+    desc: Show rollback options
+    cmds:
+      - ./bin/ai-context --task-run --caller-dir '{{.CALLER_DIR}}' rollback --help
+
   test:
-    desc: Run installer regressions and public CLI contracts
-    summary: Run all installer and public CLI regression tests.
+    desc: Run the regression suite
     cmds:
       - ./tests/install.sh
       - ./tests/cli.sh

@@ -14,11 +14,7 @@ source "$repository_root/scripts/lib.sh"
 changed_count=0
 skipped_count=0
 failure_count=0
-planned_instructions=0
-planned_shared=0
-planned_claude=0
-planned_codex=0
-planned_other=0
+planned_targets=
 is_dry_run="$requested_dry_run"
 is_planning=false
 
@@ -62,7 +58,11 @@ install_global() {
     copy_managed_file "$source_path" "$target_root/.claude/$relative_path" "~/.claude/$relative_path"
   done < <(find "$payload_root/.claude" -type f -print0 | sort -z)
 
-  ensure_import "$target_root/.claude/CLAUDE.md" '@~/.codex/AGENTS.md' '~/.claude/CLAUDE.md'
+  local global_claude_instructions
+  global_claude_instructions="$(mktemp "${TMPDIR:-/tmp}/ai-context-instructions.XXXXXX")"
+  printf '@~/.codex/AGENTS.md\n' >"$global_claude_instructions"
+  copy_managed_file "$global_claude_instructions" "$target_root/.claude/CLAUDE.md" '~/.claude/CLAUDE.md'
+  rm -f "$global_claude_instructions"
 
   local global_claude_settings
   global_claude_settings="$(mktemp "${TMPDIR:-/tmp}/ai-context-claude.XXXXXX")"
@@ -99,17 +99,7 @@ is_dry_run=true
 is_planning=true
 
 render_header 'ai-context install' "$scope" "$target_root"
-if [[ "$replace_config" == true ]]; then
-  config_action='Replace all managed settings in'
-else
-  config_action='Merge managed settings into'
-fi
-if [[ "$requested_dry_run" == true ]]; then
-  snapshot_action='Do not write files or save a rollback snapshot'
-else
-  snapshot_action='After approval, record existing and new paths so rollback can restore or remove them'
-fi
-render_install_plan "$scope" "$target_root" "$config_action" "$snapshot_action"
+render_install_plan "$scope" "$target_root"
 run_install
 render_change_summary
 

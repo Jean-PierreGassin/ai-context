@@ -33,30 +33,32 @@ render_history() {
 }
 
 render_install_plan() {
-  local plan_scope="$1" target="$2" config_action="$3" snapshot_action="$4"
+  local plan_scope="$1" target="$2"
   printf 'Plan:\n'
   printf '  - Update %s configuration at %s\n' "$plan_scope" "$target"
-  printf '  - Install or update managed instructions, skills, hooks, and adapters\n'
-  printf '  - %s Claude and Codex structured configuration\n' "$config_action"
-  printf '  - %s\n' "$snapshot_action"
 }
 
 render_change_summary() {
-  local rows=
-  [[ "$planned_instructions" -gt 0 ]] && rows+="Instructions"$'\t'"$planned_instructions"$'\n'
-  [[ "$planned_shared" -gt 0 ]] && rows+="Shared tools"$'\t'"$planned_shared"$'\n'
-  [[ "$planned_claude" -gt 0 ]] && rows+="Claude"$'\t'"$planned_claude"$'\n'
-  [[ "$planned_codex" -gt 0 ]] && rows+="Codex"$'\t'"$planned_codex"$'\n'
-  [[ "$planned_other" -gt 0 ]] && rows+="Other"$'\t'"$planned_other"$'\n'
-  rows+="Total"$'\t'"$changed_count"
+  local rows="${planned_targets%$'\n'}"
   printf 'Planned changes:\n'
-  if [[ -t 1 ]] && command -v gum >/dev/null 2>&1; then
-    printf 'AREA\tPATHS\n%s\n' "$rows" | gum table --print --separator $'\t'
-  else
-    printf '%-16s %s\n' 'AREA' 'PATHS'
-    while IFS=$'\t' read -r area count; do printf '%-16s %s\n' "$area" "$count"; done <<<"$rows"
+  if [[ -z "$rows" ]]; then
+    printf 'No file changes.\n'
+    return
   fi
-  [[ "$is_verbose" == true || "$changed_count" -eq 0 ]] || printf 'Use --verbose to list every path.\n'
+  if [[ -t 1 ]] && command -v gum >/dev/null 2>&1; then
+    printf 'CONTENT\tTARGET\n%s\n' "$rows" | gum table --print --separator $'\t'
+  else
+    printf '%-24s %s\n' 'CONTENT' 'TARGET'
+    while IFS=$'\t' read -r content target; do printf '%-24s %s\n' "$content" "$target"; done <<<"$rows"
+  fi
+  [[ "$is_verbose" == true ]] || printf 'Use --verbose to list each file.\n'
+}
+
+record_planned_target() {
+  local content="$1" target="$2" row
+  row="$content"$'\t'"$target"
+  printf '%s' "$planned_targets" | grep -Fxq "$row" && return
+  planned_targets+="$row"$'\n'
 }
 
 render_doctor_results() {
@@ -86,11 +88,20 @@ record_change() {
   changed_count=$((changed_count + 1))
   if [[ "$is_planning" == true ]]; then
     case "$change_message" in
-      *AGENTS.md*|*CLAUDE.md*) planned_instructions=$((planned_instructions + 1)) ;;
-      *\.agents/*) planned_shared=$((planned_shared + 1)) ;;
-      *\.claude/*) planned_claude=$((planned_claude + 1)) ;;
-      *\.codex/*) planned_codex=$((planned_codex + 1)) ;;
-      *) planned_other=$((planned_other + 1)) ;;
+      *CLAUDE.md*) record_planned_target 'Claude instructions' "${change_message##* }" ;;
+      *AGENTS.md*) record_planned_target 'Shared instructions' "${change_message##* }" ;;
+      *\.agents/*)
+        [[ "$scope" == global ]] && record_planned_target 'Shared skills and hooks' '~/.agents/' \
+          || record_planned_target 'Shared skills and hooks' '.agents/'
+        ;;
+      *\.claude/*)
+        [[ "$scope" == global ]] && record_planned_target 'Claude configuration' '~/.claude/' \
+          || record_planned_target 'Claude configuration' '.claude/'
+        ;;
+      *\.codex/*)
+        [[ "$scope" == global ]] && record_planned_target 'Codex configuration' '~/.codex/' \
+          || record_planned_target 'Codex configuration' '.codex/'
+        ;;
     esac
     case "$change_message" in
       installed\ *) change_message="install ${change_message#installed }" ;;
