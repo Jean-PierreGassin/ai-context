@@ -1,6 +1,6 @@
 # Agnostic Agentic Engineering Context
 
-`ai-context` installs shared skills and workflow guidance for Codex and Claude Code. It can configure one project or your user account. It keeps settings that it does not manage.
+`ai-context` installs shared skills and workflow guidance for Codex and Claude Code. It can update project configuration or global configuration. It keeps settings that it does not manage.
 
 ## System support
 
@@ -52,7 +52,7 @@ This command is the same as:
 ai-context install --project
 ```
 
-Install context for your user account:
+Install global configuration:
 
 ```bash
 ai-context install --global
@@ -115,13 +115,13 @@ ai-context history
 ai-context history --global
 ```
 
-Restore the latest saved version:
+Select a saved version in an interactive terminal:
 
 ```bash
 ai-context rollback
 ```
 
-Restore a selected version:
+Restore a known version directly:
 
 ```bash
 ai-context rollback SNAPSHOT_ID
@@ -130,11 +130,13 @@ ai-context rollback SNAPSHOT_ID --global
 
 Each install saves the complete state of all managed paths before it writes files. Each rollback also saves the current state. You can run rollback again to undo a rollback.
 
+The selector uses Gum when Gum is available. Otherwise, it shows a numbered list. A non-interactive `rollback` command restores the latest snapshot and does not wait for input.
+
 Dry runs do not create snapshots. Snapshots stay in `${XDG_STATE_HOME:-~/.local/state}/ai-context` until you remove that directory.
 
 ## Install locations
 
-| Content | Project scope | User scope |
+| Content | Project scope | Global scope |
 |---|---|---|
 | Shared instructions | `AGENTS.md` | `~/.codex/AGENTS.md` |
 | Claude instruction import | `CLAUDE.md` | `~/.claude/CLAUDE.md` |
