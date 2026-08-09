@@ -1,119 +1,170 @@
 # Agnostic Agentic Engineering Context
 
-`ai-context` installs a shared set of agent skills and workflow guidance for Codex and Claude Code. It can configure one project or your user-level configuration, while preserving unrelated settings already owned by you or the project.
+`ai-context` installs shared skills and workflow guidance for Codex and Claude Code. It can configure one project or your user account. It keeps settings that it does not manage.
 
-## Prerequisites
+## System support
 
-- [Task](https://taskfile.dev/installation/)
-- [Gum](https://github.com/charmbracelet/gum#installation)
+Use `ai-context` in a Bash environment on:
+
+- macOS
+- Linux
+- Windows with Windows Subsystem for Linux (WSL) or Git Bash
+
+Native PowerShell is not supported.
+
+Install these required tools:
+
+- Bash 3.2 or newer
 - `jq`
 - Python 3.11 or newer
-- Bash 3.2 or newer
 
-On macOS with Homebrew:
+[Task](https://taskfile.dev/docs/installation) and [Gum](https://github.com/charmbracelet/gum#installation) are optional. The launcher uses Task when Task can start the command. It uses the shell directly when Task is not installed or cannot start. It uses Gum for formatted output and prompts. It uses plain terminal output when Gum is not installed.
 
-```bash
-brew install go-task gum jq python@3.13
-```
+Use your operating system package manager to install the tools. See each tool's official installation page for supported package managers and binary downloads.
 
 ## Set up the command
 
-Clone this repository, then link the launcher somewhere on your `PATH`:
+Clone the repository to a permanent directory:
 
 ```bash
-git clone https://github.com/Jean-PierreGassin/ai-context.git ~/.local/share/ai-context
-ln -s ~/.local/share/ai-context/bin/ai-context ~/.local/bin/ai-context
+git clone https://github.com/Jean-PierreGassin/ai-context.git
 ```
 
-The launcher resolves the repository from its own location, so it works from any project directory.
+Run the launcher from that directory:
 
-## Usage
+```bash
+bash /path/to/ai-context/bin/ai-context help
+```
 
-Install into the current project, which is the default:
+You can also add `bin` to your `PATH`. Use the method for your operating system and shell. After that, use `ai-context` from any directory.
+
+## Install context
+
+Install context in the current project:
 
 ```bash
 ai-context install
-# equivalent to
+```
+
+This command is the same as:
+
+```bash
 ai-context install --project
 ```
 
-Install user-level context for every project:
+Install context for your user account:
 
 ```bash
 ai-context install --global
 ```
 
-Check dependencies, syntax, paths, and wiring:
+The project scope is the default. Do not use `--project` and `--global` together.
+
+## Check an installation
+
+Check the project installation:
 
 ```bash
 ai-context doctor
+```
+
+Check the user installation:
+
+```bash
 ai-context doctor --global
 ```
 
-List saved versions and restore the latest or a selected snapshot:
+`doctor` checks required tools, installed files, imports, and configuration syntax. Missing Task, Gum, Codex, or Claude Code produces a warning. A missing required tool produces a failure.
+
+## Preview and automate
+
+Preview changes without writing files:
+
+```bash
+ai-context install --dry-run
+```
+
+Run without prompts:
+
+```bash
+ai-context install --no-interaction
+```
+
+Replace changed managed payload files:
+
+```bash
+ai-context install --force
+```
+
+`--force` does not replace structured Claude or Codex configuration. It still merges those files.
+
+Replace the complete structured configuration:
+
+```bash
+ai-context install --replace-config
+```
+
+This option replaces `.claude/settings.json`, `.codex/config.toml`, and `.codex/hooks.json`. The installer saves a rollback snapshot first. Use this option only when you want to remove settings that `ai-context` does not manage.
+
+## Restore a version
+
+List saved versions:
 
 ```bash
 ai-context history
 ai-context history --global
-ai-context rollback
-ai-context rollback 20260809T041530.123456Z-a1b2c3 --global
 ```
 
-Every non-dry install saves the complete pre-install state of all managed paths. Rollback also saves the current state before restoring, so running rollback again can undo the rollback.
-
-Preview or automate an install:
+Restore the latest saved version:
 
 ```bash
-ai-context install --dry-run
-ai-context install --no-interaction
-ai-context install --force
-ai-context install --replace-config
+ai-context rollback
 ```
 
-`--no-interaction` leaves changed managed files alone. `--force` replaces changed managed payload files, but structured Claude and Codex settings are still merged. `--replace-config` explicitly replaces `.claude/settings.json`, `.codex/config.toml`, and `.codex/hooks.json` after saving a rollback snapshot. It does not imply `--force` for other files.
+Restore a selected version:
+
+```bash
+ai-context rollback SNAPSHOT_ID
+ai-context rollback SNAPSHOT_ID --global
+```
+
+Each install saves the complete state of all managed paths before it writes files. Each rollback also saves the current state. You can run rollback again to undo a rollback.
+
+Dry runs do not create snapshots. Snapshots stay in `${XDG_STATE_HOME:-~/.local/state}/ai-context` until you remove that directory.
 
 ## Install locations
 
-| Content | Project | Global |
+| Content | Project scope | User scope |
 |---|---|---|
 | Shared instructions | `AGENTS.md` | `~/.codex/AGENTS.md` |
-| Claude instruction bridge | `CLAUDE.md` | `~/.claude/CLAUDE.md` |
+| Claude instruction import | `CLAUDE.md` | `~/.claude/CLAUDE.md` |
 | Shared skills and hooks | `.agents/` | `~/.agents/` |
-| Claude adapters and UI | `.claude/` | `~/.claude/` |
+| Claude adapters and settings | `.claude/` | `~/.claude/` |
 | Codex configuration | `.codex/` | `~/.codex/` |
 
-Codex loads project overrides from `.codex/config.toml` and user configuration from `~/.codex/config.toml`. Claude Code uses the equivalent project and user scopes in `.claude/settings.json` and `~/.claude/settings.json`.
+## Update rules
 
-## Safe updates
+The installer uses these rules:
 
-- Existing `CLAUDE.md` content is retained and the appropriate `AGENTS.md` import is prepended once.
-- Existing Claude JSON objects are retained. Missing keys are added, and arrays such as permissions and hooks are combined without duplicates.
-- Existing Codex TOML is retained. Missing keys and tables are added without replacing model, marketplace, plugin, MCP, or other user configuration.
-- Existing Codex hooks are JSON-merged rather than replaced.
-- A changed managed skill, hook, or adapter prompts before replacement. Non-interactive installs skip it unless `--force` is supplied.
-- Invalid or incompatible JSON and TOML is reported with a failing exit status and left valid.
-- Symlinks and directories at managed file paths are refused, preventing writes outside the selected target.
-- File replacements are atomic within each target directory.
-
-## Version history
-
-Snapshots are stored outside projects under `${XDG_STATE_HOME:-~/.local/state}/ai-context`. Each history is isolated by scope and the canonical target path. A snapshot records:
-
-- The install or rollback action
-- A content-derived payload version
-- Existing files and directories with their modes
-- Existing symlinks without following them
-- Paths that did not exist, so rollback can remove files introduced by an install
-
-History is retained until its state directory is removed. Dry runs do not create snapshots.
+- It adds the required `AGENTS.md` import to `CLAUDE.md` once. It keeps the other content.
+- It merges Claude JSON objects. It combines arrays, such as permissions and hooks, without duplicate values.
+- It adds missing Codex TOML keys and tables. It keeps existing model, marketplace, plugin, MCP, and user settings.
+- It merges Codex hook JSON.
+- It asks before it replaces a changed managed payload file.
+- It skips that replacement in non-interactive mode unless you use `--force`.
+- It reports invalid JSON or TOML and does not replace the valid target.
+- It refuses a symlink or directory at a managed file path.
+- It replaces files atomically in each target directory.
 
 ## Development
 
-Run the fixture checks with Task:
+Run all tests with Task:
 
 ```bash
 task test
 ```
+
+The E2E tests cover the Task path, the direct shell path, Task startup failure, install, doctor, history, and rollback.
 
 ## License
 
