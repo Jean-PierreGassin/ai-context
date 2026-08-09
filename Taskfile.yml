@@ -1,6 +1,11 @@
 version: '3'
 
 tasks:
+  default:
+    silent: true
+    cmds:
+      - task --list
+
   install:
     desc: Install context into the current project or user configuration
     cmds:

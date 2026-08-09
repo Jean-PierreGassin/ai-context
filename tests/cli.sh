@@ -22,6 +22,10 @@ assert_fails "$repository_root/bin/ai-context" unknown
 assert_fails "$repository_root/bin/ai-context" install --project --global
 assert_fails "$repository_root/bin/ai-context" doctor --replace-config
 
+(cd "$repository_root" && task >"$fixture_root/default-task-output")
+grep -Fq 'Available tasks' "$fixture_root/default-task-output"
+grep -Fq 'install:' "$fixture_root/default-task-output"
+
 project_root="$fixture_root/project"
 mkdir -p "$project_root/.claude" "$project_root/.codex"
 printf '{"custom":"keep"}\n' >"$project_root/.claude/settings.json"
