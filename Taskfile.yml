@@ -1,0 +1,28 @@
+version: '3'
+
+tasks:
+  install:
+    desc: Install context into the current project or user configuration
+    cmds:
+      - ./scripts/run-task.sh install
+
+  doctor:
+    desc: Check dependencies and the selected installation
+    cmds:
+      - ./scripts/run-task.sh doctor
+
+  history:
+    desc: List rollback snapshots for the selected target
+    cmds:
+      - ./scripts/run-task.sh history
+
+  rollback:
+    desc: Restore a rollback snapshot for the selected target
+    cmds:
+      - ./scripts/run-task.sh rollback
+
+  test:
+    desc: Run installer regressions and public CLI contracts
+    cmds:
+      - ./tests/install.sh
+      - ./tests/cli.sh

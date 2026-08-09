@@ -1,35 +1,110 @@
-#!/usr/bin/env php
-<?php
+#!/usr/bin/env bash
+set -euo pipefail
 
-use JeanPierreGassin\AiContext\Console\Application;
+readonly AI_CONTEXT_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly AI_CONTEXT_CALLER_DIR="$(pwd)"
 
-/**
- * Composer's bin proxy hands us the consuming project's autoloader
- * here. Relative lookups are only a fallback, because __DIR__ resolves
- * through the symlink a path repository creates and would otherwise
- * point back into the package's own checkout.
- */
-$autoloadCandidates = [
-    $GLOBALS['_composer_autoload_path'] ?? null,
-    __DIR__ . '/../../../autoload.php',
-    __DIR__ . '/../vendor/autoload.php',
-];
+usage() {
+  cat <<'EOF'
+ai-context
 
-$loadedAutoloader = null;
-foreach ($autoloadCandidates as $autoloadCandidate) {
-    if ($autoloadCandidate !== null && file_exists($autoloadCandidate)) {
-        $loadedAutoloader = $autoloadCandidate;
+Usage:
+  ai-context install [--project | --global] [--force] [--replace-config] [--dry-run] [--no-interaction]
+  ai-context doctor [--project | --global]
+  ai-context history [--project | --global]
+  ai-context rollback [snapshot] [--project | --global]
+  ai-context help
 
-        break;
-    }
+Install targets the current project by default. Existing configuration is merged,
+and changed managed files require confirmation unless --force is supplied.
+EOF
 }
 
-if ($loadedAutoloader === null) {
-    fwrite(STDERR, 'ai-context: run "composer install" before using this command.' . PHP_EOL);
-
-    exit(1);
+fail() {
+  printf 'ai-context: %s\n' "$1" >&2
+  exit 1
 }
 
-require $loadedAutoloader;
+command_name="${1:-help}"
+if [[ $# -gt 0 ]]; then
+  shift
+fi
 
-exit((new Application())->run());
+case "$command_name" in
+  help|-h|--help)
+    usage
+    exit 0
+    ;;
+  install|doctor|history|rollback) ;;
+  *) fail "unknown command: $command_name" ;;
+esac
+
+scope=project
+selected_scope=
+force=false
+dry_run=false
+interactive=true
+replace_config=false
+snapshot_id=
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --project)
+      [[ -z "$selected_scope" || "$selected_scope" == project ]] || fail "choose either --project or --global"
+      scope=project
+      selected_scope=project
+      ;;
+    --global)
+      [[ -z "$selected_scope" || "$selected_scope" == global ]] || fail "choose either --project or --global"
+      scope=global
+      selected_scope=global
+      ;;
+    --force|-f) force=true ;;
+    --replace-config) replace_config=true ;;
+    --dry-run) dry_run=true ;;
+    --no-interaction|-n) interactive=false ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      if [[ "$command_name" == rollback && "$1" != -* && -z "$snapshot_id" ]]; then
+        snapshot_id="$1"
+      else
+        fail "unknown option: $1"
+      fi
+      ;;
+  esac
+  shift
+done
+
+if [[ "$command_name" != install && ("$force" == true || "$replace_config" == true || "$dry_run" == true || "$interactive" == false) ]]; then
+  fail "$command_name accepts only a scope and, for rollback, an optional snapshot"
+fi
+
+export AI_CONTEXT_ROOT AI_CONTEXT_CALLER_DIR
+export AI_CONTEXT_SCOPE="$scope"
+export AI_CONTEXT_FORCE="$force"
+export AI_CONTEXT_DRY_RUN="$dry_run"
+export AI_CONTEXT_INTERACTIVE="$interactive"
+export AI_CONTEXT_REPLACE_CONFIG="$replace_config"
+export AI_CONTEXT_SNAPSHOT_ID="$snapshot_id"
+
+if command -v task >/dev/null 2>&1; then
+  task_sentinel_root="$(mktemp -d "${TMPDIR:-/tmp}/ai-context-task.XXXXXX")"
+  export AI_CONTEXT_TASK_SENTINEL="$task_sentinel_root/started"
+  if task --silent --taskfile "$AI_CONTEXT_ROOT/Taskfile.yml" --dir "$AI_CONTEXT_ROOT" "$command_name"; then
+    rm -rf "$task_sentinel_root"
+    exit 0
+  else
+    task_status=$?
+  fi
+  if [[ -e "$AI_CONTEXT_TASK_SENTINEL" ]]; then
+    rm -rf "$task_sentinel_root"
+    exit "$task_status"
+  fi
+  rm -rf "$task_sentinel_root"
+  printf 'ai-context: Task could not start the command; using the shell fallback.\n' >&2
+fi
+
+exec "$AI_CONTEXT_ROOT/scripts/$command_name.sh"
