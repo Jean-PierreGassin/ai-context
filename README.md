@@ -1,208 +1,174 @@
 # Agnostic Agentic Engineering Context
 
-`ai-context` installs shared skills and workflow guidance for Codex and Claude Code. It can update project configuration or global configuration. It keeps settings that it does not manage.
+`ai-context` installs shared instructions, skills, hooks, and safety settings for Codex and Claude Code. Install it in one project or in your global configuration.
 
-## System support
+The installer shows a preview before it changes files. It keeps settings that it does not manage and saves a version that you can restore.
 
-Use `ai-context` in a Bash environment on:
+## Install the command
 
-- macOS
-- Linux
-- Windows with Windows Subsystem for Linux (WSL) or Git Bash
-
-Native PowerShell is not supported.
-
-Install these required tools:
-
-- Bash 3.2 or newer
-- `jq`
-- Python 3.11 or newer
-
-[Task](https://taskfile.dev/docs/installation) and [Gum](https://github.com/charmbracelet/gum#installation) are optional. The launcher uses Task when Task can start the command. It uses the shell directly when Task is not installed or cannot start. It uses Gum for formatted output and prompts. It uses plain terminal output when Gum is not installed.
-
-Use your operating system package manager to install the tools. See each tool's official installation page for supported package managers and binary downloads.
-
-## Set up the command
-
-Clone the repository to a permanent directory:
+Install Bash 3.2 or newer, `jq`, and Python 3.11 or newer. Then clone this repository:
 
 ```bash
-git clone https://github.com/Jean-PierreGassin/ai-context.git
+git clone https://github.com/Jean-PierreGassin/ai-context.git "$HOME/.local/share/ai-context"
+mkdir -p "$HOME/.local/bin"
+printf '%s\n' '#!/usr/bin/env bash' 'exec "$HOME/.local/share/ai-context/bin/ai-context" "$@"' > "$HOME/.local/bin/ai-context"
+chmod +x "$HOME/.local/bin/ai-context"
 ```
 
-Run the launcher from that directory:
+Add the command directory to your shell configuration.
+
+For Zsh on macOS:
 
 ```bash
-bash /path/to/ai-context/bin/ai-context help
+printf '\nexport PATH="$HOME/.local/bin:$PATH"\n' >> "$HOME/.zshrc"
+source "$HOME/.zshrc"
 ```
 
-You can also add `bin` to your `PATH`. Use the method for your operating system and shell. After that, use `ai-context` from any directory.
-
-## Install context
-
-Install context in the current project:
+For Bash on Linux, WSL, or Git Bash:
 
 ```bash
+printf '\nexport PATH="$HOME/.local/bin:$PATH"\n' >> "$HOME/.bashrc"
+source "$HOME/.bashrc"
+```
+
+Verify the command:
+
+```bash
+ai-context --help
+```
+
+[Task](https://taskfile.dev/docs/installation) and [Gum](https://github.com/charmbracelet/gum#installation) are optional. `ai-context` uses them when they are available. It uses its Bash interface when they are not available.
+
+## Install project context
+
+Go to the project and run the installer:
+
+```bash
+cd /path/to/project
 ai-context install
 ```
 
-This command is the same as:
+The command shows a compact preview and asks for approval. It writes the configuration to the current project after you approve it.
+
+To list every path in the preview:
 
 ```bash
-ai-context install --project
+ai-context install --dry-run --verbose
 ```
 
-Install global configuration:
+## Install global context
+
+Run:
 
 ```bash
 ai-context install --global
 ```
 
-The project scope is the default. Do not use `--project` and `--global` together.
+This command installs shared configuration in your home directory. The preview shows each target area before you approve it.
 
-Every install starts with a dry-run. It shows the target, configuration mode, and each planned file change. In an interactive terminal, the installer then asks you to approve the complete plan. It does not create a saved version or write files before approval.
+## Check the installation
 
-## Check an installation
-
-Check the project installation:
+Check the current project:
 
 ```bash
 ai-context doctor
 ```
 
-Check the global installation:
+Check the global configuration:
 
 ```bash
 ai-context doctor --global
 ```
 
-`doctor` checks required tools, installed files, imports, and configuration syntax. Missing Task, Gum, Codex, or Claude Code produces a warning. A missing required tool produces a failure.
+The report checks the required tools, target files, instruction import, configuration syntax, safety settings, and rollback history. If it finds a problem, it shows the next command to run.
 
-## Preview and automate
+## Control an installation
 
-Preview changes without writing files:
+Use these options after `ai-context install`:
 
-```bash
-ai-context install --dry-run
-```
+| Option | Result |
+|---|---|
+| `--global` | Install global configuration |
+| `--dry-run` | Preview changes and stop |
+| `--verbose` | List every path in the preview |
+| `--no-interaction` | Apply the preview without a prompt |
+| `--force` | Replace changed files that `ai-context` manages |
+| `--replace-config` | Replace complete Claude and Codex configuration files |
 
-Run the same preview and continue without the approval prompt:
-
-```bash
-ai-context install --no-interaction
-```
-
-Replace changed managed payload files:
-
-```bash
-ai-context install --force
-```
-
-`--force` does not replace structured Claude or Codex configuration. It still merges those files.
-
-Replace the complete structured configuration:
-
-```bash
-ai-context install --replace-config
-```
-
-This option replaces `.claude/settings.json`, `.codex/config.toml`, and `.codex/hooks.json`. The installer saves a rollback snapshot first. Use this option only when you want to remove settings that `ai-context` does not manage.
+By default, the installer merges `.claude/settings.json`, `.codex/config.toml`, and `.codex/hooks.json`. Use `--replace-config` only when you want to remove configuration that is not part of `ai-context`.
 
 ## Restore a version
 
-List saved versions:
+List saved project versions:
 
 ```bash
 ai-context history
+```
+
+List saved global versions:
+
+```bash
 ai-context history --global
 ```
 
-Select a saved version in an interactive terminal:
+Select a version to restore:
 
 ```bash
 ai-context rollback
 ```
 
-Restore a known version directly:
+Restore a version by its ID:
 
 ```bash
 ai-context rollback SNAPSHOT_ID
 ai-context rollback SNAPSHOT_ID --global
 ```
 
-Each install saves the complete state of all managed paths before it writes files. Each rollback also saves the current state. You can run rollback again to undo a rollback.
+Each install and rollback saves the previous state. A restore can put old files back and remove files that did not exist in the selected version.
 
-A saved version records both existing and missing paths. If the target was empty before installation, its history row shows `RESTORES EXISTING` as `0` and `REMOVES NEW` as the number of installed paths. Restoring that version removes those new paths.
+## Find commands and options
 
-The selector uses Gum when Gum is available. Otherwise, it shows a numbered list. A non-interactive `rollback` command restores the latest snapshot and does not wait for input.
-
-Dry runs do not create snapshots. Snapshots stay in `${XDG_STATE_HOME:-~/.local/state}/ai-context` until you remove that directory.
-
-## Install locations
-
-| Content | Project scope | Global scope |
-|---|---|---|
-| Shared instructions | `AGENTS.md` | `~/.codex/AGENTS.md` |
-| Claude instruction import | `CLAUDE.md` | `~/.claude/CLAUDE.md` |
-| Shared skills and hooks | `.agents/` | `~/.agents/` |
-| Claude adapters and settings | `.claude/` | `~/.claude/` |
-| Codex configuration | `.codex/` | `~/.codex/` |
-
-## Update rules
-
-The installer uses these rules:
-
-- It adds the required `AGENTS.md` import to `CLAUDE.md` once. It keeps the other content.
-- It merges Claude JSON objects. It combines arrays, such as permissions and hooks, without duplicate values.
-- It adds missing Codex TOML keys and tables. It keeps existing model, marketplace, plugin, MCP, and unrelated settings.
-- It merges Codex hook JSON.
-- It asks before it replaces a changed managed payload file.
-- It skips that replacement in non-interactive mode unless you use `--force`.
-- It reports invalid JSON or TOML and does not replace the valid target.
-- It refuses a symlink or directory at a managed file path.
-- It replaces files atomically in each target directory.
-
-## Development
-
-### Task shortcuts
-
-You can run each public command through Task from the repository root:
+Show all CLI commands:
 
 ```bash
-task install
-task doctor
-task history
-task rollback
+ai-context --help
 ```
 
-Put command options after `--`:
+Show options for one command:
 
 ```bash
-task install -- --global --no-interaction
+ai-context install --help
+ai-context rollback --help
+```
+
+From the repository, run `task` to list the Task shortcuts. Use either command below to inspect a Task without running it:
+
+```bash
+task --summary install
+task install -- --help
+```
+
+Task treats `task install help` as two tasks and starts `install` first. Put command options after `--`:
+
+```bash
+task install -- --global
 task doctor -- --global
 task rollback -- SNAPSHOT_ID --global
 ```
 
-These shortcuts use the same validation and defaults as the `ai-context` command.
+## Update ai-context
 
-Show command-specific help:
-
-```bash
-ai-context install --help
-ai-context help rollback
-task help -- install
-task rollback -- --help
-```
-
-### Tests
-
-Run all tests with Task:
+Pull the latest release from the cloned repository:
 
 ```bash
-task test
+git -C "$HOME/.local/share/ai-context" pull --ff-only
 ```
 
-The E2E tests cover the Task path, the direct shell path, Task startup failure, install, doctor, history, and rollback.
+Run `ai-context install` or `ai-context install --global` again to preview and apply the update.
+
+## Supported systems
+
+`ai-context` supports macOS, Linux, WSL, and Git Bash. Native PowerShell is not supported.
 
 ## License
 
