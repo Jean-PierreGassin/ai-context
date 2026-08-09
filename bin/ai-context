@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly AI_CONTEXT_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-AI_CONTEXT_CALLER_DIR="$(pwd)"
+readonly repository_root="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+caller_dir="$(pwd)"
 use_task=true
 
 if [[ "${1:-}" == --task-run ]]; then
@@ -11,10 +11,10 @@ if [[ "${1:-}" == --task-run ]]; then
 fi
 if [[ "${1:-}" == --caller-dir ]]; then
   [[ $# -ge 2 ]] || { printf 'ai-context: --caller-dir requires a path\n' >&2; exit 1; }
-  AI_CONTEXT_CALLER_DIR="$2"
+  caller_dir="$2"
   shift 2
 fi
-readonly AI_CONTEXT_CALLER_DIR use_task
+readonly caller_dir use_task
 
 usage() {
   cat <<'EOF'
@@ -154,23 +154,16 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-if [[ "$command_name" != install && ("$force" == true || "$replace_config" == true || "$dry_run" == true || "$interactive" == false) ]]; then
+if [[ "$command_name" != install \
+  && ("$force" == true || "$replace_config" == true || "$dry_run" == true || "$interactive" == false) ]]; then
   fail "$command_name accepts only a scope and, for rollback, an optional snapshot"
 fi
-
-export AI_CONTEXT_ROOT AI_CONTEXT_CALLER_DIR
-export AI_CONTEXT_SCOPE="$scope"
-export AI_CONTEXT_FORCE="$force"
-export AI_CONTEXT_DRY_RUN="$dry_run"
-export AI_CONTEXT_INTERACTIVE="$interactive"
-export AI_CONTEXT_REPLACE_CONFIG="$replace_config"
-export AI_CONTEXT_SNAPSHOT_ID="$snapshot_id"
 
 if [[ "$use_task" == true ]] && command -v task >/dev/null 2>&1; then
   task_sentinel_root="$(mktemp -d "${TMPDIR:-/tmp}/ai-context-task.XXXXXX")"
   task_sentinel="$task_sentinel_root/started"
-  task_invocation=(task --silent --taskfile "$AI_CONTEXT_ROOT/Taskfile.dist.yml" --dir "$AI_CONTEXT_ROOT" \
-    "$command_name" "CALLER_DIR=$AI_CONTEXT_CALLER_DIR" "TASK_SENTINEL=$task_sentinel")
+  task_invocation=(task --silent --taskfile "$repository_root/Taskfile.dist.yml" --dir "$repository_root" \
+    "$command_name" "CALLER_DIR=$caller_dir" "TASK_SENTINEL=$task_sentinel")
   if [[ ${#command_arguments[@]} -gt 0 ]]; then
     task_invocation+=(-- "${command_arguments[@]}")
   fi
@@ -188,4 +181,15 @@ if [[ "$use_task" == true ]] && command -v task >/dev/null 2>&1; then
   printf 'ai-context: Task could not start the command; using the shell fallback.\n' >&2
 fi
 
-exec "$AI_CONTEXT_ROOT/scripts/$command_name.sh"
+case "$command_name" in
+  install)
+    exec "$repository_root/scripts/install.sh" \
+      "$scope" "$caller_dir" "$force" "$dry_run" "$interactive" "$replace_config"
+    ;;
+  doctor|history)
+    exec "$repository_root/scripts/$command_name.sh" "$scope" "$caller_dir"
+    ;;
+  rollback)
+    exec "$repository_root/scripts/rollback.sh" "$scope" "$caller_dir" "$snapshot_id" "$interactive"
+    ;;
+esac

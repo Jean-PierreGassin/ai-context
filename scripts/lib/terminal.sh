@@ -15,11 +15,11 @@ error() {
 }
 
 render_header() {
-  local title="$1" scope="$2" target="$3"
+  local title="$1" header_scope="$2" target="$3"
   if command -v gum >/dev/null 2>&1; then
-    gum style --bold --foreground 212 "$title" "scope: $scope" "target: $target"
+    gum style --bold --foreground 212 "$title" "scope: $header_scope" "target: $target"
   else
-    printf '%s\nscope: %s\ntarget: %s\n' "$title" "$scope" "$target"
+    printf '%s\nscope: %s\ntarget: %s\n' "$title" "$header_scope" "$target"
   fi
 }
 
@@ -33,9 +33,9 @@ render_history() {
 }
 
 render_install_plan() {
-  local scope="$1" target="$2" config_action="$3" snapshot_action="$4"
+  local plan_scope="$1" target="$2" config_action="$3" snapshot_action="$4"
   printf 'Plan:\n'
-  printf '  - Update %s configuration at %s\n' "$scope" "$target"
+  printf '  - Update %s configuration at %s\n' "$plan_scope" "$target"
   printf '  - Install or update managed instructions, skills, hooks, and adapters\n'
   printf '  - %s Claude and Codex structured configuration\n' "$config_action"
   printf '  - %s\n' "$snapshot_action"
@@ -43,7 +43,7 @@ render_install_plan() {
 
 confirm_action() {
   local prompt="$1"
-  if [[ "${AI_CONTEXT_INTERACTIVE:-true}" == false || ! -t 0 || ! -t 1 ]]; then return 0; fi
+  if [[ "$is_interactive" == false || ! -t 0 || ! -t 1 ]]; then return 0; fi
   if command -v gum >/dev/null 2>&1; then gum confirm "$prompt" --default=false; return; fi
   local response
   printf '%s [y/N] ' "$prompt" >&2
@@ -53,8 +53,8 @@ confirm_action() {
 
 record_change() {
   local change_message="$1"
-  AI_CONTEXT_CHANGED=$((AI_CONTEXT_CHANGED + 1))
-  if [[ "${AI_CONTEXT_PLANNING:-false}" == true ]]; then
+  changed_count=$((changed_count + 1))
+  if [[ "$is_planning" == true ]]; then
     case "$change_message" in
       installed\ *) change_message="install ${change_message#installed }" ;;
       replaced\ *) change_message="replace ${change_message#replaced }" ;;
@@ -68,5 +68,5 @@ record_change() {
   fi
 }
 
-record_skip() { AI_CONTEXT_SKIPPED=$((AI_CONTEXT_SKIPPED + 1)); warn "$1"; }
-record_failure() { AI_CONTEXT_FAILURES=$((AI_CONTEXT_FAILURES + 1)); error "$1"; }
+record_skip() { skipped_count=$((skipped_count + 1)); warn "$1"; }
+record_failure() { failure_count=$((failure_count + 1)); error "$1"; }

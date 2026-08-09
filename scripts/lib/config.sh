@@ -5,7 +5,7 @@ replace_config_file() {
   if reject_unsafe_target "$target_path" "$display_path"; then return 0; fi
   if [[ -f "$target_path" ]] && cmp -s "$source_path" "$target_path"; then return 0; fi
   record_change "replaced $display_path"
-  if [[ "$AI_CONTEXT_DRY_RUN" == true ]]; then return 0; fi
+  if [[ "$is_dry_run" == true ]]; then return 0; fi
   atomic_copy "$source_path" "$target_path"
 }
 
@@ -32,7 +32,7 @@ merge_json_file() {
   fi
   if [[ -f "$target_path" ]] && cmp -s "$merged_path" "$target_path"; then rm -f "$merged_path"; return 0; fi
   record_change "merged $display_path"
-  if [[ "$AI_CONTEXT_DRY_RUN" == false ]]; then
+  if [[ "$is_dry_run" == false ]]; then
     if [[ ! -f "$target_path" ]]; then match_file_mode "$desired_path" "$merged_path"; fi
     atomic_copy "$merged_path" "$target_path"
   fi
@@ -43,7 +43,7 @@ merge_toml_file() {
   local desired_path="$1" target_path="$2" display_path="$3" merged_path merge_status
   merged_path="$(mktemp "${TMPDIR:-/tmp}/ai-context-toml.XXXXXX")"
   if reject_unsafe_target "$target_path" "$display_path"; then rm -f "$merged_path"; return 0; fi
-  if python3 "$AI_CONTEXT_ROOT/scripts/merge_toml.py" "$target_path" "$desired_path" "$merged_path"; then
+  if python3 "$repository_root/scripts/merge_toml.py" "$target_path" "$desired_path" "$merged_path"; then
     merge_status=0
   else
     merge_status=$?
@@ -56,7 +56,7 @@ merge_toml_file() {
   if [[ "$merge_status" -eq 2 ]]; then record_failure "incompatible TOML values in $display_path were preserved"; fi
   if [[ -f "$target_path" ]] && cmp -s "$merged_path" "$target_path"; then rm -f "$merged_path"; return 0; fi
   record_change "extended $display_path"
-  if [[ "$AI_CONTEXT_DRY_RUN" == false ]]; then
+  if [[ "$is_dry_run" == false ]]; then
     if [[ ! -f "$target_path" ]]; then match_file_mode "$desired_path" "$merged_path"; fi
     atomic_copy "$merged_path" "$target_path"
   fi

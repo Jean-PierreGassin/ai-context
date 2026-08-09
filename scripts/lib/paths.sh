@@ -1,19 +1,15 @@
 #!/usr/bin/env bash
 
 resolve_target_root() {
-  local scope="$1"
-  local caller_dir="$2"
-  if [[ "$scope" == global ]]; then
-    printf '%s\n' "${AI_CONTEXT_HOME_OVERRIDE:-$HOME}"
+  local target_scope="$1"
+  local source_directory="$2"
+  if [[ "$target_scope" == global ]]; then
+    printf '%s\n' "$HOME"
   else
-    printf '%s\n' "$caller_dir"
+    printf '%s\n' "$source_directory"
   fi
 }
 
 resolve_state_root() {
-  if [[ -n "${AI_CONTEXT_STATE_ROOT:-}" ]]; then
-    printf '%s\n' "$AI_CONTEXT_STATE_ROOT"
-  else
-    printf '%s/ai-context\n' "${XDG_STATE_HOME:-$HOME/.local/state}"
-  fi
+  printf '%s/ai-context\n' "${XDG_STATE_HOME:-$HOME/.local/state}"
 }

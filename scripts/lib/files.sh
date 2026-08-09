@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ensure_directory() {
-  [[ "$AI_CONTEXT_DRY_RUN" == true ]] || mkdir -p "$1"
+  [[ "$is_dry_run" == true ]] || mkdir -p "$1"
 }
 
 reject_unsafe_target() {
@@ -28,8 +28,8 @@ match_file_mode() {
 
 should_replace() {
   local relative_path="$1" response
-  if [[ "$AI_CONTEXT_FORCE" == true || "$AI_CONTEXT_DRY_RUN" == true ]]; then return 0; fi
-  if [[ "$AI_CONTEXT_INTERACTIVE" == false || ! -t 0 ]]; then return 1; fi
+  if [[ "$force_install" == true || "$is_dry_run" == true ]]; then return 0; fi
+  if [[ "$is_interactive" == false || ! -t 0 ]]; then return 1; fi
   if command -v gum >/dev/null 2>&1; then gum confirm "Replace changed managed file $relative_path?" --default=false; return; fi
   printf 'Replace changed managed file %s? [y/N] ' "$relative_path" >&2
   read -r response
@@ -42,7 +42,7 @@ copy_managed_file() {
   if [[ -f "$target_path" ]] && cmp -s "$source_path" "$target_path"; then return 0; fi
   if [[ -e "$target_path" ]] && ! should_replace "$display_path"; then record_skip "left existing $display_path unchanged"; return 0; fi
   record_change "installed $display_path"
-  if [[ "$AI_CONTEXT_DRY_RUN" == true ]]; then return 0; fi
+  if [[ "$is_dry_run" == true ]]; then return 0; fi
   atomic_copy "$source_path" "$target_path"
 }
 
@@ -56,7 +56,7 @@ ensure_import() {
     END { exit found ? 0 : 1 }
   ' "$target_path"; then return 0; fi
   record_change "added $import_line to $display_path"
-  if [[ "$AI_CONTEXT_DRY_RUN" == true ]]; then return 0; fi
+  if [[ "$is_dry_run" == true ]]; then return 0; fi
   imported_path="$(mktemp "${TMPDIR:-/tmp}/ai-context-md.XXXXXX")"
   printf '%s\n' "$import_line" >"$imported_path"
   if [[ -f "$target_path" ]]; then
