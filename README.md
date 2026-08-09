@@ -1,8 +1,8 @@
 # Agnostic Agentic Engineering Context
 
-`ai-context` installs shared instructions, skills, hooks, and safety settings for Codex and Claude Code. Install it in one project or in your global configuration.
+`ai-context` installs shared instructions, skills, hooks, and safety settings for Codex and Claude Code. Install it in a project or globally.
 
-The installer shows a preview before it changes files. It keeps settings that it does not manage and saves a version that you can restore.
+The installer shows a preview before it changes files. It keeps structured settings that it does not manage and saves a version that you can restore.
 
 ## Install the command
 
@@ -66,6 +66,8 @@ ai-context install --global
 
 This command installs shared configuration in your home directory. The preview shows each target area before you approve it.
 
+The global install manages `~/.claude/CLAUDE.md` as an import file. Its complete content is `@~/.codex/AGENTS.md`. If the file contains other text, the installer shows a replacement and asks for approval.
+
 ## Check the installation
 
 Check the current project:
@@ -80,7 +82,7 @@ Check the global configuration:
 ai-context doctor --global
 ```
 
-The report checks the required tools, target files, instruction import, configuration syntax, safety settings, and rollback history. If it finds a problem, it shows the next command to run.
+The report checks the required tools, target files, instruction import, configuration syntax, safety settings, and rollback history. If it finds a problem, it shows the repair steps and exits with a non-zero status.
 
 ## Control an installation
 
@@ -141,20 +143,33 @@ ai-context install --help
 ai-context rollback --help
 ```
 
-From the repository, run `task` to list the Task shortcuts. Use either command below to inspect a Task without running it:
+From the repository, run `task` or `task list` to show every Task command:
 
 ```bash
-task --summary install
-task install -- --help
+task
+task list
 ```
 
-Task treats `task install help` as two tasks and starts `install` first. Put command options after `--`:
+Use the named Task commands for project and global operations:
 
 ```bash
-task install -- --global
-task doctor -- --global
-task rollback -- SNAPSHOT_ID --global
+task install
+task install:global
+task doctor
+task doctor:global
+task history
+task history:global
+task rollback
+task rollback:global
 ```
+
+Show install options without starting an install:
+
+```bash
+task install:help
+```
+
+Task treats `task install help` as two separate tasks. Use `task install:help` for command help. Use the `ai-context` command when you need to combine install options such as `--global`, `--force`, or `--replace-config`.
 
 ## Update ai-context
 
