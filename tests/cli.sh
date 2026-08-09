@@ -99,15 +99,15 @@ AI_CONTEXT_HOME_OVERRIDE="$global_root" AI_CONTEXT_STATE_ROOT="$state_root" "$re
 
 direct_task_root="$fixture_root/direct-task-project"
 mkdir -p "$direct_task_root"
-AI_CONTEXT_CALLER_DIR="$direct_task_root" AI_CONTEXT_STATE_ROOT="$state_root" \
-  task --silent --taskfile "$repository_root/Taskfile.yml" install -- --no-interaction >/dev/null 2>&1
-AI_CONTEXT_CALLER_DIR="$direct_task_root" AI_CONTEXT_STATE_ROOT="$state_root" \
-  task --silent --taskfile "$repository_root/Taskfile.yml" doctor >/dev/null 2>&1
-AI_CONTEXT_CALLER_DIR="$direct_task_root" AI_CONTEXT_STATE_ROOT="$state_root" \
-  task --silent --taskfile "$repository_root/Taskfile.yml" history >"$fixture_root/direct-task-history" 2>&1
+(cd "$direct_task_root" && AI_CONTEXT_STATE_ROOT="$state_root" \
+  task --silent --taskfile "$repository_root/Taskfile.dist.yml" install -- --no-interaction >/dev/null 2>&1)
+(cd "$direct_task_root" && AI_CONTEXT_STATE_ROOT="$state_root" \
+  task --silent --taskfile "$repository_root/Taskfile.dist.yml" doctor >/dev/null 2>&1)
+(cd "$direct_task_root" && AI_CONTEXT_STATE_ROOT="$state_root" \
+  task --silent --taskfile "$repository_root/Taskfile.dist.yml" history >"$fixture_root/direct-task-history" 2>&1)
 grep -Fq 'RESTORES EXISTING' "$fixture_root/direct-task-history"
-AI_CONTEXT_CALLER_DIR="$direct_task_root" AI_CONTEXT_STATE_ROOT="$state_root" \
-  task --silent --taskfile "$repository_root/Taskfile.yml" rollback >/dev/null 2>&1
+(cd "$direct_task_root" && AI_CONTEXT_STATE_ROOT="$state_root" \
+  task --silent --taskfile "$repository_root/Taskfile.dist.yml" rollback >/dev/null 2>&1)
 [[ ! -e "$direct_task_root/AGENTS.md" ]]
 
 fallback_bin="$fixture_root/fallback-bin"
@@ -134,7 +134,7 @@ grep -Fq 'using the shell fallback' "$fixture_root/task-fallback-error"
 
 started_failure_root="$fixture_root/started-failure-project"
 mkdir -p "$started_failure_root"
-printf '#!/usr/bin/env bash\n: >"$AI_CONTEXT_TASK_SENTINEL"\nexit 23\n' >"$fallback_bin/task"
+printf '#!/usr/bin/env bash\nfor argument in "$@"; do case "$argument" in TASK_SENTINEL=*) : >"${argument#TASK_SENTINEL=}" ;; esac; done\nexit 23\n' >"$fallback_bin/task"
 if (cd "$started_failure_root" && PATH="$fallback_path" AI_CONTEXT_STATE_ROOT="$state_root" "$repository_root/bin/ai-context" install --no-interaction >/dev/null 2>&1); then
   printf 'started Task failure was retried\n' >&2
   exit 1

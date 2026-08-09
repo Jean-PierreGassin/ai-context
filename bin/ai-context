@@ -2,7 +2,19 @@
 set -euo pipefail
 
 readonly AI_CONTEXT_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-readonly AI_CONTEXT_CALLER_DIR="${AI_CONTEXT_CALLER_DIR:-$(pwd)}"
+AI_CONTEXT_CALLER_DIR="$(pwd)"
+use_task=true
+
+if [[ "${1:-}" == --task-run ]]; then
+  use_task=false
+  shift
+fi
+if [[ "${1:-}" == --caller-dir ]]; then
+  [[ $# -ge 2 ]] || { printf 'ai-context: --caller-dir requires a path\n' >&2; exit 1; }
+  AI_CONTEXT_CALLER_DIR="$2"
+  shift 2
+fi
+readonly AI_CONTEXT_CALLER_DIR use_task
 
 usage() {
   cat <<'EOF'
@@ -78,6 +90,11 @@ command_name="${1:-help}"
 if [[ $# -gt 0 ]]; then
   shift
 fi
+command_arguments=()
+if [[ $# -gt 0 ]]; then
+  command_arguments=("$@")
+fi
+readonly -a command_arguments
 
 case "$command_name" in
   help)
@@ -149,16 +166,21 @@ export AI_CONTEXT_INTERACTIVE="$interactive"
 export AI_CONTEXT_REPLACE_CONFIG="$replace_config"
 export AI_CONTEXT_SNAPSHOT_ID="$snapshot_id"
 
-if [[ "${AI_CONTEXT_SKIP_TASK:-false}" != true ]] && command -v task >/dev/null 2>&1; then
+if [[ "$use_task" == true ]] && command -v task >/dev/null 2>&1; then
   task_sentinel_root="$(mktemp -d "${TMPDIR:-/tmp}/ai-context-task.XXXXXX")"
-  export AI_CONTEXT_TASK_SENTINEL="$task_sentinel_root/started"
-  if task --silent --taskfile "$AI_CONTEXT_ROOT/Taskfile.yml" --dir "$AI_CONTEXT_ROOT" "$command_name"; then
+  task_sentinel="$task_sentinel_root/started"
+  task_invocation=(task --silent --taskfile "$AI_CONTEXT_ROOT/Taskfile.dist.yml" --dir "$AI_CONTEXT_ROOT" \
+    "$command_name" "CALLER_DIR=$AI_CONTEXT_CALLER_DIR" "TASK_SENTINEL=$task_sentinel")
+  if [[ ${#command_arguments[@]} -gt 0 ]]; then
+    task_invocation+=(-- "${command_arguments[@]}")
+  fi
+  if "${task_invocation[@]}"; then
     rm -rf "$task_sentinel_root"
     exit 0
   else
     task_status=$?
   fi
-  if [[ -e "$AI_CONTEXT_TASK_SENTINEL" ]]; then
+  if [[ -e "$task_sentinel" ]]; then
     rm -rf "$task_sentinel_root"
     exit "$task_status"
   fi
