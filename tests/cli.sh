@@ -85,6 +85,19 @@ grep -Fq 'SNAPSHOT' "$fixture_root/global-history"
 AI_CONTEXT_HOME_OVERRIDE="$global_root" AI_CONTEXT_STATE_ROOT="$state_root" "$repository_root/bin/ai-context" rollback --global >/dev/null 2>&1
 [[ ! -e "$global_root/.codex/AGENTS.md" && ! -e "$global_root/.claude/settings.json" ]]
 
+direct_task_root="$fixture_root/direct-task-project"
+mkdir -p "$direct_task_root"
+AI_CONTEXT_CALLER_DIR="$direct_task_root" AI_CONTEXT_STATE_ROOT="$state_root" \
+  task --silent --taskfile "$repository_root/Taskfile.yml" install -- --no-interaction >/dev/null 2>&1
+AI_CONTEXT_CALLER_DIR="$direct_task_root" AI_CONTEXT_STATE_ROOT="$state_root" \
+  task --silent --taskfile "$repository_root/Taskfile.yml" doctor >/dev/null 2>&1
+AI_CONTEXT_CALLER_DIR="$direct_task_root" AI_CONTEXT_STATE_ROOT="$state_root" \
+  task --silent --taskfile "$repository_root/Taskfile.yml" history >"$fixture_root/direct-task-history" 2>&1
+grep -Fq 'SNAPSHOT' "$fixture_root/direct-task-history"
+AI_CONTEXT_CALLER_DIR="$direct_task_root" AI_CONTEXT_STATE_ROOT="$state_root" \
+  task --silent --taskfile "$repository_root/Taskfile.yml" rollback >/dev/null 2>&1
+[[ ! -e "$direct_task_root/AGENTS.md" ]]
+
 fallback_bin="$fixture_root/fallback-bin"
 fallback_root="$fixture_root/fallback-project"
 mkdir -p "$fallback_bin" "$fallback_root"

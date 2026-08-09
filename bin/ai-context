@@ -2,7 +2,7 @@
 set -euo pipefail
 
 readonly AI_CONTEXT_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-readonly AI_CONTEXT_CALLER_DIR="$(pwd)"
+readonly AI_CONTEXT_CALLER_DIR="${AI_CONTEXT_CALLER_DIR:-$(pwd)}"
 
 usage() {
   cat <<'EOF'
@@ -90,7 +90,7 @@ export AI_CONTEXT_INTERACTIVE="$interactive"
 export AI_CONTEXT_REPLACE_CONFIG="$replace_config"
 export AI_CONTEXT_SNAPSHOT_ID="$snapshot_id"
 
-if command -v task >/dev/null 2>&1; then
+if [[ "${AI_CONTEXT_SKIP_TASK:-false}" != true ]] && command -v task >/dev/null 2>&1; then
   task_sentinel_root="$(mktemp -d "${TMPDIR:-/tmp}/ai-context-task.XXXXXX")"
   export AI_CONTEXT_TASK_SENTINEL="$task_sentinel_root/started"
   if task --silent --taskfile "$AI_CONTEXT_ROOT/Taskfile.yml" --dir "$AI_CONTEXT_ROOT" "$command_name"; then

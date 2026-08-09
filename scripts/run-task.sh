@@ -14,4 +14,9 @@ if [[ -n "${AI_CONTEXT_TASK_SENTINEL:-}" ]]; then
   : >"$AI_CONTEXT_TASK_SENTINEL"
 fi
 
-exec "$AI_CONTEXT_ROOT/scripts/$command_name.sh"
+if [[ -n "${AI_CONTEXT_ROOT:-}" ]]; then
+  exec "$AI_CONTEXT_ROOT/scripts/$command_name.sh"
+fi
+
+readonly repository_root="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+exec env AI_CONTEXT_SKIP_TASK=true "$repository_root/bin/ai-context" "$command_name" "${@:2}"
