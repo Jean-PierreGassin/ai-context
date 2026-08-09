@@ -186,7 +186,20 @@ def main() -> int:
     snapshots = load_snapshots(history_root)
     if arguments.command == "history":
         for _, metadata in snapshots:
-            print("\t".join((metadata["id"], metadata["created_at"], metadata["action"], metadata["payload_version"])))
+            restored_paths = sum(entry["kind"] != "missing" for entry in metadata["entries"])
+            removed_paths = sum(entry["kind"] == "missing" for entry in metadata["entries"])
+            saved_before = "installation" if metadata["action"] == "install" else "rollback"
+            print(
+                "\t".join(
+                    (
+                        metadata["id"],
+                        metadata["created_at"],
+                        saved_before,
+                        str(restored_paths),
+                        str(removed_paths),
+                    )
+                )
+            )
         return 0
 
     selected = next(

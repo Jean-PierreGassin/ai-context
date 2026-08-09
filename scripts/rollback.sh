@@ -15,12 +15,12 @@ select_snapshot() {
   local selected_snapshot
 
   if command -v gum >/dev/null 2>&1; then
-    selected_snapshot="$(printf '%s\n' "$history_output" | gum choose --header 'Select a snapshot to restore')" || return 1
+    selected_snapshot="$(printf '%s\n' "$history_output" | gum choose --header 'Select a saved version to restore')" || return 1
   else
     local choice snapshot_count
     snapshot_count="$(printf '%s\n' "$history_output" | wc -l | tr -d ' ')"
-    printf 'Select a snapshot to restore:\n' >&2
-    printf '%s\n' "$history_output" | awk -F '\t' '{printf "  %d) %s  %s  %s\n", NR, $2, $3, $1}' >&2
+    printf 'Select a saved version to restore:\n' >&2
+    printf '%s\n' "$history_output" | awk -F '\t' '{printf "  %d) %s | before %s | restore %s, remove %s | %s\n", NR, $2, $3, $4, $5, $1}' >&2
     printf 'Choice [1-%s]: ' "$snapshot_count" >&2
     read -r choice
     case "$choice" in
@@ -34,16 +34,16 @@ select_snapshot() {
 }
 
 snapshot_id="${AI_CONTEXT_SNAPSHOT_ID:-}"
+history_output="$(python3 "$AI_CONTEXT_ROOT/scripts/state.py" history \
+  --scope "$AI_CONTEXT_SCOPE" \
+  --target "$target_root" \
+  --payload "$AI_CONTEXT_ROOT/resources/payload" \
+  --state-root "$state_root")"
+if [[ -z "$history_output" ]]; then
+  error "no snapshots for $AI_CONTEXT_SCOPE target $target_root"
+  exit 1
+fi
 if [[ -z "$snapshot_id" ]]; then
-  history_output="$(python3 "$AI_CONTEXT_ROOT/scripts/state.py" history \
-    --scope "$AI_CONTEXT_SCOPE" \
-    --target "$target_root" \
-    --payload "$AI_CONTEXT_ROOT/resources/payload" \
-    --state-root "$state_root")"
-  if [[ -z "$history_output" ]]; then
-    error "no snapshots for $AI_CONTEXT_SCOPE target $target_root"
-    exit 1
-  fi
   if [[ -t 0 && -t 1 ]]; then
     snapshot_id="$(select_snapshot "$history_output")" || {
       error 'no snapshot selected'
@@ -53,6 +53,19 @@ if [[ -z "$snapshot_id" ]]; then
     snapshot_id="${history_output%%$'\n'*}"
     snapshot_id="${snapshot_id%%$'\t'*}"
   fi
+fi
+
+selected_state="$(printf '%s\n' "$history_output" | awk -F '\t' -v snapshot_id="$snapshot_id" '$1 == snapshot_id {print; exit}')"
+if [[ -z "$selected_state" ]]; then
+  error "snapshot not found: $snapshot_id"
+  exit 1
+fi
+IFS=$'\t' read -r _ selected_created selected_action selected_restore selected_remove _ <<<"$selected_state"
+info "selected version from $selected_created, saved before $selected_action"
+info "rollback will restore $selected_restore existing path(s) and remove $selected_remove path(s) that did not exist"
+if ! confirm_action 'Continue with rollback?'; then
+  info 'rollback cancelled; no files or snapshots were changed'
+  exit 0
 fi
 
 rollback_arguments=(

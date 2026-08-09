@@ -6,6 +6,11 @@ tasks:
     cmds:
       - task --list
 
+  help:
+    desc: Show help for an ai-context command
+    cmds:
+      - ./bin/ai-context help {{.CLI_ARGS}}
+
   install:
     desc: Install context into the current project or user configuration
     cmds:

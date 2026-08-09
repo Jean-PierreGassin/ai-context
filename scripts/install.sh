@@ -17,18 +17,6 @@ else
   readonly target_root="$AI_CONTEXT_CALLER_DIR"
 fi
 
-render_header 'ai-context install' "$AI_CONTEXT_SCOPE" "$target_root"
-
-if [[ "$AI_CONTEXT_DRY_RUN" == false ]]; then
-  readonly state_root="${AI_CONTEXT_STATE_ROOT:-${XDG_STATE_HOME:-$HOME/.local/state}/ai-context}"
-  snapshot_id="$(python3 "$AI_CONTEXT_ROOT/scripts/state.py" snapshot \
-    --scope "$AI_CONTEXT_SCOPE" \
-    --target "$target_root" \
-    --payload "$payload_root" \
-    --state-root "$state_root")"
-  info "saved rollback snapshot $snapshot_id"
-fi
-
 install_project() {
   while IFS= read -r -d '' source_path; do
     local relative_path="${source_path#"$payload_root/"}"
@@ -91,17 +79,74 @@ install_structured_configuration() {
   fi
 }
 
-if [[ "$AI_CONTEXT_SCOPE" == global ]]; then
-  install_global
+run_install() {
+  if [[ "$AI_CONTEXT_SCOPE" == global ]]; then
+    install_global
+  else
+    install_project
+  fi
+}
+
+readonly requested_dry_run="$AI_CONTEXT_DRY_RUN"
+AI_CONTEXT_DRY_RUN=true
+AI_CONTEXT_PLANNING=true
+export AI_CONTEXT_DRY_RUN AI_CONTEXT_PLANNING
+
+render_header 'ai-context install' "$AI_CONTEXT_SCOPE" "$target_root"
+if [[ "$AI_CONTEXT_REPLACE_CONFIG" == true ]]; then
+  config_action='Replace all managed settings in'
 else
-  install_project
+  config_action='Merge managed settings into'
+fi
+if [[ "$requested_dry_run" == true ]]; then
+  snapshot_action='Do not write files or save a rollback snapshot'
+else
+  snapshot_action='After approval, record existing and new paths so rollback can restore or remove them'
+fi
+render_install_plan "$AI_CONTEXT_SCOPE" "$target_root" "$config_action" "$snapshot_action"
+printf 'Changes:\n'
+run_install
+
+if [[ "$AI_CONTEXT_FAILURES" -gt 0 ]]; then
+  error "plan failed: $AI_CONTEXT_FAILURES failure(s), $AI_CONTEXT_CHANGED change(s), $AI_CONTEXT_SKIPPED skipped"
+  exit 1
+fi
+success "plan complete: $AI_CONTEXT_CHANGED change(s), $AI_CONTEXT_SKIPPED skipped"
+
+if [[ "$requested_dry_run" == true ]]; then
+  success "dry run complete: $AI_CONTEXT_CHANGED change(s), $AI_CONTEXT_SKIPPED skipped"
+  exit 0
 fi
 
+if ! confirm_action 'Apply this installation plan?'; then
+  info 'installation cancelled; no files or snapshots were changed'
+  exit 0
+fi
+
+AI_CONTEXT_CHANGED=0
+AI_CONTEXT_SKIPPED=0
+AI_CONTEXT_FAILURES=0
+AI_CONTEXT_DRY_RUN=false
+AI_CONTEXT_PLANNING=false
+export AI_CONTEXT_CHANGED AI_CONTEXT_SKIPPED AI_CONTEXT_FAILURES AI_CONTEXT_DRY_RUN AI_CONTEXT_PLANNING
+
+readonly state_root="${AI_CONTEXT_STATE_ROOT:-${XDG_STATE_HOME:-$HOME/.local/state}/ai-context}"
+snapshot_id="$(python3 "$AI_CONTEXT_ROOT/scripts/state.py" snapshot \
+  --scope "$AI_CONTEXT_SCOPE" \
+  --target "$target_root" \
+    --payload "$payload_root" \
+    --state-root "$state_root")"
+snapshot_state="$(python3 "$AI_CONTEXT_ROOT/scripts/state.py" history \
+  --scope "$AI_CONTEXT_SCOPE" \
+  --target "$target_root" \
+  --payload "$payload_root" \
+  --state-root "$state_root" | awk -F '\t' -v snapshot_id="$snapshot_id" '$1 == snapshot_id {print; exit}')"
+IFS=$'\t' read -r _ _ _ snapshot_restore snapshot_remove <<<"$snapshot_state"
+info "saved pre-install version $snapshot_id; rollback will restore $snapshot_restore existing path(s) and remove $snapshot_remove new path(s)"
+
+run_install
 if [[ "$AI_CONTEXT_FAILURES" -gt 0 ]]; then
   error "installation failed: $AI_CONTEXT_FAILURES failure(s), $AI_CONTEXT_CHANGED change(s), $AI_CONTEXT_SKIPPED skipped"
   exit 1
-elif [[ "$AI_CONTEXT_DRY_RUN" == true ]]; then
-  success "dry run complete: $AI_CONTEXT_CHANGED change(s), $AI_CONTEXT_SKIPPED skipped"
-else
-  success "installation complete: $AI_CONTEXT_CHANGED change(s), $AI_CONTEXT_SKIPPED skipped"
 fi
+success "installation complete: $AI_CONTEXT_CHANGED change(s), $AI_CONTEXT_SKIPPED skipped"

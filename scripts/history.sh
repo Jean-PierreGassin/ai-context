@@ -17,7 +17,7 @@ history_output="$(python3 "$AI_CONTEXT_ROOT/scripts/state.py" history \
   --state-root "$state_root")"
 
 if [[ -z "$history_output" ]]; then
-  info "no snapshots for $AI_CONTEXT_SCOPE target $target_root"
+  info "no saved versions for $AI_CONTEXT_SCOPE target $target_root"
   exit 0
 fi
 

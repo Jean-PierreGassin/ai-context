@@ -18,6 +18,8 @@ assert_fails() {
 }
 
 "$repository_root/bin/ai-context" help | grep -Fq 'ai-context rollback'
+"$repository_root/bin/ai-context" help install | grep -Fq 'asks for approval'
+"$repository_root/bin/ai-context" rollback --help | grep -Fq 'interactive terminal'
 assert_fails "$repository_root/bin/ai-context" unknown
 assert_fails "$repository_root/bin/ai-context" install --project --global
 assert_fails "$repository_root/bin/ai-context" doctor --replace-config
@@ -25,6 +27,10 @@ assert_fails "$repository_root/bin/ai-context" doctor --replace-config
 (cd "$repository_root" && task >"$fixture_root/default-task-output")
 grep -Fq 'Available tasks' "$fixture_root/default-task-output"
 grep -Fq 'install:' "$fixture_root/default-task-output"
+(cd "$repository_root" && task help -- history >"$fixture_root/task-help-output")
+grep -Fq 'List saved pre-action states' "$fixture_root/task-help-output"
+(cd "$repository_root" && task install -- --help >"$fixture_root/task-install-help-output")
+grep -Fq 'asks for approval' "$fixture_root/task-install-help-output"
 
 project_root="$fixture_root/project"
 mkdir -p "$project_root/.claude" "$project_root/.codex"
@@ -36,14 +42,16 @@ printf '{"custom":"keep"}\n' >"$project_root/.codex/hooks.json"
 (cd "$project_root" && AI_CONTEXT_STATE_ROOT="$state_root" "$repository_root/bin/ai-context" install --project --no-interaction >/dev/null 2>&1)
 (cd "$project_root" && AI_CONTEXT_STATE_ROOT="$state_root" "$repository_root/bin/ai-context" doctor --project >/dev/null 2>&1)
 (cd "$project_root" && AI_CONTEXT_STATE_ROOT="$state_root" "$repository_root/bin/ai-context" history --project >"$fixture_root/project-history")
-grep -Fq 'SNAPSHOT' "$fixture_root/project-history"
+grep -Fq 'RESTORES EXISTING' "$fixture_root/project-history"
 jq -e '.custom == "keep"' "$project_root/.claude/settings.json" >/dev/null
 jq -e '.custom == "keep"' "$project_root/.codex/hooks.json" >/dev/null
 python3 -c 'import pathlib, sys, tomllib; assert tomllib.loads(pathlib.Path(sys.argv[1]).read_text())["model"] == "custom"' "$project_root/.codex/config.toml"
 
 history_before_dry_run="$(python3 "$repository_root/scripts/state.py" history --scope project --target "$project_root" --payload "$repository_root/resources/payload" --state-root "$state_root" | wc -l | tr -d ' ')"
 settings_before_dry_run="$(hash_file "$project_root/.claude/settings.json")"
-(cd "$project_root" && AI_CONTEXT_STATE_ROOT="$state_root" "$repository_root/bin/ai-context" install --replace-config --dry-run --no-interaction >/dev/null 2>&1)
+(cd "$project_root" && AI_CONTEXT_STATE_ROOT="$state_root" "$repository_root/bin/ai-context" install --replace-config --dry-run --no-interaction >"$fixture_root/dry-run-output" 2>&1)
+grep -Fq 'Changes:' "$fixture_root/dry-run-output"
+grep -Fq 'would replace .claude/settings.json' "$fixture_root/dry-run-output"
 history_after_dry_run="$(python3 "$repository_root/scripts/state.py" history --scope project --target "$project_root" --payload "$repository_root/resources/payload" --state-root "$state_root" | wc -l | tr -d ' ')"
 [[ "$history_before_dry_run" == "$history_after_dry_run" ]]
 [[ "$settings_before_dry_run" == "$(hash_file "$project_root/.claude/settings.json")" ]]
@@ -84,7 +92,7 @@ mkdir -p "$global_root"
 AI_CONTEXT_HOME_OVERRIDE="$global_root" AI_CONTEXT_STATE_ROOT="$state_root" "$repository_root/bin/ai-context" install --global --no-interaction >/dev/null 2>&1
 AI_CONTEXT_HOME_OVERRIDE="$global_root" AI_CONTEXT_STATE_ROOT="$state_root" "$repository_root/bin/ai-context" doctor --global >/dev/null 2>&1
 AI_CONTEXT_HOME_OVERRIDE="$global_root" AI_CONTEXT_STATE_ROOT="$state_root" "$repository_root/bin/ai-context" history --global >"$fixture_root/global-history"
-grep -Fq 'SNAPSHOT' "$fixture_root/global-history"
+grep -Fq 'RESTORES EXISTING' "$fixture_root/global-history"
 [[ -f "$global_root/.codex/AGENTS.md" && -f "$global_root/.claude/settings.json" ]]
 AI_CONTEXT_HOME_OVERRIDE="$global_root" AI_CONTEXT_STATE_ROOT="$state_root" "$repository_root/bin/ai-context" rollback --global >/dev/null 2>&1
 [[ ! -e "$global_root/.codex/AGENTS.md" && ! -e "$global_root/.claude/settings.json" ]]
@@ -97,7 +105,7 @@ AI_CONTEXT_CALLER_DIR="$direct_task_root" AI_CONTEXT_STATE_ROOT="$state_root" \
   task --silent --taskfile "$repository_root/Taskfile.yml" doctor >/dev/null 2>&1
 AI_CONTEXT_CALLER_DIR="$direct_task_root" AI_CONTEXT_STATE_ROOT="$state_root" \
   task --silent --taskfile "$repository_root/Taskfile.yml" history >"$fixture_root/direct-task-history" 2>&1
-grep -Fq 'SNAPSHOT' "$fixture_root/direct-task-history"
+grep -Fq 'RESTORES EXISTING' "$fixture_root/direct-task-history"
 AI_CONTEXT_CALLER_DIR="$direct_task_root" AI_CONTEXT_STATE_ROOT="$state_root" \
   task --silent --taskfile "$repository_root/Taskfile.yml" rollback >/dev/null 2>&1
 [[ ! -e "$direct_task_root/AGENTS.md" ]]
@@ -112,7 +120,7 @@ grep -Fq 'ai-context install' "$fixture_root/fallback-install"
 (cd "$fallback_root" && PATH="$fallback_path" AI_CONTEXT_STATE_ROOT="$state_root" "$repository_root/bin/ai-context" doctor >"$fixture_root/fallback-doctor" 2>&1)
 grep -Fq 'direct shell execution is active' "$fixture_root/fallback-doctor"
 (cd "$fallback_root" && PATH="$fallback_path" AI_CONTEXT_STATE_ROOT="$state_root" "$repository_root/bin/ai-context" history >"$fixture_root/fallback-history")
-grep -Fq $'SNAPSHOT\tCREATED\tACTION\tPAYLOAD' "$fixture_root/fallback-history"
+grep -Fq $'VERSION\tCREATED\tSAVED BEFORE\tRESTORES EXISTING\tREMOVES NEW' "$fixture_root/fallback-history"
 (cd "$fallback_root" && PATH="$fallback_path" AI_CONTEXT_STATE_ROOT="$state_root" "$repository_root/bin/ai-context" rollback >/dev/null)
 [[ ! -e "$fallback_root/AGENTS.md" ]]
 

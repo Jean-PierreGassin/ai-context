@@ -72,6 +72,9 @@ mkdir -p "$fresh_root"
 export AI_CONTEXT_CALLER_DIR="$fresh_root"
 "$repository_root/scripts/install.sh"
 first_snapshot="$(python3 "$repository_root/scripts/state.py" history --scope project --target "$fresh_root" --payload "$repository_root/resources/payload" --state-root "$AI_CONTEXT_STATE_ROOT" | tail -n 1 | cut -f 1)"
+first_snapshot_state="$(python3 "$repository_root/scripts/state.py" history --scope project --target "$fresh_root" --payload "$repository_root/resources/payload" --state-root "$AI_CONTEXT_STATE_ROOT" | tail -n 1)"
+[[ "$(printf '%s\n' "$first_snapshot_state" | cut -f 4)" -eq 0 ]]
+[[ "$(printf '%s\n' "$first_snapshot_state" | cut -f 5)" -gt 0 ]]
 export AI_CONTEXT_SNAPSHOT_ID="$first_snapshot"
 "$repository_root/scripts/rollback.sh"
 [[ ! -e "$fresh_root/AGENTS.md" ]]
