@@ -60,6 +60,8 @@ ai-context install --global
 
 The project scope is the default. Do not use `--project` and `--global` together.
 
+Every install starts with a dry-run. It shows the target, configuration mode, and each planned file change. In an interactive terminal, the installer then asks you to approve the complete plan. It does not create a saved version or write files before approval.
+
 ## Check an installation
 
 Check the project installation:
@@ -68,7 +70,7 @@ Check the project installation:
 ai-context doctor
 ```
 
-Check the user installation:
+Check the global installation:
 
 ```bash
 ai-context doctor --global
@@ -84,7 +86,7 @@ Preview changes without writing files:
 ai-context install --dry-run
 ```
 
-Run without prompts:
+Run the same preview and continue without the approval prompt:
 
 ```bash
 ai-context install --no-interaction
@@ -130,6 +132,8 @@ ai-context rollback SNAPSHOT_ID --global
 
 Each install saves the complete state of all managed paths before it writes files. Each rollback also saves the current state. You can run rollback again to undo a rollback.
 
+A saved version records both existing and missing paths. If the target was empty before installation, its history row shows `RESTORES EXISTING` as `0` and `REMOVES NEW` as the number of installed paths. Restoring that version removes those new paths.
+
 The selector uses Gum when Gum is available. Otherwise, it shows a numbered list. A non-interactive `rollback` command restores the latest snapshot and does not wait for input.
 
 Dry runs do not create snapshots. Snapshots stay in `${XDG_STATE_HOME:-~/.local/state}/ai-context` until you remove that directory.
@@ -150,7 +154,7 @@ The installer uses these rules:
 
 - It adds the required `AGENTS.md` import to `CLAUDE.md` once. It keeps the other content.
 - It merges Claude JSON objects. It combines arrays, such as permissions and hooks, without duplicate values.
-- It adds missing Codex TOML keys and tables. It keeps existing model, marketplace, plugin, MCP, and user settings.
+- It adds missing Codex TOML keys and tables. It keeps existing model, marketplace, plugin, MCP, and unrelated settings.
 - It merges Codex hook JSON.
 - It asks before it replaces a changed managed payload file.
 - It skips that replacement in non-interactive mode unless you use `--force`.
@@ -180,6 +184,15 @@ task rollback -- SNAPSHOT_ID --global
 ```
 
 These shortcuts use the same validation and defaults as the `ai-context` command.
+
+Show command-specific help:
+
+```bash
+ai-context install --help
+ai-context help rollback
+task help -- install
+task rollback -- --help
+```
 
 ### Tests
 
