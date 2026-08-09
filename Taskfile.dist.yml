@@ -8,35 +8,103 @@ tasks:
   default:
     silent: true
     cmds:
-      - task --list
+      - task help
 
   help:
-    desc: Show help for an ai-context command
+    aliases: [list]
+    desc: Show every ai-context Task command
+    silent: true
     cmds:
-      - ./bin/ai-context --task-run --caller-dir '{{.CALLER_DIR}}' help {{.CLI_ARGS}}
+      - |
+        printf 'Discover:\n'
+        printf '%-28s %s\n' 'task help' 'Show this command guide'
+        printf '%-28s %s\n' 'task list' 'Show this command guide'
+        printf '\nInstall:\n'
+        printf '%-28s %s\n' 'task install' 'Install in the current project'
+        printf '%-28s %s\n' 'task install:global' 'Install global configuration'
+        printf '%-28s %s\n' 'task install:help' 'Show all install options'
+        printf '%-28s %s\n' 'task install:apply' 'Install a project without a prompt'
+        printf '%-28s %s\n' 'task install:global:apply' 'Install globally without a prompt'
+        printf '\nCheck:\n'
+        printf '%-28s %s\n' 'task doctor' 'Check the current project'
+        printf '%-28s %s\n' 'task doctor:global' 'Check global configuration'
+        printf '%-28s %s\n' 'task doctor:help' 'Show doctor options'
+        printf '\nRestore:\n'
+        printf '%-28s %s\n' 'task history' 'List project versions'
+        printf '%-28s %s\n' 'task history:global' 'List global versions'
+        printf '%-28s %s\n' 'task rollback' 'Restore a project version'
+        printf '%-28s %s\n' 'task rollback:global' 'Restore a global version'
+        printf '%-28s %s\n' 'task rollback:help' 'Show rollback options'
+        printf '\nDevelopment:\n'
+        printf '%-28s %s\n' 'task test' 'Run the regression suite'
 
   install:
-    desc: Install context into the current project or global configuration
+    desc: Install in the current project
     cmds:
       - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' install {{.CLI_ARGS}}
 
+  install:global:
+    desc: Install global configuration
+    cmds:
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' install --global
+
+  install:apply:
+    desc: Install in the current project without a prompt
+    cmds:
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' install --no-interaction
+
+  install:global:apply:
+    desc: Install global configuration without a prompt
+    cmds:
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' install --global --no-interaction
+
+  install:help:
+    desc: Show all install options
+    cmds:
+      - ./bin/ai-context --task-run --caller-dir '{{.CALLER_DIR}}' install --help
+
   doctor:
-    desc: Check dependencies and the selected installation
+    desc: Check the current project
     cmds:
       - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' doctor {{.CLI_ARGS}}
 
+  doctor:global:
+    desc: Check global configuration
+    cmds:
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' doctor --global
+
+  doctor:help:
+    desc: Show doctor options
+    cmds:
+      - ./bin/ai-context --task-run --caller-dir '{{.CALLER_DIR}}' doctor --help
+
   history:
-    desc: List rollback versions for the selected target
+    desc: List project versions
     cmds:
       - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' history {{.CLI_ARGS}}
 
+  history:global:
+    desc: List global versions
+    cmds:
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' history --global
+
   rollback:
-    desc: Restore a rollback version for the selected target
+    desc: Restore a project version
     cmds:
       - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' rollback {{.CLI_ARGS}}
 
+  rollback:global:
+    desc: Restore a global version
+    cmds:
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' rollback --global
+
+  rollback:help:
+    desc: Show rollback options
+    cmds:
+      - ./bin/ai-context --task-run --caller-dir '{{.CALLER_DIR}}' rollback --help
+
   test:
-    desc: Run installer regressions and public CLI contracts
+    desc: Run the regression suite
     cmds:
       - ./tests/install.sh
       - ./tests/cli.sh

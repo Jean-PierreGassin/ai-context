@@ -41,7 +41,11 @@ copy_managed_file() {
   if reject_unsafe_target "$target_path" "$display_path"; then return 0; fi
   if [[ -f "$target_path" ]] && cmp -s "$source_path" "$target_path"; then return 0; fi
   if [[ -e "$target_path" ]] && ! should_replace "$display_path"; then record_skip "left existing $display_path unchanged"; return 0; fi
-  record_change "installed $display_path"
+  if [[ -e "$target_path" ]]; then
+    record_change "replaced $display_path"
+  else
+    record_change "installed $display_path"
+  fi
   if [[ "$is_dry_run" == true ]]; then return 0; fi
   atomic_copy "$source_path" "$target_path"
 }

@@ -16,7 +16,7 @@ error() {
 
 render_header() {
   local title="$1" header_scope="$2" target="$3"
-  if command -v gum >/dev/null 2>&1; then
+  if [[ -t 1 ]] && command -v gum >/dev/null 2>&1; then
     gum style --bold --foreground 212 "$title" "scope: $header_scope" "target: $target"
   else
     printf '%s\nscope: %s\ntarget: %s\n' "$title" "$header_scope" "$target"
@@ -33,12 +33,44 @@ render_history() {
 }
 
 render_install_plan() {
-  local plan_scope="$1" target="$2" config_action="$3" snapshot_action="$4"
+  local plan_scope="$1" target="$2"
   printf 'Plan:\n'
   printf '  - Update %s configuration at %s\n' "$plan_scope" "$target"
-  printf '  - Install or update managed instructions, skills, hooks, and adapters\n'
-  printf '  - %s Claude and Codex structured configuration\n' "$config_action"
-  printf '  - %s\n' "$snapshot_action"
+}
+
+render_change_summary() {
+  local rows="${planned_targets%$'\n'}"
+  printf 'Planned changes:\n'
+  if [[ -z "$rows" ]]; then
+    printf 'No file changes.\n'
+    return
+  fi
+  if [[ -t 1 ]] && command -v gum >/dev/null 2>&1; then
+    printf 'CONTENT\tTARGET\n%s\n' "$rows" | gum table --print --separator $'\t'
+  else
+    printf '%-24s %s\n' 'CONTENT' 'TARGET'
+    while IFS=$'\t' read -r content target; do printf '%-24s %s\n' "$content" "$target"; done <<<"$rows"
+  fi
+  [[ "$is_verbose" == true ]] || printf 'Use --verbose to list each file.\n'
+}
+
+record_planned_target() {
+  local content="$1" target="$2" row
+  row="$content"$'\t'"$target"
+  printf '%s' "$planned_targets" | grep -Fxq "$row" && return
+  planned_targets+="$row"$'\n'
+}
+
+render_doctor_results() {
+  local results="$1"
+  if [[ -t 1 ]] && command -v gum >/dev/null 2>&1; then
+    printf 'CHECK\tSTATUS\tDETAIL\n%s\n' "$results" | gum table --print --separator $'\t'
+  else
+    printf '%-18s %-8s %s\n' 'CHECK' 'STATUS' 'DETAIL'
+    while IFS=$'\t' read -r check status detail; do
+      printf '%-18s %-8s %s\n' "$check" "$status" "$detail"
+    done <<<"$results"
+  fi
 }
 
 confirm_action() {
@@ -56,13 +88,29 @@ record_change() {
   changed_count=$((changed_count + 1))
   if [[ "$is_planning" == true ]]; then
     case "$change_message" in
+      *CLAUDE.md*) record_planned_target 'Claude instructions' "${change_message##* }" ;;
+      *AGENTS.md*) record_planned_target 'Shared instructions' "${change_message##* }" ;;
+      *\.agents/*)
+        [[ "$scope" == global ]] && record_planned_target 'Shared skills and hooks' '~/.agents/' \
+          || record_planned_target 'Shared skills and hooks' '.agents/'
+        ;;
+      *\.claude/*)
+        [[ "$scope" == global ]] && record_planned_target 'Claude configuration' '~/.claude/' \
+          || record_planned_target 'Claude configuration' '.claude/'
+        ;;
+      *\.codex/*)
+        [[ "$scope" == global ]] && record_planned_target 'Codex configuration' '~/.codex/' \
+          || record_planned_target 'Codex configuration' '.codex/'
+        ;;
+    esac
+    case "$change_message" in
       installed\ *) change_message="install ${change_message#installed }" ;;
       replaced\ *) change_message="replace ${change_message#replaced }" ;;
       merged\ *) change_message="merge ${change_message#merged }" ;;
       extended\ *) change_message="extend ${change_message#extended }" ;;
       added\ *) change_message="add ${change_message#added }" ;;
     esac
-    info "would $change_message"
+    if [[ "$is_verbose" == true ]]; then info "would $change_message"; fi
   else
     info "$change_message"
   fi

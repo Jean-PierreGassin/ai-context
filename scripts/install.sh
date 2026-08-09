@@ -7,12 +7,14 @@ readonly force_install="${3:?force setting is required}"
 readonly requested_dry_run="${4:?dry-run setting is required}"
 readonly is_interactive="${5:?interactive setting is required}"
 readonly replace_config="${6:?replace-config setting is required}"
+readonly is_verbose="${7:-false}"
 readonly repository_root="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$repository_root/scripts/lib.sh"
 
 changed_count=0
 skipped_count=0
 failure_count=0
+planned_targets=
 is_dry_run="$requested_dry_run"
 is_planning=false
 
@@ -56,7 +58,11 @@ install_global() {
     copy_managed_file "$source_path" "$target_root/.claude/$relative_path" "~/.claude/$relative_path"
   done < <(find "$payload_root/.claude" -type f -print0 | sort -z)
 
-  ensure_import "$target_root/.claude/CLAUDE.md" '@~/.codex/AGENTS.md' '~/.claude/CLAUDE.md'
+  local global_claude_instructions
+  global_claude_instructions="$(mktemp "${TMPDIR:-/tmp}/ai-context-instructions.XXXXXX")"
+  printf '@~/.codex/AGENTS.md\n' >"$global_claude_instructions"
+  copy_managed_file "$global_claude_instructions" "$target_root/.claude/CLAUDE.md" '~/.claude/CLAUDE.md'
+  rm -f "$global_claude_instructions"
 
   local global_claude_settings
   global_claude_settings="$(mktemp "${TMPDIR:-/tmp}/ai-context-claude.XXXXXX")"
@@ -93,19 +99,9 @@ is_dry_run=true
 is_planning=true
 
 render_header 'ai-context install' "$scope" "$target_root"
-if [[ "$replace_config" == true ]]; then
-  config_action='Replace all managed settings in'
-else
-  config_action='Merge managed settings into'
-fi
-if [[ "$requested_dry_run" == true ]]; then
-  snapshot_action='Do not write files or save a rollback snapshot'
-else
-  snapshot_action='After approval, record existing and new paths so rollback can restore or remove them'
-fi
-render_install_plan "$scope" "$target_root" "$config_action" "$snapshot_action"
-printf 'Changes:\n'
+render_install_plan "$scope" "$target_root"
 run_install
+render_change_summary
 
 if [[ "$failure_count" -gt 0 ]]; then
   error "plan failed: $failure_count failure(s), $changed_count change(s), $skipped_count skipped"
@@ -115,6 +111,11 @@ success "plan complete: $changed_count change(s), $skipped_count skipped"
 
 if [[ "$requested_dry_run" == true ]]; then
   success "dry run complete: $changed_count change(s), $skipped_count skipped"
+  exit 0
+fi
+
+if [[ "$is_interactive" == true && (! -t 0 || ! -t 1) ]]; then
+  info 'preview complete; use --no-interaction to apply changes without a prompt'
   exit 0
 fi
 
