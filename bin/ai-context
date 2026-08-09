@@ -1,35 +1,169 @@
-#!/usr/bin/env php
-<?php
+#!/usr/bin/env bash
+set -euo pipefail
 
-use JeanPierreGassin\AiContext\Console\Application;
+readonly AI_CONTEXT_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly AI_CONTEXT_CALLER_DIR="${AI_CONTEXT_CALLER_DIR:-$(pwd)}"
 
-/**
- * Composer's bin proxy hands us the consuming project's autoloader
- * here. Relative lookups are only a fallback, because __DIR__ resolves
- * through the symlink a path repository creates and would otherwise
- * point back into the package's own checkout.
- */
-$autoloadCandidates = [
-    $GLOBALS['_composer_autoload_path'] ?? null,
-    __DIR__ . '/../../../autoload.php',
-    __DIR__ . '/../vendor/autoload.php',
-];
+usage() {
+  cat <<'EOF'
+ai-context
 
-$loadedAutoloader = null;
-foreach ($autoloadCandidates as $autoloadCandidate) {
-    if ($autoloadCandidate !== null && file_exists($autoloadCandidate)) {
-        $loadedAutoloader = $autoloadCandidate;
+Usage:
+  ai-context install [--project | --global] [--force] [--replace-config] [--dry-run] [--no-interaction]
+  ai-context doctor [--project | --global]
+  ai-context history [--project | --global]
+  ai-context rollback [snapshot] [--project | --global]
+  ai-context help [command]
 
-        break;
-    }
+Install targets the current project by default. Existing configuration is merged,
+and changed managed files require confirmation unless --force is supplied.
+EOF
 }
 
-if ($loadedAutoloader === null) {
-    fwrite(STDERR, 'ai-context: run "composer install" before using this command.' . PHP_EOL);
+usage_command() {
+  case "$1" in
+    install)
+      cat <<'EOF'
+Usage: ai-context install [--project | --global] [--force] [--replace-config] [--dry-run] [--no-interaction]
 
-    exit(1);
+Install managed instructions, skills, hooks, and agent configuration. Project
+configuration is the default. The command shows its plan and asks for approval
+before it saves a rollback snapshot or writes files.
+
+Options:
+  --project           Update the current project
+  --global            Update global configuration
+  --force, -f         Replace changed managed payload files
+  --replace-config    Replace structured configuration instead of merging it
+  --dry-run           Show changes without writing files or saving a snapshot
+  --no-interaction    Run without confirmation prompts
+EOF
+      ;;
+    doctor)
+      cat <<'EOF'
+Usage: ai-context doctor [--project | --global]
+
+Check required tools, managed files, instruction imports, and configuration
+syntax. Project configuration is the default. Optional tools produce warnings.
+EOF
+      ;;
+    history)
+      cat <<'EOF'
+Usage: ai-context history [--project | --global]
+
+List saved pre-action states for the selected target. Each row states how many
+paths a rollback will restore and how many newly installed paths it will remove.
+Project history is the default and is separate from global history.
+EOF
+      ;;
+    rollback)
+      cat <<'EOF'
+Usage: ai-context rollback [snapshot] [--project | --global]
+
+Restore a saved pre-action state. Without a snapshot ID, an interactive terminal
+shows a selector. A non-interactive terminal restores the latest snapshot.
+Rollback saves the current state first, so another rollback can undo the action.
+EOF
+      ;;
+    *) fail "unknown help topic: $1" ;;
+  esac
 }
 
-require $loadedAutoloader;
+fail() {
+  printf 'ai-context: %s\n' "$1" >&2
+  exit 1
+}
 
-exit((new Application())->run());
+command_name="${1:-help}"
+if [[ $# -gt 0 ]]; then
+  shift
+fi
+
+case "$command_name" in
+  help)
+    if [[ $# -eq 0 ]]; then
+      usage
+    elif [[ $# -eq 1 ]]; then
+      usage_command "$1"
+    else
+      fail 'help accepts one command name'
+    fi
+    exit 0
+    ;;
+  -h|--help)
+    usage
+    exit 0
+    ;;
+  install|doctor|history|rollback) ;;
+  *) fail "unknown command: $command_name" ;;
+esac
+
+scope=project
+selected_scope=
+force=false
+dry_run=false
+interactive=true
+replace_config=false
+snapshot_id=
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --project)
+      [[ -z "$selected_scope" || "$selected_scope" == project ]] || fail "choose either --project or --global"
+      scope=project
+      selected_scope=project
+      ;;
+    --global)
+      [[ -z "$selected_scope" || "$selected_scope" == global ]] || fail "choose either --project or --global"
+      scope=global
+      selected_scope=global
+      ;;
+    --force|-f) force=true ;;
+    --replace-config) replace_config=true ;;
+    --dry-run) dry_run=true ;;
+    --no-interaction|-n) interactive=false ;;
+    help|-h|--help)
+      usage_command "$command_name"
+      exit 0
+      ;;
+    *)
+      if [[ "$command_name" == rollback && "$1" != -* && -z "$snapshot_id" ]]; then
+        snapshot_id="$1"
+      else
+        fail "unknown option: $1"
+      fi
+      ;;
+  esac
+  shift
+done
+
+if [[ "$command_name" != install && ("$force" == true || "$replace_config" == true || "$dry_run" == true || "$interactive" == false) ]]; then
+  fail "$command_name accepts only a scope and, for rollback, an optional snapshot"
+fi
+
+export AI_CONTEXT_ROOT AI_CONTEXT_CALLER_DIR
+export AI_CONTEXT_SCOPE="$scope"
+export AI_CONTEXT_FORCE="$force"
+export AI_CONTEXT_DRY_RUN="$dry_run"
+export AI_CONTEXT_INTERACTIVE="$interactive"
+export AI_CONTEXT_REPLACE_CONFIG="$replace_config"
+export AI_CONTEXT_SNAPSHOT_ID="$snapshot_id"
+
+if [[ "${AI_CONTEXT_SKIP_TASK:-false}" != true ]] && command -v task >/dev/null 2>&1; then
+  task_sentinel_root="$(mktemp -d "${TMPDIR:-/tmp}/ai-context-task.XXXXXX")"
+  export AI_CONTEXT_TASK_SENTINEL="$task_sentinel_root/started"
+  if task --silent --taskfile "$AI_CONTEXT_ROOT/Taskfile.yml" --dir "$AI_CONTEXT_ROOT" "$command_name"; then
+    rm -rf "$task_sentinel_root"
+    exit 0
+  else
+    task_status=$?
+  fi
+  if [[ -e "$AI_CONTEXT_TASK_SENTINEL" ]]; then
+    rm -rf "$task_sentinel_root"
+    exit "$task_status"
+  fi
+  rm -rf "$task_sentinel_root"
+  printf 'ai-context: Task could not start the command; using the shell fallback.\n' >&2
+fi
+
+exec "$AI_CONTEXT_ROOT/scripts/$command_name.sh"
