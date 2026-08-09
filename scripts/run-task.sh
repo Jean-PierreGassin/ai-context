@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly command_name="${1:?command name is required}"
+readonly task_sentinel="${1:-}"
+readonly caller_dir="${2:?caller directory is required}"
+readonly command_name="${3:?command name is required}"
 case "$command_name" in
   install|doctor|history|rollback) ;;
   *)
@@ -10,13 +12,9 @@ case "$command_name" in
     ;;
 esac
 
-if [[ -n "${AI_CONTEXT_TASK_SENTINEL:-}" ]]; then
-  : >"$AI_CONTEXT_TASK_SENTINEL"
-fi
-
-if [[ -n "${AI_CONTEXT_ROOT:-}" ]]; then
-  exec "$AI_CONTEXT_ROOT/scripts/$command_name.sh"
+if [[ -n "$task_sentinel" ]]; then
+  : >"$task_sentinel"
 fi
 
 readonly repository_root="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-exec env AI_CONTEXT_SKIP_TASK=true "$repository_root/bin/ai-context" "$command_name" "${@:2}"
+exec "$repository_root/bin/ai-context" --task-run --caller-dir "$caller_dir" "$command_name" "${@:4}"
