@@ -55,14 +55,14 @@ CI and container builds don't stall.
 
 ## What's included
 
-| Path                                                                   | Purpose                                            |
-|------------------------------------------------------------------------|----------------------------------------------------|
-| `AGENTS.md`                                                            | The canonical workflow guidance                    |
-| `CLAUDE.md`                                                            | A one-line include of `AGENTS.md`                  |
-| `.agents/skills/*`                                                     | The skills themselves, in portable form            |
-| `.claude/skills/*`                                                     | Thin Claude Code stubs pointing at the same skills |
-| `.claude/settings.json`, `hooks/*`, `output-styles/*`, `statusline.sh` | Claude Code harness setup                          |
-| `.codex/config.toml`                                                   | Codex approvals, sandbox, and secret-file denies   |
+| Path                                                                   | Purpose                                                    |
+|------------------------------------------------------------------------|------------------------------------------------------------|
+| `AGENTS.md`                                                            | The canonical workflow guidance                            |
+| `CLAUDE.md`                                                            | A one-line include of `AGENTS.md`                          |
+| `.agents/skills/*`, `.agents/hooks/*`                                  | Shared skills and hooks, in portable form                  |
+| `.claude/skills/*`                                                     | Thin Claude Code stubs pointing at the same skills         |
+| `.claude/settings.json`, `output-styles/*`, `statusline.sh`            | Claude Code harness setup                                  |
+| `.codex/config.toml`, `hooks.json`                                     | Codex approvals, workspace network, status line, and hooks |
 
 ## Skills
 
@@ -77,8 +77,14 @@ CI and container builds don't stall.
 | `orchestrate-investigation` | Investigating, researching, or finding a root cause                                          |
 | `use-worktrees`             | Creating, working inside, reviewing from, or tearing down a git worktree                     |
 
-`.agents/skills/*` holds the real content, using only the frontmatter the Open Agent Specification defines.
+`.agents/skills/*` and `.agents/hooks/*` hold the shared content. Skills use only the frontmatter the Open Agent
+Specification defines. Both harnesses call the shared hooks directly, while passing their own event format.
 `.claude/skills/*` holds a stub per skill carrying any Claude-specific fields and a pointer back to the canonical file.
+`.codex/` holds the Codex-specific runtime configuration. Codex reads `AGENTS.md` and `.agents/skills/*` directly, so it
+does not need duplicate skills or a CLAUDE-style adapter file.
+
+After installation, review and trust the project hooks once with Codex's `/hooks` command. Until then, Codex safely
+skips them.
 
 ## Lives alongside your projects
 

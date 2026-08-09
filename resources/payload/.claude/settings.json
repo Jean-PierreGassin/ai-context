@@ -50,7 +50,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/migration-generator.sh\"",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.agents/hooks/migration-generator.sh\" claude \"$CLAUDE_PROJECT_DIR\"",
             "if": "Write(**/database/migrations/**)"
           }
         ]
@@ -62,7 +62,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/play-sound.sh\"",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.agents/hooks/play-sound.sh\"",
             "timeout": 10
           }
         ]

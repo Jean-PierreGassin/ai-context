@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cross-platform notification sound for Claude Code hooks.
+# Cross-platform completion sound for agent hooks.
 # Plays the first working backend for the current OS, then falls back to the
 # terminal bell. Always exits 0 so a missing audio backend never blocks a hook.
 
@@ -8,7 +8,7 @@ set -u
 play_macos() {
     command -v afplay >/dev/null 2>&1 || return 1
 
-    for sound in "${CLAUDE_HOOK_SOUND:-}" /System/Library/Sounds/Blow.aiff /System/Library/Sounds/Ping.aiff; do
+    for sound in "${AGENT_HOOK_SOUND:-}" /System/Library/Sounds/Blow.aiff /System/Library/Sounds/Ping.aiff; do
         [ -n "$sound" ] && [ -f "$sound" ] && afplay "$sound" && return 0
     done
 
@@ -16,7 +16,7 @@ play_macos() {
 }
 
 play_linux() {
-    local sound="${CLAUDE_HOOK_SOUND:-}"
+    local sound="${AGENT_HOOK_SOUND:-}"
 
     if [ -z "$sound" ]; then
         for candidate in \
@@ -43,7 +43,7 @@ play_windows() {
     local powershell
     powershell=$(command -v powershell.exe || command -v pwsh.exe) || return 1
 
-    local sound="${CLAUDE_HOOK_SOUND:-C:\\Windows\\Media\\notify.wav}"
+    local sound="${AGENT_HOOK_SOUND:-C:\\Windows\\Media\\notify.wav}"
 
     "$powershell" -NoProfile -NonInteractive -Command \
         "(New-Object Media.SoundPlayer '$sound').PlaySync()" >/dev/null 2>&1 && return 0
@@ -56,7 +56,6 @@ play_windows() {
 case "$(uname -s 2>/dev/null)" in
     Darwin) play_macos ;;
     Linux)
-        # WSL can reach the Windows audio stack; native Linux cannot.
         if grep -qi microsoft /proc/version 2>/dev/null; then
             play_windows || play_linux
         else
