@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-source "$AI_CONTEXT_ROOT/scripts/lib.sh"
+readonly scope="${1:?scope is required}"
+readonly caller_dir="${2:?caller directory is required}"
+readonly repository_root="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly force_install=false
+readonly is_dry_run=false
+readonly is_interactive=false
+source "$repository_root/scripts/lib.sh"
 
 failures=0
 warnings=0
-if [[ "$AI_CONTEXT_SCOPE" == global ]]; then
-  readonly target_root="${AI_CONTEXT_HOME_OVERRIDE:-$HOME}"
+if [[ "$scope" == global ]]; then
+  readonly target_root="$(resolve_target_root "$scope" "$caller_dir")"
   readonly agents_path="$target_root/.codex/AGENTS.md"
   readonly claude_path="$target_root/.claude/CLAUDE.md"
   readonly claude_import='@~/.codex/AGENTS.md'
@@ -14,7 +20,7 @@ if [[ "$AI_CONTEXT_SCOPE" == global ]]; then
   readonly claude_settings="$target_root/.claude/settings.json"
   readonly codex_settings="$target_root/.codex/config.toml"
 else
-  readonly target_root="$AI_CONTEXT_CALLER_DIR"
+  readonly target_root="$(resolve_target_root "$scope" "$caller_dir")"
   readonly agents_path="$target_root/AGENTS.md"
   readonly claude_path="$target_root/CLAUDE.md"
   readonly claude_import='@AGENTS.md'
@@ -27,7 +33,7 @@ pass_check() { info "ok: $1"; }
 fail_check() { error "fail: $1"; failures=$((failures + 1)); }
 warn_check() { warn "warn: $1"; warnings=$((warnings + 1)); }
 
-render_header 'ai-context doctor' "$AI_CONTEXT_SCOPE" "$target_root"
+render_header 'ai-context doctor' "$scope" "$target_root"
 
 if command -v jq >/dev/null 2>&1; then
   pass_check 'jq is available'
@@ -71,9 +77,13 @@ else
   fail_check 'Claude settings are missing or invalid'
 fi
 
-if [[ -f "$codex_settings" ]] && python3 -c 'import pathlib, sys, tomllib; tomllib.loads(pathlib.Path(sys.argv[1]).read_text())' "$codex_settings" >/dev/null 2>&1; then
+if [[ -f "$codex_settings" ]] \
+  && python3 -c 'import pathlib, sys, tomllib; tomllib.loads(pathlib.Path(sys.argv[1]).read_text())' \
+    "$codex_settings" >/dev/null 2>&1; then
   pass_check 'Codex settings contain valid TOML'
-  if python3 -c 'import pathlib, sys, tomllib; data=tomllib.loads(pathlib.Path(sys.argv[1]).read_text()); assert "project-edit" in data.get("permissions", {})' "$codex_settings" >/dev/null 2>&1; then
+  if python3 -c \
+    'import pathlib, sys, tomllib; data=tomllib.loads(pathlib.Path(sys.argv[1]).read_text()); assert "project-edit" in data.get("permissions", {})' \
+    "$codex_settings" >/dev/null 2>&1; then
     pass_check 'Codex permission profile is installed'
   else
     fail_check 'Codex permission profile is incomplete'

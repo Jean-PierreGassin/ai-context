@@ -7,15 +7,26 @@ trap 'rm -rf "$fixture_root"' EXIT
 
 mkdir -p "$fixture_root/bin"
 printf '#!/usr/bin/env bash\nexit 0\n' >"$fixture_root/bin/gum"
-printf '#!/usr/bin/env bash\nif [[ -n "${AI_CONTEXT_TASK_CAPTURE:-}" ]]; then printf "%%s\\n" "$AI_CONTEXT_SCOPE|$*" >"$AI_CONTEXT_TASK_CAPTURE"; fi\n' >"$fixture_root/bin/task"
+printf '#!/usr/bin/env bash\nif [[ -n "${TASK_CAPTURE_PATH:-}" ]]; then printf "%%s\\n" "$*" >"$TASK_CAPTURE_PATH"; fi\n' >"$fixture_root/bin/task"
 chmod +x "$fixture_root/bin/gum"
 chmod +x "$fixture_root/bin/task"
 export PATH="$fixture_root/bin:$PATH"
-export AI_CONTEXT_ROOT="$repository_root"
-export AI_CONTEXT_FORCE=false
-export AI_CONTEXT_DRY_RUN=false
-export AI_CONTEXT_INTERACTIVE=false
-export AI_CONTEXT_STATE_ROOT="$fixture_root/state"
+readonly state_home="$fixture_root/state"
+readonly state_root="$state_home/ai-context"
+export XDG_STATE_HOME="$state_home"
+
+scope=project
+caller_dir=
+force_install=false
+replace_config=false
+
+run_install() {
+  "$repository_root/scripts/install.sh" "$scope" "$caller_dir" "$force_install" false false "$replace_config"
+}
+
+run_rollback() {
+  "$repository_root/scripts/rollback.sh" "$scope" "$caller_dir" "${1:-}" false
+}
 
 assert_jq() {
   local expression="$1"
@@ -35,11 +46,11 @@ printf '# Existing\n' >"$project_root/CLAUDE.md"
 printf '{"enabledPlugins":{"custom@example":true},"permissions":{"deny":["Read(private.txt)"]}}\n' >"$project_root/.claude/settings.json"
 printf 'model = "custom"\napproval_policy = "never"\n\n[marketplaces.team]\nsource = "private"\n\n[tui]\ncustom = true\n' >"$project_root/.codex/config.toml"
 
-export AI_CONTEXT_SCOPE=project
-export AI_CONTEXT_CALLER_DIR="$project_root"
-"$repository_root/scripts/install.sh"
-"$repository_root/scripts/install.sh"
-[[ "$(python3 -c 'import os, stat, sys; print(oct(stat.S_IMODE(os.stat(sys.argv[1]).st_mode)))' "$AI_CONTEXT_STATE_ROOT")" == 0o700 ]]
+scope=project
+caller_dir="$project_root"
+run_install
+run_install
+[[ "$(python3 -c 'import os, stat, sys; print(oct(stat.S_IMODE(os.stat(sys.argv[1]).st_mode)))' "$state_root")" == 0o700 ]]
 
 grep -Fxq '@AGENTS.md' "$project_root/CLAUDE.md"
 grep -Fxq '# Existing' "$project_root/CLAUDE.md"
@@ -57,31 +68,29 @@ assert_toml 'data["tui"]["custom"] is True and data["tui"]["status_line_use_colo
 printf '\nrollback marker\n' >>"$project_root/AGENTS.md"
 chmod 600 "$project_root/AGENTS.md"
 rollback_hash="$(shasum -a 256 "$project_root/AGENTS.md" | awk '{print $1}')"
-export AI_CONTEXT_FORCE=true
-"$repository_root/scripts/install.sh"
+force_install=true
+run_install
 payload_hash="$(shasum -a 256 "$project_root/AGENTS.md" | awk '{print $1}')"
-"$repository_root/scripts/rollback.sh"
+run_rollback
 [[ "$(shasum -a 256 "$project_root/AGENTS.md" | awk '{print $1}')" == "$rollback_hash" ]]
 [[ "$(python3 -c 'import os, stat, sys; print(oct(stat.S_IMODE(os.stat(sys.argv[1]).st_mode)))' "$project_root/AGENTS.md")" == 0o600 ]]
-"$repository_root/scripts/rollback.sh"
+run_rollback
 [[ "$(shasum -a 256 "$project_root/AGENTS.md" | awk '{print $1}')" == "$payload_hash" ]]
-export AI_CONTEXT_FORCE=false
+force_install=false
 
 fresh_root="$fixture_root/fresh"
 mkdir -p "$fresh_root"
-export AI_CONTEXT_CALLER_DIR="$fresh_root"
-"$repository_root/scripts/install.sh"
-first_snapshot="$(python3 "$repository_root/scripts/state.py" history --scope project --target "$fresh_root" --payload "$repository_root/resources/payload" --state-root "$AI_CONTEXT_STATE_ROOT" | tail -n 1 | cut -f 1)"
-first_snapshot_state="$(python3 "$repository_root/scripts/state.py" history --scope project --target "$fresh_root" --payload "$repository_root/resources/payload" --state-root "$AI_CONTEXT_STATE_ROOT" | tail -n 1)"
+caller_dir="$fresh_root"
+run_install
+first_snapshot="$(python3 "$repository_root/scripts/state.py" history --scope project --target "$fresh_root" --payload "$repository_root/resources/payload" --state-root "$state_root" | tail -n 1 | cut -f 1)"
+first_snapshot_state="$(python3 "$repository_root/scripts/state.py" history --scope project --target "$fresh_root" --payload "$repository_root/resources/payload" --state-root "$state_root" | tail -n 1)"
 [[ "$(printf '%s\n' "$first_snapshot_state" | cut -f 4)" -eq 0 ]]
 [[ "$(printf '%s\n' "$first_snapshot_state" | cut -f 5)" -gt 0 ]]
-export AI_CONTEXT_SNAPSHOT_ID="$first_snapshot"
-"$repository_root/scripts/rollback.sh"
+run_rollback "$first_snapshot"
 [[ ! -e "$fresh_root/AGENTS.md" ]]
-unset AI_CONTEXT_SNAPSHOT_ID
-"$repository_root/scripts/rollback.sh"
+run_rollback
 [[ -f "$fresh_root/AGENTS.md" ]]
-export AI_CONTEXT_CALLER_DIR="$project_root"
+caller_dir="$project_root"
 
 global_root="$fixture_root/home"
 mkdir -p "$global_root/.claude" "$global_root/.codex"
@@ -89,10 +98,12 @@ printf '# Personal\n' >"$global_root/.claude/CLAUDE.md"
 printf '{"enabledPlugins":{"personal@example":true}}\n' >"$global_root/.claude/settings.json"
 printf '[marketplaces.personal]\nsource = "local"\n' >"$global_root/.codex/config.toml"
 
-export AI_CONTEXT_SCOPE=global
-export AI_CONTEXT_HOME_OVERRIDE="$global_root"
-"$repository_root/scripts/install.sh"
-"$repository_root/scripts/install.sh"
+scope=global
+previous_home="$HOME"
+HOME="$global_root"
+export HOME
+run_install
+run_install
 
 grep -Fxq '@~/.codex/AGENTS.md' "$global_root/.claude/CLAUDE.md"
 [[ -f "$global_root/.codex/AGENTS.md" ]]
@@ -100,29 +111,30 @@ grep -Fxq '@~/.codex/AGENTS.md' "$global_root/.claude/CLAUDE.md"
 assert_jq '.enabledPlugins["personal@example"] == true' "$global_root/.claude/settings.json"
 assert_toml 'data["marketplaces"]["personal"]["source"] == "local"' "$global_root/.codex/config.toml"
 
-export AI_CONTEXT_CALLER_DIR="$project_root"
-"$repository_root/scripts/doctor.sh" >/dev/null
+scope=project
+caller_dir="$project_root"
+"$repository_root/scripts/doctor.sh" "$scope" "$caller_dir" >/dev/null
 
 version_target="$fixture_root/version-target"
 version_one_payload="$fixture_root/version-one-payload"
 version_two_payload="$fixture_root/version-two-payload"
 mkdir -p "$version_target" "$version_one_payload" "$version_two_payload"
 printf 'one\n' >"$version_one_payload/one.txt"
-first_version_snapshot="$(python3 "$repository_root/scripts/state.py" snapshot --scope project --target "$version_target" --payload "$version_one_payload" --state-root "$AI_CONTEXT_STATE_ROOT")"
+first_version_snapshot="$(python3 "$repository_root/scripts/state.py" snapshot --scope project --target "$version_target" --payload "$version_one_payload" --state-root "$state_root")"
 printf 'installed one\n' >"$version_target/one.txt"
 printf 'one\n' >"$version_two_payload/one.txt"
 printf 'two\n' >"$version_two_payload/two.txt"
-python3 "$repository_root/scripts/state.py" snapshot --scope project --target "$version_target" --payload "$version_two_payload" --state-root "$AI_CONTEXT_STATE_ROOT" >/dev/null
+python3 "$repository_root/scripts/state.py" snapshot --scope project --target "$version_target" --payload "$version_two_payload" --state-root "$state_root" >/dev/null
 printf 'installed two\n' >"$version_target/two.txt"
-python3 "$repository_root/scripts/state.py" rollback --scope project --target "$version_target" --payload "$version_two_payload" --state-root "$AI_CONTEXT_STATE_ROOT" --snapshot-id "$first_version_snapshot" >/dev/null
+python3 "$repository_root/scripts/state.py" rollback --scope project --target "$version_target" --payload "$version_two_payload" --state-root "$state_root" --snapshot-id "$first_version_snapshot" >/dev/null
 [[ ! -e "$version_target/one.txt" && ! -e "$version_target/two.txt" ]]
 
 invalid_root="$fixture_root/invalid"
 mkdir -p "$invalid_root/.claude"
 printf '{invalid\n' >"$invalid_root/.claude/settings.json"
-export AI_CONTEXT_SCOPE=project
-export AI_CONTEXT_CALLER_DIR="$invalid_root"
-if "$repository_root/scripts/install.sh" >/dev/null 2>&1; then
+scope=project
+caller_dir="$invalid_root"
+if run_install >/dev/null 2>&1; then
   printf 'invalid JSON install succeeded\n' >&2
   exit 1
 fi
@@ -131,8 +143,8 @@ grep -Fxq '{invalid' "$invalid_root/.claude/settings.json"
 inline_root="$fixture_root/inline"
 mkdir -p "$inline_root/.codex"
 printf 'tui = { notifications = true }\n' >"$inline_root/.codex/config.toml"
-export AI_CONTEXT_CALLER_DIR="$inline_root"
-if "$repository_root/scripts/install.sh" >/dev/null 2>&1; then
+caller_dir="$inline_root"
+if run_install >/dev/null 2>&1; then
   printf 'incompatible TOML install succeeded\n' >&2
   exit 1
 fi
@@ -143,22 +155,24 @@ outside_root="$fixture_root/outside"
 mkdir -p "$symlink_root/.codex" "$outside_root"
 printf 'outside instructions\n' >"$outside_root/AGENTS.md"
 ln -s "$outside_root/AGENTS.md" "$symlink_root/.codex/AGENTS.md"
-export AI_CONTEXT_SCOPE=global
-export AI_CONTEXT_HOME_OVERRIDE="$symlink_root"
-export AI_CONTEXT_FORCE=true
-if "$repository_root/scripts/install.sh" >/dev/null 2>&1; then
+scope=global
+HOME="$symlink_root"
+export HOME
+force_install=true
+if run_install >/dev/null 2>&1; then
   printf 'symlink install succeeded\n' >&2
   exit 1
 fi
 [[ -L "$symlink_root/.codex/AGENTS.md" ]]
 grep -Fxq 'outside instructions' "$outside_root/AGENTS.md"
-export AI_CONTEXT_FORCE=false
-export AI_CONTEXT_HOME_OVERRIDE="$global_root"
+force_install=false
+HOME="$previous_home"
+export HOME
 
-export AI_CONTEXT_TASK_CAPTURE="$fixture_root/task-call"
+export TASK_CAPTURE_PATH="$fixture_root/task-call"
 (cd "$project_root" && "$repository_root/bin/ai-context" install --global --dry-run)
-grep -Fq 'global|' "$fixture_root/task-call"
-grep -Fq '|--silent' "$fixture_root/task-call" || grep -Fq 'install' "$fixture_root/task-call"
+grep -Fq 'CALLER_DIR=' "$fixture_root/task-call"
+grep -Fq 'install' "$fixture_root/task-call"
 if (cd "$project_root" && "$repository_root/bin/ai-context" install --global --project >/dev/null 2>&1); then
   printf 'conflicting scopes were accepted\n' >&2
   exit 1

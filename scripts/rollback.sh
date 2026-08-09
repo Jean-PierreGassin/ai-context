@@ -1,26 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source "$AI_CONTEXT_ROOT/scripts/lib.sh"
+readonly scope="${1:?scope is required}"
+readonly caller_dir="${2:?caller directory is required}"
+readonly requested_snapshot_id="${3:-}"
+readonly is_interactive="${4:?interactive setting is required}"
+readonly repository_root="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly force_install=false
+readonly is_dry_run=false
+source "$repository_root/scripts/lib.sh"
 
-if [[ "$AI_CONTEXT_SCOPE" == global ]]; then
-  readonly target_root="${AI_CONTEXT_HOME_OVERRIDE:-$HOME}"
-else
-  readonly target_root="$AI_CONTEXT_CALLER_DIR"
-fi
-readonly state_root="${AI_CONTEXT_STATE_ROOT:-${XDG_STATE_HOME:-$HOME/.local/state}/ai-context}"
+readonly target_root="$(resolve_target_root "$scope" "$caller_dir")"
+readonly state_root="$(resolve_state_root)"
 
 select_snapshot() {
   local history_output="$1"
   local selected_snapshot
 
   if command -v gum >/dev/null 2>&1; then
-    selected_snapshot="$(printf '%s\n' "$history_output" | gum choose --header 'Select a saved version to restore')" || return 1
+    selected_snapshot="$(
+      printf '%s\n' "$history_output" | gum choose --header 'Select a saved version to restore'
+    )" || return 1
   else
     local choice snapshot_count
     snapshot_count="$(printf '%s\n' "$history_output" | wc -l | tr -d ' ')"
     printf 'Select a saved version to restore:\n' >&2
-    printf '%s\n' "$history_output" | awk -F '\t' '{printf "  %d) %s | before %s | restore %s, remove %s | %s\n", NR, $2, $3, $4, $5, $1}' >&2
+    printf '%s\n' "$history_output" \
+      | awk -F '\t' '{printf "  %d) %s | before %s | restore %s, remove %s | %s\n", NR, $2, $3, $4, $5, $1}' >&2
     printf 'Choice [1-%s]: ' "$snapshot_count" >&2
     read -r choice
     case "$choice" in
@@ -33,14 +39,14 @@ select_snapshot() {
   printf '%s\n' "${selected_snapshot%%$'\t'*}"
 }
 
-snapshot_id="${AI_CONTEXT_SNAPSHOT_ID:-}"
-history_output="$(python3 "$AI_CONTEXT_ROOT/scripts/state.py" history \
-  --scope "$AI_CONTEXT_SCOPE" \
+snapshot_id="$requested_snapshot_id"
+history_output="$(python3 "$repository_root/scripts/state.py" history \
+  --scope "$scope" \
   --target "$target_root" \
-  --payload "$AI_CONTEXT_ROOT/resources/payload" \
+  --payload "$repository_root/resources/payload" \
   --state-root "$state_root")"
 if [[ -z "$history_output" ]]; then
-  error "no snapshots for $AI_CONTEXT_SCOPE target $target_root"
+  error "no snapshots for $scope target $target_root"
   exit 1
 fi
 if [[ -z "$snapshot_id" ]]; then
@@ -70,14 +76,14 @@ fi
 
 rollback_arguments=(
   rollback
-  --scope "$AI_CONTEXT_SCOPE"
+  --scope "$scope"
   --target "$target_root"
-  --payload "$AI_CONTEXT_ROOT/resources/payload"
+  --payload "$repository_root/resources/payload"
   --state-root "$state_root"
   --snapshot-id "$snapshot_id"
 )
 
-rollback_output="$(python3 "$AI_CONTEXT_ROOT/scripts/state.py" "${rollback_arguments[@]}")"
+rollback_output="$(python3 "$repository_root/scripts/state.py" "${rollback_arguments[@]}")"
 restored_snapshot="${rollback_output%%$'\t'*}"
 safety_snapshot="${rollback_output#*$'\t'}"
 success "restored snapshot $restored_snapshot"

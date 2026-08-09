@@ -1,21 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source "$AI_CONTEXT_ROOT/scripts/lib.sh"
+readonly scope="${1:?scope is required}"
+readonly caller_dir="${2:?caller directory is required}"
+readonly force_install="${3:?force setting is required}"
+readonly requested_dry_run="${4:?dry-run setting is required}"
+readonly is_interactive="${5:?interactive setting is required}"
+readonly replace_config="${6:?replace-config setting is required}"
+readonly repository_root="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$repository_root/scripts/lib.sh"
 
-AI_CONTEXT_REPLACE_CONFIG="${AI_CONTEXT_REPLACE_CONFIG:-false}"
+changed_count=0
+skipped_count=0
+failure_count=0
+is_dry_run="$requested_dry_run"
+is_planning=false
 
-AI_CONTEXT_CHANGED=0
-AI_CONTEXT_SKIPPED=0
-AI_CONTEXT_FAILURES=0
-export AI_CONTEXT_CHANGED AI_CONTEXT_SKIPPED AI_CONTEXT_FAILURES
-
-readonly payload_root="$AI_CONTEXT_ROOT/resources/payload"
-if [[ "$AI_CONTEXT_SCOPE" == global ]]; then
-  readonly target_root="${AI_CONTEXT_HOME_OVERRIDE:-$HOME}"
-else
-  readonly target_root="$AI_CONTEXT_CALLER_DIR"
-fi
+readonly payload_root="$repository_root/resources/payload"
+readonly target_root="$(resolve_target_root "$scope" "$caller_dir")"
 
 install_project() {
   while IFS= read -r -d '' source_path; do
@@ -68,7 +70,7 @@ install_global() {
 install_structured_configuration() {
   local claude_settings_source="$1"
   local display_prefix="$2"
-  if [[ "$AI_CONTEXT_REPLACE_CONFIG" == true ]]; then
+  if [[ "$replace_config" == true ]]; then
     replace_config_file "$claude_settings_source" "$target_root/.claude/settings.json" "${display_prefix}.claude/settings.json"
     replace_config_file "$payload_root/.codex/config.toml" "$target_root/.codex/config.toml" "${display_prefix}.codex/config.toml"
     replace_config_file "$payload_root/.codex/hooks.json" "$target_root/.codex/hooks.json" "${display_prefix}.codex/hooks.json"
@@ -80,20 +82,18 @@ install_structured_configuration() {
 }
 
 run_install() {
-  if [[ "$AI_CONTEXT_SCOPE" == global ]]; then
+  if [[ "$scope" == global ]]; then
     install_global
   else
     install_project
   fi
 }
 
-readonly requested_dry_run="$AI_CONTEXT_DRY_RUN"
-AI_CONTEXT_DRY_RUN=true
-AI_CONTEXT_PLANNING=true
-export AI_CONTEXT_DRY_RUN AI_CONTEXT_PLANNING
+is_dry_run=true
+is_planning=true
 
-render_header 'ai-context install' "$AI_CONTEXT_SCOPE" "$target_root"
-if [[ "$AI_CONTEXT_REPLACE_CONFIG" == true ]]; then
+render_header 'ai-context install' "$scope" "$target_root"
+if [[ "$replace_config" == true ]]; then
   config_action='Replace all managed settings in'
 else
   config_action='Merge managed settings into'
@@ -103,18 +103,18 @@ if [[ "$requested_dry_run" == true ]]; then
 else
   snapshot_action='After approval, record existing and new paths so rollback can restore or remove them'
 fi
-render_install_plan "$AI_CONTEXT_SCOPE" "$target_root" "$config_action" "$snapshot_action"
+render_install_plan "$scope" "$target_root" "$config_action" "$snapshot_action"
 printf 'Changes:\n'
 run_install
 
-if [[ "$AI_CONTEXT_FAILURES" -gt 0 ]]; then
-  error "plan failed: $AI_CONTEXT_FAILURES failure(s), $AI_CONTEXT_CHANGED change(s), $AI_CONTEXT_SKIPPED skipped"
+if [[ "$failure_count" -gt 0 ]]; then
+  error "plan failed: $failure_count failure(s), $changed_count change(s), $skipped_count skipped"
   exit 1
 fi
-success "plan complete: $AI_CONTEXT_CHANGED change(s), $AI_CONTEXT_SKIPPED skipped"
+success "plan complete: $changed_count change(s), $skipped_count skipped"
 
 if [[ "$requested_dry_run" == true ]]; then
-  success "dry run complete: $AI_CONTEXT_CHANGED change(s), $AI_CONTEXT_SKIPPED skipped"
+  success "dry run complete: $changed_count change(s), $skipped_count skipped"
   exit 0
 fi
 
@@ -123,30 +123,31 @@ if ! confirm_action 'Apply this installation plan?'; then
   exit 0
 fi
 
-AI_CONTEXT_CHANGED=0
-AI_CONTEXT_SKIPPED=0
-AI_CONTEXT_FAILURES=0
-AI_CONTEXT_DRY_RUN=false
-AI_CONTEXT_PLANNING=false
-export AI_CONTEXT_CHANGED AI_CONTEXT_SKIPPED AI_CONTEXT_FAILURES AI_CONTEXT_DRY_RUN AI_CONTEXT_PLANNING
+changed_count=0
+skipped_count=0
+failure_count=0
+is_dry_run=false
+is_planning=false
 
-readonly state_root="${AI_CONTEXT_STATE_ROOT:-${XDG_STATE_HOME:-$HOME/.local/state}/ai-context}"
-snapshot_id="$(python3 "$AI_CONTEXT_ROOT/scripts/state.py" snapshot \
-  --scope "$AI_CONTEXT_SCOPE" \
+readonly state_root="$(resolve_state_root)"
+snapshot_id="$(python3 "$repository_root/scripts/state.py" snapshot \
+  --scope "$scope" \
   --target "$target_root" \
     --payload "$payload_root" \
     --state-root "$state_root")"
-snapshot_state="$(python3 "$AI_CONTEXT_ROOT/scripts/state.py" history \
-  --scope "$AI_CONTEXT_SCOPE" \
+snapshot_state="$(python3 "$repository_root/scripts/state.py" history \
+  --scope "$scope" \
   --target "$target_root" \
   --payload "$payload_root" \
   --state-root "$state_root" | awk -F '\t' -v snapshot_id="$snapshot_id" '$1 == snapshot_id {print; exit}')"
 IFS=$'\t' read -r _ _ _ snapshot_restore snapshot_remove <<<"$snapshot_state"
-info "saved pre-install version $snapshot_id; rollback will restore $snapshot_restore existing path(s) and remove $snapshot_remove new path(s)"
+saved_version_message="saved pre-install version $snapshot_id; "
+saved_version_message+="rollback will restore $snapshot_restore existing path(s) and remove $snapshot_remove new path(s)"
+info "$saved_version_message"
 
 run_install
-if [[ "$AI_CONTEXT_FAILURES" -gt 0 ]]; then
-  error "installation failed: $AI_CONTEXT_FAILURES failure(s), $AI_CONTEXT_CHANGED change(s), $AI_CONTEXT_SKIPPED skipped"
+if [[ "$failure_count" -gt 0 ]]; then
+  error "installation failed: $failure_count failure(s), $changed_count change(s), $skipped_count skipped"
   exit 1
 fi
-success "installation complete: $AI_CONTEXT_CHANGED change(s), $AI_CONTEXT_SKIPPED skipped"
+success "installation complete: $changed_count change(s), $skipped_count skipped"
