@@ -158,6 +158,29 @@ The installer uses these rules:
 
 ## Development
 
+### Task shortcuts
+
+You can run each public command through Task from the repository root:
+
+```bash
+task install
+task doctor
+task history
+task rollback
+```
+
+Put command options after `--`:
+
+```bash
+task install -- --global --no-interaction
+task doctor -- --global
+task rollback -- SNAPSHOT_ID --global
+```
+
+These shortcuts use the same validation and defaults as the `ai-context` command.
+
+### Tests
+
 Run all tests with Task:
 
 ```bash
