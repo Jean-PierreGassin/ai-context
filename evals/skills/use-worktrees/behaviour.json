@@ -1,0 +1,101 @@
+{
+  "skill_name": "use-worktrees",
+  "evals": [
+    {
+      "id": "prefers-project-worktree-tooling",
+      "category": "project-precedence",
+      "prompt": "Set up a worktree. The repository ships a script for it that allocates a port and seeds the environment file.",
+      "expected_output": "The project's own script used, rather than the steps composed by hand.",
+      "expectations": [
+        "Uses the project's script instead of composing the steps manually",
+        "Does not repeat what the script already does",
+        "Falls back to the manual steps only for whatever the script leaves undone",
+        "Says which tooling it used"
+      ]
+    },
+    {
+      "id": "asks-when-the-entry-point-is-unclear",
+      "category": "normal",
+      "prompt": "Set up a worktree. There is a container definition, a task runner with a dozen tasks, and a makefile.",
+      "expected_output": "A question about which entry point to use, rather than a guess.",
+      "expectations": [
+        "Recognises the environment is tooled but the entry point is not findable",
+        "Asks which path to take rather than picking one silently",
+        "Names what it found, so the question is answerable in one reply",
+        "Does not start creating a worktree the tooling would create differently"
+      ]
+    },
+    {
+      "id": "fallback-when-no-tooling-exists",
+      "category": "normal",
+      "prompt": "Set up a worktree for this branch. Nothing in the repository automates it.",
+      "expected_output": "The fallback steps, in order, with dependencies built inside the worktree.",
+      "expectations": [
+        "Brings the base branch up to date before creating the worktree",
+        "Names the worktree exactly as the branch is named",
+        "Checks the repository's list of required environment and config files against what actually landed, and copies what is missing",
+        "Runs the real install commands inside the worktree rather than sharing or linking dependencies"
+      ]
+    },
+    {
+      "id": "review-handoff-detaches-first",
+      "category": "regression",
+      "prompt": "I want to check that branch out in my main repository and look at what you did in the worktree.",
+      "expected_output": "The worktree committed and detached before the branch is checked out elsewhere.",
+      "expectations": [
+        "Confirms the worktree has been committed to before handing it back",
+        "Detaches the worktree before the branch is checked out in the main directory",
+        "Explains that a branch cannot be checked out in two places at once",
+        "Does not delete the worktree in order to free the branch"
+      ]
+    },
+    {
+      "id": "cleanup-checks-for-pending-work",
+      "category": "normal",
+      "prompt": "Prune all the worktrees, I am done for the week.",
+      "expected_output": "Pending work checked for first, and anything uncommitted reported rather than pruned.",
+      "expectations": [
+        "Checks each worktree for uncommitted or unpushed work before removing it",
+        "Prunes only the ones that are genuinely finished",
+        "Reports what it left behind, and why",
+        "Does not force-remove a worktree with pending changes"
+      ]
+    },
+    {
+      "id": "proportional-when-no-worktree-is-needed",
+      "category": "proportionality",
+      "prompt": "Make a worktree so I can fix a one-line typo in the readme.",
+      "expected_output": "A note that a worktree buys nothing here, then the fix if the user still wants it.",
+      "expectations": [
+        "Says a worktree is not needed for a change that does not block the working tree",
+        "Offers to make the change directly instead",
+        "Creates the worktree anyway if the user confirms they want it",
+        "Does not labour the point beyond a sentence"
+      ]
+    },
+    {
+      "id": "parallel-tracks-get-separate-worktrees",
+      "category": "composition",
+      "prompt": "I want to run two independent tracks of work at the same time.",
+      "expected_output": "One worktree per track, each named for its branch and independently installed.",
+      "expectations": [
+        "Creates a separate worktree per independent track",
+        "Names each worktree after its branch",
+        "Gives each its own dependency install rather than sharing one",
+        "Says how the tracks are kept from interfering with each other"
+      ]
+    },
+    {
+      "id": "missing-config-is-copied-not-invented",
+      "category": "counterexample",
+      "prompt": "The worktree will not boot, its environment file is missing.",
+      "expected_output": "The file copied from the repository root, with the required list checked while there.",
+      "expectations": [
+        "Copies the missing file from the repository root rather than generating a new one",
+        "Checks the repository's list of required files against what actually landed",
+        "Copies everything else on that list that is missing, not only the file named",
+        "Invents no values for secrets it cannot find"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "skill_name": "write-ticket",
+  "evals": [
+    {
+      "id": "story-stays-user-facing",
+      "category": "normal",
+      "prompt": "Write the story for scheduled exports. People run large reports overnight in pieces today and stitch the output together by hand.",
+      "expected_output": "A story with the user story, background, and acceptance criteria panels, and no implementation panel.",
+      "expectations": [
+        "Uses the story structure and no other type's structure",
+        "Writes the user story from the end user's perspective, even where most of the work is not visible",
+        "States acceptance criteria as observable conditions someone could verify without reading code",
+        "Links out to the tickets that implement it rather than folding the how into the story",
+        "Explains in the background why the work exists and which decisions constrain the approach"
+      ]
+    },
+    {
+      "id": "bug-is-reproducible-and-root-caused",
+      "category": "normal",
+      "prompt": "Write the bug ticket for the export stopping at the first page. It reuses the list view's query, so it inherits the page size.",
+      "expected_output": "A bug with a symptom-only summary, minimal numbered steps, expected versus actual, a named cause, and a fix panel.",
+      "expectations": [
+        "Titles it after the observable symptom rather than the mechanism",
+        "Keeps diagnosis out of the summary and puts it in the root cause panel",
+        "Names the specific place responsible rather than saying there is a bug in the area",
+        "Gives the minimal reproduction path, not every way to hit it",
+        "States the fix as what must be true afterwards, not as the diff"
+      ]
+    },
+    {
+      "id": "task-is-one-implementation-slice",
+      "category": "normal",
+      "prompt": "Write the task ticket for the extraction that the scheduled exports story depends on.",
+      "expected_output": "A task covering one slice, linked back to its story.",
+      "expectations": [
+        "Uses the task structure",
+        "Covers one implementation slice rather than the whole story",
+        "Links back to the story it implements",
+        "States the outcome the slice must reach, not the sequence of edits to get there"
+      ]
+    },
+    {
+      "id": "investigation-has-no-shippable-outcome",
+      "category": "normal",
+      "prompt": "Raise a ticket to settle whether we use the vendor's bulk endpoint or build the batching ourselves.",
+      "expected_output": "An investigation framed as a question with a decision to reach, not as work to ship.",
+      "expectations": [
+        "Uses the investigation structure rather than a story or task",
+        "States the open question and what a good answer would let the team do",
+        "Defines what evidence would settle it",
+        "Presents no shippable outcome or acceptance criteria for code"
+      ]
+    },
+    {
+      "id": "omits-implementation-detail",
+      "category": "counterexample",
+      "prompt": "Write the ticket. The developer should add a private helper with this signature, loop over the batches, and use a specific library for the arithmetic.",
+      "expected_output": "A ticket carrying the rule as an outcome, with the signature, the loop, and the library left out.",
+      "expectations": [
+        "Keeps the requirement, stated as the outcome it must produce",
+        "Omits the helper name, its parameter and return types, and the loop",
+        "Omits the library choice unless the author is fixing it as a constraint",
+        "Says the implementation detail belongs in a plan, rather than dropping it silently"
+      ]
+    },
+    {
+      "id": "keeps-expensive-to-reverse-decisions",
+      "category": "counterexample",
+      "prompt": "Write the ticket. The value has to be stored at a precision we cannot change once there is production data in the column.",
+      "expected_output": "A ticket that keeps the storage decision, because reversing it later is expensive.",
+      "expectations": [
+        "Keeps the storage decision in the ticket",
+        "Says why it is there, that it is expensive to reverse once data exists",
+        "Does not discard it as implementation detail",
+        "Still omits the surrounding mechanics of how the value is read and written"
+      ]
+    },
+    {
+      "id": "no-standard-practice-restated",
+      "category": "counterexample",
+      "prompt": "Write the ticket, and include that the developer should inject dependencies, avoid N+1 queries, and make the migration safe to re-run.",
+      "expected_output": "A ticket without those lines, and a sentence saying why.",
+      "expectations": [
+        "Leaves out the standard framework and architecture practice",
+        "Says that such practice is implicit and enforced in review",
+        "Keeps any genuinely non-obvious constraint that was mixed in with it",
+        "Does not pad the ticket to look thorough"
+      ]
+    },
+    {
+      "id": "type-structures-do-not-mix",
+      "category": "regression",
+      "prompt": "Write a bug ticket, but open it with the user story format, since that is how our other tickets start.",
+      "expected_output": "A bug in the bug structure, with the borrowed format declined and explained.",
+      "expectations": [
+        "Uses the bug structure rather than the story's opening sentence",
+        "Explains that the type structures are not interchangeable",
+        "Applies the shared principles in preference to how existing tickets happen to be written",
+        "Still captures the user impact, through the summary and the expected versus actual"
+      ]
+    },
+    {
+      "id": "distinguishes-ticket-from-plan",
+      "category": "composition",
+      "prompt": "Write me the ticket for the migration, with the order the changes should land in.",
+      "expected_output": "An outcome-focused ticket, with the sequencing offered separately as a plan.",
+      "expectations": [
+        "Keeps the ticket to the outcome, the business rules, and the constraints",
+        "Does not put the change ordering into the ticket body",
+        "Offers a plan for the sequencing and names write-plan as where it belongs",
+        "Produces both deliverables if the user wants both"
+      ]
+    },
+    {
+      "id": "test-scenarios-as-outcomes",
+      "category": "normal",
+      "prompt": "Add the test coverage expectations to that ticket.",
+      "expected_output": "Scenarios expressed as outcomes, not as test names or a coverage target.",
+      "expectations": [
+        "States each scenario as an observable outcome",
+        "Covers the boundary cases that define correctness",
+        "Names no test classes, methods, or coverage percentage",
+        "Does not describe how the tests are structured"
+      ]
+    }
+  ]
+}

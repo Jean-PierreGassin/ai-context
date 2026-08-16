@@ -1,0 +1,56 @@
+[
+  {
+    "query": "Cover the new retention rule, including what happens at exactly the cutoff",
+    "should_trigger": true
+  },
+  {
+    "query": "What edge cases are we missing on the export tests?",
+    "should_trigger": true
+  },
+  {
+    "query": "Have a look at this test file, it feels like it is asserting on the framework rather than on us",
+    "should_trigger": true
+  },
+  {
+    "query": "These six tests differ only by input value, collapse them",
+    "should_trigger": true
+  },
+  {
+    "query": "The idempotency check went in without any tests, cover it",
+    "should_trigger": true
+  },
+  {
+    "query": "Write specs for the new filter composable",
+    "should_trigger": true
+  },
+  {
+    "query": "Extract the file building out of the service into its own class",
+    "should_trigger": false,
+    "note": "A behaviour-preserving production refactor with no coverage asked for. write-code owns it, and the existing suite is the gate."
+  },
+  {
+    "query": "What is the actual difference between a stub, a fake, and a mock?",
+    "should_trigger": false,
+    "note": "Terminology, not a test to write, edit, or review."
+  },
+  {
+    "query": "Work out how to move the suite off the legacy assertion helpers, in an order someone can review",
+    "should_trigger": false,
+    "note": "Tests are the subject, but the deliverable is a decomposition. Routes to write-plan."
+  },
+  {
+    "query": "The suite takes eleven minutes in CI, find out where the time goes",
+    "should_trigger": false,
+    "note": "A performance investigation over the suite, not authoring or reviewing cases."
+  },
+  {
+    "query": "Set up the test runner and coverage reporting in the new package",
+    "should_trigger": false,
+    "note": "Test tooling configuration, which is production config rather than test authoring."
+  },
+  {
+    "query": "Write the PR description for the branch that added those tests",
+    "should_trigger": false,
+    "note": "The deliverable is a PR body. Routes to write-pr."
+  }
+]

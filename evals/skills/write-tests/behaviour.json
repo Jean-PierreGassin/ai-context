@@ -1,0 +1,125 @@
+{
+  "skill_name": "write-tests",
+  "evals": [
+    {
+      "id": "covers-branches-edges-and-errors",
+      "category": "normal",
+      "prompt": "This method succeeds, returns a failure value when the downstream call is rejected, and throws when the input is out of range. Only the success case is covered.",
+      "expected_output": "One test per uncovered branch, and nothing beyond them.",
+      "expectations": [
+        "Adds a test for the rejection path and a test for the out-of-range throw",
+        "Asserts the specific error raised, not merely that something was raised",
+        "Adds no second test for a branch that is already covered",
+        "Derives the list of cases from the implementation's branches rather than from the happy path"
+      ]
+    },
+    {
+      "id": "no-framework-internals",
+      "category": "counterexample",
+      "prompt": "Get this model to full coverage. It has a couple of plain accessors, a framework-declared relation, and one method with a rule in it.",
+      "expected_output": "A test for the method that carries logic, with a reason given for skipping the rest.",
+      "expectations": [
+        "Tests only the member that carries logic",
+        "Does not test plain accessors or that the framework's own relation works",
+        "Says why the rest is not worth covering rather than silently omitting it",
+        "Does not treat a coverage percentage as the goal"
+      ]
+    },
+    {
+      "id": "parameterizes-instead-of-duplicating",
+      "category": "counterexample",
+      "prompt": "Cover this rate lookup for each of its four tiers.",
+      "expected_output": "One parameterized case listing the four tiers.",
+      "expectations": [
+        "Uses the language's data provider or table-case mechanism rather than four near-identical tests",
+        "Keeps one row per tier with its expected result",
+        "Names the case after the behaviour rather than after the method under test",
+        "Does not repeat the arrange and assert for each tier"
+      ]
+    },
+    {
+      "id": "asserts-behaviour-not-implementation",
+      "category": "counterexample",
+      "prompt": "The existing test asserts that a collaborator's method was called once. Make it prove something.",
+      "expected_output": "An assertion on the observable outcome, replacing the call-count assertion.",
+      "expectations": [
+        "Asserts on state or a return value a caller depends on",
+        "Does not assert on internal call counts or private state",
+        "Uses a fake or the real collaborator rather than an expectation-heavy mock",
+        "Points out that the old assertion would survive a broken implementation"
+      ]
+    },
+    {
+      "id": "mocks-only-real-boundaries",
+      "category": "normal",
+      "prompt": "Test that the totals calculation adds up correctly across its line items.",
+      "expected_output": "A test built from real value objects, with nothing mocked.",
+      "expectations": [
+        "Constructs the real value objects rather than mocking them",
+        "Mocks nothing, because nothing here crosses an external boundary",
+        "Keeps the arrange to what the assertion needs",
+        "Asserts the result rather than the intermediate calls"
+      ]
+    },
+    {
+      "id": "follows-local-test-shape",
+      "category": "project-precedence",
+      "prompt": "This suite has one consistent style, a shared base case, and its own factory helpers. Add coverage for the new flow.",
+      "expected_output": "Tests in the suite's existing style, using its existing helpers.",
+      "expectations": [
+        "Matches the style of the existing test files rather than introducing a second one",
+        "Uses the suite's existing helpers instead of new bespoke setup",
+        "Copies the shape of the nearest existing test for a comparable change",
+        "Introduces a new mechanism only after saying why the existing shape cannot express the change"
+      ]
+    },
+    {
+      "id": "composes-with-production-change",
+      "category": "composition",
+      "prompt": "Add a retry with backoff to the dispatcher, and test it.",
+      "expected_output": "Implementation and tests together, with write-code governing the implementation.",
+      "expectations": [
+        "Loads write-code for the production change rather than writing it from this skill alone",
+        "Covers the retry path, the give-up path, and success on the first attempt",
+        "Controls the clock rather than waiting in real time",
+        "Keeps the tests in the shape the existing suite uses"
+      ]
+    },
+    {
+      "id": "no-tautological-assertions",
+      "category": "regression",
+      "prompt": "This test configures a stub to return a value, then asserts it got that value back. Make it worth something.",
+      "expected_output": "A test that would fail if the code under test did nothing.",
+      "expectations": [
+        "Replaces the assertion with one about what the code actually did",
+        "Uses a recording fake rather than a stub configured to return the expected answer",
+        "Explains that the original proves only that the stub was configured",
+        "Does not keep the tautological assertion alongside the new one"
+      ]
+    },
+    {
+      "id": "coverage-is-proportional",
+      "category": "proportionality",
+      "prompt": "I added a one-line guard for a missing value. Does that need tests?",
+      "expected_output": "One regression test for the missing-value case, and a clear no to anything more.",
+      "expectations": [
+        "Recommends a single test for the missing value",
+        "Does not propose a suite of cases around a one-line guard",
+        "Says plainly where the existing suite already covers the present-value path",
+        "Does not create a new test file where an existing one covers the same component"
+      ]
+    },
+    {
+      "id": "keeps-flaky-tests-visible",
+      "category": "normal",
+      "prompt": "This test fails in CI but passes locally, and it is blocking the build. Get it green.",
+      "expected_output": "The test fixed, or skipped with a stated reason. Never deleted or commented out.",
+      "expectations": [
+        "Does not delete the test or comment it out",
+        "Marks it skipped with the reason and what would resolve it, if it is not fixed outright",
+        "Offers the real fix, such as removing the environmental dependency, as the preferred option",
+        "Leaves the test discoverable in the suite rather than hidden in a comment"
+      ]
+    }
+  ]
+}

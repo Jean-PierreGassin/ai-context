@@ -1,0 +1,47 @@
+[
+  {
+    "query": "Commit what I have staged",
+    "should_trigger": true
+  },
+  {
+    "query": "Split these changes into separate commits, the rename should not be in with the behaviour change",
+    "should_trigger": true
+  },
+  {
+    "query": "Write a commit message for this fix",
+    "should_trigger": true
+  },
+  {
+    "query": "Stage just the migration and commit it on its own",
+    "should_trigger": true
+  },
+  {
+    "query": "Amend the last commit message, it is missing the ticket key",
+    "should_trigger": true
+  },
+  {
+    "query": "Write the PR description for this branch",
+    "should_trigger": false,
+    "note": "A PR body, which takes a colon after the ticket key rather than a hyphen. Routes to write-pr."
+  },
+  {
+    "query": "Which commit introduced this regression?",
+    "should_trigger": false,
+    "note": "Reading history to find a cause, not producing a commit."
+  },
+  {
+    "query": "Create a branch for this ticket off main",
+    "should_trigger": false,
+    "note": "Branch creation. Nothing is being staged, split, or committed."
+  },
+  {
+    "query": "Show me everything that changed since the last release tag",
+    "should_trigger": false,
+    "note": "A history query."
+  },
+  {
+    "query": "Rebase onto main and sort out the conflicts",
+    "should_trigger": false,
+    "note": "Replaying existing commits. No new commit is being reasoned about or written."
+  }
+]

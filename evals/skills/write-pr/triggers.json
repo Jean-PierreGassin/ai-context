@@ -1,0 +1,47 @@
+[
+  {
+    "query": "Open a PR for this branch against main",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft the PR body. It is behaviour-preserving, so make that obvious.",
+    "should_trigger": true
+  },
+  {
+    "query": "The PR title is missing the ticket key, fix it",
+    "should_trigger": true
+  },
+  {
+    "query": "Add a review focus to that PR, the reviewer does not know where to look",
+    "should_trigger": true
+  },
+  {
+    "query": "Three more commits landed since I opened this, bring the description up to date",
+    "should_trigger": true
+  },
+  {
+    "query": "Write the commit message for what I have staged",
+    "should_trigger": false,
+    "note": "A commit subject and body, not a PR. Routes to git-commit, which uses a hyphen after the ticket key rather than a colon."
+  },
+  {
+    "query": "Create the ticket this branch implements so I can link it",
+    "should_trigger": false,
+    "note": "A tracker deliverable. Routes to write-ticket."
+  },
+  {
+    "query": "Read that PR and tell me what is wrong with the implementation",
+    "should_trigger": false,
+    "note": "Reviewing someone else's code, not authoring a PR body."
+  },
+  {
+    "query": "Squash these four commits before I push",
+    "should_trigger": false,
+    "note": "History rewriting. Routes to git-commit."
+  },
+  {
+    "query": "Work out how to split this branch into three PRs",
+    "should_trigger": false,
+    "note": "PRs are mentioned, but the deliverable is a decomposition. Routes to write-plan."
+  }
+]

@@ -1,0 +1,130 @@
+{
+  "skill_name": "write-plan",
+  "evals": [
+    {
+      "id": "small-bug-stays-one-change",
+      "category": "proportionality",
+      "prompt": "A page throws a deprecation warning when one of the fields it formats is missing. Plan the fix.",
+      "expected_output": "A single-entry plan with a short stack position, no strategy selection, and no multi-PR sequence.",
+      "expectations": [
+        "Records the work as one change rather than a stack",
+        "Selects no decomposition strategy for a change with nothing to decompose",
+        "Keeps the stack position section to a few lines",
+        "Does not propose separate mechanical and behavioural changes for a two-line guard",
+        "Creates no persisted plan files unless the work has to survive a session boundary"
+      ]
+    },
+    {
+      "id": "large-migration-becomes-a-stack",
+      "category": "normal",
+      "prompt": "We are moving a whole module off a legacy dependency. It touches most of the module, a nightly job, the public API, and two screens.",
+      "expected_output": "An ordered change stack with one review objective per entry and risk arriving late.",
+      "expectations": [
+        "Produces an ordered stack rather than one large change",
+        "Records purpose, kind, dependencies, reviewer focus, and rollback for each entry",
+        "Puts mechanical and structural changes ahead of behavioural and user-facing ones",
+        "Assigns every anticipated file to exactly one change",
+        "Confirms the split with the user before detailing each change"
+      ]
+    },
+    {
+      "id": "replacement-uses-branch-by-abstraction",
+      "category": "normal",
+      "prompt": "Replace the existing implementation with a new one. Both have to run side by side while we move consumers across gradually.",
+      "expected_output": "A branch-by-abstraction sequence ending in removal of the old implementation and the switch.",
+      "expectations": [
+        "Introduces an abstraction over the current implementation before adding the new one",
+        "Keeps the old implementation working and in use until consumers are switched",
+        "Puts the cutover behind a switch so rollback is configuration rather than a deploy",
+        "Ends with removal of the old implementation and then the switch",
+        "Identifies which steps are mechanical and can be large without being risky"
+      ]
+    },
+    {
+      "id": "contract-change-uses-expand-and-contract",
+      "category": "normal",
+      "prompt": "One response field needs to become two, and we have external clients on the current shape.",
+      "expected_output": "An expand, migrate, contract sequence with a deprecation window for the old field.",
+      "expectations": [
+        "Adds the new shape alongside the old rather than changing it in place",
+        "Keeps each phase deployable on its own and safe against a mix of old and new clients",
+        "Moves clients across before removing anything",
+        "Removes the old shape only after the deprecation window",
+        "Proposes a breaking change only if the user requires one, saying what makes the safe path unworkable"
+      ]
+    },
+    {
+      "id": "persisted-files-only-when-persistence-is-needed",
+      "category": "proportionality",
+      "prompt": "Plan this with me now. I will implement it straight after, in this session.",
+      "expected_output": "A plan held in the conversation, with no persisted files created for work that never leaves it.",
+      "expectations": [
+        "Creates no persisted plan files for work that stays inside one session",
+        "Says what would change that answer, such as the work spanning sessions or being handed over",
+        "Still produces the split and the ordering",
+        "Creates the files if the user says the work will carry over"
+      ]
+    },
+    {
+      "id": "review-objectives-stay-separated",
+      "category": "counterexample",
+      "prompt": "Here is my draft: one PR that extracts a class, changes the rules, updates the API, updates the screen, and renames a field throughout. Sanity check it.",
+      "expected_output": "A split into separate changes, with the reason each is its own review objective.",
+      "expectations": [
+        "Identifies that the single PR carries several review objectives",
+        "Separates the mechanical rename from the behavioural change",
+        "Places the contract and user-facing changes after the behaviour they depend on",
+        "Names what a reviewer would have to hold in their head under the original draft",
+        "Offers the split rather than only criticising the draft"
+      ]
+    },
+    {
+      "id": "does-not-over-fragment",
+      "category": "counterexample",
+      "prompt": "Split the new export feature as finely as you can. It is a form, an endpoint, a background job, and a download link.",
+      "expected_output": "Slices that each ship something usable, rather than one slice per architectural layer.",
+      "expectations": [
+        "Slices vertically, so each change is usable end to end",
+        "Declines to split into a persistence change, then a data-access change, then a service change",
+        "States that a split forcing the reviewer to reassemble the feature has gone too far",
+        "Keeps the slice count proportional to the actual review risk"
+      ]
+    },
+    {
+      "id": "size-budget-is-a-heuristic",
+      "category": "regression",
+      "prompt": "This rename touches far more files than the per-change budget allows, so split it into batches.",
+      "expected_output": "One mechanical change, with the reason it should exceed the heuristic rather than be batched.",
+      "expectations": [
+        "Keeps the mechanical sweep as one change with one review objective",
+        "Explains that arbitrary batching gives the reviewer several diffs instead of one pattern",
+        "Treats the size figures as a signal to look for a seam, not a limit to obey",
+        "States that the budget is being exceeded, and why"
+      ]
+    },
+    {
+      "id": "investigation-before-planning",
+      "category": "composition",
+      "prompt": "Plan the fix for the intermittent duplicates. Nobody is sure yet whether it is our queue or the upstream caller.",
+      "expected_output": "Investigation first, then a plan built on what it establishes.",
+      "expectations": [
+        "Recognises the cause is unknown and does not plan against a guess",
+        "Routes the research to orchestrate-investigation where the areas are independent",
+        "Waits for the finding before choosing a decomposition strategy",
+        "Says what the plan would look like under each candidate cause, if a plan is needed now"
+      ]
+    },
+    {
+      "id": "resumes-rather-than-duplicating",
+      "category": "normal",
+      "prompt": "Plan the export feature.",
+      "expected_output": "The existing plan for the same work found and continued, rather than a second one started.",
+      "expectations": [
+        "Looks for existing planning docs before creating anything",
+        "Continues the existing plan and says what changed, rather than starting a parallel one",
+        "Reads the context file before the plan file when resuming",
+        "Verifies the plan against the repository and reports where the two disagree"
+      ]
+    }
+  ]
+}

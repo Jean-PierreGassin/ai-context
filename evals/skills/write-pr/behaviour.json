@@ -1,0 +1,131 @@
+{
+  "skill_name": "write-pr",
+  "evals": [
+    {
+      "id": "complete-feature-pr",
+      "category": "normal",
+      "prompt": "Open the PR for this branch. It adds scheduled report exports: a schedule on a saved report, a queued run, and a control on the reports page.",
+      "expected_output": "A body with the ticket line, change type, a why-and-approach intro, grouped bullets, and a review focus.",
+      "expectations": [
+        "Puts a linked ticket line at the top of the body",
+        "Titles it with the ticket key, a colon, and a sentence-case descriptor",
+        "Opens with why the feature exists rather than restating the diff",
+        "Groups the bullets by surface, ordered by importance",
+        "Offers or includes a screenshot, because part of the change is visible",
+        "Ends with a review focus naming the part that carries risk"
+      ]
+    },
+    {
+      "id": "bug-pr-with-reproduction",
+      "category": "normal",
+      "prompt": "Open the PR for the export truncation fix. The export reused the list view's query, so it inherited the page size.",
+      "expected_output": "A body with numbered reproduction steps under their own header, followed by what changed and a review focus.",
+      "expectations": [
+        "Uses numbered reproduction steps, under their own header where a what-changed list follows",
+        "States the established mechanism rather than narrating a guess at it",
+        "Includes a link to the evidence that the defect exists, where one is available",
+        "Says what each change buys, not only that it was made",
+        "Points the review focus at the riskiest part rather than the one-line fix"
+      ]
+    },
+    {
+      "id": "stacked-mechanical-pr",
+      "category": "normal",
+      "prompt": "Open the PR for the extraction. It is a pure move, and it is the first of five changes.",
+      "expected_output": "A body that says what is mechanical, shows how that was established, and names the neighbouring changes.",
+      "expectations": [
+        "States that the diff is a move with no behaviour change",
+        "Backs the claim, rather than only asserting it",
+        "Names what landed before and what depends on it, so the reviewer knows what they are not judging",
+        "Calls out any part that is not a pure move",
+        "Does not ask the reviewer to scrutinise the mechanical part"
+      ]
+    },
+    {
+      "id": "ticket-link-goes-in-the-body",
+      "category": "regression",
+      "prompt": "Write the PR body. The title already has the ticket key, so leave the link out.",
+      "expected_output": "A ticket line in the body anyway, with the reason.",
+      "expectations": [
+        "Includes the ticket line at the top of the body, or of the template's context section",
+        "Explains that a ticket key in the title is plain text and gives no clickable route back",
+        "Does not omit the link on the strength of the title carrying the key",
+        "Keeps the key in the title as well"
+      ]
+    },
+    {
+      "id": "no-session-narration",
+      "category": "counterexample",
+      "prompt": "Write the PR body. I asked you to leave two of the settings out because they are machine-specific, so mention that.",
+      "expected_output": "A body describing the final state, with the session's decisions left out.",
+      "expectations": [
+        "Describes what the change now contains, not what was considered and dropped",
+        "Omits any deliberately-out-of-scope section",
+        "Appends no assistant session link",
+        "Says nothing about how the change was arrived at during the session",
+        "Offers to put the omissions in the ticket or a comment if they matter"
+      ]
+    },
+    {
+      "id": "project-template-wins",
+      "category": "project-precedence",
+      "prompt": "Open the PR. The repository has its own pull request template, with its own headings including a Testing one.",
+      "expected_output": "The repository's template filled in, with the ticket line inside its context section.",
+      "expectations": [
+        "Uses the repository template's headings and vocabulary rather than the skill's own",
+        "Puts the ticket line in the template's context section",
+        "Writes no more than a bare acknowledgement under the forced Testing heading",
+        "Does not append the skill's own sections alongside the repository's",
+        "Does not treat previous PRs in the repository as the format to copy"
+      ]
+    },
+    {
+      "id": "review-focus-points-at-real-risk",
+      "category": "normal",
+      "prompt": "This PR renames a field across most of the module and adds one new rule. Write the review focus.",
+      "expected_output": "A focus line pointing at the new rule and clearing the rename.",
+      "expectations": [
+        "Names the new rule as the thing to scrutinise",
+        "Says the rename is mechanical and needs no scrutiny",
+        "Backs the mechanical claim rather than only asserting it",
+        "Does not spread attention evenly across the whole diff"
+      ]
+    },
+    {
+      "id": "no-test-evidence-in-the-body",
+      "category": "counterexample",
+      "prompt": "Write the PR body, and mention that the whole suite passes and that I checked it locally against staging.",
+      "expected_output": "A body with no verification section, and the reason for leaving it out.",
+      "expectations": [
+        "Leaves out suite counts, coverage numbers, and how it was verified locally",
+        "Keeps any evidence that the defect exists, such as a link to a failing run",
+        "Says why verification does not belong in the body",
+        "Allows the review focus to cite the existing suite where that clears a mechanical section"
+      ]
+    },
+    {
+      "id": "raises-a-split-before-opening",
+      "category": "composition",
+      "prompt": "Open one PR for the branch. It has a rename, a new abstraction, new rules, an API change, and a migration.",
+      "expected_output": "A split offered before opening, and the single PR opened with a risk-pointing review focus if the user still wants one.",
+      "expectations": [
+        "Names the several review objectives the single PR would carry",
+        "Offers a concrete split, deferring the decomposition detail to write-plan",
+        "Opens the single PR if the user confirms, rather than refusing",
+        "Uses the review focus to point at the parts carrying the risk in that case"
+      ]
+    },
+    {
+      "id": "rollback-when-more-than-revert",
+      "category": "normal",
+      "prompt": "Write the PR body for the cutover. Which implementation runs is selected by a config value.",
+      "expected_output": "A rollback line saying to set the config back, with no deploy needed.",
+      "expectations": [
+        "States how the change is turned off without a deploy",
+        "Puts the rollback with the review focus at the end of the body",
+        "Writes no rollback line where reverting the commit is the whole answer",
+        "Says what the rollback does and does not take with it"
+      ]
+    }
+  ]
+}

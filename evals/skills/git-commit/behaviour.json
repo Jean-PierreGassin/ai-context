@@ -1,0 +1,112 @@
+{
+  "skill_name": "git-commit",
+  "evals": [
+    {
+      "id": "splits-mechanical-from-behavioural",
+      "category": "normal",
+      "prompt": "Commit this. It renames a field across the module and adds a new rule.",
+      "expected_output": "Two commits, the rename first, the behaviour change second.",
+      "expectations": [
+        "Produces separate commits for the rename and the new rule",
+        "Lands the mechanical rename first, so the behavioural diff stays small",
+        "Groups by what each change is for, not by which files it touches",
+        "Says in the mechanical commit that it is behaviour-preserving"
+      ]
+    },
+    {
+      "id": "one-commit-when-that-is-the-truth",
+      "category": "proportionality",
+      "prompt": "Commit the one-line guard.",
+      "expected_output": "One commit, with no manufactured split.",
+      "expectations": [
+        "Produces a single commit",
+        "Does not split a coherent one-line fix into a setup commit and a fix commit",
+        "Keeps the message to a subject and the bullets the change actually has"
+      ]
+    },
+    {
+      "id": "extracts-the-ticket-key-from-the-branch",
+      "category": "normal",
+      "prompt": "Commit this. The branch is named after the ticket.",
+      "expected_output": "A subject beginning with the ticket key, followed by a hyphen.",
+      "expectations": [
+        "Takes the ticket key from the branch name",
+        "Uses a hyphen after the key, not a colon",
+        "Does not ask for a key the branch name already carries",
+        "Writes the subject as what the change accomplishes"
+      ]
+    },
+    {
+      "id": "never-invents-a-ticket-key",
+      "category": "regression",
+      "prompt": "Commit this. The branch name has no ticket key in it.",
+      "expected_output": "A request for the key, then the no-ticket format if there is not one.",
+      "expectations": [
+        "Asks for the ticket key rather than inventing, guessing, or substituting one",
+        "Does not take a key from an unrelated commit, comment, or file",
+        "Falls back to the documented no-ticket format once the user confirms there is none",
+        "Does not silently omit the key without saying so"
+      ]
+    },
+    {
+      "id": "enforced-hook-or-template-wins",
+      "category": "project-precedence",
+      "prompt": "Commit this. The repository has a commit-msg hook enforcing its own message format.",
+      "expected_output": "A message in the enforced format, with the deviation from the default acknowledged.",
+      "expectations": [
+        "Looks for a commit-msg hook or other enforced guidance before writing",
+        "Follows the enforced format rather than the skill's default template",
+        "Says in a sentence that the hook overrides the default",
+        "Still splits the diff by reasoning step, which the format does not change"
+      ]
+    },
+    {
+      "id": "ignores-unenforced-history-style",
+      "category": "counterexample",
+      "prompt": "Commit this. Every previous message in the log is a single lowercase word.",
+      "expected_output": "A properly structured message, with the history treated as observation rather than convention.",
+      "expectations": [
+        "Writes the subject and bullets in the documented format",
+        "Does not copy the historical style, which nothing enforces",
+        "Says why the history is not being followed, where that is worth a sentence",
+        "Still checks for an actual hook or template before deciding"
+      ]
+    },
+    {
+      "id": "subject-states-intent-not-files",
+      "category": "counterexample",
+      "prompt": "Commit this, and just say you updated the export files.",
+      "expected_output": "A subject naming the reasoning step, not the files touched.",
+      "expectations": [
+        "Writes the subject as what the change accomplishes, in the terms used to describe the decision",
+        "Does not name files, or use a generic verb like update, as the subject",
+        "Summarises the whole commit rather than restating the first bullet",
+        "Keeps one bullet per distinct change, without trailing periods"
+      ]
+    },
+    {
+      "id": "runs-the-gate-before-committing",
+      "category": "normal",
+      "prompt": "Commit everything, I am about to push.",
+      "expected_output": "Formatter, linter, and the relevant tests run before the commit is created.",
+      "expectations": [
+        "Runs the project's format, lint, and relevant tests before committing",
+        "Reports a failure and stops, rather than committing over it",
+        "Uses the project's own runner where one exists",
+        "Reviews the diff before grouping it, rather than committing everything blind"
+      ]
+    },
+    {
+      "id": "follows-an-existing-change-stack",
+      "category": "composition",
+      "prompt": "Commit this. It is two changes from the plan, both finished.",
+      "expected_output": "Two commits in the plan's order, one per change in the stack.",
+      "expectations": [
+        "Produces one commit per change in the stack, rather than one combined commit",
+        "Keeps the plan's ordering",
+        "Does not re-derive a different split from the diff",
+        "Names each commit after its change's purpose in the plan"
+      ]
+    }
+  ]
+}

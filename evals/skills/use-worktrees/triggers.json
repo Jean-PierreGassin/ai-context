@@ -1,0 +1,47 @@
+[
+  {
+    "query": "Set up a worktree for this ticket so I can keep the current branch checked out",
+    "should_trigger": true
+  },
+  {
+    "query": "I want to review what you did in the worktree from my main checkout, what is the safe way to do that?",
+    "should_trigger": true
+  },
+  {
+    "query": "Run these two tracks in parallel worktrees so they do not block each other",
+    "should_trigger": true
+  },
+  {
+    "query": "Clean up the worktrees that are finished",
+    "should_trigger": true
+  },
+  {
+    "query": "The worktree will not boot, it is missing its environment file and its dependencies",
+    "should_trigger": true
+  },
+  {
+    "query": "Create a branch for this ticket off main",
+    "should_trigger": false,
+    "note": "Plain branching. Nothing here needs a second working directory."
+  },
+  {
+    "query": "Switch to main and pull the latest",
+    "should_trigger": false,
+    "note": "An ordinary checkout in the existing working directory."
+  },
+  {
+    "query": "Stash what I have so I can look at main for a minute",
+    "should_trigger": false,
+    "note": "The closest plain-git answer to the problem worktrees solve, but no worktree is involved."
+  },
+  {
+    "query": "Split this work into two branches so two people can each take one",
+    "should_trigger": false,
+    "note": "Parallel work, but across people and clones rather than worktrees in this checkout."
+  },
+  {
+    "query": "Why does installing dependencies take four minutes in this project?",
+    "should_trigger": false,
+    "note": "Dependency install performance, unrelated to worktrees."
+  }
+]

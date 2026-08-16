@@ -1,0 +1,56 @@
+[
+  {
+    "query": "Add an endpoint that lets someone cancel a scheduled export before it runs",
+    "should_trigger": true
+  },
+  {
+    "query": "The date formatting is duplicated across three components, pull it into one place",
+    "should_trigger": true
+  },
+  {
+    "query": "Review the diff on this branch before I open the PR",
+    "should_trigger": true
+  },
+  {
+    "query": "The status enum has no case for a partially completed run, wire one through",
+    "should_trigger": true
+  },
+  {
+    "query": "That column name is misspelled, rename it and everything that reads it",
+    "should_trigger": true
+  },
+  {
+    "query": "Build the filter panel for the saved reports page",
+    "should_trigger": true
+  },
+  {
+    "query": "Walk me through what the import pipeline does, I have not touched this area before",
+    "should_trigger": false,
+    "note": "An explanation of existing code. Nothing is written, edited, or reviewed for correctness."
+  },
+  {
+    "query": "The import validation already landed, add coverage for the rejected rows",
+    "should_trigger": false,
+    "note": "Tests only. write-tests owns this; write-code joins in only if production code also changes."
+  },
+  {
+    "query": "Do not write anything yet, just work out how we would split this into reviewable PRs",
+    "should_trigger": false,
+    "note": "Decomposition with an explicit no-code instruction. Routes to write-plan."
+  },
+  {
+    "query": "Write the PR description for this branch",
+    "should_trigger": false,
+    "note": "The deliverable is prose about code, not a code change. Routes to write-pr."
+  },
+  {
+    "query": "Should the nightly rebuild be a queued job or a scheduled command? Just after your view before we build anything",
+    "should_trigger": false,
+    "note": "A design opinion asked for ahead of implementation, with nothing to write yet."
+  },
+  {
+    "query": "Draft a bug ticket for the truncated export so it can go on the board",
+    "should_trigger": false,
+    "note": "A tracker deliverable. Routes to write-ticket."
+  }
+]

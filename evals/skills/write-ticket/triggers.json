@@ -1,0 +1,47 @@
+[
+  {
+    "query": "Write a story for the scheduled exports capability",
+    "should_trigger": true
+  },
+  {
+    "query": "File a bug ticket for the truncated export, I have the failing run",
+    "should_trigger": true
+  },
+  {
+    "query": "Create a task ticket for the extraction, it is one slice of that story",
+    "should_trigger": true
+  },
+  {
+    "query": "We cannot agree whether to use the vendor's bulk endpoint or roll our own. Raise something to decide it.",
+    "should_trigger": true
+  },
+  {
+    "query": "The acceptance criteria on that ticket read as implementation steps, rewrite them",
+    "should_trigger": true
+  },
+  {
+    "query": "Write the implementation plan for scheduled exports",
+    "should_trigger": false,
+    "note": "A decomposition and sequencing deliverable outside the tracker. Routes to write-plan."
+  },
+  {
+    "query": "Write the PR description for the extraction branch",
+    "should_trigger": false,
+    "note": "A PR body. Routes to write-pr."
+  },
+  {
+    "query": "Move that ticket to In Progress and assign it to me",
+    "should_trigger": false,
+    "note": "A tracker transition, not authoring or editing ticket content."
+  },
+  {
+    "query": "What is on the board for this sprint?",
+    "should_trigger": false,
+    "note": "A tracker query."
+  },
+  {
+    "query": "Summarise the export problem for the team channel",
+    "should_trigger": false,
+    "note": "Communication about a defect, not a ticket with a type, panels, and field rules."
+  }
+]

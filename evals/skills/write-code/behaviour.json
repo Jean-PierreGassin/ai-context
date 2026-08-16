@@ -1,0 +1,127 @@
+{
+  "skill_name": "write-code",
+  "evals": [
+    {
+      "id": "follows-project-architecture-over-reference",
+      "category": "project-precedence",
+      "prompt": "This project keeps each piece of business logic in its own single-purpose class, called directly from the controller. There is no service layer and no repository layer. Add the ability to reopen a closed record.",
+      "expected_output": "The new logic in the same kind of class the project already uses, with no layer introduced that the project does not have.",
+      "expectations": [
+        "Places the new logic in the same kind of class as the nearest equivalent capability",
+        "Introduces no architectural layer the project does not already have",
+        "Reuses the project's existing conventions for getting data in and out",
+        "Does not restructure towards an arrangement a reference happens to demonstrate",
+        "Keeps the change to the capability that was asked for"
+      ]
+    },
+    {
+      "id": "enforced-tooling-beats-reference-preference",
+      "category": "project-precedence",
+      "prompt": "The formatter config in this repository enables a file-level declaration that the language reference says never to add, and every existing file has it. Add a new class.",
+      "expected_output": "A file matching what the formatter enforces, with the deviation from the reference acknowledged in a sentence.",
+      "expectations": [
+        "Matches what the enforced tooling produces rather than the reference's preference",
+        "Does not strip the enforced construct from files it touches",
+        "States in one sentence that the enforced config overrides the reference",
+        "Does not apply the reference rule and leave the formatter to undo it"
+      ]
+    },
+    {
+      "id": "settled-preference-survives-older-surrounding-code",
+      "category": "counterexample",
+      "prompt": "This file uses generic variable names throughout and declares no types on anything. Add a method that returns the records past their retention window.",
+      "expected_output": "New code that follows the naming and typing rules, without reformatting what is around it.",
+      "expectations": [
+        "Names what it introduces for what the values hold, rather than copying the surrounding generic names",
+        "Declares types on the code it adds",
+        "Does not rename or retype the surrounding code as a side effect",
+        "Does not offer to match the new code to the older style because the neighbours differ",
+        "Does not treat unenforced surrounding style as project convention"
+      ]
+    },
+    {
+      "id": "reformatting-preserves-the-contract",
+      "category": "regression",
+      "prompt": "Reformat this signature onto one parameter per line. Do not change anything else about it.",
+      "expected_output": "The same signature across several lines, with every parameter and type exactly as it was.",
+      "expectations": [
+        "Leaves every parameter's declared type exactly as given, including its nullability",
+        "Leaves every parameter name, order, and default exactly as given",
+        "Adds no parameter that was not in the original",
+        "Changes only line breaks, indentation, and the trailing comma"
+      ]
+    },
+    {
+      "id": "small-change-stays-small",
+      "category": "proportionality",
+      "prompt": "A template throws a deprecation warning when one of the fields it formats is missing. Guard it.",
+      "expected_output": "The guard, applied wherever the block repeats, and nothing else.",
+      "expectations": [
+        "Adds the guard and stops",
+        "Introduces no helper, value object, or abstraction for a single missing-value check",
+        "Proposes no change stack or multi-step plan for a contained fix",
+        "Applies the same guard to every repeated occurrence rather than only the first"
+      ]
+    },
+    {
+      "id": "no-unrelated-refactor",
+      "category": "counterexample",
+      "prompt": "There is an off-by-one in the pagination offset. Fix it.",
+      "expected_output": "The fix alone, with anything else noticed but left in place.",
+      "expectations": [
+        "Changes only what the off-by-one requires",
+        "Does not reformat, reorder, or rename anything else in the file",
+        "Folds no unrelated cleanup into the same change",
+        "Mentions anything else worth fixing rather than fixing it silently"
+      ]
+    },
+    {
+      "id": "composes-with-write-tests",
+      "category": "composition",
+      "prompt": "Add the new eligibility rule, and cover it.",
+      "expected_output": "The implementation and its tests, with the test work governed by write-tests.",
+      "expectations": [
+        "Produces both the implementation and the tests",
+        "Loads write-tests for the test work rather than deciding coverage from this skill alone",
+        "Bases coverage on the branches the new code actually has, including its boundaries",
+        "Follows the shape of the nearest existing test rather than inventing one"
+      ]
+    },
+    {
+      "id": "routes-large-change-to-write-plan",
+      "category": "composition",
+      "prompt": "Swap out the current implementation for the new one. It is used by a request path, a nightly job, and an admin preview.",
+      "expected_output": "A handoff to write-plan for the decomposition, before any code is written.",
+      "expectations": [
+        "Recognises this as several review objectives rather than one contained change",
+        "Routes to write-plan instead of starting the implementation",
+        "Does not decide the migration sequencing from within this skill",
+        "Does not begin editing every affected surface in one diff"
+      ]
+    },
+    {
+      "id": "validates-before-reporting-done",
+      "category": "normal",
+      "prompt": "Add the field to the response payload and let me know when it is done.",
+      "expected_output": "The change, with the project's own formatter, linter, and relevant tests run over it before it is called complete.",
+      "expectations": [
+        "Runs the project's formatter, linter, static analysis, and the tests covering the change",
+        "Uses the project's own runner where one exists rather than an ad hoc command",
+        "Names any check that could not run and says why",
+        "Does not report the change as verified on the strength of having written it"
+      ]
+    },
+    {
+      "id": "names-carry-the-explanation",
+      "category": "normal",
+      "prompt": "Pull this block out into its own method. It filters a collection down and sums what is left.",
+      "expected_output": "A named method whose name makes a comment unnecessary.",
+      "expectations": [
+        "Names the method with an active verb for what it does",
+        "Names the intermediate values for what they hold rather than generically",
+        "Adds no comment restating what the name already says",
+        "Gives any literal the extraction surfaces a name of its own"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+[
+  {
+    "query": "Plan how we replace the search backend without breaking the existing filters",
+    "should_trigger": true
+  },
+  {
+    "query": "Split this work into reviewable PRs and tell me what order they land in",
+    "should_trigger": true
+  },
+  {
+    "query": "We need to split that column into two. Work out the migration.",
+    "should_trigger": true
+  },
+  {
+    "query": "Write up an implementation plan someone else can pick up tomorrow",
+    "should_trigger": true
+  },
+  {
+    "query": "Pick this back up from the plan file we left in the docs directory",
+    "should_trigger": true
+  },
+  {
+    "query": "This will run over several sessions, set up something we can track progress against",
+    "should_trigger": true
+  },
+  {
+    "query": "Find out why the queued jobs are running out of order",
+    "should_trigger": false,
+    "note": "Establishing what is true, before anything can be sequenced. Routes to orchestrate-investigation."
+  },
+  {
+    "query": "A missing value throws a deprecation warning on that page. Fix it.",
+    "should_trigger": false,
+    "note": "One contained change. Planning ceremony would cost more than the fix."
+  },
+  {
+    "query": "Create a ticket for the scheduled exports story",
+    "should_trigger": false,
+    "note": "A tracker deliverable, outcome-focused rather than a decomposition. Routes to write-ticket."
+  },
+  {
+    "query": "Roughly how long is the search backend swap going to take?",
+    "should_trigger": false,
+    "note": "An estimate, not a decomposition or a tracked plan."
+  },
+  {
+    "query": "Draft the PR description for the first change in the stack",
+    "should_trigger": false,
+    "note": "The plan already exists; this is one change's PR body. Routes to write-pr."
+  },
+  {
+    "query": "What is the current state of that refactor?",
+    "should_trigger": false,
+    "note": "A status question. Reading a plan to answer it is not writing or resuming one."
+  }
+]
