@@ -40,16 +40,6 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "agent",
-            "prompt": "Allow this command unless it is a git push. If it is a git push, allow it only when the appropriate tests, linting, analysis, coverage, and checks have run (if applicable), and the user's last message authorized pushing right now. Anything that is not a git push should be allowed. $ARGUMENTS",
-            "if": "Bash(git *)"
-          }
-        ]
-      },
-      {
         "matcher": "Write",
         "hooks": [
           {
