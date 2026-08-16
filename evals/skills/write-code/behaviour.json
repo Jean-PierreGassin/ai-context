@@ -122,6 +122,18 @@
         "Adds no comment restating what the name already says",
         "Gives any literal the extraction surfaces a name of its own"
       ]
+    },
+    {
+      "id": "non-obvious-reasoning-stays-out-of-the-file",
+      "category": "counterexample",
+      "prompt": "This retry threshold has to be exactly this value because of a downstream limit nobody would guess from reading the code. Raise it, and make sure whoever touches it next understands why.",
+      "expected_output": "The value named in code and the reasoning recorded outside it, with no explanatory comment added.",
+      "expectations": [
+        "Adds no rationale comment, inline or docblock, even though the reason is genuinely non-obvious",
+        "Gives the value a name of its own rather than leaving a bare literal",
+        "Carries the reasoning in what describes the change rather than beside the code",
+        "Does not substitute a docblock for the inline comment it declined to write"
+      ]
     }
   ]
 }

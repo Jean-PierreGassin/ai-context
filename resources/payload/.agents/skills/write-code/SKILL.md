@@ -98,19 +98,22 @@ line count, which is not a reason to change.
 
 ## Comments
 
-- The default is no comment. Write one only where the code cannot state the why itself, and prefer restructuring or a
-  better name over a comment that compensates for either
-- Put explanation in a doc comment on the class or method, where the code genuinely needs one
-- Comments state the durable why the code can't: never the incident, ticket, roster, or count that prompted the change,
-  and never a machine-timed or topology-specific number. Name the shape of the rule, not the members that currently
-  match it
-- Remove comments that aren't carrying weight: annotations that restate a declared type, inline blocks narrating a
-  branch (hoist the rationale into the doc comment), and anything a named argument or well-named method already makes
-  obvious
+- The code carries no explanation of itself. The reasoning goes in the commit message or the PR body, where a reviewer
+  reads it and it cannot rot beside code that moves on without it
+- This holds for rationale, "why we do it this way" notes, and narration of a branch, even where the reasoning is
+  genuinely non-obvious and the temptation strongest. Restructure instead: a value that needs explaining becomes a
+  named constant, a condition that needs explaining becomes a named predicate, a block that needs explaining becomes a
+  named method
+- Banners are the one comment that belongs in a file, naming a section the language gives no structure of its own
+- Machine-read annotations are not comments in this sense. Type and `@throws` docblocks stay, and so does a suppression
+  directive that names the single line it covers and why. So does a TODO marking known, deliberate debt, which tracks
+  work rather than explaining code
+- Remove comments that aren't carrying weight: annotations restating a declared type, blocks narrating a branch, and
+  anything a named argument or well-named method already makes obvious
 
-Config files and flat lists are the exception, because they have no structure of their own to group by. Nothing in a
-list of ignore rules, packages, or hosts says where one block ends and the next begins, or why. Label each block with a
-banner, sized to its title, and leave the entries under it uncommented:
+Config files and flat lists are where a banner earns its place, because they have no structure of their own to group
+by. Nothing in a list of ignore rules, packages, or hosts says where one block ends and the next begins, or why. Label
+each block with a banner, sized to its title, and leave the entries under it uncommented:
 
 ```
 ########################

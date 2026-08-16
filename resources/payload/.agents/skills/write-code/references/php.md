@@ -608,17 +608,14 @@ function createSms(Bundle $bundle): Response
 }
 ```
 
-#### No inline comments; use a doc comment instead for complex classes/methods
+#### No comments, inline or docblock: a named unit says it instead, and the reasoning goes in the commit message
 
 ```php
 // Bad
 // loop through users and send emails
 foreach ($users as $user) {
 }
-```
 
-```php
-// Good
 /**
  * Reconciles ledger entries against the bank feed for the days
  * of the statement period, flagging each single entry which
@@ -629,21 +626,22 @@ function reconcileStatement(StatementPeriod $period)
 }
 ```
 
-#### Wrap multi-line comments (docblocks or inline) into short paragraphs at a consistent width, not one long run-on line
-
-```php
-// Bad
-// If no relationship name was passed, we will pull backtraces to get the name of the calling function, use that as...
-```
-
 ```php
 // Good
-/**
- * If no relationship name was passed, we will pull backtraces to get the
- * name of the calling function. We will use that function name as the
- * title of this relation since that is a great convention to apply.
- */
+function sendWelcomeEmails(UserCollection $unnotifiedUsers): void
+{
+}
+
+function reconcileStatement(StatementPeriod $period): UnmatchedEntryCollection
+{
+    return $this->flagEntriesWithoutBankTransaction(
+        entries: $this->ledgerEntriesDuring(period: $period),
+    );
+}
 ```
+
+The docblock is doing the naming the signature should: the return type says what comes back, and the two named calls
+say what reconciling means here.
 
 #### PHPDoc only carries what the signature can't: keep `@throws`
 
