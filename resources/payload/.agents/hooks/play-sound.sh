@@ -5,6 +5,16 @@
 
 set -u
 
+is_interactive_session() {
+    case "${CLAUDE_CODE_ENTRYPOINT:-cli}" in
+        sdk-* | mcp) return 1 ;;
+    esac
+
+    return 0
+}
+
+is_interactive_session || exit 0
+
 play_macos() {
     command -v afplay >/dev/null 2>&1 || return 1
 

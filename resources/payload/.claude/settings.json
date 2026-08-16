@@ -29,7 +29,11 @@
       "Edit(*credential*)",
       "Edit(**/*credential*)"
     ],
-    "defaultMode": "auto"
+    "defaultMode": "auto",
+    "ask": [
+      "Bash(aws:*)",
+      "Bash(git push:*)"
+    ]
   },
   "model": "opus",
   "disableClaudeAiConnectors": true,
@@ -88,5 +92,6 @@
   "remoteControlAtStartup": true,
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": false,
-  "autoConnectIde": true
+  "autoConnectIde": true,
+  "effortLevel": "xhigh"
 }
