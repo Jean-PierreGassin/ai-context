@@ -86,14 +86,8 @@ def check_supporting_paths(skill: str) -> None:
                 fail(document, f"references a missing path, {reference}")
 
 
-def check_adapter(skill: str) -> None:
-    adapter = ADAPTERS_ROOT / skill / "SKILL.md"
-    if not adapter.is_file():
-        fail(f"resources/payload/.claude/skills/{skill}/SKILL.md", "Claude adapter is missing")
-        return
-
-    body = adapter.read_text()
-    target = ADAPTER_TARGET.search(body)
+def check_adapter_redirect(adapter: pathlib.Path, skill: str) -> None:
+    target = ADAPTER_TARGET.search(adapter.read_text())
     if target is None:
         fail(adapter, "does not redirect to a canonical .agents skill")
     elif not (SKILLS_ROOT / target.group(1) / "SKILL.md").is_file():
@@ -101,12 +95,24 @@ def check_adapter(skill: str) -> None:
     elif target.group(1) != skill:
         fail(adapter, f"redirects to {target.group(1)} rather than {skill}")
 
+
+def check_adapter_frontmatter(adapter: pathlib.Path, skill: str) -> None:
     canonical = SKILLS_ROOT / skill / "SKILL.md"
     for field in ("name", "description"):
         adapter_value = frontmatter_field(adapter, field)
         canonical_value = frontmatter_field(canonical, field)
         if adapter_value is not None and canonical_value is not None and adapter_value != canonical_value:
             fail(adapter, f"{field} does not match the canonical skill")
+
+
+def check_adapter(skill: str) -> None:
+    adapter = ADAPTERS_ROOT / skill / "SKILL.md"
+    if not adapter.is_file():
+        fail(f"resources/payload/.claude/skills/{skill}/SKILL.md", "Claude adapter is missing")
+        return
+
+    check_adapter_redirect(adapter, skill)
+    check_adapter_frontmatter(adapter, skill)
 
 
 def check_triggers(skill: str) -> None:
@@ -122,21 +128,25 @@ def check_triggers(skill: str) -> None:
         fail(path, "expected a non-empty array of trigger cases")
         return
 
-    outcomes = set()
-    for index, entry in enumerate(entries):
-        label = f"entry {index}"
-        if not isinstance(entry, dict):
-            fail(path, f"{label} is not an object")
-            continue
-        if not is_filled_string(entry.get("query")):
-            fail(path, f"{label} has no non-empty query")
-        if not isinstance(entry.get("should_trigger"), bool):
-            fail(path, f"{label} has no boolean should_trigger")
-        else:
-            outcomes.add(entry["should_trigger"])
-
-    if outcomes != {True, False}:
+    outcomes = {check_trigger_case(path, entry, f"entry {index}") for index, entry in enumerate(entries)}
+    if not {True, False} <= outcomes:
         fail(path, "needs both positive and negative cases")
+
+
+def check_trigger_case(path: pathlib.Path, entry, label: str) -> bool | None:
+    """Reports every problem with one trigger case, and returns its outcome where it has a valid one."""
+    if not isinstance(entry, dict):
+        fail(path, f"{label} is not an object")
+        return None
+
+    if not is_filled_string(entry.get("query")):
+        fail(path, f"{label} has no non-empty query")
+
+    if not isinstance(entry.get("should_trigger"), bool):
+        fail(path, f"{label} has no boolean should_trigger")
+        return None
+
+    return entry["should_trigger"]
 
 
 def check_behaviour(skill: str) -> None:
@@ -161,42 +171,50 @@ def check_behaviour(skill: str) -> None:
 
     seen: set[str] = set()
     for index, case in enumerate(cases):
-        label = f"eval {index}"
-        if not isinstance(case, dict):
-            fail(path, f"{label} is not an object")
-            continue
+        check_behaviour_case(path, skill, case, f"eval {index}", seen)
 
-        identifier = case.get("id")
-        if not is_filled_string(identifier):
-            fail(path, f"{label} has no non-empty id")
-        elif identifier in seen:
-            fail(path, f"duplicate id, {identifier}")
-        else:
-            seen.add(identifier)
-            label = identifier
 
-        if not is_filled_string(case.get("prompt")):
-            fail(path, f"{label} has no non-empty prompt")
+def check_behaviour_case(path: pathlib.Path, skill: str, case, label: str, seen: set[str]) -> None:
+    """Reports every problem with one behaviour case, recording its id so later duplicates are caught."""
+    if not isinstance(case, dict):
+        fail(path, f"{label} is not an object")
+        return
 
-        expectations = case.get("expectations")
-        if not isinstance(expectations, list) or not expectations:
-            fail(path, f"{label} has no non-empty expectations array")
-        elif not all(is_filled_string(expectation) for expectation in expectations):
-            fail(path, f"{label} has an empty or non-string expectation")
+    identifier = case.get("id")
+    if not is_filled_string(identifier):
+        fail(path, f"{label} has no non-empty id")
+    elif identifier in seen:
+        fail(path, f"duplicate id, {identifier}")
+    else:
+        seen.add(identifier)
+        label = identifier
 
-        if "expected_output" in case and not is_filled_string(case["expected_output"]):
-            fail(path, f"{label} has an empty expected_output")
+    if not is_filled_string(case.get("prompt")):
+        fail(path, f"{label} has no non-empty prompt")
 
-        category = case.get("category")
-        if category is not None and category not in CATEGORIES:
-            fail(path, f"{label} has an unknown category, {category}")
+    expectations = case.get("expectations")
+    if not isinstance(expectations, list) or not expectations:
+        fail(path, f"{label} has no non-empty expectations array")
+    elif not all(is_filled_string(expectation) for expectation in expectations):
+        fail(path, f"{label} has an empty or non-string expectation")
 
-        fixture = case.get("fixture")
-        if fixture is not None:
-            if not is_filled_string(fixture):
-                fail(path, f"{label} has an empty fixture path")
-            elif not (EVALS_ROOT / skill / fixture).exists():
-                fail(path, f"{label} points at a missing fixture, {fixture}")
+    if "expected_output" in case and not is_filled_string(case["expected_output"]):
+        fail(path, f"{label} has an empty expected_output")
+
+    category = case.get("category")
+    if category is not None and category not in CATEGORIES:
+        fail(path, f"{label} has an unknown category, {category}")
+
+    check_fixture(path, skill, case.get("fixture"), label)
+
+
+def check_fixture(path: pathlib.Path, skill: str, fixture, label: str) -> None:
+    if fixture is None:
+        return
+    if not is_filled_string(fixture):
+        fail(path, f"{label} has an empty fixture path")
+    elif not (EVALS_ROOT / skill / fixture).exists():
+        fail(path, f"{label} points at a missing fixture, {fixture}")
 
 
 def check_no_orphan_eval_directories(skills: list[str]) -> None:

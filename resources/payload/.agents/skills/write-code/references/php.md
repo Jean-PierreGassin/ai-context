@@ -451,6 +451,34 @@ function shortCustomerName(Customer $customer): string
 }
 ```
 
+#### A boolean parameter that selects behaviour is two methods
+
+```php
+// Bad
+function publish(Document $document, bool $shouldNotifySubscribers): void
+{
+}
+
+publish(document: $document, shouldNotifySubscribers: true);
+```
+
+```php
+// Good
+function publish(Document $document): void
+{
+}
+
+function notifySubscribers(Document $document): void
+{
+}
+
+publish(document: $document);
+notifySubscribers(document: $document);
+```
+
+A parameter carrying data the method needs is fine, since it changes the result. This is about one that picks which of
+two jobs the method does, which the call site cannot explain and the body has to branch on.
+
 #### Guard clauses over nested conditionals
 
 ```php

@@ -308,6 +308,61 @@ async function performList(z: ZObject, bundle: Bundle) {
 }
 ```
 
+#### Functions should do one thing; split branching logic into named helpers
+
+```ts
+// Bad
+function formatCustomerName(customer: Customer): string {
+  if (customer.isVerified && customer.roles.includes('client')) {
+    return `Mr. ${customer.firstName} ${customer.middleName} ${customer.lastName}`;
+  }
+
+  return `${customer.firstName[0]}. ${customer.lastName}`;
+}
+```
+
+```ts
+// Good
+function formatCustomerName(customer: Customer): string {
+  return isVerifiedClient(customer) ? fullCustomerName(customer) : shortCustomerName(customer);
+}
+
+function isVerifiedClient(customer: Customer): boolean {
+  return customer.isVerified && customer.roles.includes('client');
+}
+
+function fullCustomerName(customer: Customer): string {
+  return `Mr. ${customer.firstName} ${customer.middleName} ${customer.lastName}`;
+}
+
+function shortCustomerName(customer: Customer): string {
+  return `${customer.firstName[0]}. ${customer.lastName}`;
+}
+```
+
+#### A boolean parameter that selects behaviour is two functions
+
+```ts
+// Bad
+function publish(document: Document, shouldNotifySubscribers: boolean): void {}
+
+publish(document, true);
+```
+
+```ts
+// Good
+function publish(document: Document): void {}
+
+function notifySubscribers(document: Document): void {}
+
+publish(document);
+notifySubscribers(document);
+```
+
+A parameter carrying data the function needs is fine, since it changes the result. This is about one that picks which
+of two jobs the function does: `publish(document, true)` says nothing about what `true` selects, and the body needs a
+branch that has nothing to do with publishing.
+
 #### Guard clauses over nested conditionals
 
 ```ts

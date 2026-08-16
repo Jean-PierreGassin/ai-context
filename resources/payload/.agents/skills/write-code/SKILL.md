@@ -34,6 +34,7 @@ Read only what is in scope. A framework reference applies on top of its language
 | Laravel    | `references/laravel.md` and `references/php.md`      |
 | TypeScript | `references/typescript.md`                           |
 | Vue        | `references/vue.md` and `references/typescript.md`   |
+| Bash       | `references/bash.md`                                 |
 
 Each reference splits its rules in two, and the section a rule sits in is its strength:
 
@@ -57,6 +58,32 @@ or whatever the project already uses. The references demonstrate one arrangement
 
 Do not introduce Actions, services, repositories, DDD boundaries, or another architecture merely because a reference
 demonstrates one. Change the architecture when the user asks for it, or when the task is itself architectural.
+
+## One job per unit
+
+Every unit, whether a function, method, class, module, or script, has one reason to change. This is the rule most
+worth holding, because complexity compounds: a unit that does three things has to be understood three ways at once,
+by everyone who touches it afterwards.
+
+Four tests, in order of how often they catch something:
+
+- **The honest name.** Name the unit for everything it does. If the honest name needs "and", it is two units. A
+  `validateAndSave` is a `validate` and a `save`
+- **The boolean parameter.** A flag that selects behaviour is two units wearing one name: `charge($order, sendReceipt:
+  true)` is `charge` and `sendReceipt`, welded together at a call site that now reads as a puzzle. Split them, and let
+  the caller do both where it wants both. A flag carrying *data* the unit needs is fine, since it changes the result
+  rather than what the unit does
+- **Deciding versus acting.** A unit that works something out and then acts on it is two units. Return the decision and
+  let the caller act, so the deciding half can be tested without the acting half happening
+- **Reasons to change.** Two things that change for different reasons, on different schedules, or at the request of
+  different people, belong apart even when they always run together
+
+Complexity is the symptom to watch for: deep nesting, a long parameter list, a branch that needs a comment to explain
+which case it handles. Take those as a prompt to look for the seam, not to add a comment. Guard clauses flatten
+nesting, and a named predicate turns a condition into something readable.
+
+Splitting has a cost too. Do not split so far that following one path means opening six files, and do not split by
+line count, which is not a reason to change.
 
 ## Naming
 
