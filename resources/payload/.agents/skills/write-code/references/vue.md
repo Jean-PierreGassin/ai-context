@@ -86,7 +86,7 @@ const fullName = computed(() => `${props.firstName} ${props.lastName}`);
 
 ```html
 <!-- Bad -->
-<div v-if="open" data-cy="list" :aria-label="label" role="listbox" ref="list" :id="listId">...</div>
+<div data-cy="list" @keydown="onKey" :aria-label="label" role="listbox" v-if="open" ref="list" :style="style" :id="listId">...</div>
 ```
 
 ```html

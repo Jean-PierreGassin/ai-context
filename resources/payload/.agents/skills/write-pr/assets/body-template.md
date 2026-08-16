@@ -1,6 +1,11 @@
 # PR Body Template
 
+Fill this in. The repository's own template replaces it where one exists; the `Ticket:` line still goes at the top of
+the template's context section.
+
 ```
+Ticket: [TICKET-KEY](https://tracker.example/browse/TICKET-KEY)
+
 Change Type: Feature | Bugfix | Improvement | Task | Story | Chore | Hotfix
 
 Description: [prose intro sentence or two, optionally opening with "This PR ..." / "This pull request ..."]
@@ -46,4 +51,17 @@ Where the change needs a way out beyond reverting, say so in the same place:
 
 ```
 **Rollback:** Set `pricing.engine` back to `legacy`, no deploy and no data migration needed.
+```
+
+## Bug bodies
+
+Where a bug PR has both reproduction steps and a what-changed list, give each its own bold header, so the numbered
+steps are not mistaken for the change itself:
+
+```
+**Reproduction**
+1. ...
+
+**What Changed**
+- ...
 ```

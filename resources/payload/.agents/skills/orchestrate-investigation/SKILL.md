@@ -1,6 +1,8 @@
 ---
 name: orchestrate-investigation
-description: Use when asked to investigate, perform research, find a root-cause, or assist in planning.
+description: Use when an investigation or research task spans independent areas that benefit from parallel
+  investigators, or when findings need independent verification before acting on them. Investigate directly when the
+  scope is contained.
 ---
 
 # Orchestrate Investigation
@@ -8,7 +10,8 @@ description: Use when asked to investigate, perform research, find a root-cause,
 ## Process
 
 1. Run the fan-out below when the investigation spans genuinely independent areas that are too wide to cover yourself,
-   or when the user asked for it. Investigate directly otherwise
+   when a conclusion is contested and needs independent verification, or when the user asked for it. Investigate
+   directly otherwise
 2. Run the task from a highly collaborative, logical orchestrator agent who is in charge of other agents
 3. Fan out isolated investigators (4 max) in parallel, each cover a different angle or area
 4. Fan out reviewers (2 max) [with principles](#principles) only where the findings are contested, the investigators

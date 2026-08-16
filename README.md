@@ -181,6 +181,29 @@ git -C "$HOME/.local/share/ai-context" pull --ff-only
 
 Run `ai-context install` or `ai-context install --global` again to preview and apply the update.
 
+## Skill layout
+
+Skills live in `resources/payload/.agents/skills/`, which is the canonical source. The files under
+`resources/payload/.claude/skills/` are thin adapters that redirect to it, so a skill body is never duplicated.
+
+Each skill uses as much of this structure as it needs:
+
+| Path         | Holds                                                                     |
+|--------------|---------------------------------------------------------------------------|
+| `SKILL.md`   | Triggering, the high-level workflow, the rules that always apply, and routing to everything below |
+| `references/`| Normative guidance that applies only to a language, framework, or task variant |
+| `examples/`  | Complete illustrative outputs, not rules                                  |
+| `assets/`    | Templates and artifacts meant to be copied and filled in                  |
+| `scripts/`   | Deterministic enforcement                                                 |
+
+A rule that applies every time the skill runs belongs in `SKILL.md`. A small skill stays a single `SKILL.md`: do not
+split one into references for the sake of consistency.
+
+`evals/` holds trigger and behaviour test data for developing these skills. It is repository-only and is never
+installed into a project. See [evals/README.md](evals/README.md) for the schema and how a runner consumes it.
+
+Run `task test` after changing a skill.
+
 ## Supported systems
 
 `ai-context` supports macOS, Linux, WSL, and Git Bash. Native PowerShell is not supported.

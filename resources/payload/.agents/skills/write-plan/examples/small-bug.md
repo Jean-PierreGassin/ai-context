@@ -1,4 +1,10 @@
-# Example plan
+# A small plan stays small
+
+A one-line template fix. It gets a plan because the work was tracked across a session, not because it needed
+decomposing. There is no stack, no strategy, no artifact iteration, and the Change Stack Position section is four
+lines that say there is nothing to sequence.
+
+This is the level of detail a change this size deserves. Anything more is process the fix did not ask for.
 
 ```markdown
 ## Objective
@@ -53,3 +59,9 @@ https://linktoplan.artifact
 
 - [x] Task marked complete with closing notes
 ```
+
+What the plan deliberately does not do:
+
+- Split a two-line template guard into a mechanical change and a behavioural one
+- Introduce a helper or a value object to hold the null check
+- Ask the user to choose between decomposition strategies for a change with nothing to decompose

@@ -1,59 +1,76 @@
 ---
 name: write-code
-description: Use when writing, editing, or reviewing code in any language or framework.
+description: Use when writing, editing, or reviewing production code in any language or framework.
 ---
 
 # Write Code
 
+Code is read far more often than it is written, and the reader is usually deciding whether a change is safe to ship.
+Everything here serves that: the codebase should read as though one person wrote it, and a diff should show only what
+the task asked for.
+
 ## Process
 
-1. Read only the [example](#examples) files matching the languages and frameworks in scope
-2. Consume the [rules](#rules) which will be the enforcement of your implementation
-3. For anything beyond a contained edit, [decide how the change is shaped](#shape-the-change-before-writing-it) before
-   writing code
+1. Read the [references](#references) for the languages and frameworks in scope, and nothing else
+2. Open the nearest equivalent capability already in the repository and match how it is arranged
+3. Write the change, then [check it](#before-reporting-it-done) before reporting it as done
 
-## Rules
+Shape the work before writing it:
 
-- Finished code satisfies the examples, and the project's own standards where the two differ
-- Each example file splits its rules into "Always apply" and "Follow the project where it is consistent"; treat the
-  section a rule sits in as its precedence
-- The project's own architecture pattern decides where code goes: Actions, DDD, service/repository, modular monolith, or
-  whatever it already uses. The examples show one arrangement, and their rules hold in any of them. Follow the pattern
-  in use unless the user names a different one
-- What the project enforces (linters, static analysis, CI, framework and interface contracts, conventions in committed
-  docs) overrides an example, and say so in a sentence when it does
-- These rules are settled preferences: apply them in full, and never offer to revert a correctly applied rule because
-  the surrounding repo predates it
-- Before reporting a change as done, re-read the diff against these rules and fix the misses; where a deviation is
-  deliberate, say so in a sentence with the reason rather than shipping it silently
+| The change is                                                                                  | Route                  |
+|------------------------------------------------------------------------------------------------|------------------------|
+| Contained: one review objective, one coherent diff                                             | Implement it directly  |
+| Several review objectives, migration sequencing, or work that must survive a session boundary  | Use `write-plan` first |
 
-## Shape the change before writing it
+A plan that already exists is the authority on ordering: follow its change stack rather than re-deciding the split.
 
-Don't start typing on a large change. Name what it is first, then take the matching route:
+## References
 
-| The change is                     | Write it as                                                                  |
-|-----------------------------------|------------------------------------------------------------------------------|
-| A new capability                  | Thin vertical slices, each usable end to end                                 |
-| Replacing existing behaviour      | Branch by abstraction: abstract, add the new path, switch consumers, delete  |
-| A schema, API, or contract change | Expand and contract: add compatible structure, migrate usage, remove the old |
-| Primarily refactoring             | A mechanical change stack, no behaviour change in any step                   |
+Read only what is in scope. A framework reference applies on top of its language reference.
 
-- Keep mechanical edits out of behavioural ones. A rename, a move, or a formatting sweep lands on its own, so the diff
-  that changes behaviour stays small enough to read
-- Where the switch is risky or needs a staged rollout, put it behind a feature flag so rollback is config, not a deploy
-- Only introduce an abstraction that lowers review risk or enables a safer rollout, never one that only exists to look
-  extensible
-- If the work spans more than one of these, say so and offer the split rather than merging them into one change. Where a
-  plan already exists, follow its change stack and its ordering
-- Proportion matters: a contained fix is one change, and saying so is the whole decision
+| In scope   | Read                                                 |
+|------------|------------------------------------------------------|
+| PHP        | `references/php.md`                                  |
+| Laravel    | `references/laravel.md` and `references/php.md`      |
+| TypeScript | `references/typescript.md`                           |
+| Vue        | `references/vue.md` and `references/typescript.md`   |
 
-## Naming and comments
+Each reference splits its rules in two, and the section a rule sits in is its strength:
+
+- **Always apply** is an invariant: it holds regardless of what the surrounding code does
+- **Follow the project where it is consistent** is a preference, the default for a greenfield choice, which the project
+  displaces where it consistently does something else
+
+## Precedence
+
+- What the project enforces wins: formatters, linters, static analysis, CI, `.editorconfig`, framework and interface
+  contracts, and conventions in committed docs. Follow it, and say so in a sentence where it overrides a reference
+- The references are settled preferences rather than observations of this repository. Neighbouring code that predates
+  one does not excuse a new violation, and a correctly applied rule is never worth reverting because the neighbours
+  look different
+- Where a deviation is deliberate, say so with the reason rather than shipping it silently
+
+## Architecture
+
+Follow the architecture used by the nearest equivalent capability: Actions, DDD, service/repository, modular monolith,
+or whatever the project already uses. The references demonstrate one arrangement, and their rules hold in all of them.
+
+Do not introduce Actions, services, repositories, DDD boundaries, or another architecture merely because a reference
+demonstrates one. Change the architecture when the user asks for it, or when the task is itself architectural.
+
+## Naming
 
 - Every name says what it holds: `pendingInvoices` rather than `result`, `data`, `item`, `rows`, or a single letter
 - Name functions and methods with an active verb for the action, prefix booleans with is/has/can/should, and let a name
   describe its contents rather than its container (`invoices`, not `invoiceArray`)
 - Search for an existing enum or constant before introducing a named value, and give magic numbers and strings a name of
   their own
+- Write user-facing strings by reading the neighbouring entries and matching their pattern: terse where they are terse,
+  dynamic labels first (`:field is required`, not `Enter your :field`), and cross-checked against the config or
+  validation the copy describes
+
+## Comments
+
 - The default is no comment. Write one only where the code cannot state the why itself, and prefer restructuring or a
   better name over a comment that compensates for either
 - Put explanation in a doc comment on the class or method, where the code genuinely needs one
@@ -63,20 +80,17 @@ Don't start typing on a large change. Name what it is first, then take the match
 - Remove comments that aren't carrying weight: annotations that restate a declared type, inline blocks narrating a
   branch (hoist the rationale into the doc comment), and anything a named argument or well-named method already makes
   obvious. Config entries stay comment-free; their reasoning belongs in the PR or the docs
-- Write user-facing strings by reading the neighbouring entries and matching their pattern: terse where they are terse,
-  dynamic labels first (`:field is required`, not `Enter your :field`), and cross-checked against the config or
-  validation the copy describes
 
-## Examples
+## Keep the diff to the task
 
-See `examples/code-style-{language}.md` for a bad/good pair matching each rule for languages:
+- An unrelated rename, reformat, or tidy-up belongs in its own change. Mixing one in costs the reviewer the ability to
+  see what actually changed
+- Where you spot something worth fixing outside the task, say so and leave it alone
+- Code the change makes dead goes with it. That is part of the task, not unrelated cleanup
 
-- `examples/code-style-php.md`
-- `examples/code-style-ts.md`
+## Before reporting it done
 
-See `examples/code-style-{framework}.md` for a bad/good pair matching each rule for frameworks, applied on top of the
-matching language rules:
-
-- `examples/code-style-laravel.md`
-- `examples/code-style-vue.md`
-
+- Run the project's own gate over what you touched: formatter, linter, static analysis, and the tests covering the
+  changed behaviour. Use the project's runner (`task`, `composer`, an `npm` script, `make`) where one exists
+- Re-read the diff against the references and fix the misses
+- Where a check could not run, name it and say why, rather than reporting the change as verified

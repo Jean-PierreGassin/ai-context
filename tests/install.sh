@@ -57,10 +57,22 @@ grep -Fxq '# Existing' "$project_root/CLAUDE.md"
 [[ "$(grep -Fxc '@AGENTS.md' "$project_root/CLAUDE.md")" -eq 1 ]]
 [[ -f "$project_root/.agents/skills/write-code/.gitignore" ]]
 [[ -f "$project_root/.claude/skills/write-code/.gitignore" ]]
-cmp -s "$repository_root/resources/payload/.agents/skills/write-code/examples/code-style-php.md" \
-  "$project_root/.agents/skills/write-code/examples/code-style-php.md"
+cmp -s "$repository_root/resources/payload/.agents/skills/write-code/references/php.md" \
+  "$project_root/.agents/skills/write-code/references/php.md"
+cmp -s "$repository_root/resources/payload/.agents/skills/write-pr/assets/body-template.md" \
+  "$project_root/.agents/skills/write-pr/assets/body-template.md"
+cmp -s "$repository_root/resources/payload/.agents/skills/write-pr/examples/feature.md" \
+  "$project_root/.agents/skills/write-pr/examples/feature.md"
 cmp -s "$repository_root/resources/payload/.claude/skills/write-code/SKILL.md" \
   "$project_root/.claude/skills/write-code/SKILL.md"
+while IFS= read -r -d '' payload_skill_file; do
+  installed_skill_file="${payload_skill_file#"$repository_root/resources/payload/"}"
+  if [[ ! -f "$project_root/$installed_skill_file" ]]; then
+    printf 'skill resource missing from the installed payload: %s\n' "$installed_skill_file" >&2
+    exit 1
+  fi
+done < <(find "$repository_root/resources/payload/.agents/skills" \
+  "$repository_root/resources/payload/.claude/skills" -type f -print0)
 assert_jq '.enabledPlugins["custom@example"] == true' "$project_root/.claude/settings.json"
 assert_jq '.permissions.deny | index("Read(private.txt)") != null' "$project_root/.claude/settings.json"
 assert_jq '.permissions.deny | index("Read(auth.json)") != null' "$project_root/.claude/settings.json"
@@ -117,8 +129,12 @@ force_install=false
 ! grep -Fq '# Personal' "$global_root/.claude/CLAUDE.md"
 [[ -f "$global_root/.codex/AGENTS.md" ]]
 [[ -d "$global_root/.agents/skills/write-code" ]]
-cmp -s "$repository_root/resources/payload/.agents/skills/write-plan/examples/plan-structure.md" \
-  "$global_root/.agents/skills/write-plan/examples/plan-structure.md"
+cmp -s "$repository_root/resources/payload/.agents/skills/write-plan/assets/plan-template.md" \
+  "$global_root/.agents/skills/write-plan/assets/plan-template.md"
+cmp -s "$repository_root/resources/payload/.agents/skills/write-plan/assets/plan-artifact.html" \
+  "$global_root/.agents/skills/write-plan/assets/plan-artifact.html"
+cmp -s "$repository_root/resources/payload/.agents/skills/write-plan/references/change-stack.md" \
+  "$global_root/.agents/skills/write-plan/references/change-stack.md"
 cmp -s "$repository_root/resources/payload/.claude/skills/write-plan/SKILL.md" \
   "$global_root/.claude/skills/write-plan/SKILL.md"
 assert_jq '.enabledPlugins["personal@example"] == true' "$global_root/.claude/settings.json"

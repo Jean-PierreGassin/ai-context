@@ -20,7 +20,7 @@ const activeUsers = repository.users().where('active', 1).get();
 
 ```ts
 // Bad
-function createInvoice(customer: Customer, lineItems: LineItem[], dueDate?: Date, sendEmail = true): void {}
+function createInvoice(customer: Customer, lineItems: LineItem[], dueDate?: Date, reference?: string): Invoice {}
 ```
 
 ```ts
@@ -29,8 +29,8 @@ function createInvoice(
   customer: Customer,
   lineItems: LineItem[],
   dueDate?: Date,
-  sendEmail = true,
-): void {}
+  reference?: string,
+): Invoice {}
 ```
 
 #### Name the intermediate result instead of nesting multiple calls into one expression
@@ -222,18 +222,17 @@ const breakdown = {
 
 ```ts
 // Bad
-function charge(lineItems: LineItem[], gateway: PaymentGateway, sendReceipt: boolean, amount: number) {}
+function render(rows: Row[], template: string, engine: TemplateEngine, columnWidth: number): string {}
 ```
 
 ```ts
 // Good
-function charge(
-  gateway: PaymentGateway,
-  amount: number,
-  sendReceipt: boolean,
-  lineItems: LineItem[],
-  shouldReturn = false,
-): boolean {}
+function render(
+  engine: TemplateEngine,
+  template: string,
+  columnWidth: number,
+  rows: Row[],
+): string {}
 ```
 
 #### Promote constructor parameters directly to properties, don't hand-assign them

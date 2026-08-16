@@ -13,9 +13,9 @@
 - Steps to Reproduce: numbered, the minimal path (least data/actions) that triggers the symptom
 - Expected vs Actual: one line each, stated as observable behavior, not code
 - Root Cause: name the specific function/query/condition responsible, not "there's a bug in X". If the root cause is
-  genuinely unknown at ticket-writing time, say so explicitly and file an `examples/investigation.md`-style ticket
+  genuinely unknown at ticket-writing time, say so explicitly and file a `references/investigation.md`-style ticket
   instead of guessing
-- Fix: same rules as a Task ticket's Task panel (see `examples/task.md`) - inline-code class/method/table/column names,
+- Fix: same rules as a Task ticket's Task panel (see `references/task.md`) - inline-code class/method/table/column names,
   outcome-focused (what must be true after the fix, not the exact diff). Tests must be pinned to the specific boundary
   that was missed, not generic coverage
 - Dependencies/metadata: link the originating support/incident ticket in Root Cause, since that's where the evidence

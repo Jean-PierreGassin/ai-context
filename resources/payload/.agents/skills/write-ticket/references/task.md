@@ -23,7 +23,7 @@ value.
 
 ## Example
 
-Two Task tickets implementing the story in `examples/story.md` (PROJ-100, Publish Lock Window). The schema/service piece
+Two Task tickets implementing the story in `references/story.md` (PROJ-100, Publish Lock Window). The schema/service piece
 is shared groundwork the UI wiring depends on, so it's a separate, earlier Task rather than folded into one ticket -
 each links back to the parent story, and the second links to the first as a blocker.
 

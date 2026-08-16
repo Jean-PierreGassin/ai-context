@@ -1,0 +1,90 @@
+# The Change Stack
+
+A change stack is an ordered sequence of small, independently reviewable changes, each with one review objective. Read
+this when the work is more than one such change.
+
+## Record each change with
+
+- **Purpose** - the one thing this change is for, in a sentence
+- **Kind** - mechanical, structural/refactor, behavioural, contract, user-facing, or cleanup
+- **Depends on** - the earlier changes that must land first, or "nothing"
+- **Reviewer focus** - what an experienced reviewer should actually scrutinise here
+- **Rollback** - how this is reverted or disabled if it goes wrong, and what it takes with it
+
+Fields that add nothing for a given change can say so briefly. "Rollback: revert the commit" is a complete answer, and
+padding it out helps no one.
+
+A behavioural entry that earns every field:
+
+```markdown
+### 3. Add partial refund eligibility rules
+
+- **Purpose** - allow refunds below the full order total when the order has shipped partially
+- **Kind** - behavioural
+- **Depends on** - 2 (`RefundCalculator` abstraction)
+- **Reviewer focus** - the rounding and the boundary at exactly one shipped item; whether a partially refunded order
+  can be refunded twice
+- **Rollback** - revert the commit, `RefundCalculator` falls back to the full-total path with no data migration
+```
+
+The same entry for a change that needs none of it:
+
+```markdown
+### 1. Guard the expiry-type label against a missing value
+
+- **Purpose** - stop the deprecation warning on the candidate overview page
+- **Kind** - behavioural, template only
+- **Reviewer focus** - that present-value output is byte-identical
+- **Rollback** - revert the commit
+```
+
+## Order so risk arrives late and alone
+
+1. Mechanical changes (renames, moves, formatting, generated updates)
+2. Structural refactoring, with no behaviour change
+3. Introduce abstractions
+4. New behaviour
+5. User-facing integration
+6. Cleanup and removal
+
+Mechanical before behavioural is the load-bearing part of this order. A rename that lands on its own can be large
+without being risky, because the tests do not change; folded into a behaviour change, it hides the three lines that
+matter inside three hundred that don't.
+
+## Rules that hold across the stack
+
+- A guard lands below the change it guards. A parity or regression capture goes in a lower change than the refactor it
+  protects, so the test is demonstrably not authored against the new behaviour
+- Pull genuinely independent fixes out of the stack entirely. If nothing depends on it, it is its own change off trunk
+- A file touched by several changes is fine in a linear stack. Say which changes share it
+- Where a change is deliberately behaviour-preserving, say so and say how it is proved (usually: the existing suite
+  passes untouched)
+
+## Size, as a heuristic
+
+Roughly 10 files and under 1,000 changed lines per change is where review quality tends to hold up. Treat it as a
+signal to look for a seam, not a limit to obey.
+
+Exceed it deliberately when splitting further would make review worse:
+
+- A mechanical sweep (a rename across 60 files, a generated migration) is one review objective regardless of size, and
+  cutting it into arbitrary batches gives the reviewer six diffs to check instead of one pattern
+- A change whose parts are only meaningful together, where each half would leave the reviewer reconstructing the other
+- A framework-imposed unit, where the files must move as one for anything to run
+
+Say when you are exceeding it and why. An unexplained 2,000 line change reads as an oversight; an explained one reads
+as a decision.
+
+## Validate the split before proposing it
+
+- Assign every file in the anticipated diff to exactly one change. An unassigned file means the plan is wrong
+- Report per-change file and line counts, so the size conversation happens before the branches exist
+- Check each change against its own review objective: if you cannot state it in a sentence, it is two changes
+- Check the reverse failure too. If a reviewer would have to open the next change to understand this one, they are one
+  change
+
+## Shipping the stack
+
+Slice count is not capped, so prefer more thin layers over fewer fat ones, within the limits above. Never create the
+branches or PRs before the split is agreed. `write-pr` governs each change's description, including how it names its
+neighbours in the stack.

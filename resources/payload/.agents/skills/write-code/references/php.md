@@ -22,7 +22,7 @@ $activeUsers = $repository->users()->where('active', 1)->get();
 
 ```php
 // Bad
-function createInvoice(Customer $customer, array $lineItems, ?DateTime $dueDate = null, bool $sendEmail = true)
+function createInvoice(Customer $customer, array $lineItems, ?DateTime $dueDate = null, ?string $reference = null): Invoice
 {
 }
 ```
@@ -33,8 +33,8 @@ function createInvoice(
     Customer $customer,
     array $lineItems,
     ?DateTime $dueDate = null,
-    ?bool $sendEmail = true,
-): void {
+    ?string $reference = null,
+): Invoice {
 }
 ```
 
@@ -247,20 +247,19 @@ if ($discountRate > 0) {
 
 ```php
 // Bad
-function charge(array $lineItems, PaymentGateway $gateway, bool $sendReceipt, int $amount)
+function render(array $rows, string $template, TemplateEngine $engine, int $columnWidth): string
 {
 }
 ```
 
 ```php
 // Good
-function charge(
-    PaymentGateway $gateway,
-    int $amount,
-    bool $sendReceipt,
-    array $lineItems,
-    ?bool $shouldReturn = false,
-): bool {
+function render(
+    TemplateEngine $engine,
+    string $template,
+    int $columnWidth,
+    array $rows,
+): string {
 }
 ```
 
@@ -272,7 +271,7 @@ site read backwards.
 
 ```php
 // Bad
-createInvoice($customer, $items, null, true);
+createInvoice($customer, $items, null, 'INV-1024');
 createInvoice($customer);
 ```
 
@@ -281,7 +280,7 @@ createInvoice($customer);
 createInvoice(
     customer: $customer,
     lineItems: $items,
-    sendEmail: true,
+    reference: 'INV-1024',
 );
 createInvoice(customer: $customer);
 ```
@@ -351,8 +350,8 @@ sleep(30);
 
 ```php
 // Good
-const ROW_HEIGHT_PX = 40;
-const REFRESH_DELAY_SECONDS = 30;
+private const int ROW_HEIGHT_PX = 40;
+private const int REFRESH_DELAY_SECONDS = 30;
 $maxHeight = $visibleResults * self::ROW_HEIGHT_PX;
 sleep(self::REFRESH_DELAY_SECONDS);
 ```
@@ -516,11 +515,15 @@ foreach ($invoices as $invoice) {
 
 ```php
 // Good
-$activeInvoiceTotals = array_map(
-    fn(Invoice $invoice) => $invoice->total(),
-    array_filter($invoices, fn(Invoice $invoice) => $invoice->isActive()),
+$activeInvoiceTotals = array_values(
+    array_map(
+        fn (Invoice $invoice) => $invoice->total(),
+        array_filter($invoices, fn (Invoice $invoice) => $invoice->isActive()),
+    ),
 );
 ```
+
+`array_filter` keeps the original keys, so `array_values` is what makes the result a list, exactly as the loop produced.
 
 #### TODO comments are allowed to mark known, deliberate tech debt (not to explain what code does)
 
@@ -653,7 +656,7 @@ private const CONFIG_PATH = '/../config/geo.php';
 
 ```php
 // Good
-private const string CONFIG_PATH = __DIR__.'/../config/geo.php';
+private const string CONFIG_PATH = '/../config/geo.php';
 ```
 
 #### Mark constructor-promoted properties readonly when the class never reassigns them
@@ -705,11 +708,6 @@ class OrderProcessor
     function charge(Order $order): bool
     {
         return $this->gateway->process($order);
-    }
-    
-    function refund(RefundGateway $refundGateway, Order $order): bool
-    {
-        return $refundGateway->process($order);
     }
 }
 ```

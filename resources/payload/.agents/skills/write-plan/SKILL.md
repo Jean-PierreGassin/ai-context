@@ -1,156 +1,76 @@
 ---
 name: write-plan
-description: Use when creating, resuming, or wrapping up a plan or multi-step task to track across a session or across
-  interruptions - decomposing the work into an ordered change stack of independently reviewable changes, persisting one
-  or more plan files with a phase checklist and a restore-point context file.
+description: Use when creating, resuming, or wrapping up an implementation plan: deciding how a change is decomposed
+  into independently reviewable pieces, sequencing a migration or replacement, or tracking multi-step work across a
+  session boundary.
 ---
 
 # Write Plan
 
-- A plan produces a change stack: an ordered sequence of small, independently reviewable changes
-- Each change is one review objective, and gets its own `PLAN.md` and `CONTEXT.md`
-- Thin vertical slices are the right shape for new capability, not for every change; pick the strategy that fits
-- Size the plan to the work: a single-change task gets a single-entry stack, not ceremony
+Planning buys two things: smaller review units, and a decision about ordering made before anyone is committed to code.
+It buys nothing else, so the amount of it should track the work. A one-line fix that arrives with a five-phase
+checklist has cost more than it saved.
 
 ## Process
 
-1. [Look for an existing plan](#looking-for-existing-docs) that matches the task
-2. [Load relevant skills](#compose-with-other-skills) that will help you write a more aligned plan
-3. Classify the change and [choose a decomposition strategy](#choose-a-decomposition-strategy)
-4. Perform research/investigation/context gathering
-5. Draft [the change stack](#the-change-stack), and confirm the split with the user (give options) before detailing each
-   change
-6. Make or edit a new/existing artifact that walks through the plan
-   (see [artifacts](#context-gatheringartifactsopen-questions) for rules you must follow)
-7. If the user has feedback from the presented plan, repeat the artifact step again until the user is satisfied and has
-   no feedback
-8. Perform research/investigation/context gathering based on gathered user context as a result of that artifact
-9. Hand over rather than implement: end the session referencing the plan locations, so implementation starts on fresh
-   context. Carry on into implementation only where the user asked for both
+1. Check whether a plan for this task [already exists](references/persisted-plans.md) and continue it rather than
+   starting a second one
+2. Name the shape of the work and [route](#route-by-shape) to what you need
+3. Load the skills that shape the plan's content: `write-code` for how the implementation should look, `write-tests`
+   for what coverage the change needs
+4. Gather context. Where the research spans genuinely independent areas that are too wide to cover yourself, use
+   `orchestrate-investigation`; investigate directly otherwise
+5. Draft the split and confirm it with the user, with options, before detailing each change
+6. Present the plan using `assets/plan-artifact.html`, which is self-documenting: read it and fill in the placeholders
+   rather than rebuilding it. Its open questions exist to grill the user on the approach, so ask enough per change to
+   surface the decisions that would change the plan, and stop when further questions stop changing it
+7. Iterate on the artifact until the user has no more feedback, gathering context again where their answers open
+   something up
+8. Hand over rather than implement: end referencing the plan locations so implementation starts on fresh context. Carry
+   on into implementation only where the user asked for both
 
-## Choose a decomposition strategy
+## Route by shape
 
-Name what the change actually is before splitting it:
+| The work is                                                          | Read                                                 |
+|----------------------------------------------------------------------|------------------------------------------------------|
+| Contained: one review objective                                      | Nothing further. One change, no stack ceremony       |
+| Several independently reviewable changes                             | `references/change-stack.md`                         |
+| A replacement, a schema/API/contract migration, or a large refactor  | Also `references/change-strategies.md`               |
+| Work that must survive an interruption or another session            | Also `references/persisted-plans.md`                 |
 
-| The change is                     | Decompose as                                                         |
-|-----------------------------------|----------------------------------------------------------------------|
-| A new capability                  | Thin vertical slices, each one usable end to end                     |
-| Replacing existing behaviour      | [Branch by abstraction](#branch-by-abstraction)                      |
-| A schema, API, or contract change | [Expand and contract](#expand-and-contract)                          |
-| Primarily refactoring             | A mechanical change stack, largest and most automatable change first |
+A task can be more than one of these. Split it at the seam and apply the right shape to each part, rather than
+averaging them into one shapeless sequence.
 
-A task can be more than one of these. Split it at the seam and apply a strategy per part, rather than averaging them
-into one shapeless sequence.
+## Principles
 
-## The change stack
-
-Record each change in the stack with:
-
-- **Purpose** - the one thing this change is for, in a sentence
-- **Kind** - mechanical, structural/refactor, behavioural, user-facing, or cleanup
-- **Depends on** - the earlier changes that must land first
-- **Reviewer focus** - what an experienced reviewer should actually scrutinise here
-- **Rollback** - how this is reverted or disabled if it goes wrong, and what it takes with it
-
-Order the stack so risk arrives late and alone:
-
-1. Mechanical changes (renames, moves, formatting, generated updates)
-2. Structural refactoring, with no behaviour change
-3. Introduce abstractions
-4. New behaviour
-5. User-facing integration
-6. Cleanup and removal
-
-The test for a good stack: each entry has one review objective, and a reviewer can approve it without holding the rest
-of the stack in their head.
-
-## Shipping the stack as stacked PRs
-
-- Per-slice budget: 10 files or fewer, under 1,000 lines changed. Slice count is not capped, so prefer more thin layers
-  over fewer fat ones
-- A guard lands below the change it guards: a parity or regression capture goes in a lower slice than the refactor it
-  protects, so the test is demonstrably not authored against the new behaviour
-- Pull genuinely independent fixes out of the stack entirely; if nothing depends on it, it is its own PR off trunk
-- A file touched by several layers is fine in a linear stack; say which layers share it
-- Never create the branches or PRs before the split is agreed. Verify the plan by assigning every file in the diff to
-  exactly one slice and reporting per-slice file and line counts; an unassigned file means the plan is wrong
-
-## Branch by abstraction
-
-Use it when replacing an implementation, migrating architecture, changing core business logic, or making a risky
-behaviour change.
-
-1. Introduce an abstraction over the existing implementation
-2. Keep the old implementation working and in use
-3. Add the new implementation behind the same abstraction
-4. Switch consumers over gradually, behind a feature flag where the switch is risky or needs staged rollout
-5. Remove the old implementation and, once it is unused, the flag
-
-Don't introduce an abstraction that only exists to satisfy the pattern. It earns its place when it lowers review risk or
-enables a safer rollout, and not otherwise.
-
-## Expand and contract
-
-Use it for database schema, APIs, external contracts, and data migrations:
-
-1. Expand: add the new structure alongside the old, compatible with existing readers and writers
-2. Migrate: move usage and backfill data
-3. Contract: remove the old structure once nothing reads it
-
-Plan a breaking migration only where the user explicitly requires one, and say what makes expand/contract unworkable.
-
-## Keep it proportional
-
-The goal is smaller review units and clearer intent, not process. Skip the ceremony where it buys nothing:
-
-- One coherent change stays one change, with the stack recorded as a single line
-- Fields that add nothing for a given change ("Rollback: revert the commit") can say so briefly rather than be padded
-- Don't split a change so far that a reviewer has to reassemble it to understand the intent
+- **Proportionality.** The goal is smaller review units and clearer intent, not process. A single-change task gets a
+  single-entry stack, and saying so is the whole decision
+- **One review objective per change**, where splitting is warranted at all. A reviewer should be able to approve a
+  change without holding the rest of the stack in their head
+- **Separate the kinds of risk.** Mechanical, structural, behavioural, contract, and user-facing changes fail in
+  different ways and are reviewed with different eyes. Keep them apart where doing so makes each one easier to judge
+- **Don't over-fragment.** A split that forces the reviewer to reassemble the feature to understand the intent has
+  gone too far. Reviewability is the test, not slice count
+- **Confirm before creating.** Never create branches or PRs before the user has agreed the split
 
 ## Compose with other skills
 
-- If the research spans genuinely independent areas that are too wide to cover yourself, orchestrate investigation with
-  other agents to cover them in parallel
-- If the plan is to implement code, use code writing/style/pattern related skills to understand how that should be
-  implemented, reading only the parts covering the languages in scope
+| Need                                         | Skill                       |
+|----------------------------------------------|-----------------------------|
+| How the implementation should be written     | `write-code`                |
+| What coverage the change needs               | `write-tests`               |
+| Research spanning independent areas          | `orchestrate-investigation` |
+| A tracker ticket for the outcome             | `write-ticket`              |
 
-## Looking for existing docs
+`write-plan` decides how the work is cut and ordered. `orchestrate-investigation` finds out what is true before that
+decision can be made. Where a task needs both, investigate first and plan against the findings.
 
-Before creating anything, check whether planning docs for this task already exists. Infer the repo's convention rather
-than assuming one:
+## Supporting files
 
-- Look for an existing planning-docs directory (common names: `docs/plans/`, `.docs/agent-work/`, `tasks/`, `PLANS/`)
-  and follow whatever structure it already uses
-- If nothing exists yet, ask the user once where they'd like planning docs to live, or default to
-  `docs/agent-work/{type}/{ticket-or-slug}/{change-title}/PLAN.md` where `{type}` is `features`, `bugs`,
-  `improvements`, or `tasks`
-- Derive `{ticket-or-slug}` from the branch name's ticket key (see the repo's ticket-key convention) if one exists;
-  otherwise use `{YYYY-MM-DD}-{short-description}`
-- Multiple plans can exist for the same overall task, one per change in the stack, numbered in stack order
-- Only one `PLAN.md` and `CONTEXT.md` per change
-- Only one `plan-artifact.html` that covers the whole stack
-
-## Context gathering/artifacts/open questions
-
-- Use [plan-artifact](examples/plan-artifact.html) as the artifact template; it is self-documenting, read it and fill in
-  the placeholders rather than rebuilding it
-- The artifact carries open questions that grill the user on the planned approach, enough per change to surface the
-  decisions that would change the plan. Stop when further questions stop changing it
-
-## Keep it updated, not just created
-
-- Check off items in real time as they're completed
-- Mark a phase's items done before moving to the next phase; phases run in order
-- If new tasks or complications surface mid-work, add them to the checklist, but confirm with the user before adding
-  scope they didn't ask for
-- If new work belongs to a different review objective, add it to the stack as its own change rather than growing the
-  current one
-- Don't mark the plan complete until every checklist item is checked and the user has given final approval on the actual
-  output, not just the plan
-
-## Examples
-
-See `examples/change-stack.md` for a worked bad/good decomposition and the strategy patterns in full
-See `examples/plan-structure.md` for the required markdown plan template
-See `examples/plan-artifact.html` for the required artifact template
-See `examples/example-plan.md` for a complete filled-out plan (small bug-fix scope) showing the expected level of detail
+- `references/change-stack.md` - the anatomy of a stack: per-change fields, ordering, and how to validate a split
+- `references/change-strategies.md` - vertical slices, branch by abstraction, expand and contract, mechanical refactor
+  sequencing, with worked examples
+- `references/persisted-plans.md` - `PLAN.md` and `CONTEXT.md`, where they live, and how work resumes from them
+- `assets/plan-template.md` - the markdown plan template
+- `assets/plan-artifact.html` - the artifact template presented to the user
+- `examples/small-bug.md` - a complete plan for a one-change bug fix, at the level of detail that size deserves

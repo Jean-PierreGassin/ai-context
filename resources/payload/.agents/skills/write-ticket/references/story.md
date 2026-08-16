@@ -26,7 +26,7 @@ Criteria: testable, observable conditions that define "done" from the user's per
 ## Story <-> Task linking
 
 A story is the business-value container; the technical breakdown lives in one or more linked Task tickets (see
-`examples/task.md`)
+`references/task.md`)
 
 - The story links out to the Task ticket(s) implementing it, via "Implemented by"
 - Each Task ticket links back to the story it implements, via its Description panel
@@ -74,5 +74,5 @@ depends on.
 > * Implemented by [PROJ-101](https://your-tracker.example/browse/PROJ-101) (schema and edit-lock
     service), [PROJ-102](https://your-tracker.example/browse/PROJ-102) (settings field and editor enforcement)
 
-See `examples/task.md` for how PROJ-101 and PROJ-102 look as Task tickets, including how the second links back to this
+See `references/task.md` for how PROJ-101 and PROJ-102 look as Task tickets, including how the second links back to this
 story and to PROJ-101 as a blocker.

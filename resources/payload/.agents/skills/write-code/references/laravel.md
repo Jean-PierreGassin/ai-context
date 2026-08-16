@@ -204,9 +204,7 @@ class InvoiceRepository
 {
     public function remindOverdue(ReminderService $reminders): void
     {
-        Invoice::overdue()->chunk(count: 500, callback: function (Collection $overdueInvoices) use ($reminders) {
-            $overdueInvoices->each(fn (Invoice $invoice) => $reminders->send($invoice));
-        });
+        Invoice::overdue()->get()->each(fn (Invoice $invoice) => $reminders->send($invoice));
     }
 }
 ```
@@ -215,7 +213,7 @@ class InvoiceRepository
 // Good
 class InvoiceRepository
 {
-    private const CHUNK_SIZE = 500;
+    private const int CHUNK_SIZE = 500;
 
     public function chunkOverdue(callable $callback): void
     {
@@ -376,13 +374,6 @@ database/migrations/2026_07_11_123456_create_form_submissions_table.php
 ## Follow the project where it is consistent
 
 Where the project does something consistently, follow it. These are the default for a greenfield choice.
-
-#### No declaring strict types
-
-```php
-// Bad
-declare(strict_types=1);
-```
 
 #### Validation belongs in FormRequest classes, not controller methods
 
