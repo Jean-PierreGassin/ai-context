@@ -2,7 +2,7 @@
 # Author: Jean-Pierre Gassin (https://github.com/Jean-PierreGassin)
 #
 # Custom status line for Claude Code with a two-line layout
-# Line 1: dir (cyan) // branch (magenta) · git state counts
+# Line 1: repo (cyan) // branch (magenta) · git state in words
 # Line 2: context window bar (green, then gold, then red) · session cost · model
 
 input=$(cat)
@@ -43,26 +43,28 @@ _parse=$(echo "${input}" | jq -r '[
 IFS=$'\x1f' read -r session_id cwd model_name used ctx_size ctx_tokens total_cost effort <<< "${_parse}"
 
 # ---------------------------------------------------------------------------
-# LINE 1 — Directory segment (cyan)
+# LINE 1 — Location (repo and branch inside a repository, otherwise the path)
 # ---------------------------------------------------------------------------
-short_cwd="${cwd/#${HOME}/~}"
-dir_part="${CYAN}${short_cwd}${RESET}"
+BRANCH_NAME_LIMIT=48
 
-# ---------------------------------------------------------------------------
-# LINE 1 — Git segment (grey // separator, magenta branch, state counts)
-# ---------------------------------------------------------------------------
 git_here() {
     git -C "${cwd}" --no-optional-locks "$@" 2>/dev/null
 }
 
 append_git_state() {
-    local symbol="$1" count="$2" colour="$3"
-    if [[ "${count:-0}" -gt 0 ]]; then
-        git_state="${git_state} ${colour}${symbol}${count}${RESET}"
+    local label="$1" count="$2" colour="$3"
+    if [[ "${count:-0}" -le 0 ]]; then
+        return
     fi
+    if [[ -n "${git_state}" ]]; then
+        git_state="${git_state} · "
+    fi
+    git_state="${git_state}${colour}${count} ${label}${RESET}"
 }
 
-git_part=""
+short_cwd="${cwd/#${HOME}/~}"
+location_part="${CYAN}${short_cwd}${RESET}"
+
 status_output="$(git_here status --porcelain --branch)"
 if [[ -n "${status_output}" ]]; then
     branch_header="${status_output%%$'\n'*}"
@@ -111,17 +113,45 @@ if [[ -n "${status_output}" ]]; then
         fi
     done
 
-    git_state=""
-    append_git_state '!' "${conflict_count}" "${BOLD_RED}"
-    append_git_state '*' "${changed_count}" "${YELLOW}"
-    append_git_state '↑' "${ahead_count}" "${GREEN}"
-    append_git_state '↓' "${behind_count}" "${CYAN}"
-    append_git_state '⑂' "${behind_main_count}" "${MAGENTA}"
-
-    git_part=" // ${MAGENTA}${branch}${RESET}"
-    if [[ -n "${git_state}" ]]; then
-        git_part="${git_part} ${git_state}"
+    conflict_label='conflicts'
+    if [[ "${conflict_count}" -eq 1 ]]; then
+        conflict_label='conflict'
     fi
+
+    git_state=""
+    append_git_state "${conflict_label}" "${conflict_count}" "${BOLD_RED}"
+    append_git_state 'changed' "${changed_count}" "${YELLOW}"
+    append_git_state 'to push' "${ahead_count}" "${GREEN}"
+    append_git_state 'behind' "${behind_count}" "${CYAN}"
+    append_git_state 'behind main' "${behind_main_count}" "${MAGENTA}"
+    if [[ -z "${git_state}" ]]; then
+        git_state='clean'
+    fi
+
+    repo_paths="$(git_here rev-parse --path-format=absolute --git-common-dir --show-prefix)"
+    repo_root="${repo_paths%%$'\n'*}"
+    repo_root="${repo_root%/.git}"
+    repo_name="${repo_root##*/}"
+
+    repo_prefix=""
+    if [[ "${repo_paths}" == *$'\n'* ]]; then
+        repo_prefix="${repo_paths#*$'\n'}"
+        repo_prefix="${repo_prefix%/}"
+    fi
+
+    location="${short_cwd}"
+    if [[ -n "${repo_name}" ]]; then
+        location="${repo_name}"
+        if [[ -n "${repo_prefix}" ]]; then
+            location="${location}/${repo_prefix}"
+        fi
+    fi
+
+    if [[ "${#branch}" -gt "${BRANCH_NAME_LIMIT}" ]]; then
+        branch="${branch:0:BRANCH_NAME_LIMIT}…"
+    fi
+
+    location_part="${CYAN}${location}${RESET} // ${MAGENTA}${branch}${RESET}   ${git_state}"
 fi
 
 # ---------------------------------------------------------------------------
@@ -228,7 +258,7 @@ fi
 # ---------------------------------------------------------------------------
 # Compose and print
 # ---------------------------------------------------------------------------
-line1="${dir_part}${git_part}"
+line1="${location_part}"
 
 line2=""
 if [[ -n "${context_line}" ]]; then
