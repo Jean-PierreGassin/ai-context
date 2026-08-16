@@ -21,4 +21,5 @@
 #######################
 /Taskfile.yml
 /.agents/
+/.claude/
 /.codex/

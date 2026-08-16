@@ -1,8 +1,14 @@
 # Agnostic Agentic Engineering Context
 
-`ai-context` installs shared instructions, skills, hooks, and safety settings for Codex and Claude Code. Install it in a project or globally.
+`ai-context` installs shared instructions, skills, hooks, and safety settings for Codex and Claude Code. Install it in a
+project or globally.
 
-The installer shows a preview before it changes files. It keeps structured settings that it does not manage and saves a version that you can restore.
+The installer shows a preview before it changes files. It keeps structured settings that it does not manage and saves a
+version that you can restore.
+
+## Supported systems
+
+`ai-context` supports macOS, Linux, WSL, and Git Bash. Native PowerShell is not supported.
 
 ## Install the command
 
@@ -37,7 +43,8 @@ Verify the command:
 ai-context --help
 ```
 
-[Task](https://taskfile.dev/docs/installation) and [Gum](https://github.com/charmbracelet/gum#installation) are optional. `ai-context` uses them when they are available. It uses its Bash interface when they are not available.
+[Task](https://taskfile.dev/docs/installation) and [Gum](https://github.com/charmbracelet/gum#installation) are
+optional. `ai-context` uses them when they are available. It uses its Bash interface when they are not available.
 
 ## Install project context
 
@@ -48,7 +55,8 @@ cd /path/to/project
 ai-context install
 ```
 
-The command shows a compact preview and asks for approval. It writes the configuration to the current project after you approve it.
+The command shows a compact preview and asks for approval. It writes the configuration to the current project after you
+approve it.
 
 To list every path in the preview:
 
@@ -64,9 +72,27 @@ Run:
 ai-context install --global
 ```
 
-This command installs shared configuration in your home directory. The preview shows each target area before you approve it.
+This command installs shared configuration in your home directory. The preview shows each target area before you approve
+it.
 
-The global install manages `~/.claude/CLAUDE.md` as an import file. Its complete content is `@~/.codex/AGENTS.md`. If the file contains other text, the installer shows a replacement and asks for approval.
+The global install manages `~/.claude/CLAUDE.md` as an import file. Its complete content is `@~/.codex/AGENTS.md`. If
+the file contains other text, the installer shows a replacement and asks for approval.
+
+## Control an installation
+
+Use these options after `ai-context install`:
+
+| Option             | Result                                                |
+|--------------------|-------------------------------------------------------|
+| `--global`         | Install global configuration                          |
+| `--dry-run`        | Preview changes and stop                              |
+| `--verbose`        | List every path in the preview                        |
+| `--no-interaction` | Apply the preview without a prompt                    |
+| `--force`          | Replace changed files that `ai-context` manages       |
+| `--replace-config` | Replace complete Claude and Codex configuration files |
+
+By default, the installer merges `.claude/settings.json`, `.codex/config.toml`, and `.codex/hooks.json`. Use
+`--replace-config` only when you want to remove configuration that is not part of `ai-context`.
 
 ## Check the installation
 
@@ -82,22 +108,8 @@ Check the global configuration:
 ai-context doctor --global
 ```
 
-The report checks the required tools, target files, instruction import, configuration syntax, safety settings, and rollback history. If it finds a problem, it shows the repair steps and exits with a non-zero status.
-
-## Control an installation
-
-Use these options after `ai-context install`:
-
-| Option             | Result                                                |
-|--------------------|-------------------------------------------------------|
-| `--global`         | Install global configuration                          |
-| `--dry-run`        | Preview changes and stop                              |
-| `--verbose`        | List every path in the preview                        |
-| `--no-interaction` | Apply the preview without a prompt                    |
-| `--force`          | Replace changed files that `ai-context` manages       |
-| `--replace-config` | Replace complete Claude and Codex configuration files |
-
-By default, the installer merges `.claude/settings.json`, `.codex/config.toml`, and `.codex/hooks.json`. Use `--replace-config` only when you want to remove configuration that is not part of `ai-context`.
+The report checks the required tools, target files, instruction import, configuration syntax, safety settings, and
+rollback history. If it finds a problem, it shows the repair steps and exits with a non-zero status.
 
 ## Restore a version
 
@@ -126,7 +138,18 @@ ai-context rollback SNAPSHOT_ID
 ai-context rollback SNAPSHOT_ID --global
 ```
 
-Each install and rollback saves the previous state. A restore can put old files back and remove files that did not exist in the selected version.
+Each install and rollback saves the previous state. A restore can put old files back and remove files that did not exist
+in the selected version.
+
+## Update ai-context
+
+Pull the latest release from the cloned repository:
+
+```bash
+git -C "$HOME/.local/share/ai-context" pull --ff-only
+```
+
+Run `ai-context install` or `ai-context install --global` again to preview and apply the update.
 
 ## Find commands and options
 
@@ -169,21 +192,13 @@ Show install options without starting an install:
 task install:help
 ```
 
-Task treats `task install help` as two separate tasks. Use `task install:help` for command help. Use the `ai-context` command when you need to combine install options such as `--global`, `--force`, or `--replace-config`.
-
-## Update ai-context
-
-Pull the latest release from the cloned repository:
-
-```bash
-git -C "$HOME/.local/share/ai-context" pull --ff-only
-```
-
-Run `ai-context install` or `ai-context install --global` again to preview and apply the update.
+Task treats `task install help` as two separate tasks. Use `task install:help` for command help. Use the `ai-context`
+command when you need to combine install options such as `--global`, `--force`, or `--replace-config`.
 
 ## Skill layout
 
-`resources/payload/.agents/skills/` holds the skills. The files in `resources/payload/.claude/skills/` are thin adapters. Each one points at a skill in `.agents` and does not copy its content.
+`resources/payload/.agents/skills/` holds the skills. The files in `resources/payload/.claude/skills/` are thin
+adapters. Each one points at a skill in `.agents` and does not copy its content.
 
 A skill uses the parts of this structure that it needs:
 
@@ -195,15 +210,20 @@ A skill uses the parts of this structure that it needs:
 | `assets/`     | Templates to fill in                                                          |
 | `scripts/`    | Automated checks                                                              |
 
-A rule that applies every time the skill runs goes in `SKILL.md`. A small skill stays one file. Do not split it to match the shape of a larger one.
-
-`evals/` holds trigger and behaviour test data for these skills. The installer does not copy it into a project. [evals/README.md](evals/README.md) describes the schema and how a runner reads it.
+A rule that applies every time the skill runs goes in `SKILL.md`. A small skill stays one file. Do not split it to match
+the shape of a larger one.
 
 Run `task test` after changing a skill. It needs [ShellCheck](https://www.shellcheck.net/).
 
-## Supported systems
+## Evals
 
-`ai-context` supports macOS, Linux, WSL, and Git Bash. Native PowerShell is not supported.
+`evals/` holds trigger and behaviour test data for these skills. The installer does not copy it into a project.
+[evals/README.md](evals/README.md) describes the schema and how a runner reads it.
+
+`task test` validates the corpus. It does not run the cases against a model.
+
+Running the cases costs real model calls. Run them with the model and reasoning effort you work at. A run against a
+cheaper model, or at a lower effort, measures a setup you do not use and tells you nothing about yours.
 
 ## License
 
