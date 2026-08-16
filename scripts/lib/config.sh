@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2154 # set by the sourcing script: is_dry_run, repository_root
 
 replace_config_file() {
   local source_path="$1" target_path="$2" display_path="$3"

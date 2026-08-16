@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly repository_root="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-readonly fixture_root="$(mktemp -d "${TMPDIR:-/tmp}/ai-context-cli.XXXXXX")"
+unset CDPATH
+repository_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly repository_root
+fixture_root="$(mktemp -d "${TMPDIR:-/tmp}/ai-context-cli.XXXXXX")"
+readonly fixture_root
 readonly state_home="$fixture_root/state"
 readonly state_root="$state_home/ai-context"
 trap 'rm -rf "$fixture_root"' EXIT
@@ -69,7 +72,10 @@ grep -Fq '.claude/' "$fixture_root/dry-run-output"
 grep -Fq 'Codex configuration' "$fixture_root/dry-run-output"
 grep -Fq '.codex/' "$fixture_root/dry-run-output"
 grep -Fq 'Use --verbose to list each file.' "$fixture_root/dry-run-output"
-! grep -Fq 'would replace .claude/settings.json' "$fixture_root/dry-run-output"
+if grep -Fq 'would replace .claude/settings.json' "$fixture_root/dry-run-output"; then
+  printf 'compact dry run listed individual file changes\n' >&2
+  exit 1
+fi
 (cd "$project_root" && XDG_STATE_HOME="$state_home" "$repository_root/bin/ai-context" install --replace-config --dry-run --verbose >"$fixture_root/verbose-dry-run-output" 2>&1)
 grep -Fq 'would replace .claude/settings.json' "$fixture_root/verbose-dry-run-output"
 history_after_dry_run="$(python3 "$repository_root/scripts/state.py" history --scope project --target "$project_root" --payload "$repository_root/resources/payload" --state-root "$state_root" | wc -l | tr -d ' ')"
@@ -78,7 +84,10 @@ history_after_dry_run="$(python3 "$repository_root/scripts/state.py" history --s
 
 printf '\nlocal instructions\n' >>"$project_root/AGENTS.md"
 (cd "$project_root" && XDG_STATE_HOME="$state_home" "$repository_root/bin/ai-context" install --force --no-interaction >/dev/null 2>&1)
-! grep -Fq 'local instructions' "$project_root/AGENTS.md"
+if grep -Fq 'local instructions' "$project_root/AGENTS.md"; then
+  printf 'forced install did not replace the locally modified AGENTS.md\n' >&2
+  exit 1
+fi
 jq -e '.custom == "keep"' "$project_root/.claude/settings.json" >/dev/null
 python3 -c 'import pathlib, sys, tomllib; assert tomllib.loads(pathlib.Path(sys.argv[1]).read_text())["model"] == "custom"' "$project_root/.codex/config.toml"
 
@@ -154,6 +163,7 @@ grep -Fq 'using the shell fallback' "$fixture_root/task-fallback-error"
 
 started_failure_root="$fixture_root/started-failure-project"
 mkdir -p "$started_failure_root"
+# shellcheck disable=SC2016 # writing a script literal; the expansions belong to the generated script
 printf '#!/usr/bin/env bash\nfor argument in "$@"; do case "$argument" in TASK_SENTINEL=*) : >"${argument#TASK_SENTINEL=}" ;; esac; done\nexit 23\n' >"$fallback_bin/task"
 if (cd "$started_failure_root" && PATH="$fallback_path" XDG_STATE_HOME="$state_home" "$repository_root/bin/ai-context" install --no-interaction >/dev/null 2>&1); then
   printf 'started Task failure was retried\n' >&2

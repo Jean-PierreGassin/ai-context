@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2034 # read by the sourcing scripts, which SC2034 cannot see across
+readonly home_display='~'
+
 resolve_target_root() {
   local target_scope="$1"
   local source_directory="$2"

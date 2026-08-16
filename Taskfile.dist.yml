@@ -109,3 +109,4 @@ tasks:
       - ./tests/install.sh
       - ./tests/cli.sh
       - ./tests/evals.sh
+      - ./tests/shell.sh

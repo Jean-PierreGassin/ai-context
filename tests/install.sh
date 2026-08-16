@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly repository_root="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-readonly fixture_root="$(mktemp -d "${TMPDIR:-/tmp}/ai-context-test.XXXXXX")"
+unset CDPATH
+repository_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly repository_root
+fixture_root="$(mktemp -d "${TMPDIR:-/tmp}/ai-context-test.XXXXXX")"
+readonly fixture_root
 trap 'rm -rf "$fixture_root"' EXIT
 
 mkdir -p "$fixture_root/bin"
 printf '#!/usr/bin/env bash\nexit 0\n' >"$fixture_root/bin/gum"
+# shellcheck disable=SC2016 # writing a script literal; the expansions belong to the generated script
 printf '#!/usr/bin/env bash\nif [[ -n "${TASK_CAPTURE_PATH:-}" ]]; then printf "%%s\\n" "$*" >"$TASK_CAPTURE_PATH"; fi\n' >"$fixture_root/bin/task"
 chmod +x "$fixture_root/bin/gum"
 chmod +x "$fixture_root/bin/task"
@@ -126,7 +130,10 @@ run_install
 force_install=false
 
 [[ "$(cat "$global_root/.claude/CLAUDE.md")" == '@~/.codex/AGENTS.md' ]]
-! grep -Fq '# Personal' "$global_root/.claude/CLAUDE.md"
+if grep -Fq '# Personal' "$global_root/.claude/CLAUDE.md"; then
+  printf 'global install kept the personal CLAUDE.md content\n' >&2
+  exit 1
+fi
 [[ -f "$global_root/.codex/AGENTS.md" ]]
 [[ -d "$global_root/.agents/skills/write-code" ]]
 cmp -s "$repository_root/resources/payload/.agents/skills/write-plan/assets/plan-template.md" \

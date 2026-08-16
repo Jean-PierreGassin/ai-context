@@ -202,7 +202,9 @@ split one into references for the sake of consistency.
 `evals/` holds trigger and behaviour test data for developing these skills. It is repository-only and is never
 installed into a project. See [evals/README.md](evals/README.md) for the schema and how a runner consumes it.
 
-Run `task test` after changing a skill.
+Run `task test` after changing a skill. It runs the installer, CLI, and eval suites, then checks every shell script
+with [ShellCheck](https://www.shellcheck.net/). Install ShellCheck to run that last step; without it the step reports
+that it was skipped.
 
 ## Supported systems
 

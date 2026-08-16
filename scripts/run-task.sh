@@ -16,5 +16,7 @@ if [[ -n "$task_sentinel" ]]; then
   : >"$task_sentinel"
 fi
 
-readonly repository_root="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+unset CDPATH
+repository_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly repository_root
 exec "$repository_root/bin/ai-context" --task-run --caller-dir "$caller_dir" "$command_name" "${@:4}"

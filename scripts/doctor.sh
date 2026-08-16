@@ -3,7 +3,9 @@ set -uo pipefail
 
 readonly scope="${1:?scope is required}"
 readonly caller_dir="${2:?caller directory is required}"
-readonly repository_root="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+unset CDPATH
+repository_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly repository_root
 readonly force_install=false
 readonly is_dry_run=false
 readonly is_interactive=false
@@ -12,17 +14,19 @@ source "$repository_root/scripts/lib.sh"
 failures=0
 warnings=0
 results=
-readonly target_root="$(resolve_target_root "$scope" "$caller_dir")"
+target_root="$(resolve_target_root "$scope" "$caller_dir")"
+readonly target_root
 readonly payload_root="$repository_root/resources/payload"
-readonly state_root="$(resolve_state_root)"
+state_root="$(resolve_state_root)"
+readonly state_root
 
 if [[ "$scope" == global ]]; then
   readonly agents_path="$target_root/.codex/AGENTS.md"
   readonly claude_path="$target_root/.claude/CLAUDE.md"
   readonly claude_import='@~/.codex/AGENTS.md'
-  readonly agents_display='~/.codex/AGENTS.md'
-  readonly claude_display='~/.claude/CLAUDE.md'
-  readonly skills_display='~/.agents/skills/'
+  readonly agents_display="$home_display/.codex/AGENTS.md"
+  readonly claude_display="$home_display/.claude/CLAUDE.md"
+  readonly skills_display="$home_display/.agents/skills/"
 else
   readonly agents_path="$target_root/AGENTS.md"
   readonly claude_path="$target_root/CLAUDE.md"

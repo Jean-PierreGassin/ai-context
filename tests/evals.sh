@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# shellcheck disable=SC1007 # CDPATH= is an env prefix for the cd, not an assignment; it stops cd echoing its target
-repository_root="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+unset CDPATH
+repository_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly repository_root
 
 fixture_root="$(mktemp -d "${TMPDIR:-/tmp}/ai-context-evals.XXXXXX")"
@@ -22,7 +22,6 @@ validator_accepts() {
   python3 "$validator" >/dev/null 2>&1
 }
 
-# Replaces a file, asserts the validator rejects it, and restores it either way.
 assert_rejects() {
   local description="$1"
   local target="$2"
@@ -78,7 +77,6 @@ assert_behaviour_schema_enforced() {
     '{"skill_name": "write-code", "evals": [{"id": "a", "prompt": "p", "expectations": ["e"], "fixture": "fixtures/absent"}]}'
 }
 
-# Each mutation is derived from the real file, so only the defect under test differs from it.
 assert_skill_resources_checked() {
   assert_rejects 'a skill reference to a missing path' "$write_code_skill" \
     "$(cat "$write_code_skill")

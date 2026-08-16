@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2154 # set by the sourcing script: scope, is_verbose, is_interactive, is_planning
 
 info() {
   if command -v gum >/dev/null 2>&1; then gum log --level info "$1"; else printf 'INFO %s\n' "$1"; fi
@@ -91,16 +92,25 @@ record_change() {
       *CLAUDE.md*) record_planned_target 'Claude instructions' "${change_message##* }" ;;
       *AGENTS.md*) record_planned_target 'Shared instructions' "${change_message##* }" ;;
       *\.agents/*)
-        [[ "$scope" == global ]] && record_planned_target 'Shared skills and hooks' '~/.agents/' \
-          || record_planned_target 'Shared skills and hooks' '.agents/'
+        if [[ "$scope" == global ]]; then
+          record_planned_target 'Shared skills and hooks' "$home_display/.agents/"
+        else
+          record_planned_target 'Shared skills and hooks' '.agents/'
+        fi
         ;;
       *\.claude/*)
-        [[ "$scope" == global ]] && record_planned_target 'Claude configuration' '~/.claude/' \
-          || record_planned_target 'Claude configuration' '.claude/'
+        if [[ "$scope" == global ]]; then
+          record_planned_target 'Claude configuration' "$home_display/.claude/"
+        else
+          record_planned_target 'Claude configuration' '.claude/'
+        fi
         ;;
       *\.codex/*)
-        [[ "$scope" == global ]] && record_planned_target 'Codex configuration' '~/.codex/' \
-          || record_planned_target 'Codex configuration' '.codex/'
+        if [[ "$scope" == global ]]; then
+          record_planned_target 'Codex configuration' "$home_display/.codex/"
+        else
+          record_planned_target 'Codex configuration' '.codex/'
+        fi
         ;;
     esac
     case "$change_message" in

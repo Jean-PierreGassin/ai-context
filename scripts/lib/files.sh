@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2154 # set by the sourcing script: is_dry_run, force_install, is_interactive
 
 ensure_directory() {
   [[ "$is_dry_run" == true ]] || mkdir -p "$1"

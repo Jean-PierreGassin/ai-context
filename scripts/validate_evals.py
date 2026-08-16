@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""Validate the skill eval corpus, and the skill resources the corpus is written against.
-
-Deterministic and offline: it checks structure, not model behaviour. Run it through tests/evals.sh.
-"""
-
 from __future__ import annotations
 
 import json
@@ -78,7 +73,6 @@ def discover_skills() -> list[str]:
 
 
 def check_supporting_paths(skill: str) -> None:
-    """Every references/assets/examples/scripts path a skill mentions resolves against its own directory."""
     skill_root = SKILLS_ROOT / skill
     for document in sorted(skill_root.rglob("*.md")):
         for reference in sorted(set(SUPPORTING_PATH.findall(document.read_text()))):
@@ -134,7 +128,6 @@ def check_triggers(skill: str) -> None:
 
 
 def check_trigger_case(path: pathlib.Path, entry, label: str) -> bool | None:
-    """Reports every problem with one trigger case, and returns its outcome where it has a valid one."""
     if not isinstance(entry, dict):
         fail(path, f"{label} is not an object")
         return None
@@ -175,7 +168,6 @@ def check_behaviour(skill: str) -> None:
 
 
 def check_behaviour_case(path: pathlib.Path, skill: str, case, label: str, seen: set[str]) -> None:
-    """Reports every problem with one behaviour case, recording its id so later duplicates are caught."""
     if not isinstance(case, dict):
         fail(path, f"{label} is not an object")
         return

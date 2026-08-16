@@ -8,7 +8,9 @@ readonly requested_dry_run="${4:?dry-run setting is required}"
 readonly is_interactive="${5:?interactive setting is required}"
 readonly replace_config="${6:?replace-config setting is required}"
 readonly is_verbose="${7:-false}"
-readonly repository_root="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+unset CDPATH
+repository_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly repository_root
 source "$repository_root/scripts/lib.sh"
 
 changed_count=0
@@ -19,7 +21,8 @@ is_dry_run="$requested_dry_run"
 is_planning=false
 
 readonly payload_root="$repository_root/resources/payload"
-readonly target_root="$(resolve_target_root "$scope" "$caller_dir")"
+target_root="$(resolve_target_root "$scope" "$caller_dir")"
+readonly target_root
 
 install_project() {
   while IFS= read -r -d '' source_path; do
@@ -45,31 +48,32 @@ install_project() {
 }
 
 install_global() {
-  copy_managed_file "$payload_root/AGENTS.md" "$target_root/.codex/AGENTS.md" '~/.codex/AGENTS.md'
+  copy_managed_file "$payload_root/AGENTS.md" "$target_root/.codex/AGENTS.md" "$home_display/.codex/AGENTS.md"
 
   while IFS= read -r -d '' source_path; do
     local relative_path="${source_path#"$payload_root/.agents/"}"
-    copy_managed_file "$source_path" "$target_root/.agents/$relative_path" "~/.agents/$relative_path"
+    copy_managed_file "$source_path" "$target_root/.agents/$relative_path" "$home_display/.agents/$relative_path"
   done < <(find "$payload_root/.agents" -type f -print0 | sort -z)
 
   while IFS= read -r -d '' source_path; do
     local relative_path="${source_path#"$payload_root/.claude/"}"
     case "$relative_path" in settings.json) continue ;; esac
-    copy_managed_file "$source_path" "$target_root/.claude/$relative_path" "~/.claude/$relative_path"
+    copy_managed_file "$source_path" "$target_root/.claude/$relative_path" "$home_display/.claude/$relative_path"
   done < <(find "$payload_root/.claude" -type f -print0 | sort -z)
 
   local global_claude_instructions
   global_claude_instructions="$(mktemp "${TMPDIR:-/tmp}/ai-context-instructions.XXXXXX")"
   printf '@~/.codex/AGENTS.md\n' >"$global_claude_instructions"
-  copy_managed_file "$global_claude_instructions" "$target_root/.claude/CLAUDE.md" '~/.claude/CLAUDE.md'
+  copy_managed_file "$global_claude_instructions" "$target_root/.claude/CLAUDE.md" "$home_display/.claude/CLAUDE.md"
   rm -f "$global_claude_instructions"
 
   local global_claude_settings
   global_claude_settings="$(mktemp "${TMPDIR:-/tmp}/ai-context-claude.XXXXXX")"
+  # shellcheck disable=SC2016 # the patterns match, and emit, literal $CLAUDE_PROJECT_DIR and $HOME text
   sed -e 's|\$CLAUDE_PROJECT_DIR/.agents/|\$HOME/.agents/|g' \
     -e 's|\$CLAUDE_PROJECT_DIR/.claude/|\$HOME/.claude/|g' \
     "$payload_root/.claude/settings.json" >"$global_claude_settings"
-  install_structured_configuration "$global_claude_settings" '~/'
+  install_structured_configuration "$global_claude_settings" "$home_display/"
   rm -f "$global_claude_settings"
 }
 
@@ -130,7 +134,8 @@ failure_count=0
 is_dry_run=false
 is_planning=false
 
-readonly state_root="$(resolve_state_root)"
+state_root="$(resolve_state_root)"
+readonly state_root
 snapshot_id="$(python3 "$repository_root/scripts/state.py" snapshot \
   --scope "$scope" \
   --target "$target_root" \
