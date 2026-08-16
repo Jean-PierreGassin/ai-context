@@ -106,7 +106,20 @@ line count, which is not a reason to change.
   match it
 - Remove comments that aren't carrying weight: annotations that restate a declared type, inline blocks narrating a
   branch (hoist the rationale into the doc comment), and anything a named argument or well-named method already makes
-  obvious. Config entries stay comment-free; their reasoning belongs in the PR or the docs
+  obvious
+
+Config files and flat lists are the exception, because they have no structure of their own to group by. Nothing in a
+list of ignore rules, packages, or hosts says where one block ends and the next begins, or why. Label each block with a
+banner, sized to its title, and leave the entries under it uncommented:
+
+```
+########################
+# Third Party/Packages #
+########################
+```
+
+The banner names what the block is, not why each entry is in it. A single entry that needs its own explanation is
+usually a sign the grouping is wrong.
 
 ## Keep the diff to the task
 
