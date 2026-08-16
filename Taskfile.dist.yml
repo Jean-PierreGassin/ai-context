@@ -108,3 +108,4 @@ tasks:
     cmds:
       - ./tests/install.sh
       - ./tests/cli.sh
+      - ./tests/evals.sh
