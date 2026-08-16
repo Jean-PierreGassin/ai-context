@@ -1,9 +1,11 @@
+.DS_Store
+/.idea/
+
 /vendor/
 /composer.lock
 /.phpunit.cache/
-/.DS_Store
 /.tmp-*/
+
 /Taskfile.yml
 /.agents/
 /.codex/
-/.idea/

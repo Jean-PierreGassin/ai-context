@@ -5,7 +5,7 @@ unset CDPATH
 repository_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly repository_root
 
-notice() {
+error() {
   printf '%s\n' "$*" >&2
 }
 
@@ -16,8 +16,8 @@ collect_scripts() {
 
 main() {
   if ! command -v shellcheck >/dev/null 2>&1; then
-    notice 'shellcheck not found, skipping the shell check. Install it to run this suite in full.'
-    return 0
+    error 'shellcheck is required: https://www.shellcheck.net/'
+    return 1
   fi
 
   local scripts=()

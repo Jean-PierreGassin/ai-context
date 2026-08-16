@@ -88,13 +88,13 @@ The report checks the required tools, target files, instruction import, configur
 
 Use these options after `ai-context install`:
 
-| Option | Result |
-|---|---|
-| `--global` | Install global configuration |
-| `--dry-run` | Preview changes and stop |
-| `--verbose` | List every path in the preview |
-| `--no-interaction` | Apply the preview without a prompt |
-| `--force` | Replace changed files that `ai-context` manages |
+| Option             | Result                                                |
+|--------------------|-------------------------------------------------------|
+| `--global`         | Install global configuration                          |
+| `--dry-run`        | Preview changes and stop                              |
+| `--verbose`        | List every path in the preview                        |
+| `--no-interaction` | Apply the preview without a prompt                    |
+| `--force`          | Replace changed files that `ai-context` manages       |
 | `--replace-config` | Replace complete Claude and Codex configuration files |
 
 By default, the installer merges `.claude/settings.json`, `.codex/config.toml`, and `.codex/hooks.json`. Use `--replace-config` only when you want to remove configuration that is not part of `ai-context`.
@@ -183,28 +183,23 @@ Run `ai-context install` or `ai-context install --global` again to preview and a
 
 ## Skill layout
 
-Skills live in `resources/payload/.agents/skills/`, which is the canonical source. The files under
-`resources/payload/.claude/skills/` are thin adapters that redirect to it, so a skill body is never duplicated.
+`resources/payload/.agents/skills/` holds the skills. The files in `resources/payload/.claude/skills/` are thin adapters. Each one points at a skill in `.agents` and does not copy its content.
 
-Each skill uses as much of this structure as it needs:
+A skill uses the parts of this structure that it needs:
 
-| Path         | Holds                                                                     |
-|--------------|---------------------------------------------------------------------------|
-| `SKILL.md`   | Triggering, the high-level workflow, the rules that always apply, and routing to everything below |
-| `references/`| Normative guidance that applies only to a language, framework, or task variant |
-| `examples/`  | Complete illustrative outputs, not rules                                  |
-| `assets/`    | Templates and artifacts meant to be copied and filled in                  |
-| `scripts/`   | Deterministic enforcement                                                 |
+| Path          | Holds                                                                         |
+|---------------|-------------------------------------------------------------------------------|
+| `SKILL.md`    | The trigger, the workflow, the rules that always apply, and links to the rest |
+| `references/` | Rules for one language, framework, or task type                               |
+| `examples/`   | Finished examples of the output                                               |
+| `assets/`     | Templates to fill in                                                          |
+| `scripts/`    | Automated checks                                                              |
 
-A rule that applies every time the skill runs belongs in `SKILL.md`. A small skill stays a single `SKILL.md`: do not
-split one into references for the sake of consistency.
+A rule that applies every time the skill runs goes in `SKILL.md`. A small skill stays one file. Do not split it to match the shape of a larger one.
 
-`evals/` holds trigger and behaviour test data for developing these skills. It is repository-only and is never
-installed into a project. See [evals/README.md](evals/README.md) for the schema and how a runner consumes it.
+`evals/` holds trigger and behaviour test data for these skills. The installer does not copy it into a project. [evals/README.md](evals/README.md) describes the schema and how a runner reads it.
 
-Run `task test` after changing a skill. It runs the installer, CLI, and eval suites, then checks every shell script
-with [ShellCheck](https://www.shellcheck.net/). Install ShellCheck to run that last step; without it the step reports
-that it was skipped.
+Run `task test` after changing a skill. It needs [ShellCheck](https://www.shellcheck.net/).
 
 ## Supported systems
 
