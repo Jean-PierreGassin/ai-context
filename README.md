@@ -1,7 +1,12 @@
 # Agnostic Agentic Engineering Context
 
-`ai-context` installs shared instructions, skills, hooks, and safety settings for Codex and Claude Code. Install it in a
-project or globally.
+`ai-context` installs shared instructions, skills, hooks, and safety settings for coding agents. Install it in a project
+or globally.
+
+The instructions and skills use open formats: `AGENTS.md` for the instructions, and one `SKILL.md` per skill. They
+install to `AGENTS.md` and `.agents/`, outside any vendor directory, so nothing about them is tied to one agent. Point
+any harness that reads those formats at them. `ai-context` also writes the adapters and safety settings that Claude Code
+and Codex need, which is what `CLAUDE.md`, `.claude/`, and `.codex/` are for.
 
 The installer shows a preview before it changes files. It keeps structured settings that it does not manage and saves a
 version that you can restore.
@@ -197,8 +202,10 @@ command when you need to combine install options such as `--global`, `--force`, 
 
 ## Skill layout
 
-`resources/payload/.agents/skills/` holds the skills. The files in `resources/payload/.claude/skills/` are thin
-adapters. Each one points at a skill in `.agents` and does not copy its content.
+`resources/payload/.agents/skills/` holds the skills. Write them there. The files in
+`resources/payload/.claude/skills/` are thin adapters that exist only because Claude Code looks in `.claude/skills/`.
+Each one points at a skill in `.agents` and does not copy its content, so a second harness costs another adapter rather
+than another copy of the skill.
 
 A skill uses the parts of this structure that it needs:
 
