@@ -58,8 +58,8 @@ class OrderService
 {
     public function create(CreateOrderPayload $payload): OrderRecord
     {
-        $order = $this->orders->create($payload);
-        $this->ledger->recordSale($order);
+        $order = $this->orders->create(payload: $payload);
+        $this->ledger->recordSale(order: $order);
 
         return $order;
     }
@@ -73,8 +73,8 @@ class OrderService
     public function create(CreateOrderPayload $payload): OrderRecord
     {
         return DB::transaction(function () use ($payload) {
-            $order = $this->orders->create($payload);
-            $this->ledger->recordSale($order);
+            $order = $this->orders->create(payload: $payload);
+            $this->ledger->recordSale(order: $order);
 
             return $order;
         });
@@ -204,7 +204,7 @@ class InvoiceRepository
 {
     public function remindOverdue(ReminderService $reminders): void
     {
-        Invoice::overdue()->get()->each(fn (Invoice $invoice) => $reminders->send($invoice));
+        Invoice::overdue()->get()->each(fn (Invoice $invoice) => $reminders->send(invoice: $invoice));
     }
 }
 ```
@@ -231,7 +231,7 @@ class ReminderService
     public function sendOverdueReminders(): void
     {
         $this->invoices->chunkOverdue(
-            fn (Collection $overdueInvoices) => $overdueInvoices->each(fn (Invoice $invoice) => $this->send($invoice)),
+            fn (Collection $overdueInvoices) => $overdueInvoices->each(fn (Invoice $invoice) => $this->send(invoice: $invoice)),
         );
     }
 
@@ -386,7 +386,9 @@ public function store(Request $request): RedirectResponse
         'line_items' => 'required|array',
     ]);
 
-    $order = $this->orderService->create(CreateOrderPayload::fromArray($request->all()));
+    $order = $this->orderService->create(
+        payload: CreateOrderPayload::fromArray(attributes: $request->all()),
+    );
 
     return redirect()->route(route: 'orders.show', parameters: $order->id);
 }
@@ -396,7 +398,7 @@ public function store(Request $request): RedirectResponse
 // Good
 public function store(StoreOrderRequest $request): RedirectResponse
 {
-    $order = $this->orderService->create($request->toPayload());
+    $order = $this->orderService->create(payload: $request->toPayload());
 
     return redirect()->route(route: 'orders.show', parameters: $order->id);
 }
@@ -419,7 +421,7 @@ class StoreOrderRequest extends FormRequest
 
     public function toPayload(): CreateOrderPayload
     {
-        return CreateOrderPayload::fromArray($this->validated());
+        return CreateOrderPayload::fromArray(attributes: $this->validated());
     }
 }
 ```
@@ -440,7 +442,7 @@ public function store(StoreOrderRequest $request): RedirectResponse
 // Good
 public function store(StoreOrderRequest $request): RedirectResponse
 {
-    $order = $this->orderService->create($request->toPayload());
+    $order = $this->orderService->create(payload: $request->toPayload());
 
     return redirect()->route(route: 'orders.show', parameters: $order->id);
 }
@@ -459,7 +461,7 @@ class OrderService
             'line_items' => $payload->lineItems,
         ]);
 
-        return OrderRecord::fromModel($order);
+        return OrderRecord::fromModel(order: $order);
     }
 }
 ```
@@ -475,7 +477,7 @@ class OrderService
 
     public function create(CreateOrderPayload $payload): OrderRecord
     {
-        return $this->orders->create($payload);
+        return $this->orders->create(payload: $payload);
     }
 }
 
@@ -488,7 +490,7 @@ class OrderRepository
             'line_items' => $payload->lineItems,
         ]);
 
-        return OrderRecord::fromModel($order);
+        return OrderRecord::fromModel(order: $order);
     }
 }
 ```
@@ -499,7 +501,7 @@ class OrderRepository
 // Bad
 public function store(StoreOrderRequest $request): RedirectResponse
 {
-    $order = $this->orderService->create($request->validated());
+    $order = $this->orderService->create(attributes: $request->validated());
 
     return redirect()->route(route: 'orders.show', parameters: $order->id);
 }
@@ -508,7 +510,7 @@ class OrderService
 {
     public function create(array $attributes): OrderRecord
     {
-        return $this->orders->create($attributes);
+        return $this->orders->create(attributes: $attributes);
     }
 }
 ```
@@ -517,7 +519,7 @@ class OrderService
 // Good
 public function store(StoreOrderRequest $request): RedirectResponse
 {
-    $order = $this->orderService->create($request->toPayload());
+    $order = $this->orderService->create(payload: $request->toPayload());
 
     return redirect()->route(route: 'orders.show', parameters: $order->id);
 }
@@ -526,7 +528,7 @@ class StoreOrderRequest extends FormRequest
 {
     public function toPayload(): CreateOrderPayload
     {
-        return CreateOrderPayload::fromArray($this->validated());
+        return CreateOrderPayload::fromArray(attributes: $this->validated());
     }
 }
 
@@ -551,7 +553,7 @@ class OrderService
 {
     public function create(CreateOrderPayload $payload): OrderRecord
     {
-        return $this->orders->create($payload);
+        return $this->orders->create(payload: $payload);
     }
 }
 ```
@@ -645,7 +647,7 @@ class OrderRepository
         $order = Order::findOrFail($orderRecord->id);
         $order->update(['customer_id' => $orderRecord->customerId, 'status' => $orderRecord->status]);
 
-        return OrderRecord::fromModel($order);
+        return OrderRecord::fromModel(order: $order);
     }
 }
 ```
@@ -669,7 +671,7 @@ class OrderRepository
         $order = Order::findOrFail($payload->id);
         $order->update(['customer_id' => $payload->customerId, 'status' => $payload->status]);
 
-        return OrderRecord::fromModel($order);
+        return OrderRecord::fromModel(order: $order);
     }
 }
 
@@ -682,7 +684,7 @@ class OrderService
 
     public function ship(int $orderId, int $customerId): OrderRecord
     {
-        return $this->orders->update(new UpdateOrderPayload(
+        return $this->orders->update(payload: new UpdateOrderPayload(
             id: $orderId,
             customerId: $customerId,
             status: OrderStatus::Shipped,
@@ -786,7 +788,7 @@ class OrderResource extends BaseResource
 {
     public function toArray(Request $request): array
     {
-        return ['shipped_at' => $this->time($this->shippedAt)];
+        return ['shipped_at' => $this->time(time: $this->shippedAt)];
     }
 }
 ```
@@ -820,7 +822,7 @@ abstract class JsonApiResource extends JsonResource
         return [
             'type' => $this->toType(),
             'id' => (string) $this->id,
-            'attributes' => $this->toAttributes($request),
+            'attributes' => $this->toAttributes(request: $request),
         ];
     }
 }

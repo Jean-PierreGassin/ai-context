@@ -285,8 +285,11 @@ createInvoice(
 createInvoice(customer: $customer);
 ```
 
-Applies to every first-party call, single-argument ones included. Leave PHP built-ins, framework and third-party calls
-positional; spreads and first-class callable syntax cannot take names.
+Applies wherever you own the signature, single-argument calls included: a name you control cannot be renamed out from
+under the call site. Where the signature is not yours (PHP built-ins, framework and third-party methods, and
+constructors inherited from them) positional is the default, and naming is still worth it where the name is what makes
+a bare literal readable: `json_decode($body, associative: true, ...)`, `Route::get(uri: ..., action: ...)`. Spreads and
+first-class callable syntax cannot take names.
 
 #### Promote constructor parameters directly to properties, don't hand-assign them
 
@@ -417,7 +420,7 @@ foreach ($overdueInvoices as $invoice) {
 // Bad
 function formatCustomerName(Customer $customer): string
 {
-    if ($customer->isVerified() && $customer->hasRole('client')) {
+    if ($customer->isVerified() && $customer->hasRole(role: 'client')) {
         return "Mr. $customer->firstName $customer->middleName $customer->lastName";
     }
 
@@ -434,7 +437,7 @@ function formatCustomerName(Customer $customer): string
 
 function isVerifiedClient(Customer $customer): bool
 {
-    return $customer->isVerified() && $customer->hasRole('client');
+    return $customer->isVerified() && $customer->hasRole(role: 'client');
 }
 
 function fullCustomerName(Customer $customer): string
@@ -456,7 +459,7 @@ function charge(Order $order): bool
 {
     if ($order->isPaid()) {
         if ($order->hasGateway()) {
-            return $this->gateway->process($order);
+            return $this->gateway->process(order: $order);
         }
     }
     return false;
@@ -470,7 +473,7 @@ function charge(Order $order): bool
     if (!$order->isPaid() || !$order->hasGateway()) {
         return false;
     }
-    return $this->gateway->process($order);
+    return $this->gateway->process(order: $order);
 }
 ```
 
@@ -486,7 +489,7 @@ function charge(Order $order): bool
     if (!$order->hasGateway()) {
         return false;
     }
-    return $this->gateway->process($order);
+    return $this->gateway->process(order: $order);
 }
 ```
 
@@ -497,7 +500,7 @@ function charge(Order $order): bool
     if (!$order->isPaid() || !$order->hasGateway()) {
         return false;
     }
-    return $this->gateway->process($order);
+    return $this->gateway->process(order: $order);
 }
 ```
 
@@ -547,12 +550,12 @@ if ($workflow->isLegacyFormat()) {
 // Bad
 function createEmail(Bundle $bundle): Response
 {
-    $token = $this->login($bundle);
+    $token = $this->login(bundle: $bundle);
     return $this->client->post($this->emailUrl, ['headers' => ['Authorization' => $token]]);
 }
 function createSms(Bundle $bundle): Response
 {
-    $token = $this->login($bundle);
+    $token = $this->login(bundle: $bundle);
     return $this->client->post($this->smsUrl, ['headers' => ['Authorization' => $token]]);
 }
 ```
@@ -561,11 +564,19 @@ function createSms(Bundle $bundle): Response
 // Good
 function createEmail(Bundle $bundle): Response
 {
-    return $this->perform($bundle, $this->emailConfig, $this->buildEmailBody($bundle));
+    return $this->perform(
+        bundle: $bundle,
+        config: $this->emailConfig,
+        body: $this->buildEmailBody(bundle: $bundle),
+    );
 }
 function createSms(Bundle $bundle): Response
 {
-    return $this->perform($bundle, $this->smsConfig, $this->buildSmsBody($bundle));
+    return $this->perform(
+        bundle: $bundle,
+        config: $this->smsConfig,
+        body: $this->buildSmsBody(bundle: $bundle),
+    );
 }
 ```
 
@@ -692,7 +703,7 @@ function charge(Order $order): bool
 {
     $gateway = new PaymentGateway();
 
-    return $gateway->process($order);
+    return $gateway->process(order: $order);
 }
 ```
 
@@ -707,7 +718,7 @@ class OrderProcessor
 
     function charge(Order $order): bool
     {
-        return $this->gateway->process($order);
+        return $this->gateway->process(order: $order);
     }
 }
 ```
@@ -718,7 +729,7 @@ class OrderProcessor
 // Bad
 function charge($amount, $gateway)
 {
-    return $gateway->process($amount);
+    return $gateway->process(amount: $amount);
 }
 private $customer;
 ```
@@ -727,7 +738,7 @@ private $customer;
 // Good
 function charge(int $amount, PaymentGateway $gateway): bool
 {
-    return $gateway->process($amount);
+    return $gateway->process(amount: $amount);
 }
 private readonly Customer $customer;
 ```
@@ -757,9 +768,9 @@ $lineItems = withTax(lineItems: $lineItems);
 function handle(Step $step)
 {
     if ($step->type === 'js') {
-        return $this->runJs($step);
+        return $this->runJs(step: $step);
     } elseif ($step->type === 'proxy_choice') {
-        return $this->runProxyChoice($step);
+        return $this->runProxyChoice(step: $step);
     }
 }
 ```
@@ -777,7 +788,7 @@ class JsTaskHandler implements TaskHandler
         if (!$step->isJs()) {
             return $next($step);
         }
-        return $this->runJs($step);
+        return $this->runJs(step: $step);
     }
 }
 ```
@@ -932,7 +943,7 @@ final readonly class SchemaGraph implements JsonSerializable
 // Bad
 public function render(array $invoice): string
 {
-    return $this->view($invoice['customer']['name'], $invoice['lines']);
+    return $this->view(customerName: $invoice['customer']['name'], lines: $invoice['lines']);
 }
 ```
 
@@ -940,7 +951,7 @@ public function render(array $invoice): string
 // Good
 public function render(Invoice $invoice): string
 {
-    return $this->view($invoice->customer->name, $invoice->lines);
+    return $this->view(customerName: $invoice->customer->name, lines: $invoice->lines);
 }
 
 final readonly class Invoice

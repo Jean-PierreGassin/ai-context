@@ -41,7 +41,7 @@ it('calculates the checkout total with tax', function () {
 ```php
 // Good - unit test the calculation directly; reserve the feature test for the checkout journey itself
 it('total includes tax', function () {
-    $order = new Order([new LineItem(price: 100, taxRate: 0.1)]);
+    $order = new Order(lineItems: [new LineItem(price: 100, taxRate: 0.1)]);
     expect($order->total())->toBe(110);
 });
 
@@ -59,7 +59,7 @@ public function test_charge_calls_gateway_process_once(): void
 {
     $gateway = $this->createMock(PaymentGateway::class);
     $gateway->expects($this->once())->method('process');
-    (new Invoice($gateway))->charge(1000);
+    (new Invoice(gateway: $gateway))->charge(amount: 1000);
 }
 ```
 
@@ -67,8 +67,8 @@ public function test_charge_calls_gateway_process_once(): void
 // Good - asserts on the outcome a caller actually depends on
 public function test_charge_marks_invoice_as_paid(): void
 {
-    $invoice = new Invoice(new FakeGateway(shouldSucceed: true));
-    $invoice->charge(1000);
+    $invoice = new Invoice(gateway: new FakeGateway(shouldSucceed: true));
+    $invoice->charge(amount: 1000);
     $this->assertTrue($invoice->isPaid());
 }
 ```
@@ -78,8 +78,8 @@ public function test_charge_marks_invoice_as_paid(): void
 ```php
 // Bad - vague name, setup unrelated to the assertion, breaks if internals are refactored
 it('works', function () {
-    $invoice = new Invoice(new FakeGateway(shouldSucceed: true), new NullLogger(), new NullMailer());
-    $invoice->charge(1000);
+    $invoice = new Invoice(gateway: new FakeGateway(shouldSucceed: true), logger: new NullLogger(), mailer: new NullMailer());
+    $invoice->charge(amount: 1000);
     expect($invoice->getInternalChargeAttempts())->toHaveCount(1);
 });
 ```
@@ -87,8 +87,8 @@ it('works', function () {
 ```php
 // Good - name states the behavior, setup only what the assertion needs
 it('marks the invoice as paid after a successful charge', function () {
-    $invoice = new Invoice(new FakeGateway(shouldSucceed: true));
-    $invoice->charge(1000);
+    $invoice = new Invoice(gateway: new FakeGateway(shouldSucceed: true));
+    $invoice->charge(amount: 1000);
     expect($invoice->isPaid())->toBeTrue();
 });
 ```
@@ -121,7 +121,7 @@ it('total includes tax', function () {
     $lineItem = Mockery::mock(LineItem::class);
     $lineItem->shouldReceive('price')->andReturn(100);
     $lineItem->shouldReceive('taxRate')->andReturn(0.1);
-    $order = new Order([$lineItem]);
+    $order = new Order(lineItems: [$lineItem]);
     expect($order->total())->toBe(110);
 });
 ```
@@ -129,7 +129,7 @@ it('total includes tax', function () {
 ```php
 // Good - construct the real value object, mock only the external boundary
 it('total includes tax', function () {
-    $order = new Order([new LineItem(price: 100, taxRate: 0.1)]);
+    $order = new Order(lineItems: [new LineItem(price: 100, taxRate: 0.1)]);
     expect($order->total())->toBe(110);
 });
 ```
@@ -140,17 +140,17 @@ it('total includes tax', function () {
 // Bad
 public function test_discount_for_gold_tier(): void
 {
-    $this->assertEquals(0.10, (new Customer('gold'))->discountRate());
+    $this->assertEquals(0.10, (new Customer(tier: 'gold'))->discountRate());
 }
 
 public function test_discount_for_silver_tier(): void
 {
-    $this->assertEquals(0.05, (new Customer('silver'))->discountRate());
+    $this->assertEquals(0.05, (new Customer(tier: 'silver'))->discountRate());
 }
 
 public function test_discount_for_none_tier(): void
 {
-    $this->assertEquals(0.0, (new Customer('none'))->discountRate());
+    $this->assertEquals(0.0, (new Customer(tier: 'none'))->discountRate());
 }
 ```
 
@@ -159,7 +159,7 @@ public function test_discount_for_none_tier(): void
 #[DataProvider('tierDiscounts')]
 public function test_discount_rate_matches_tier(string $tier, float $expectedRate): void
 {
-    $this->assertEquals($expectedRate, (new Customer($tier))->discountRate());
+    $this->assertEquals($expectedRate, (new Customer(tier: $tier))->discountRate());
 }
 
 public static function tierDiscounts(): array
@@ -207,7 +207,7 @@ public function test_workflow_executes_all_branching_steps(): void
 // Good - fixture loaded through a named helper, test stays focused on the assertion
 public function test_workflow_executes_all_branching_steps(): void
 {
-    $workflow = $this->loadWorkflow('branching-workflow.json');
+    $workflow = $this->loadWorkflow(fixture: 'branching-workflow.json');
 }
 ```
 
@@ -216,25 +216,25 @@ public function test_workflow_executes_all_branching_steps(): void
 ```php
 // Bad - only covers the happy path, ignoring the other branches of Invoice::charge()
 it('charge succeeds', function () {
-    $invoice = new Invoice(new FakeGateway(shouldSucceed: true));
-    expect($invoice->charge(1000))->toBeTrue();
+    $invoice = new Invoice(gateway: new FakeGateway(shouldSucceed: true));
+    expect($invoice->charge(amount: 1000))->toBeTrue();
 });
 ```
 
 ```php
 // Good - matches every branch in Invoice::charge()
 it('charge succeeds', function () {
-    $invoice = new Invoice(new FakeGateway(shouldSucceed: true));
-    expect($invoice->charge(1000))->toBeTrue();
+    $invoice = new Invoice(gateway: new FakeGateway(shouldSucceed: true));
+    expect($invoice->charge(amount: 1000))->toBeTrue();
 });
 
 it('charge throws when amount is zero', function () {
-    (new Invoice(new FakeGateway(shouldSucceed: true)))->charge(0);
+    (new Invoice(gateway: new FakeGateway(shouldSucceed: true)))->charge(amount: 0);
 })->throws(InvalidAmountException::class);
 
 it('charge returns false when the gateway declines', function () {
-    $invoice = new Invoice(new FakeGateway(shouldSucceed: false));
-    expect($invoice->charge(1000))->toBeFalse();
+    $invoice = new Invoice(gateway: new FakeGateway(shouldSucceed: false));
+    expect($invoice->charge(amount: 1000))->toBeFalse();
 });
 ```
 
@@ -246,7 +246,7 @@ public function test_send_welcome_email(): void
 {
     $mailer = $this->createMock(Mailer::class);
     $mailer->method('send')->willReturn(true);
-    $this->assertTrue((new Onboarding($mailer))->sendWelcomeEmail($user));
+    $this->assertTrue((new Onboarding(mailer: $mailer))->sendWelcomeEmail(user: $user));
 }
 ```
 
@@ -255,7 +255,7 @@ public function test_send_welcome_email(): void
 public function test_send_welcome_email(): void
 {
     $mailer = new RecordingMailer();
-    (new Onboarding($mailer))->sendWelcomeEmail($user);
+    (new Onboarding(mailer: $mailer))->sendWelcomeEmail(user: $user);
     $this->assertEquals($user->email, $mailer->lastRecipient());
 }
 ```
