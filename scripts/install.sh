@@ -55,11 +55,22 @@ install_global() {
     copy_managed_file "$source_path" "$target_root/.agents/$relative_path" "$home_display/.agents/$relative_path"
   done < <(find "$payload_root/.agents" -type f -print0 | sort -z)
 
+  local global_skill_adapter
+  global_skill_adapter="$(mktemp "${TMPDIR:-/tmp}/ai-context-adapter.XXXXXX")"
   while IFS= read -r -d '' source_path; do
     local relative_path="${source_path#"$payload_root/.claude/"}"
-    case "$relative_path" in settings.json) continue ;; esac
+    case "$relative_path" in
+      settings.json) continue ;;
+      skills/*/SKILL.md)
+        sed "s|\`\.agents/skills/|\`~/.agents/skills/|g" "$source_path" >"$global_skill_adapter"
+        match_file_mode "$source_path" "$global_skill_adapter"
+        copy_managed_file "$global_skill_adapter" "$target_root/.claude/$relative_path" "$home_display/.claude/$relative_path"
+        continue
+        ;;
+    esac
     copy_managed_file "$source_path" "$target_root/.claude/$relative_path" "$home_display/.claude/$relative_path"
   done < <(find "$payload_root/.claude" -type f -print0 | sort -z)
+  rm -f "$global_skill_adapter"
 
   local global_claude_instructions
   global_claude_instructions="$(mktemp "${TMPDIR:-/tmp}/ai-context-instructions.XXXXXX")"

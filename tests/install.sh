@@ -142,8 +142,11 @@ cmp -s "$repository_root/resources/payload/.agents/skills/write-plan/assets/plan
   "$global_root/.agents/skills/write-plan/assets/plan-artifact.html"
 cmp -s "$repository_root/resources/payload/.agents/skills/write-plan/references/change-stack.md" \
   "$global_root/.agents/skills/write-plan/references/change-stack.md"
-cmp -s "$repository_root/resources/payload/.claude/skills/write-plan/SKILL.md" \
-  "$global_root/.claude/skills/write-plan/SKILL.md"
+grep -Fq "See \`~/.agents/skills/write-plan/SKILL.md\`" "$global_root/.claude/skills/write-plan/SKILL.md"
+if grep -Fq "See \`.agents/skills/" "$global_root/.claude/skills/write-plan/SKILL.md"; then
+  printf 'global install left a project-relative skill pointer\n' >&2
+  exit 1
+fi
 assert_jq '.enabledPlugins["personal@example"] == true' "$global_root/.claude/settings.json"
 assert_toml 'data["marketplaces"]["personal"]["source"] == "local"' "$global_root/.codex/config.toml"
 
