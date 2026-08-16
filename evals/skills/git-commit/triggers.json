@@ -41,7 +41,7 @@
   },
   {
     "query": "Rebase onto main and sort out the conflicts",
-    "should_trigger": false,
-    "note": "Replaying existing commits. No new commit is being reasoned about or written."
+    "should_trigger": true,
+    "note": "Resolving a conflict and continuing a rebase writes commits, so the splitting and message rules apply."
   }
 ]

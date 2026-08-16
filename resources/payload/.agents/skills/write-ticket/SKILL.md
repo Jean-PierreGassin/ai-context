@@ -1,6 +1,6 @@
 ---
 name: write-ticket
-description: Use when writing or editing a tracker ticket for a story, bug, task, or investigation.
+description: Use when writing or editing the content of a tracker ticket for a story, bug, task, or investigation.
 ---
 
 # Write Ticket
@@ -8,8 +8,8 @@ description: Use when writing or editing a tracker ticket for a story, bug, task
 A ticket is the guardrail around an outcome. It says what must be true when the work is done and which decisions are
 too expensive to get wrong, and it leaves the implementation to whoever picks it up.
 
-| Deliverable                                        | Skill         |
-|----------------------------------------------------|---------------|
+| Deliverable                                        | Skill          |
+|----------------------------------------------------|----------------|
 | A ticket in the tracker                            | `write-ticket` |
 | An implementation or decomposition plan outside it | `write-plan`   |
 
