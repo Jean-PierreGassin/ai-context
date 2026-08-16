@@ -110,61 +110,80 @@ run_install() {
   fi
 }
 
-is_dry_run=true
-is_planning=true
+plan_installation() {
+  is_dry_run=true
+  is_planning=true
 
-render_header 'ai-context install' "$scope" "$target_root"
-render_install_plan "$scope" "$target_root"
-run_install
-render_change_summary
+  render_header 'ai-context install' "$scope" "$target_root"
+  render_install_plan "$scope" "$target_root"
+  run_install
+  render_change_summary
 
-if [[ "$failure_count" -gt 0 ]]; then
-  error "plan failed: $failure_count failure(s), $changed_count change(s), $skipped_count skipped"
-  exit 1
-fi
-success "plan complete: $changed_count change(s), $skipped_count skipped"
+  if [[ "$failure_count" -gt 0 ]]; then
+    error "plan failed: $failure_count failure(s), $changed_count change(s), $skipped_count skipped"
+    return 1
+  fi
+  success "plan complete: $changed_count change(s), $skipped_count skipped"
+}
 
-if [[ "$requested_dry_run" == true ]]; then
-  success "dry run complete: $changed_count change(s), $skipped_count skipped"
-  exit 0
-fi
+save_pre_install_version() {
+  local snapshot_id snapshot_state snapshot_restore snapshot_remove saved_version_message
 
-if [[ "$is_interactive" == true && (! -t 0 || ! -t 1) ]]; then
-  info 'preview complete; use --no-interaction to apply changes without a prompt'
-  exit 0
-fi
-
-if ! confirm_action 'Apply this installation plan?'; then
-  info 'installation cancelled; no files or snapshots were changed'
-  exit 0
-fi
-
-changed_count=0
-skipped_count=0
-failure_count=0
-is_dry_run=false
-is_planning=false
-
-state_root="$(resolve_state_root)"
-readonly state_root
-snapshot_id="$(python3 "$repository_root/scripts/state.py" snapshot \
-  --scope "$scope" \
-  --target "$target_root" \
+  state_root="$(resolve_state_root)"
+  readonly state_root
+  snapshot_id="$(python3 "$repository_root/scripts/state.py" snapshot \
+    --scope "$scope" \
+    --target "$target_root" \
     --payload "$payload_root" \
     --state-root "$state_root")"
-snapshot_state="$(python3 "$repository_root/scripts/state.py" history \
-  --scope "$scope" \
-  --target "$target_root" \
-  --payload "$payload_root" \
-  --state-root "$state_root" | awk -F '\t' -v snapshot_id="$snapshot_id" '$1 == snapshot_id {print; exit}')"
-IFS=$'\t' read -r _ _ _ snapshot_restore snapshot_remove <<<"$snapshot_state"
-saved_version_message="saved pre-install version $snapshot_id; "
-saved_version_message+="rollback will restore $snapshot_restore existing path(s) and remove $snapshot_remove new path(s)"
-info "$saved_version_message"
+  snapshot_state="$(python3 "$repository_root/scripts/state.py" history \
+    --scope "$scope" \
+    --target "$target_root" \
+    --payload "$payload_root" \
+    --state-root "$state_root" | awk -F '\t' -v snapshot_id="$snapshot_id" '$1 == snapshot_id {print; exit}')"
+  IFS=$'\t' read -r _ _ _ snapshot_restore snapshot_remove <<<"$snapshot_state"
 
-run_install
-if [[ "$failure_count" -gt 0 ]]; then
-  error "installation failed: $failure_count failure(s), $changed_count change(s), $skipped_count skipped"
-  exit 1
-fi
-success "installation complete: $changed_count change(s), $skipped_count skipped"
+  saved_version_message="saved pre-install version $snapshot_id; "
+  saved_version_message+="rollback will restore $snapshot_restore existing path(s) and remove $snapshot_remove new path(s)"
+  info "$saved_version_message"
+}
+
+apply_installation() {
+  changed_count=0
+  skipped_count=0
+  failure_count=0
+  is_dry_run=false
+  is_planning=false
+
+  save_pre_install_version
+  run_install
+
+  if [[ "$failure_count" -gt 0 ]]; then
+    error "installation failed: $failure_count failure(s), $changed_count change(s), $skipped_count skipped"
+    return 1
+  fi
+  success "installation complete: $changed_count change(s), $skipped_count skipped"
+}
+
+main() {
+  plan_installation
+
+  if [[ "$requested_dry_run" == true ]]; then
+    success "dry run complete: $changed_count change(s), $skipped_count skipped"
+    return 0
+  fi
+
+  if [[ "$is_interactive" == true && (! -t 0 || ! -t 1) ]]; then
+    info 'preview complete; use --no-interaction to apply changes without a prompt'
+    return 0
+  fi
+
+  if ! confirm_action 'Apply this installation plan?'; then
+    info 'installation cancelled; no files or snapshots were changed'
+    return 0
+  fi
+
+  apply_installation
+}
+
+main "$@"
