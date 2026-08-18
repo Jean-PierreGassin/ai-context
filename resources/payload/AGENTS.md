@@ -21,7 +21,8 @@
 
 ## Workflow
 
-- Skills live in `.agents/skills`; load the matching one before starting the work, not after
+- Skills live in `.agents/skills`; load the matching one before starting the work, not after, including when a plugin
+  or project skill is already active, whose own reading list does not replace them
 - Split a large change into an ordered stack of independently reviewable changes, each with one review objective;
   see [write-plan](.agents/skills/write-plan)
 - Before starting work, use a worktree when the task would otherwise block the working tree, or when tracks run in
