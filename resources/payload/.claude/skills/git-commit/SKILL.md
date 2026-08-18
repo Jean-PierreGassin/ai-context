@@ -6,4 +6,4 @@ agent: general-purpose
 background: false
 ---
 
-See `.agents/skills/git-commit/SKILL.md`
+Read `.agents/skills/git-commit/SKILL.md` now and follow it, with any references it directs you to.

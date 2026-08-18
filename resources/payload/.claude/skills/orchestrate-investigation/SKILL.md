@@ -5,4 +5,4 @@ description: Use when an investigation or research task spans independent areas 
   scope is contained.
 ---
 
-See `.agents/skills/orchestrate-investigation/SKILL.md`
+Read `.agents/skills/orchestrate-investigation/SKILL.md` now and follow it, with any references it directs you to.
