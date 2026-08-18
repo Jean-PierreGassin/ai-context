@@ -4,4 +4,4 @@ description: Use whenever writing, editing, or reviewing tests, or deciding what
   or framework.
 ---
 
-See `.agents/skills/write-tests/SKILL.md`
+Read `.agents/skills/write-tests/SKILL.md` now and follow it, with any references it directs you to.

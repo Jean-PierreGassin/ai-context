@@ -5,4 +5,4 @@ description: Use when creating, resuming, or wrapping up an implementation plan,
   session boundary.
 ---
 
-See `.agents/skills/write-plan/SKILL.md`
+Read `.agents/skills/write-plan/SKILL.md` now and follow it, with any references it directs you to.
