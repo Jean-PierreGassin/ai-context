@@ -1,6 +1,10 @@
 ---
 name: write-pr
-description: Use whenever opening, drafting, creating, or editing a pull request or pr.
+description: Use whenever opening, drafting, creating, or editing a pull request or pr, including writing or revising
+  its title, body, or review focus.
+when_to_use: Triggers on requests like "open a PR", "raise a pull request", "write the PR description", or "update the
+  PR body". Applies on top of any standards a plugin or project skill has already supplied, and is still required when
+  one is active.
 ---
 
 # Write PR Description
@@ -45,7 +49,8 @@ reviewer knows what they are not being asked to judge.
 ### Structure
 
 - Follow the repository's PR template and any enforced checks. It wins over `assets/body-template.md`, and previous
-  PRs in the repository are not the standard
+  PRs in the repository are not the standard. A template sets which sections exist rather than how to write them, so
+  the content, review focus, and voice rules below still apply inside whatever structure it imposes
 - Link the ticket as a `Ticket: [KEY](url)` line at the top of the body, or of the template's context section where one
   exists. A ticket key in a GitHub title is plain text, so the body carries the only clickable route back
 - Order by importance: the most impactful change first, trivia last, never by diff or file convenience

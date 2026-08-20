@@ -1,7 +1,11 @@
 ---
 name: write-tests
-description: Use whenever writing, editing, or reviewing tests, or deciding what a change needs tested, in any language
-  or framework.
+description: Use whenever writing, editing, or reviewing tests, or deciding what a change needs tested, in any
+  language or framework, including a single test case or added coverage on an existing suite.
+when_to_use: Triggers on requests like "write a test for this", "add test coverage", "does this need a test", or "fix
+  the failing test". Also load it before creating or editing any test file, and before deciding a change needs no
+  test, whether the user asked or you decided. Applies on top of any standards a plugin or project skill has already
+  supplied.
 ---
 
 # Write Tests
@@ -44,6 +48,9 @@ shape, say so and let the existing suite be the gate rather than inventing a mec
 
 This governs whether a *new kind* of test is warranted. It does not govern whether to add coverage where a suite
 already exists: add it, in the shape that is already there.
+
+Shape is not the same as method. Where a project standard is silent on a principle or reference here, that principle
+still applies on top of it, and an existing test that predates one does not excuse a new violation.
 
 ## References
 
