@@ -170,7 +170,7 @@ test_fresh_install_rolls_back_to_nothing() {
 test_global_install() {
   mkdir -p "$global_root/.claude" "$global_root/.codex"
   printf '# Personal\n' >"$global_root/.claude/CLAUDE.md"
-  printf '{"enabledPlugins":{"personal@example":true}}\n' >"$global_root/.claude/settings.json"
+  printf '{"enabledPlugins":{"personal@example":true},"hooks":{"Stop":[{"matcher":"","hooks":[{"type":"command","command":"~/.claude/hooks/play-sound.sh"}]},{"matcher":"Bash","hooks":[{"type":"command","command":"~/mine/audit.sh"}]}]}}\n' >"$global_root/.claude/settings.json"
   printf '[marketplaces.personal]\nsource = "local"\n' >"$global_root/.codex/config.toml"
 
   scope=global
@@ -201,6 +201,12 @@ test_global_install() {
     fail 'global install left a project-relative skill pointer'
 
   assert_jq '.enabledPlugins["personal@example"] == true' "$global_root/.claude/settings.json"
+  assert_jq '[.hooks.Stop[].hooks[].command | select(test("play-sound[.]sh"))] | length == 1' \
+    "$global_root/.claude/settings.json"
+  assert_jq '[.hooks.Stop[].hooks[].command | select(test("[.]claude/hooks/"))] | length == 0' \
+    "$global_root/.claude/settings.json"
+  assert_jq '[.hooks.Stop[].hooks[].command | select(test("mine/audit[.]sh"))] | length == 1' \
+    "$global_root/.claude/settings.json"
   assert_toml 'data["marketplaces"]["personal"]["source"] == "local"' "$global_root/.codex/config.toml"
 }
 
