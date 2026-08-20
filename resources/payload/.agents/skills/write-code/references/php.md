@@ -124,26 +124,6 @@ if ($order->status === OrderStatus::Shipped) {
 }
 ```
 
-#### Never add `declare(strict_types=1)`, even when the file copied as a template has it
-
-```php
-// Bad
-<?php
-
-declare(strict_types=1);
-
-namespace App\Services;
-```
-
-```php
-// Good
-<?php
-
-namespace App\Services;
-```
-
-Treat its presence in an existing file as precedent to leave alone, not to follow.
-
 #### Import classes with `use`, not inline fully-qualified names
 
 ```php
@@ -683,6 +663,26 @@ private function resolveStep(Context $context): Step
 ## Follow the project where it is consistent
 
 Where the project does something consistently, follow it. These are the default for a greenfield choice.
+
+#### Match the surrounding files on `declare(strict_types=1)`
+
+```php
+// Bad, in a directory where every neighbouring file declares it
+<?php
+
+namespace App\Services;
+```
+
+```php
+// Good
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services;
+```
+
+Where the directory is mixed, follow the nearest equivalent capability rather than the file you copied from.
 
 #### Class constants must have types defined
 
