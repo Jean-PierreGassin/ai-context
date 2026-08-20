@@ -80,7 +80,7 @@ ai-context install --global
 This command installs shared configuration in your home directory. The preview shows each target area before you approve
 it.
 
-The global install manages `~/.claude/CLAUDE.md` as an import file. Its complete content is `@~/.codex/AGENTS.md`. If
+The global install manages `~/.claude/CLAUDE.md` as an import file. Its complete content is `@~/.agents/AGENTS.md`. If
 the file contains other text, the installer shows a replacement and asks for approval.
 
 ## Control an installation

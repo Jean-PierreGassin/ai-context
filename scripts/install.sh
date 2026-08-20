@@ -48,6 +48,7 @@ install_project() {
 }
 
 install_global() {
+  copy_managed_file "$payload_root/AGENTS.md" "$target_root/.agents/AGENTS.md" "$home_display/.agents/AGENTS.md"
   copy_managed_file "$payload_root/AGENTS.md" "$target_root/.codex/AGENTS.md" "$home_display/.codex/AGENTS.md"
 
   while IFS= read -r -d '' source_path; do
@@ -74,7 +75,7 @@ install_global() {
 
   local global_claude_instructions
   global_claude_instructions="$(mktemp "${TMPDIR:-/tmp}/ai-context-instructions.XXXXXX")"
-  printf '@~/.codex/AGENTS.md\n' >"$global_claude_instructions"
+  printf '@~/.agents/AGENTS.md\n' >"$global_claude_instructions"
   copy_managed_file "$global_claude_instructions" "$target_root/.claude/CLAUDE.md" "$home_display/.claude/CLAUDE.md"
   rm -f "$global_claude_instructions"
 
