@@ -37,6 +37,12 @@ should_replace() {
   [[ "$response" == y || "$response" == Y || "$response" == yes || "$response" == YES ]]
 }
 
+absolutise_agents_paths() {
+  local source_path="$1" rewritten_path="$2"
+  sed -e "s|\`\.agents/|\`~/.agents/|g" -e "s|(\.agents/|(~/.agents/|g" "$source_path" >"$rewritten_path"
+  match_file_mode "$source_path" "$rewritten_path"
+}
+
 copy_managed_file() {
   local source_path="$1" target_path="$2" display_path="$3"
   if reject_unsafe_target "$target_path" "$display_path"; then return 0; fi

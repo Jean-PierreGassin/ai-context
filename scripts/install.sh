@@ -48,8 +48,12 @@ install_project() {
 }
 
 install_global() {
-  copy_managed_file "$payload_root/AGENTS.md" "$target_root/.agents/AGENTS.md" "$home_display/.agents/AGENTS.md"
-  copy_managed_file "$payload_root/AGENTS.md" "$target_root/.codex/AGENTS.md" "$home_display/.codex/AGENTS.md"
+  local global_instructions
+  global_instructions="$(mktemp "${TMPDIR:-/tmp}/ai-context-agents.XXXXXX")"
+  absolutise_agents_paths "$payload_root/AGENTS.md" "$global_instructions"
+  copy_managed_file "$global_instructions" "$target_root/.agents/AGENTS.md" "$home_display/.agents/AGENTS.md"
+  copy_managed_file "$global_instructions" "$target_root/.codex/AGENTS.md" "$home_display/.codex/AGENTS.md"
+  rm -f "$global_instructions"
 
   while IFS= read -r -d '' source_path; do
     local relative_path="${source_path#"$payload_root/.agents/"}"
@@ -63,8 +67,7 @@ install_global() {
     case "$relative_path" in
       settings.json) continue ;;
       skills/*/SKILL.md)
-        sed "s|\`\.agents/skills/|\`~/.agents/skills/|g" "$source_path" >"$global_skill_adapter"
-        match_file_mode "$source_path" "$global_skill_adapter"
+        absolutise_agents_paths "$source_path" "$global_skill_adapter"
         copy_managed_file "$global_skill_adapter" "$target_root/.claude/$relative_path" "$home_display/.claude/$relative_path"
         continue
         ;;
