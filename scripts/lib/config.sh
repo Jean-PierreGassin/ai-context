@@ -26,7 +26,17 @@ merge_json_file() {
         elif ($existing | type) == "array" and ($desired | type) == "array" then
           reduce $desired[] as $value ($existing; if index($value) == null then . + [$value] else . end)
         else $existing end;
+      def hook_scripts:
+        [(.hooks // [])[]? | (.command // "") | scan("[A-Za-z0-9_.-]+[.]sh")] | unique;
+      def supersede_moved_hooks:
+        reduce .[] as $entry ([];
+          ($entry | hook_scripts) as $incoming
+          | if ($incoming | length) == 0 then . + [$entry]
+            else [.[] | select((hook_scripts - $incoming) == hook_scripts)] + [$entry] end);
       combine(.[0]; .[1])
+      | if (.hooks | type) == "object" then
+          .hooks |= with_entries(if (.value | type) == "array" then .value |= supersede_moved_hooks else . end)
+        else . end
     ' "$target_path" "$desired_path" >"$merged_path"
   else
     cp -p "$desired_path" "$merged_path"
