@@ -183,10 +183,13 @@ test_global_install() {
   run_install
   force_install=false
 
-  [[ "$(cat "$global_root/.claude/CLAUDE.md")" == '@~/.codex/AGENTS.md' ]]
+  [[ "$(cat "$global_root/.claude/CLAUDE.md")" == '@~/.agents/AGENTS.md' ]]
   ! grep -Fq '# Personal' "$global_root/.claude/CLAUDE.md" ||
     fail 'global install kept the personal CLAUDE.md content'
+  [[ -f "$global_root/.agents/AGENTS.md" ]]
   [[ -f "$global_root/.codex/AGENTS.md" ]]
+  cmp -s "$global_root/.agents/AGENTS.md" "$global_root/.codex/AGENTS.md" ||
+    fail 'global install left the shared and Codex instructions out of sync'
   [[ -d "$global_root/.agents/skills/write-code" ]]
   cmp -s "$payload_root/.agents/skills/write-plan/assets/plan-template.md" \
     "$global_root/.agents/skills/write-plan/assets/plan-template.md"

@@ -24,6 +24,7 @@ def list_managed_paths(payload_root: pathlib.Path, scope: str) -> list[pathlib.P
         return sorted(managed_paths)
 
     managed_paths = {
+        pathlib.Path(".agents/AGENTS.md"),
         pathlib.Path(".codex/AGENTS.md"),
         pathlib.Path(".codex/config.toml"),
         pathlib.Path(".codex/hooks.json"),

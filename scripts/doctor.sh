@@ -21,10 +21,10 @@ state_root="$(resolve_state_root)"
 readonly state_root
 
 if [[ "$scope" == global ]]; then
-  readonly agents_path="$target_root/.codex/AGENTS.md"
+  readonly agents_path="$target_root/.agents/AGENTS.md"
   readonly claude_path="$target_root/.claude/CLAUDE.md"
-  readonly claude_import='@~/.codex/AGENTS.md'
-  readonly agents_display="$home_display/.codex/AGENTS.md"
+  readonly claude_import='@~/.agents/AGENTS.md'
+  readonly agents_display="$home_display/.agents/AGENTS.md"
   readonly claude_display="$home_display/.claude/CLAUDE.md"
   readonly skills_display="$home_display/.agents/skills/"
 else
