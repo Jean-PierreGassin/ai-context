@@ -124,6 +124,28 @@ if ($order->status === OrderStatus::Shipped) {
 }
 ```
 
+#### Declare `strict_types=1` in every new file, and never add it to a file that lacks it
+
+```php
+// Bad, a new file
+<?php
+
+namespace App\Services;
+```
+
+```php
+// Good
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services;
+```
+
+It governs the calls the file itself makes, so switching it on in an existing file stops those calls coercing scalars
+and can throw where they previously passed. A file that has lived without it stays without it: turning it on is a
+deliberate, tested migration, not something a feature change carries along.
+
 #### Import classes with `use`, not inline fully-qualified names
 
 ```php
@@ -663,26 +685,6 @@ private function resolveStep(Context $context): Step
 ## Follow the project where it is consistent
 
 Where the project does something consistently, follow it. These are the default for a greenfield choice.
-
-#### Match the surrounding files on `declare(strict_types=1)`
-
-```php
-// Bad, in a directory where every neighbouring file declares it
-<?php
-
-namespace App\Services;
-```
-
-```php
-// Good
-<?php
-
-declare(strict_types=1);
-
-namespace App\Services;
-```
-
-Where the directory is mixed, follow the nearest equivalent capability rather than the file you copied from.
 
 #### Class constants must have types defined
 
