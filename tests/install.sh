@@ -195,8 +195,9 @@ test_global_install() {
   cmp -s "$payload_root/.agents/skills/write-plan/references/change-stack.md" \
     "$global_root/.agents/skills/write-plan/references/change-stack.md"
 
-  grep -Fq "See \`~/.agents/skills/write-plan/SKILL.md\`" "$global_root/.claude/skills/write-plan/SKILL.md"
-  ! grep -Fq "See \`.agents/skills/" "$global_root/.claude/skills/write-plan/SKILL.md" ||
+  grep -Fq "Read \`~/.agents/skills/write-plan/SKILL.md\` now and follow it" \
+    "$global_root/.claude/skills/write-plan/SKILL.md"
+  ! grep -Fq "Read \`.agents/skills/" "$global_root/.claude/skills/write-plan/SKILL.md" ||
     fail 'global install left a project-relative skill pointer'
 
   assert_jq '.enabledPlugins["personal@example"] == true' "$global_root/.claude/settings.json"
