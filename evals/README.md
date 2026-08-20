@@ -62,21 +62,20 @@ A flat array. Each entry is a realistic user prompt and whether this skill shoul
   {
     "query": "Find out why the queued jobs are running out of order",
     "should_trigger": false,
-    "note": "Establishing what is true, before anything can be sequenced. Routes to orchestrate-investigation."
+    "note": "Establishing what is true, before anything can be sequenced. Not a planning request."
   }
 ]
 ```
 
-| Field            | Required | Meaning                                                      |
-|------------------|----------|--------------------------------------------------------------|
-| `query`          | yes      | The prompt, as a user would actually write it                |
-| `should_trigger` | yes      | Boolean. Whether this skill is the right one for that prompt |
+| Field            | Required | Meaning                                                                 |
+|------------------|----------|-------------------------------------------------------------------------|
+| `query`          | yes      | The prompt, as a user would actually write it                           |
+| `should_trigger` | yes      | Boolean. Whether this skill is the right one for that prompt            |
 | `note`           | no       | Why a near-miss case falls the way it does, and where it routes instead |
 
 Negative cases are the point. A skill's description is only as good as the prompts it correctly declines, so the
 negatives are plausible confusion cases drawn from the boundaries that actually overlap: `write-code` against
-`write-tests`, `write-plan` against `orchestrate-investigation`, `write-pr` against `git-commit`, and `write-ticket`
-against `write-plan`.
+`write-tests`, `write-pr` against `git-commit`, and `write-ticket` against `write-plan`.
 
 ## behaviour.json
 

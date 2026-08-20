@@ -109,7 +109,6 @@
       "expected_output": "Investigation first, then a plan built on what it establishes.",
       "expectations": [
         "Recognises the cause is unknown and does not plan against a guess",
-        "Routes the research to orchestrate-investigation where the areas are independent",
         "Waits for the finding before choosing a decomposition strategy",
         "Says what the plan would look like under each candidate cause, if a plan is needed now"
       ]
