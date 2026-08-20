@@ -20,7 +20,8 @@ checklist has cost more than it saved.
 2. Name the shape of the work and [route](#route-by-shape) to what you need
 3. Load the skills that shape the plan's content: `write-code` for how the implementation should look, `write-tests`
    for what coverage the change needs
-4. Gather context by investigating the areas the change touches
+4. Gather context by investigating the areas the change touches. Delegate large independent tracks and run them
+   in parallel; do the work yourself when it takes a handful of tool calls
 5. Draft the split and confirm it with the user, with options, before detailing each change
 6. Present the plan using `assets/plan-artifact.html`, which is self-documenting: read it and fill in the placeholders
    rather than rebuilding it. Its open questions exist to grill the user on the approach, so ask enough per change to

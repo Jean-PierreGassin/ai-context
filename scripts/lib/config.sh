@@ -28,14 +28,22 @@ merge_json_file() {
         else $existing end;
       def hook_scripts:
         [(.hooks // [])[]? | (.command // "") | scan("[A-Za-z0-9_.-]+[.]sh")] | unique;
-      def supersede_moved_hooks:
-        reduce .[] as $entry ([];
+      def managed_hook_scripts:
+        [(.hooks // [])[]? | (.command // "")
+         | scan("[.](?:claude|agents)/hooks/[A-Za-z0-9_.-]+[.]sh")
+         | sub(".*/"; "")] | unique;
+      def merge_hook_event($existing; $desired):
+        reduce $desired[] as $entry ($existing;
           ($entry | hook_scripts) as $incoming
-          | if ($incoming | length) == 0 then . + [$entry]
-            else [.[] | select((hook_scripts - $incoming) == hook_scripts)] + [$entry] end);
-      combine(.[0]; .[1])
-      | if (.hooks | type) == "object" then
-          .hooks |= with_entries(if (.value | type) == "array" then .value |= supersede_moved_hooks else . end)
+          | if ($incoming | length) == 0 then
+              (if index($entry) == null then . + [$entry] else . end)
+            else [.[] | select((managed_hook_scripts - $incoming) == managed_hook_scripts)] + [$entry] end);
+      . as [$existing, $desired]
+      | combine($existing; $desired)
+      | if ($desired.hooks | type) == "object" then
+          .hooks = reduce ($desired.hooks | keys_unsorted[]) as $event (($existing.hooks // {});
+            .[$event] = merge_hook_event((($existing.hooks // {})[$event] // []);
+                                         ($desired.hooks[$event] // [])))
         else . end
     ' "$target_path" "$desired_path" >"$merged_path"
   else
