@@ -1,6 +1,9 @@
 ---
 name: git-commit
 description: Use whenever committing, staging, splitting a diff, or writing the commit message itself.
+when_to_use: Triggers on requests like "commit this", "commit these changes", "stage and commit", "write a commit
+  message", or "split this into commits". Applies on top of any standards a plugin or project skill has already
+  supplied, and is still required when one is active.
 ---
 
 # Git Commit
@@ -54,6 +57,8 @@ one the diff cannot show them.
 - Short description is a concise summary of the whole commit, not the first bullet restated
 - One bullet per distinct change, no trailing periods
 - If no hook/conventions are found, this format is the sane default - don't invent a different one
+- An enforced convention wins on format. Where it is silent, everything here still applies on top of it: how the
+  change is split into commits, what the subject says, and what each bullet carries
 - Do not use the repositories historical message format as guidance, unless it's enforced
 
 ## Template
