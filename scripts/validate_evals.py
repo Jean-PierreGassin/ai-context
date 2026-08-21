@@ -214,7 +214,7 @@ def check_no_orphan_eval_directories(skills: list[str]) -> None:
         fail(EVALS_ROOT, "eval directory is missing")
         return
     for directory in sorted(EVALS_ROOT.iterdir()):
-        if directory.is_dir() and directory.name not in skills:
+        if directory.is_dir() and any(directory.iterdir()) and directory.name not in skills:
             fail(directory, "has evals but is not a skill")
 
 
