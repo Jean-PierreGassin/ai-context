@@ -12,31 +12,10 @@ tasks:
 
   help:
     aliases: [list]
-    desc: Show every ai-context Task command
+    desc: List ai-context Task commands
     silent: true
     cmds:
-      - |
-        printf 'Discover:\n'
-        printf '%-28s %s\n' 'task help' 'Show this command guide'
-        printf '%-28s %s\n' 'task list' 'Show this command guide'
-        printf '\nInstall:\n'
-        printf '%-28s %s\n' 'task install' 'Install in the current project'
-        printf '%-28s %s\n' 'task install:global' 'Install global configuration'
-        printf '%-28s %s\n' 'task install:help' 'Show all install options'
-        printf '%-28s %s\n' 'task install:apply' 'Install a project without a prompt'
-        printf '%-28s %s\n' 'task install:global:apply' 'Install globally without a prompt'
-        printf '\nCheck:\n'
-        printf '%-28s %s\n' 'task doctor' 'Check the current project'
-        printf '%-28s %s\n' 'task doctor:global' 'Check global configuration'
-        printf '%-28s %s\n' 'task doctor:help' 'Show doctor options'
-        printf '\nRestore:\n'
-        printf '%-28s %s\n' 'task history' 'List project versions'
-        printf '%-28s %s\n' 'task history:global' 'List global versions'
-        printf '%-28s %s\n' 'task rollback' 'Restore a project version'
-        printf '%-28s %s\n' 'task rollback:global' 'Restore a global version'
-        printf '%-28s %s\n' 'task rollback:help' 'Show rollback options'
-        printf '\nDevelopment:\n'
-        printf '%-28s %s\n' 'task test' 'Run the regression suite'
+      - task --list
 
   install:
     desc: Install in the current project
@@ -46,7 +25,7 @@ tasks:
   install:global:
     desc: Install global configuration
     cmds:
-      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' install --global
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' install --global {{.CLI_ARGS}}
 
   install:apply:
     desc: Install in the current project without a prompt
@@ -56,7 +35,7 @@ tasks:
   install:global:apply:
     desc: Install global configuration without a prompt
     cmds:
-      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' install --global --no-interaction
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' install --global --no-interaction {{.CLI_ARGS}}
 
   install:help:
     desc: Show all install options
@@ -71,7 +50,7 @@ tasks:
   doctor:global:
     desc: Check global configuration
     cmds:
-      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' doctor --global
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' doctor --global {{.CLI_ARGS}}
 
   doctor:help:
     desc: Show doctor options
@@ -86,7 +65,7 @@ tasks:
   history:global:
     desc: List global versions
     cmds:
-      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' history --global
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' history --global {{.CLI_ARGS}}
 
   rollback:
     desc: Restore a project version
@@ -96,7 +75,7 @@ tasks:
   rollback:global:
     desc: Restore a global version
     cmds:
-      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' rollback --global
+      - ./scripts/run-task.sh '{{.TASK_SENTINEL}}' '{{.CALLER_DIR}}' rollback --global {{.CLI_ARGS}}
 
   rollback:help:
     desc: Show rollback options

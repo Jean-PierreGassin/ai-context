@@ -29,9 +29,9 @@ assert_fails "$repository_root/bin/ai-context" install --project --global
 assert_fails "$repository_root/bin/ai-context" doctor --replace-config
 
 (cd "$repository_root" && task >"$fixture_root/default-task-output")
-grep -Fq 'task install:global' "$fixture_root/default-task-output"
-grep -Fq 'task install:help' "$fixture_root/default-task-output"
-grep -Fq 'task doctor:global' "$fixture_root/default-task-output"
+grep -Fq 'install:global:' "$fixture_root/default-task-output"
+grep -Fq 'install:help:' "$fixture_root/default-task-output"
+grep -Fq 'doctor:global:' "$fixture_root/default-task-output"
 (cd "$repository_root" && task list >"$fixture_root/task-list-output")
 cmp -s "$fixture_root/default-task-output" "$fixture_root/task-list-output"
 (cd "$repository_root" && task install:help >"$fixture_root/task-install-help-output")
@@ -47,18 +47,22 @@ missing_root="$fixture_root/missing-project"
 mkdir -p "$missing_root"
 assert_fails bash -c "cd '$missing_root' && XDG_STATE_HOME='$state_home' '$repository_root/bin/ai-context' doctor >'$fixture_root/missing-doctor' 2>&1"
 grep -Fq 'Missing: AGENTS.md, .agents/skills/, CLAUDE.md' "$fixture_root/missing-doctor"
-grep -Fq 'Review the repair: ai-context install --dry-run' "$fixture_root/missing-doctor"
-grep -Fq 'Check again: ai-context doctor' "$fixture_root/missing-doctor"
+grep -Fq 'ai-context doctor' "$fixture_root/missing-doctor"
+grep -Fq 'Checks' "$fixture_root/missing-doctor"
+grep -Fq 'Review: ai-context install --dry-run' "$fixture_root/missing-doctor"
+grep -Fq 'Verify: ai-context doctor' "$fixture_root/missing-doctor"
 
 (cd "$missing_root" && XDG_STATE_HOME="$state_home" "$repository_root/bin/ai-context" install >"$fixture_root/non-interactive-preview" 2>&1)
 [[ ! -e "$missing_root/AGENTS.md" ]]
-grep -Fq 'use --no-interaction to apply changes' "$fixture_root/non-interactive-preview"
+grep -Fq 'Run again with --no-interaction to apply this preview.' "$fixture_root/non-interactive-preview"
 
 (cd "$project_root" && XDG_STATE_HOME="$state_home" "$repository_root/bin/ai-context" install --no-interaction >/dev/null 2>&1)
 (cd "$project_root" && XDG_STATE_HOME="$state_home" "$repository_root/bin/ai-context" install --project --no-interaction >/dev/null 2>&1)
 (cd "$project_root" && XDG_STATE_HOME="$state_home" "$repository_root/bin/ai-context" doctor --project >/dev/null 2>&1)
 (cd "$project_root" && XDG_STATE_HOME="$state_home" "$repository_root/bin/ai-context" history --project >"$fixture_root/project-history")
 grep -Fq 'RESTORES EXISTING' "$fixture_root/project-history"
+grep -Fq 'ai-context history' "$fixture_root/project-history"
+grep -Fq 'Saved versions' "$fixture_root/project-history"
 jq -e '.custom == "keep"' "$project_root/.claude/settings.json" >/dev/null
 jq -e '.custom == "keep"' "$project_root/.codex/hooks.json" >/dev/null
 python3 -c 'import pathlib, sys, tomllib; assert tomllib.loads(pathlib.Path(sys.argv[1]).read_text())["model"] == "custom"' "$project_root/.codex/config.toml"
@@ -66,7 +70,7 @@ python3 -c 'import pathlib, sys, tomllib; assert tomllib.loads(pathlib.Path(sys.
 history_before_dry_run="$(python3 "$repository_root/scripts/state.py" history --scope project --target "$project_root" --payload "$repository_root/resources/payload" --state-root "$state_root" | wc -l | tr -d ' ')"
 settings_before_dry_run="$(hash_file "$project_root/.claude/settings.json")"
 (cd "$project_root" && XDG_STATE_HOME="$state_home" "$repository_root/bin/ai-context" install --replace-config --dry-run --no-interaction >"$fixture_root/dry-run-output" 2>&1)
-grep -Fq 'Planned changes:' "$fixture_root/dry-run-output"
+grep -Fq 'Changes to apply' "$fixture_root/dry-run-output"
 grep -Fq 'Claude configuration' "$fixture_root/dry-run-output"
 grep -Fq '.claude/' "$fixture_root/dry-run-output"
 grep -Fq 'Codex configuration' "$fixture_root/dry-run-output"
@@ -99,7 +103,10 @@ jq -e 'has("custom") | not' "$project_root/.claude/settings.json" >/dev/null
 jq -e 'has("custom") | not' "$project_root/.codex/hooks.json" >/dev/null
 python3 -c 'import pathlib, sys, tomllib; assert "model" not in tomllib.loads(pathlib.Path(sys.argv[1]).read_text())' "$project_root/.codex/config.toml"
 
-(cd "$project_root" && XDG_STATE_HOME="$state_home" "$repository_root/bin/ai-context" rollback >/dev/null 2>&1)
+(cd "$project_root" && XDG_STATE_HOME="$state_home" \
+  "$repository_root/bin/ai-context" rollback >"$fixture_root/rollback-output" 2>&1)
+grep -Fq 'ai-context rollback' "$fixture_root/rollback-output"
+grep -Fq 'Restore preview' "$fixture_root/rollback-output"
 [[ "$claude_before_replace" == "$(hash_file "$project_root/.claude/settings.json")" ]]
 [[ "$codex_before_replace" == "$(hash_file "$project_root/.codex/config.toml")" ]]
 [[ "$hooks_before_replace" == "$(hash_file "$project_root/.codex/hooks.json")" ]]
@@ -138,6 +145,14 @@ grep -Fq 'RESTORES EXISTING' "$fixture_root/direct-task-history"
 (cd "$direct_task_root" && XDG_STATE_HOME="$state_home" \
   task --silent --taskfile "$repository_root/Taskfile.dist.yml" rollback >/dev/null 2>&1)
 [[ ! -e "$direct_task_root/AGENTS.md" ]]
+
+direct_task_global_root="$fixture_root/direct-task-home"
+mkdir -p "$direct_task_global_root"
+HOME="$direct_task_global_root" XDG_STATE_HOME="$state_home" \
+  task --silent --taskfile "$repository_root/Taskfile.dist.yml" \
+  install:global -- --dry-run --no-interaction >"$fixture_root/direct-task-global-preview" 2>&1
+grep -Eq 'Scope[[:space:]]+global' "$fixture_root/direct-task-global-preview"
+[[ ! -e "$direct_task_global_root/.agents/AGENTS.md" ]]
 
 fallback_bin="$fixture_root/fallback-bin"
 fallback_root="$fixture_root/fallback-project"

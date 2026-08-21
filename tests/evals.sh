@@ -43,15 +43,17 @@ assert_rejects() {
 
 assert_rejects_orphan_eval_directory() {
   local orphan="$repository_root/evals/skills/not-a-skill"
+  local orphan_eval="$orphan/triggers.json"
 
   mkdir -p "$orphan"
+  printf '[]\n' >"$orphan_eval"
   if validator_accepts; then
-    rmdir "$orphan"
+    rm -f "$orphan_eval"
     error 'validator accepted an eval directory with no matching skill'
     exit 1
   fi
 
-  rmdir "$orphan"
+  rm -f "$orphan_eval"
 }
 
 assert_trigger_schema_enforced() {

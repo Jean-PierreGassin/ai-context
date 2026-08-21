@@ -8,8 +8,8 @@ install to `AGENTS.md` and `.agents/`, outside any vendor directory, so nothing 
 any harness that reads those formats at them. `ai-context` also writes the adapters and safety settings that Claude Code
 and Codex need, which is what `CLAUDE.md`, `.claude/`, and `.codex/` are for.
 
-The installer shows a preview before it changes files. It keeps structured settings that it does not manage and saves a
-version that you can restore.
+The installer shows a preview before it changes files. It updates packaged skills to the bundled versions, keeps
+structured settings that it does not manage, and saves a version that you can restore.
 
 ## Supported systems
 
@@ -93,11 +93,18 @@ Use these options after `ai-context install`:
 | `--dry-run`        | Preview changes and stop                              |
 | `--verbose`        | List every path in the preview                        |
 | `--no-interaction` | Apply the preview without a prompt                    |
-| `--force`          | Replace changed files that `ai-context` manages       |
+| `--force`          | Replace changed managed files outside packaged skills |
 | `--replace-config` | Replace complete Claude and Codex configuration files |
 
 By default, the installer merges `.claude/settings.json`, `.codex/config.toml`, and `.codex/hooks.json`. Use
 `--replace-config` only when you want to remove configuration that is not part of `ai-context`.
+
+Packaged files under `.agents/skills/` and `.claude/skills/` are owned by `ai-context`. Re-running either a project or
+global install updates those files automatically, including non-interactive installs. Other changed managed files still
+require confirmation or `--force`.
+
+Project hook configuration runs scripts from the project's `.agents/hooks/` directory. Global hook configuration runs
+the installed scripts from `~/.agents/hooks/`, so it also works in projects without a project-level installation.
 
 ## Check the installation
 
@@ -197,8 +204,8 @@ Show install options without starting an install:
 task install:help
 ```
 
-Task treats `task install help` as two separate tasks. Use `task install:help` for command help. Use the `ai-context`
-command when you need to combine install options such as `--global`, `--force`, or `--replace-config`.
+Task treats `task install help` as two separate tasks. Use `task install:help` for command help. Pass additional options
+after `--`, for example `task install:global -- --dry-run --verbose`.
 
 ## Skill layout
 

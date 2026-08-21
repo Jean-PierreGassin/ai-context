@@ -30,7 +30,8 @@ Usage:
   ai-context help [command]
 
 Install targets the current project by default. Existing configuration is merged,
-and changed managed files require confirmation unless --force is supplied.
+packaged skills are updated, and other changed managed files require confirmation
+unless --force is supplied.
 EOF
 }
 
@@ -41,13 +42,14 @@ usage_command() {
 Usage: ai-context install [--project | --global] [--force] [--replace-config] [--dry-run] [--verbose] [--no-interaction]
 
 Install managed instructions, skills, hooks, and agent configuration. Project
-configuration is the default. The command shows its plan and asks for approval
-before it saves a rollback snapshot or writes files.
+configuration is the default. Packaged skills are always updated to the bundled
+version. The command shows its plan and asks for approval before it saves a
+rollback snapshot or writes files.
 
 Options:
   --project           Update the current project
   --global            Update global configuration
-  --force, -f         Replace changed managed payload files
+  --force, -f         Replace changed managed files outside packaged skills
   --replace-config    Replace structured configuration instead of merging it
   --dry-run           Show changes without writing files or saving a snapshot
   --verbose           List every path in the installation preview
