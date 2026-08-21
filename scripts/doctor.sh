@@ -159,16 +159,18 @@ if [[ "$failures" -gt 0 ]]; then
   if [[ "$scope" == global ]]; then
     install_options=' --global'
   fi
-  error "doctor found $failures problem(s) and $warnings warning(s)"
-  printf 'Resolution:\n'
+  printf '\n'
+  error "Doctor: $failures problem(s), $warnings warning(s)"
+  render_section 'Next steps'
   if [[ "${has_invalid_configuration:-false}" == true ]]; then
-    printf '  1. Fix the invalid files above, or review a full replacement:\n'
+    printf '  1. Review a full configuration replacement:\n'
     printf '     ai-context install%s --replace-config --dry-run\n' "$install_options"
   else
-    printf '  1. Review the repair: ai-context install%s --dry-run\n' "$install_options"
+    printf '  1. Review: ai-context install%s --dry-run\n' "$install_options"
   fi
-  printf '  2. Apply the repair: ai-context install%s\n' "$install_options"
-  printf '  3. Check again: ai-context doctor%s\n' "$install_options"
+  printf '  2. Apply:  ai-context install%s\n' "$install_options"
+  printf '  3. Verify: ai-context doctor%s\n' "$install_options"
   exit 1
 fi
-success "doctor passed with $warnings warning(s)"
+printf '\n'
+success "Doctor passed: $warnings warning(s)"

@@ -16,6 +16,8 @@ readonly target_root
 state_root="$(resolve_state_root)"
 readonly state_root
 
+render_header 'ai-context history' "$scope" "$target_root"
+
 history_output="$(python3 "$repository_root/scripts/state.py" history \
   --scope "$scope" \
   --target "$target_root" \
@@ -23,8 +25,11 @@ history_output="$(python3 "$repository_root/scripts/state.py" history \
   --state-root "$state_root")"
 
 if [[ -z "$history_output" ]]; then
-  info "no saved versions for $scope target $target_root"
+  printf '\n'
+  info 'No saved versions.'
   exit 0
 fi
 
 render_history "$history_output"
+printf '\n'
+info "Found $(printf '%s\n' "$history_output" | wc -l | tr -d ' ') saved version(s)."

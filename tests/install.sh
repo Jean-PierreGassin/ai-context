@@ -101,6 +101,8 @@ test_project_install() {
   scope=project
   caller_dir="$project_root"
   run_install
+  printf 'outdated project skill\n' >"$project_root/.agents/skills/write-code/SKILL.md"
+  printf 'outdated project adapter\n' >"$project_root/.claude/skills/write-code/SKILL.md"
   run_install
   [[ "$(file_mode "$state_root")" == 0o700 ]]
 
@@ -126,6 +128,8 @@ test_project_install() {
   assert_toml 'data["marketplaces"]["team"]["source"] == "private"' "$project_root/.codex/config.toml"
   assert_toml 'data["approval_policy"] == "never"' "$project_root/.codex/config.toml"
   assert_toml 'data["tui"]["custom"] is True and data["tui"]["status_line_use_colors"] is True' "$project_root/.codex/config.toml"
+  jq -e '[.hooks[][]?.hooks[].command | select(contains("$(git rev-parse --show-toplevel)/.agents/hooks/"))] | length == 2' \
+    "$project_root/.codex/hooks.json" >/dev/null
 }
 
 test_rollback_restores_and_reapplies() {
@@ -178,6 +182,13 @@ test_global_install() {
   export HOME
   run_install
   grep -Fxq '# Personal' "$global_root/.claude/CLAUDE.md"
+  printf 'outdated global skill\n' >"$global_root/.agents/skills/write-code/SKILL.md"
+  printf 'outdated global adapter\n' >"$global_root/.claude/skills/write-code/SKILL.md"
+  run_install
+  cmp -s "$payload_root/.agents/skills/write-code/SKILL.md" \
+    "$global_root/.agents/skills/write-code/SKILL.md"
+  grep -Fq "Read \`~/.agents/skills/write-code/SKILL.md\` now and follow it" \
+    "$global_root/.claude/skills/write-code/SKILL.md"
   force_install=true
   run_install
   run_install
@@ -216,6 +227,10 @@ test_global_install() {
   assert_jq '[.hooks.PreToolUse[].hooks[].command | select(test("mine/audit[.]sh"))] | length == 1' \
     "$global_root/.claude/settings.json"
   assert_toml 'data["marketplaces"]["personal"]["source"] == "local"' "$global_root/.codex/config.toml"
+  jq -e '[.hooks[][]?.hooks[].command | select(contains("$HOME/.agents/hooks/"))] | length == 2' \
+    "$global_root/.codex/hooks.json" >/dev/null
+  jq -e '[.hooks[][]?.hooks[].command | select(contains("$(git rev-parse --show-toplevel)/.agents/hooks/"))] | length == 0' \
+    "$global_root/.codex/hooks.json" >/dev/null
 }
 
 test_doctor_passes_on_the_installed_project() {

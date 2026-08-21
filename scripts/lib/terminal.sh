@@ -18,14 +18,31 @@ error() {
 render_header() {
   local title="$1" header_scope="$2" target="$3"
   if [[ -t 1 ]] && command -v gum >/dev/null 2>&1; then
-    gum style --bold --foreground 212 "$title" "scope: $header_scope" "target: $target"
+    gum style --bold --foreground 212 "$title"
   else
-    printf '%s\nscope: %s\ntarget: %s\n' "$title" "$header_scope" "$target"
+    printf '%s\n' "$title"
   fi
+  printf '  %-8s %s\n' 'Scope' "$header_scope"
+  printf '  %-8s %s\n' 'Target' "$target"
+}
+
+render_section() {
+  local title="$1"
+  printf '\n'
+  if [[ -t 1 ]] && command -v gum >/dev/null 2>&1; then
+    gum style --bold --foreground 212 "$title"
+  else
+    printf '%s\n' "$title"
+  fi
+}
+
+render_detail() {
+  printf '  %-18s %s\n' "$1" "$2"
 }
 
 render_history() {
   local history_output="$1"
+  render_section 'Saved versions'
   if command -v gum >/dev/null 2>&1; then
     printf 'VERSION\tCREATED\tSAVED BEFORE\tRESTORES EXISTING\tREMOVES NEW\n%s\n' "$history_output" | gum table --print --separator $'\t'
   else
@@ -33,17 +50,11 @@ render_history() {
   fi
 }
 
-render_install_plan() {
-  local plan_scope="$1" target="$2"
-  printf 'Plan:\n'
-  printf '  - Update %s configuration at %s\n' "$plan_scope" "$target"
-}
-
 render_change_summary() {
   local rows="${planned_targets%$'\n'}"
-  printf 'Planned changes:\n'
+  render_section 'Changes to apply'
   if [[ -z "$rows" ]]; then
-    printf 'No file changes.\n'
+    printf '  No file changes.\n'
     return
   fi
   if [[ -t 1 ]] && command -v gum >/dev/null 2>&1; then
@@ -52,7 +63,7 @@ render_change_summary() {
     printf '%-24s %s\n' 'CONTENT' 'TARGET'
     while IFS=$'\t' read -r content target; do printf '%-24s %s\n' "$content" "$target"; done <<<"$rows"
   fi
-  [[ "$is_verbose" == true ]] || printf 'Use --verbose to list each file.\n'
+  [[ "$is_verbose" == true ]] || printf '\n  Use --verbose to list each file.\n'
 }
 
 record_planned_target() {
@@ -64,6 +75,7 @@ record_planned_target() {
 
 render_doctor_results() {
   local results="$1"
+  render_section 'Checks'
   if [[ -t 1 ]] && command -v gum >/dev/null 2>&1; then
     printf 'CHECK\tSTATUS\tDETAIL\n%s\n' "$results" | gum table --print --separator $'\t'
   else
@@ -115,13 +127,14 @@ record_change() {
     esac
     case "$change_message" in
       installed\ *) change_message="install ${change_message#installed }" ;;
+      updated\ *) change_message="update ${change_message#updated }" ;;
       replaced\ *) change_message="replace ${change_message#replaced }" ;;
       merged\ *) change_message="merge ${change_message#merged }" ;;
       extended\ *) change_message="extend ${change_message#extended }" ;;
       added\ *) change_message="add ${change_message#added }" ;;
     esac
     if [[ "$is_verbose" == true ]]; then info "would $change_message"; fi
-  else
+  elif [[ "$is_verbose" == true ]]; then
     info "$change_message"
   fi
 }

@@ -17,6 +17,8 @@ readonly target_root
 state_root="$(resolve_state_root)"
 readonly state_root
 
+render_header 'ai-context rollback' "$scope" "$target_root"
+
 select_snapshot() {
   local history_output="$1"
   local selected_snapshot
@@ -71,8 +73,12 @@ if [[ -z "$selected_state" ]]; then
   exit 1
 fi
 IFS=$'\t' read -r _ selected_created selected_action selected_restore selected_remove _ <<<"$selected_state"
-info "selected version from $selected_created, saved before $selected_action"
-info "rollback will restore $selected_restore existing path(s) and remove $selected_remove path(s) that did not exist"
+render_section 'Restore preview'
+render_detail 'Version' "$snapshot_id"
+render_detail 'Created' "$selected_created"
+render_detail 'Saved before' "$selected_action"
+render_detail 'Restore existing' "$selected_restore path(s)"
+render_detail 'Remove new' "$selected_remove path(s)"
 if ! confirm_action 'Continue with rollback?'; then
   info 'rollback cancelled; no files or snapshots were changed'
   exit 0
@@ -90,5 +96,6 @@ rollback_arguments=(
 rollback_output="$(python3 "$repository_root/scripts/state.py" "${rollback_arguments[@]}")"
 restored_snapshot="${rollback_output%%$'\t'*}"
 safety_snapshot="${rollback_output#*$'\t'}"
-success "restored snapshot $restored_snapshot"
-info "saved pre-rollback state as $safety_snapshot"
+printf '\n'
+success "Restored: $restored_snapshot"
+info "Undo version: $safety_snapshot"

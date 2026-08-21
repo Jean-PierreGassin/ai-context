@@ -29,6 +29,10 @@ install_project() {
     local relative_path="${source_path#"$payload_root/"}"
     case "$relative_path" in
       CLAUDE.md|.claude/settings.json|.codex/config.toml|.codex/hooks.json) continue ;;
+      .agents/skills/*|.claude/skills/*)
+        copy_managed_skill_file "$source_path" "$target_root/$relative_path" "$relative_path"
+        continue
+        ;;
     esac
     copy_managed_file "$source_path" "$target_root/$relative_path" "$relative_path"
   done < <(find "$payload_root" -type f -print0 | sort -z)
@@ -57,7 +61,20 @@ install_global() {
 
   while IFS= read -r -d '' source_path; do
     local relative_path="${source_path#"$payload_root/.agents/"}"
-    copy_managed_file "$source_path" "$target_root/.agents/$relative_path" "$home_display/.agents/$relative_path"
+    case "$relative_path" in
+      skills/*)
+        copy_managed_skill_file \
+          "$source_path" \
+          "$target_root/.agents/$relative_path" \
+          "$home_display/.agents/$relative_path"
+        ;;
+      *)
+        copy_managed_file \
+          "$source_path" \
+          "$target_root/.agents/$relative_path" \
+          "$home_display/.agents/$relative_path"
+        ;;
+    esac
   done < <(find "$payload_root/.agents" -type f -print0 | sort -z)
 
   local global_skill_adapter
@@ -68,7 +85,10 @@ install_global() {
       settings.json) continue ;;
       skills/*/SKILL.md)
         absolutise_agents_paths "$source_path" "$global_skill_adapter"
-        copy_managed_file "$global_skill_adapter" "$target_root/.claude/$relative_path" "$home_display/.claude/$relative_path"
+        copy_managed_skill_file \
+          "$global_skill_adapter" \
+          "$target_root/.claude/$relative_path" \
+          "$home_display/.claude/$relative_path"
         continue
         ;;
     esac
@@ -82,27 +102,32 @@ install_global() {
   copy_managed_file "$global_claude_instructions" "$target_root/.claude/CLAUDE.md" "$home_display/.claude/CLAUDE.md"
   rm -f "$global_claude_instructions"
 
-  local global_claude_settings
+  local global_claude_settings global_codex_hooks
   global_claude_settings="$(mktemp "${TMPDIR:-/tmp}/ai-context-claude.XXXXXX")"
+  global_codex_hooks="$(mktemp "${TMPDIR:-/tmp}/ai-context-codex-hooks.XXXXXX")"
   # shellcheck disable=SC2016 # the patterns match, and emit, literal $CLAUDE_PROJECT_DIR and $HOME text
   sed -e 's|\$CLAUDE_PROJECT_DIR/.agents/|\$HOME/.agents/|g' \
     -e 's|\$CLAUDE_PROJECT_DIR/.claude/|\$HOME/.claude/|g' \
     "$payload_root/.claude/settings.json" >"$global_claude_settings"
-  install_structured_configuration "$global_claude_settings" "$home_display/"
-  rm -f "$global_claude_settings"
+  # shellcheck disable=SC2016 # the pattern and replacement contain literal command and environment substitutions
+  sed 's|\$(git rev-parse --show-toplevel)/\.agents/hooks/|$HOME/.agents/hooks/|g' \
+    "$payload_root/.codex/hooks.json" >"$global_codex_hooks"
+  install_structured_configuration "$global_claude_settings" "$home_display/" "$global_codex_hooks"
+  rm -f "$global_claude_settings" "$global_codex_hooks"
 }
 
 install_structured_configuration() {
   local claude_settings_source="$1"
   local display_prefix="$2"
+  local codex_hooks_source="${3:-$payload_root/.codex/hooks.json}"
   if [[ "$replace_config" == true ]]; then
     replace_config_file "$claude_settings_source" "$target_root/.claude/settings.json" "${display_prefix}.claude/settings.json"
     replace_config_file "$payload_root/.codex/config.toml" "$target_root/.codex/config.toml" "${display_prefix}.codex/config.toml"
-    replace_config_file "$payload_root/.codex/hooks.json" "$target_root/.codex/hooks.json" "${display_prefix}.codex/hooks.json"
+    replace_config_file "$codex_hooks_source" "$target_root/.codex/hooks.json" "${display_prefix}.codex/hooks.json"
   else
     merge_json_file "$claude_settings_source" "$target_root/.claude/settings.json" "${display_prefix}.claude/settings.json"
     merge_toml_file "$payload_root/.codex/config.toml" "$target_root/.codex/config.toml" "${display_prefix}.codex/config.toml"
-    merge_json_file "$payload_root/.codex/hooks.json" "$target_root/.codex/hooks.json" "${display_prefix}.codex/hooks.json"
+    merge_json_file "$codex_hooks_source" "$target_root/.codex/hooks.json" "${display_prefix}.codex/hooks.json"
   fi
 }
 
@@ -119,7 +144,6 @@ plan_installation() {
   is_planning=true
 
   render_header 'ai-context install' "$scope" "$target_root"
-  render_install_plan "$scope" "$target_root"
   run_install
   render_change_summary
 
@@ -127,7 +151,8 @@ plan_installation() {
     error "plan failed: $failure_count failure(s), $changed_count change(s), $skipped_count skipped"
     return 1
   fi
-  success "plan complete: $changed_count change(s), $skipped_count skipped"
+  printf '\n'
+  success "Preview: $changed_count change(s), $skipped_count unchanged"
 }
 
 save_pre_install_version() {
@@ -159,6 +184,7 @@ apply_installation() {
   is_dry_run=false
   is_planning=false
 
+  render_section 'Applying changes'
   save_pre_install_version
   run_install
 
@@ -166,19 +192,21 @@ apply_installation() {
     error "installation failed: $failure_count failure(s), $changed_count change(s), $skipped_count skipped"
     return 1
   fi
-  success "installation complete: $changed_count change(s), $skipped_count skipped"
+  printf '\n'
+  success "Installed: $changed_count changed, $skipped_count unchanged"
 }
 
 main() {
   plan_installation
 
   if [[ "$requested_dry_run" == true ]]; then
-    success "dry run complete: $changed_count change(s), $skipped_count skipped"
+    info 'Dry run only, no files or snapshots changed.'
     return 0
   fi
 
   if [[ "$is_interactive" == true && (! -t 0 || ! -t 1) ]]; then
-    info 'preview complete; use --no-interaction to apply changes without a prompt'
+    render_section 'Next step'
+    printf '  Run again with --no-interaction to apply this preview.\n'
     return 0
   fi
 
