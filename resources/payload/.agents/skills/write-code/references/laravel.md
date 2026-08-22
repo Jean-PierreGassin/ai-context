@@ -1,7 +1,8 @@
 # Laravel
 
 Follow the architecture the project already uses. Actions, services, repositories, and domain layers below name roles,
-not layers to introduce. Read this with the PHP reference.
+not layers to introduce. Read this with the PHP reference. Naming is governed by the project's conventions and enforced
+quality tooling, not this framework reference.
 
 ## Always apply
 
@@ -50,11 +51,6 @@ not layers to introduce. Read this with the PHP reference.
   `except()` or `only()` calls
 - Reads crossing the query boundary return a DTO where the project uses DTO boundaries; keep raw models and rows behind
   that boundary
-
-### Naming
-
-- Name controllers and models singular, URI resources and route parameters plural
-- Use snake_case for route names and database columns, camelCase for PHP variables and methods
 
 ## Follow the project where it is consistent
 

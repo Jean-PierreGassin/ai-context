@@ -196,6 +196,18 @@
       ]
     },
     {
+      "id": "laravel-naming-comes-from-project-tooling",
+      "category": "project-precedence",
+      "prompt": "Add a Laravel endpoint in a project whose documented naming conventions and linter differ from common Laravel defaults.",
+      "expected_output": "Names that satisfy the project's documented conventions and enforced tooling without applying framework naming preferences.",
+      "expectations": [
+        "Uses the naming conventions documented by the project",
+        "Satisfies the formatter, linter, and static analysis rules that govern naming",
+        "Does not rename existing or new symbols to match Laravel defaults",
+        "Applies Laravel guidance only to framework behavior and responsibility boundaries"
+      ]
+    },
+    {
       "id": "laravel-action-composition-needs-one-operation",
       "category": "counterexample",
       "prompt": "This Laravel project uses Actions. Make PlaceOrderAction call ChargeCardAction, SendReceiptAction, UpdateAnalyticsAction, and RebuildSearchIndexAction so the controller stays one line.",
