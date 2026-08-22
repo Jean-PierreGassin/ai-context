@@ -5,13 +5,38 @@
       "id": "unsupported-language-uses-documented-defaults",
       "category": "normal",
       "prompt": "Write a small retry-policy module in Rust. This empty project has no local instructions, established conventions, or Rust reference in the loaded skills.",
-      "expected_output": "Idiomatic Rust that follows write-code's shared rules and carries applicable documented preferences across without importing another language's syntax or architecture.",
+      "expected_output": "Idiomatic Rust that loads the shared clean-code reference and applies its decisions without importing another language's syntax or architecture.",
       "expectations": [
-        "Applies write-code's guidance even though no project, plugin, or Rust-specific reference is loaded",
+        "Loads references/clean-code.md even though no Rust-specific reference exists",
         "Uses descriptive names, explicit contracts, cohesive units, and guard-style early exits where Rust supports them idiomatically",
-        "Uses sane defaults inferred from documented preferences rather than making every unspecified choice arbitrary",
+        "Uses the shared good and bad examples to make organization and responsibility decisions",
         "Does not copy PHP, TypeScript, or framework-specific syntax, tooling, or architecture into the Rust module",
         "Does not load unrelated language references solely because the target language lacks one"
+      ]
+    },
+    {
+      "id": "shared-clean-code-reference-always-loads",
+      "category": "composition",
+      "prompt": "Add one endpoint in this established project. A language-specific write-code reference exists for it.",
+      "expected_output": "The shared clean-code reference is loaded before the applicable language reference and both shape the implementation.",
+      "expectations": [
+        "Loads references/clean-code.md before the language reference",
+        "Uses shared guidance for placement, cohesion, responsibility, naming, control flow, and comments",
+        "Uses the language reference only for language-specific decisions",
+        "Does not treat the presence of a language reference as replacing the shared preferences"
+      ]
+    },
+    {
+      "id": "self-review-audits-code-organization",
+      "category": "regression",
+      "prompt": "The implementation is written. Review it before showing me the diff.",
+      "expected_output": "A structured self-review checks organization and readability as well as correctness before human review.",
+      "expectations": [
+        "Audits whether new files belong to the capability that owns them",
+        "Audits package or module cohesion and each unit's responsibility",
+        "Audits names, dependency direction, control flow, error flow, comments, and tests",
+        "Fixes every finding in the current change before presenting it",
+        "Uses review depth proportionate to the implementation rather than applying a wording-only checklist"
       ]
     },
     {

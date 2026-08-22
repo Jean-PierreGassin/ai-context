@@ -13,8 +13,8 @@ Keep code readable, cohesive, and limited to the task.
 
 ## Process
 
-1. Read the [references](#references) for the languages and frameworks in scope, and nothing else; if none exists,
-   use the fallback below
+1. Read `references/clean-code.md`, then the [references](#references) for the languages and frameworks in scope, and
+   nothing else
 2. Open the nearest equivalent capability already in the repository and match how it is arranged
 3. For each change-stack entry, write and self-review the change, reconcile discoveries into the persisted plan and
    affected later entries, obtain human approval, run the project gates, commit the approved restore point, then start
@@ -51,7 +51,8 @@ commit; otherwise create its own commit before continuing.
 
 ## References
 
-Read only what is in scope. A framework reference applies on top of its language reference.
+Always read `references/clean-code.md`. Then read only the language and framework references in scope. A framework
+reference applies on top of its language reference.
 
 | In scope   | Read                                                 |
 |------------|------------------------------------------------------|
@@ -67,11 +68,9 @@ Each reference splits its rules in two, and the section a rule sits in is its st
 - **Follow the project where it is consistent** is a preference, the default for a greenfield choice, which the project
   displaces where it consistently does something else
 
-When no reference covers the language or framework, still apply this skill. Use its shared guidance directly, then
-carry over the intent of known documented language preferences where the target language has an idiomatic equivalent.
-For example, prefer explicit contracts and descriptive names without forcing syntax, patterns, or tooling from another
-language. Do not load unrelated references merely to manufacture rules, and do not leave a choice arbitrary when this
-skill or a known preference supplies a sane default.
+When no language reference applies, use `references/clean-code.md` through the target language's idioms. Do not load an
+unrelated language reference to manufacture rules, and do not leave a choice arbitrary when the shared reference
+supplies a settled preference.
 
 ## Precedence
 
@@ -96,40 +95,6 @@ it rather than putting it in a generic `utils`, `helpers`, `services`, or `commo
 Do not introduce Actions, services, repositories, DDD boundaries, or another architecture merely because a reference
 demonstrates one. Change the architecture when the user asks for it, or when the task is itself architectural.
 
-## One job per unit
-
-Give each unit one reason to change. Split behaviour-selecting boolean parameters, separate deciding from acting,
-prefer guard clauses, and combine guards with the same outcome. Do not split by line count or until following the path
-becomes harder.
-
-Treat more than three returns, more than four injected dependencies or method parameters, or cyclomatic complexity of
-11 or higher as an extraction signal. Consolidate only where that does not increase nesting or obscure distinct
-outcomes. Stricter project-enforced limits win.
-
-Group related statements together and use vertical whitespace to separate logical blocks when it makes the flow easier
-to scan. Do not add blank lines that fragment one cohesive operation or reduce readability.
-
-## Naming
-
-- Use strict parameter and return types, and named arguments where the language supports them
-- Name values for what they hold, functions with active verbs, and booleans with is/has/can/should
-- Check for an existing enum or constant before naming an unexplained literal
-- Keep methods concise enough to understand directly without fragmenting them into trivial indirection
-- Place new or moved code where its responsibility naturally flows among surrounding units, not merely where the old
-  code happened to sit
-- Write user-facing strings by reading the neighbouring entries and matching their pattern: terse where they are terse,
-  dynamic labels first (`:field is required`, not `Enter your :field`), and cross-checked against the config or
-  validation the copy describes
-
-## Comments
-
-Do not write comments unless the user specifically asks for them or the code's irreducible complexity requires one.
-Prefer names, extraction, and structure first; complexity warrants a comment only when those options would obscure the
-flow or misrepresent the design. Keep any necessary comment narrow and focused on information the code cannot express.
-
-Machine annotations, `@throws`, narrowly scoped suppressions with a reason, TODOs for tracked debt, and section banners
-where the language provides no grouping are not explanatory comments and may be retained.
-
 ## Keep the diff to the task
 
 - An unrelated rename, reformat, or tidy-up belongs in its own change. Mixing one in costs the reviewer the ability to
@@ -142,6 +107,6 @@ where the language provides no grouping are not explanatory comments and may be 
 - Run the project's own gate over what you touched: formatter, linter, static analysis, and the tests covering the
   changed behaviour. Use the project's runner (`task`, `composer`, an `npm` script, `make`) where one exists
 - Re-read the diff against the references and fix the misses
-- Self-review every code change after writing. Choose the review method and any configured automated tooling according
-  to the change
+- Self-review every code change after writing. Audit placement, package or module cohesion, responsibility, naming,
+  dependency direction, control flow, error flow, comments, and tests with tools proportionate to the change
 - Where a check could not run, name it and say why, rather than reporting the change as verified
