@@ -289,10 +289,6 @@ test_global_install() {
   cmp -s "$global_root/.agents/AGENTS.md" "$global_root/.codex/AGENTS.md" ||
     fail 'global install left the shared and Codex instructions out of sync'
   [[ -d "$global_root/.agents/skills/write-code" ]]
-  cmp -s "$payload_root/.agents/skills/write-plan/assets/plan-template.md" \
-    "$global_root/.agents/skills/write-plan/assets/plan-template.md"
-  cmp -s "$payload_root/.agents/skills/write-plan/assets/plan-artifact.html" \
-    "$global_root/.agents/skills/write-plan/assets/plan-artifact.html"
   cmp -s "$payload_root/.agents/skills/write-plan/references/change-stack.md" \
     "$global_root/.agents/skills/write-plan/references/change-stack.md"
 

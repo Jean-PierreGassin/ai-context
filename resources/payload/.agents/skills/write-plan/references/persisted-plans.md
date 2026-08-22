@@ -5,16 +5,21 @@ Persistence is the reason these files exist. A plan that lives and dies inside o
 
 ## What gets persisted
 
-| File                | Holds                                                                            |
-|---------------------|----------------------------------------------------------------------------------|
-| `PLAN.md`           | One change in the stack: its objective, requirements, acceptance criteria, and phase checklist |
-| `CONTEXT.md`        | The restore point: what a fresh session needs in order to pick this up            |
-| `plan-artifact.html`| One per task, covering the whole stack, for the user to review                    |
+| File         | Holds                                                                                       |
+|--------------|---------------------------------------------------------------------------------------------|
+| `PLAN.md`    | One approved change: its objective, stack position, requirements, acceptance criteria, implementation checklist, and validation |
+| `CONTEXT.md` | The restore point: what a fresh session needs in order to pick this up                       |
 
-One `PLAN.md` and one `CONTEXT.md` per change. Multiple plans can exist for the same task, one per change in the
-stack, numbered in stack order. Only one artifact.
+Persist the approved Markdown directly as one `PLAN.md` per change, numbered in stack order. It records:
 
-Use `assets/plan-template.md` for `PLAN.md`. `CONTEXT.md` is prose, and holds what the plan file deliberately does not:
+- Objective
+- Stack position: purpose, kind, dependencies, reviewer focus, and rollback
+- Requirements and acceptance criteria
+- Ordered implementation checklist
+- Validation commands and expected outcomes
+
+Create `CONTEXT.md` only when the work must survive an interruption, handover, or later session. It is prose, and
+holds what the plan file deliberately does not:
 
 - Where the work actually got to, in a sentence, and what the next action is
 - Decisions already made and the reasoning behind them, so they are not relitigated

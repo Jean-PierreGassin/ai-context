@@ -25,12 +25,12 @@
   or project skill is already active, whose own reading list does not replace them
 - Split a large change into an ordered stack of independently reviewable changes, each with one review objective;
   see [write-plan](.agents/skills/write-plan)
-- Before starting work, use a worktree when the task would otherwise block the working tree, or when tracks run in
-  parallel; see [use-worktrees](.agents/skills/use-worktrees)
-- Delegate large independent tracks and run them in parallel; do the work yourself when it takes a handful of tool calls
+- Before starting work, use a worktree when the task would otherwise block the working tree; see
+  [use-worktrees](.agents/skills/use-worktrees)
 - Branch and worktree names use the tracker's ticket key (`ABC-1234` or `ABC-1234-slug`), otherwise
   `{type}/title-of-changes-summarized` (e.g. `fix/changes-summarized`)
-- Prefer the LSP tool over grep for symbol navigation, and trust its results rather than re-reading files
+- After every code change, review the diff using the tools and depth the change warrants, fix every finding, and repeat
+  until the review is clean. Fold each review fix into the change it corrects rather than leaving a follow-up change
 
 ## Tickets and PRs
 

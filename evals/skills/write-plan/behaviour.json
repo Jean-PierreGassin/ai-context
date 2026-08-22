@@ -66,6 +66,31 @@
       ]
     },
     {
+      "id": "reviews-through-plannotator",
+      "category": "composition",
+      "prompt": "Show me the proposed plan so I can review and refine it now.",
+      "expected_output": "Concise Markdown submitted through the installed Plannotator host integration and revised until approval.",
+      "expectations": [
+        "Returns the plan normally so the installed Plannotator host integration can intercept it",
+        "Uses concise Markdown rather than generating a custom HTML artifact",
+        "Incorporates feedback and resubmits the plan until the user approves it",
+        "Does not invoke Plannotator manually through a sandboxed shell command"
+      ]
+    },
+    {
+      "id": "plannotator-unavailable-falls-back",
+      "category": "regression",
+      "prompt": "Review this plan with me, but the Plannotator integration is unavailable.",
+      "expected_output": "Plan review continues in conversation, with the broken installation reported rather than blocking the task.",
+      "expectations": [
+        "Continues plan review in conversation",
+        "Reports that the Plannotator installation needs repair",
+        "Leaves dependency installation to the package installer",
+        "Does not recreate the removed HTML artifact workflow",
+        "Does not block delivery of the Markdown plan"
+      ]
+    },
+    {
       "id": "review-objectives-stay-separated",
       "category": "counterexample",
       "prompt": "Here is my draft: one PR that extracts a class, changes the rules, updates the API, updates the screen, and renames a field throughout. Sanity check it.",
@@ -120,7 +145,7 @@
       "expected_output": "The existing plan for the same work found and continued, rather than a second one started.",
       "expectations": [
         "Looks for existing planning docs before creating anything",
-        "Continues the existing plan and says what changed, rather than starting a parallel one",
+        "Continues the existing plan and says what changed, rather than starting another one",
         "Reads the context file before the plan file when resuming",
         "Verifies the plan against the repository and reports where the two disagree"
       ]

@@ -8,36 +8,7 @@ task that spans two of them is split at the seam and given one strategy per part
 | A new capability                  | [Thin vertical slices](#thin-vertical-slices), each usable end to end |
 | Replacing existing behaviour      | [Branch by abstraction](#branch-by-abstraction)                      |
 | A schema, API, or contract change | [Expand and contract](#expand-and-contract)                          |
-| Primarily refactoring             | [A mechanical stack](#mechanical-refactor-sequencing), largest and most automatable change first |
-
-## Decomposing a change: bad and good
-
-Scope: partial refunds need new eligibility rules, exposed through the API, with the calculation lifted out of
-`OrderService`.
-
-```
-// Bad - one PR, five review objectives tangled together
-- Extract the refund calculation out of OrderService
-- Change the refund business rules
-- Update the API
-- Update the frontend
-- Rename everything on the way through
-```
-
-A reviewer here has to hold a refactor, a behaviour change, a contract change, and a rename in their head at once, and
-cannot tell which diff hunk carries the risk.
-
-```
-// Good - one review objective per change, risk arriving late and alone
-PR1  Extract refund calculation from `OrderService`. No behaviour change.       (structural)
-PR2  Introduce the `RefundCalculator` abstraction. No behaviour change.         (structural)
-PR3  Add partial refund eligibility rules.                                      (behavioural)
-PR4  Expose refund eligibility on the API.                                      (user-facing)
-PR5  Remove the old in-service calculation.                                     (cleanup)
-```
-
-PR1 and PR2 are provably safe: the tests that passed before pass unchanged. PR3 is the only place a reviewer has to
-reason about money, and it is a small diff. PR5 is only reachable once nothing calls the old path.
+| Primarily refactoring             | [Refactor sequencing](#refactor-sequencing), most automatable change first |
 
 ## Thin vertical slices
 
@@ -129,13 +100,14 @@ column that has already been dropped.
 Plan a breaking migration only where the user explicitly requires one, and say what makes expand and contract
 unworkable.
 
-## Mechanical refactor sequencing
+## Refactor sequencing
 
 Where the work is primarily refactoring, order by how automatable each step is, largest first:
 
 1. Tool-driven sweeps (a rename, an import rewrite, a formatter run) that a reviewer verifies by re-running the tool
 2. Moves that change no code, only its location
-3. Structural changes a tool cannot make, which are the ones actually worth reading
+3. Structural changes a tool cannot make, which need direct review
 
-Every step is behaviour-preserving, and each says so with the same proof: the existing suite passes untouched. Where a
-step cannot make that claim, it is not a mechanical step and belongs in the behavioural part of the stack.
+Each step states whether it is behaviour-preserving and how that is proved. A structural refactor is not mechanical
+merely because it intends to preserve behaviour. Where a step changes behaviour, put it in the behavioural part of the
+stack.

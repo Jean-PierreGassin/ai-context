@@ -27,17 +27,6 @@ A behavioural entry that earns every field:
 - **Rollback** - revert the commit, `RefundCalculator` falls back to the full-total path with no data migration
 ```
 
-The same entry for a change that needs none of it:
-
-```markdown
-### 1. Guard the expiry-type label against a missing value
-
-- **Purpose** - stop the deprecation warning on the candidate overview page
-- **Kind** - behavioural, template only
-- **Reviewer focus** - that present-value output is byte-identical
-- **Rollback** - revert the commit
-```
-
 ## Order so risk arrives late and alone
 
 1. Mechanical changes (renames, moves, formatting, generated updates)
@@ -85,6 +74,5 @@ as a decision.
 
 ## Shipping the stack
 
-Slice count is not capped, so prefer more thin layers over fewer fat ones, within the limits above. Never create the
-branches or PRs before the split is agreed. `write-pr` governs each change's description, including how it names its
-neighbours in the stack.
+Use the fewest changes that preserve one review objective each. Never create branches or PRs before the split is
+agreed. `write-pr` governs each change's description, including how it names its neighbours in the stack.

@@ -9,9 +9,7 @@ when_to_use: Triggers on requests like "plan this out", "how should we approach 
 
 # Write Plan
 
-Planning buys two things: smaller review units, and a decision about ordering made before anyone is committed to code.
-It buys nothing else, so the amount of it should track the work. A one-line fix that arrives with a five-phase
-checklist has cost more than it saved.
+Plan only enough to choose reviewable units and their order.
 
 ## Process
 
@@ -20,16 +18,16 @@ checklist has cost more than it saved.
 2. Name the shape of the work and [route](#route-by-shape) to what you need
 3. Load the skills that shape the plan's content: `write-code` for how the implementation should look, `write-tests`
    for what coverage the change needs
-4. Gather context by investigating the areas the change touches. Delegate large independent tracks and run them
-   in parallel; do the work yourself when it takes a handful of tool calls
+4. Gather context by investigating the areas the change touches
 5. Draft the split and confirm it with the user, with options, before detailing each change
-6. Present the plan using `assets/plan-artifact.html`, which is self-documenting: read it and fill in the placeholders
-   rather than rebuilding it. Its open questions exist to grill the user on the approach, so ask enough per change to
-   surface the decisions that would change the plan, and stop when further questions stop changing it
-7. Iterate on the artifact until the user has no more feedback, gathering context again where their answers open
-   something up
-8. Hand over rather than implement: end referencing the plan locations so implementation starts on fresh context. Carry
-   on into implementation only where the user asked for both
+6. Return the plan as concise Markdown. The installed Plannotator host integration intercepts the response and opens
+   the review surface; do not launch it through a shell command. Ask only questions whose answers could change the
+   split, ordering, or approach
+7. Incorporate the user's Plannotator feedback and resubmit until they approve the plan. If the integration does not
+   open, continue the review in conversation and report that the installation needs repair. Package setup reports the
+   missing dependency, so do not download or install it from this skill
+8. Hand over rather than implement: end referencing any persisted plan locations so implementation starts on fresh
+   context. Carry on into implementation only where the user asked for both
 
 ## Route by shape
 
@@ -65,13 +63,3 @@ averaging them into one shapeless sequence.
 
 `write-plan` decides how the work is cut and ordered. Where the facts are not yet settled, establish them first and
 plan against the findings.
-
-## Supporting files
-
-- `references/change-stack.md` - the anatomy of a stack: per-change fields, ordering, and how to validate a split
-- `references/change-strategies.md` - vertical slices, branch by abstraction, expand and contract, mechanical refactor
-  sequencing, with worked examples
-- `references/persisted-plans.md` - `PLAN.md` and `CONTEXT.md`, where they live, and how work resumes from them
-- `assets/plan-template.md` - the markdown plan template
-- `assets/plan-artifact.html` - the artifact template presented to the user
-- `examples/small-bug.md` - a complete plan for a one-change bug fix, at the level of detail that size deserves
