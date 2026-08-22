@@ -28,6 +28,9 @@ Include outcomes, correctness rules and edge cases, affected entry points, outco
 that are expensive to reverse. Exclude algorithms, internal signatures, incidental framework mechanics, exact copy
 unless required, and implementation sequencing.
 
+Do not include code, pseudocode, diffs, or instructions written as code. Describe contracts and constraints in plain
+domain language so the ticket remains valid if the implementation changes.
+
 ### Don't restate standard practice
 
 Do not restate framework or architecture practice enforced in review. Keep project-specific business rules,
@@ -37,6 +40,8 @@ non-obvious constraints, and missable edge cases.
 
 - Use domain-accurate terms, the ones the business actually uses
 - Link related tickets as hyperlinks, not plain text keys
+- Include enough context, current behaviour, desired outcome, constraints, and acceptance criteria for someone outside
+  the original conversation to review the ticket and pick it up without asking the author to reconstruct the task
 
 ## References
 

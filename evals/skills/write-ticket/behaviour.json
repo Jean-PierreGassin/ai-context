@@ -64,6 +64,18 @@
       ]
     },
     {
+      "id": "ticket-is-code-free-and-ready-for-handoff",
+      "category": "regression",
+      "prompt": "Write this ticket with the implementation snippet we discussed. The engineer picking it up was not in this conversation.",
+      "expected_output": "A self-contained ticket in plain domain language, with the snippet omitted and enough context for independent review and pickup.",
+      "expectations": [
+        "Includes the current behavior, desired outcome, relevant constraints, and observable acceptance criteria",
+        "Uses no code, pseudocode, diff, internal signature, or code-formatted implementation instruction",
+        "Does not rely on access to the original conversation",
+        "Can be reviewed and started by someone other than the author without reconstructing missing context"
+      ]
+    },
+    {
       "id": "keeps-expensive-to-reverse-decisions",
       "category": "counterexample",
       "prompt": "Write the ticket. The value has to be stored at a precision we cannot change once there is production data in the column.",
