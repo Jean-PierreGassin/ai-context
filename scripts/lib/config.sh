@@ -12,7 +12,7 @@ replace_config_file() {
 
 merge_json_file() {
   local desired_path="$1" target_path="$2" display_path="$3" merged_path
-  merged_path="$(mktemp "${TMPDIR:-/tmp}/ai-context-json.XXXXXX")"
+  merged_path="$temporary_root/merged-json"
   if reject_unsafe_target "$target_path" "$display_path"; then rm -f "$merged_path"; return 0; fi
   if [[ -e "$target_path" ]] && ! jq -e 'type == "object"' "$target_path" >/dev/null 2>&1; then
     rm -f "$merged_path"; record_failure "invalid or incompatible JSON in $display_path was left unchanged"; return 0
@@ -60,7 +60,7 @@ merge_json_file() {
 
 merge_toml_file() {
   local desired_path="$1" target_path="$2" display_path="$3" merged_path merge_status
-  merged_path="$(mktemp "${TMPDIR:-/tmp}/ai-context-toml.XXXXXX")"
+  merged_path="$temporary_root/merged-toml"
   if reject_unsafe_target "$target_path" "$display_path"; then rm -f "$merged_path"; return 0; fi
   if python3 "$repository_root/scripts/merge_toml.py" "$target_path" "$desired_path" "$merged_path"; then
     merge_status=0

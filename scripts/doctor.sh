@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Commands are checked individually so the doctor can report every problem in one run.
 set -uo pipefail
 
 readonly scope="${1:?scope is required}"
@@ -44,7 +45,8 @@ add_result() {
   results+="$1"$'\t'"$2"$'\t'"$3"$'\n'
 }
 
-render_header 'ai-context doctor' "$scope" "$target_root"
+main() {
+  render_header 'ai-context doctor' "$scope" "$target_root"
 
 missing_tools=
 command -v jq >/dev/null 2>&1 || missing_tools+='jq '
@@ -173,4 +175,7 @@ if [[ "$failures" -gt 0 ]]; then
   exit 1
 fi
 printf '\n'
-success "Doctor passed: $warnings warning(s)"
+  success "Doctor passed: $warnings warning(s)"
+}
+
+main "$@"

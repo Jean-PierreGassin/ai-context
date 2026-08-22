@@ -16,20 +16,26 @@ readonly target_root
 state_root="$(resolve_state_root)"
 readonly state_root
 
-render_header 'ai-context history' "$scope" "$target_root"
+main() {
+  local history_output
 
-history_output="$(python3 "$repository_root/scripts/state.py" history \
-  --scope "$scope" \
-  --target "$target_root" \
-  --payload "$repository_root/resources/payload" \
-  --state-root "$state_root")"
+  render_header 'ai-context history' "$scope" "$target_root"
 
-if [[ -z "$history_output" ]]; then
+  history_output="$(python3 "$repository_root/scripts/state.py" history \
+    --scope "$scope" \
+    --target "$target_root" \
+    --payload "$repository_root/resources/payload" \
+    --state-root "$state_root")"
+
+  if [[ -z "$history_output" ]]; then
+    printf '\n'
+    info 'No saved versions.'
+    return 0
+  fi
+
+  render_history "$history_output"
   printf '\n'
-  info 'No saved versions.'
-  exit 0
-fi
+  info "Found $(printf '%s\n' "$history_output" | wc -l | tr -d ' ') saved version(s)."
+}
 
-render_history "$history_output"
-printf '\n'
-info "Found $(printf '%s\n' "$history_output" | wc -l | tr -d ' ') saved version(s)."
+main "$@"

@@ -16,9 +16,15 @@ atomic_copy() {
   local source_path="$1" target_path="$2" temporary_path
   ensure_directory "$(dirname "$target_path")"
   temporary_path="$(mktemp "$(dirname "$target_path")/.ai-context.XXXXXX")"
-  cp -p "$source_path" "$temporary_path"
+  if ! cp -p "$source_path" "$temporary_path"; then
+    rm -f -- "$temporary_path"
+    return 1
+  fi
   if [[ -f "$target_path" ]]; then
-    python3 -c 'import os, stat, sys; os.chmod(sys.argv[2], stat.S_IMODE(os.stat(sys.argv[1]).st_mode))' "$target_path" "$temporary_path"
+    if ! python3 -c 'import os, stat, sys; os.chmod(sys.argv[2], stat.S_IMODE(os.stat(sys.argv[1]).st_mode))' "$target_path" "$temporary_path"; then
+      rm -f -- "$temporary_path"
+      return 1
+    fi
   fi
   mv "$temporary_path" "$target_path"
 }
@@ -81,7 +87,7 @@ ensure_import() {
   ' "$target_path"; then return 0; fi
   record_change "added $import_line to $display_path"
   if [[ "$is_dry_run" == true ]]; then return 0; fi
-  imported_path="$(mktemp "${TMPDIR:-/tmp}/ai-context-md.XXXXXX")"
+  imported_path="$temporary_root/imported-markdown"
   printf '%s\n' "$import_line" >"$imported_path"
   if [[ -f "$target_path" ]]; then
     printf '\n' >>"$imported_path"

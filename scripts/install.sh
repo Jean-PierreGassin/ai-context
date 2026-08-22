@@ -19,6 +19,7 @@ failure_count=0
 planned_targets=
 is_dry_run="$requested_dry_run"
 is_planning=false
+temporary_root=
 
 readonly payload_root="$repository_root/resources/payload"
 readonly legacy_ownership="$repository_root/resources/previous-owned-skill-paths.txt"
@@ -61,8 +62,8 @@ reject_symlinked_skill_parent() {
 remove_stale_owned_skills() {
   local stale_path target_path display_path skill_root
   local previous_paths desired_paths
-  previous_paths="$(mktemp "${TMPDIR:-/tmp}/ai-context-owned.XXXXXX")"
-  desired_paths="$(mktemp "${TMPDIR:-/tmp}/ai-context-desired.XXXXXX")"
+  previous_paths="$temporary_root/owned"
+  desired_paths="$temporary_root/desired"
   if ! python3 "$repository_root/scripts/state.py" ownership \
     --scope "$scope" --target "$target_root" --payload "$payload_root" \
     --state-root "$(resolve_state_root)" --legacy-ownership "$legacy_ownership" >"$previous_paths"; then
@@ -110,7 +111,7 @@ install_project() {
   install_structured_configuration "$payload_root/.claude/settings.json" ''
 
   local skill_directory skill_ignore
-  skill_ignore="$(mktemp "${TMPDIR:-/tmp}/ai-context-ignore.XXXXXX")"
+  skill_ignore="$temporary_root/ignore"
   printf '# Installed and owned by ai-context. Ignores this file too.\n*\n' >"$skill_ignore"
   for skill_directory in "$payload_root/.agents/skills"/* "$payload_root/.claude/skills"/*; do
     [[ -d "$skill_directory" ]] || continue
@@ -122,7 +123,7 @@ install_project() {
 
 install_global() {
   local global_instructions
-  global_instructions="$(mktemp "${TMPDIR:-/tmp}/ai-context-agents.XXXXXX")"
+  global_instructions="$temporary_root/agents"
   absolutise_agents_paths "$payload_root/AGENTS.md" "$global_instructions"
   copy_managed_file "$global_instructions" "$target_root/.agents/AGENTS.md" "$home_display/.agents/AGENTS.md"
   copy_managed_file "$global_instructions" "$target_root/.codex/AGENTS.md" "$home_display/.codex/AGENTS.md"
@@ -147,7 +148,7 @@ install_global() {
   done < <(find "$payload_root/.agents" -type f -print0 | sort -z)
 
   local global_skill_adapter
-  global_skill_adapter="$(mktemp "${TMPDIR:-/tmp}/ai-context-adapter.XXXXXX")"
+  global_skill_adapter="$temporary_root/adapter"
   while IFS= read -r -d '' source_path; do
     local relative_path="${source_path#"$payload_root/.claude/"}"
     case "$relative_path" in
@@ -166,14 +167,14 @@ install_global() {
   rm -f "$global_skill_adapter"
 
   local global_claude_instructions
-  global_claude_instructions="$(mktemp "${TMPDIR:-/tmp}/ai-context-instructions.XXXXXX")"
+  global_claude_instructions="$temporary_root/instructions"
   printf '@~/.agents/AGENTS.md\n' >"$global_claude_instructions"
   copy_managed_file "$global_claude_instructions" "$target_root/.claude/CLAUDE.md" "$home_display/.claude/CLAUDE.md"
   rm -f "$global_claude_instructions"
 
   local global_claude_settings global_codex_hooks
-  global_claude_settings="$(mktemp "${TMPDIR:-/tmp}/ai-context-claude.XXXXXX")"
-  global_codex_hooks="$(mktemp "${TMPDIR:-/tmp}/ai-context-codex-hooks.XXXXXX")"
+  global_claude_settings="$temporary_root/claude-settings"
+  global_codex_hooks="$temporary_root/codex-hooks"
   # shellcheck disable=SC2016 # the patterns match, and emit, literal $CLAUDE_PROJECT_DIR and $HOME text
   sed -e 's|\$CLAUDE_PROJECT_DIR/.agents/|\$HOME/.agents/|g' \
     -e 's|\$CLAUDE_PROJECT_DIR/.claude/|\$HOME/.claude/|g' \
@@ -288,6 +289,9 @@ raise SystemExit(0 if any(command == "plannotator" or command.endswith("/plannot
 }
 
 main() {
+  temporary_root="$(mktemp -d "${TMPDIR:-/tmp}/ai-context-install.XXXXXX")"
+  trap 'rm -rf -- "$temporary_root"' EXIT
+
   plan_installation
 
   if [[ "$requested_dry_run" == true ]]; then
