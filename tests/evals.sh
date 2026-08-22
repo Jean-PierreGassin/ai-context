@@ -49,11 +49,13 @@ assert_rejects_orphan_eval_directory() {
   printf '[]\n' >"$orphan_eval"
   if validator_accepts; then
     rm -f "$orphan_eval"
+    rmdir "$orphan"
     error 'validator accepted an eval directory with no matching skill'
     exit 1
   fi
 
   rm -f "$orphan_eval"
+  rmdir "$orphan"
 }
 
 assert_trigger_schema_enforced() {
@@ -101,6 +103,8 @@ main() {
   assert_rejects_orphan_eval_directory
 
   python3 "$validator"
+  python3 "$repository_root/tests/prepare_evals.py"
+  python3 "$repository_root/tests/score_evals.py"
   printf 'eval tests passed\n'
 }
 

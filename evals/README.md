@@ -4,7 +4,7 @@ Test data for developing the skills in `resources/payload/.agents/skills/`. It i
 `evals/` is part of the payload, and installing `ai-context` into a project never copies it.
 
 There is no model runner here, and these cases have not been executed against a model. This directory is the corpus and
-the schema; running it is a separate concern, described under [Running them](#running-them).
+the schema. Provider-specific tools execute the cases, then the repository scores their results consistently.
 
 ## Layout
 
@@ -108,25 +108,97 @@ An object naming the skill, holding the cases.
 | `category`        | no       | `normal`, `counterexample`, `project-precedence`, `proportionality`, `composition`, or `regression` |
 | `fixture`         | no       | Path relative to the skill's eval directory. Must exist            |
 
-Each skill covers roughly six to ten cases, spanning the normal case, a counterexample, project precedence,
-proportionality, composition with another skill, and a regression for a known failure mode.
+Case count follows behavioural risk rather than a fixed range. Small, narrow skills may need only a few cases. Broad
+skills need enough cases to cover their distinct rules and boundaries without repeating the same outcome. Across a
+skill, include the relevant normal cases, counterexamples, project precedence, proportionality, composition with
+another skill, and regressions for known failure modes.
 
 ## Running them
 
-`./tests/evals.sh` validates the corpus: both files present per skill, JSON that parses, required fields, non-empty
-expectations, fixture paths that exist, and skill names that match real skills. It also checks the skills the corpus is
-written against, that every supporting path a skill mentions resolves and every Claude adapter points at a real
-canonical skill. It is deterministic and needs no model. `task test` runs it alongside the installer and CLI suites.
+There are two run tiers:
 
-Executing the cases against a model is left to a runner that does not live here, so the corpus stays free of any
-provider dependency. A runner consumes it like this:
+- **Fast regression:** run `./tests/evals.sh`, or `task test` for every deterministic repository check. This validates
+  the corpus: both files present per skill, JSON that parses, required fields, non-empty expectations, fixture paths
+  that exist, and skill names that match real skills. It also checks that every supporting path a skill mentions
+  resolves and every Claude adapter points at a real canonical skill. It needs no model
+- **Full evaluation:** execute every trigger and behaviour case against a model with an external runner. Repeat each
+  case enough times to expose variance rather than treating one sampled response as a stable result
+
+Executing the cases against a model is left to an external runner, so the corpus stays free of provider dependencies.
+That runner consumes it like this:
 
 - **Triggers.** Present `query` with the skill descriptions loaded, and check whether this skill fires against
-  `should_trigger`. The useful metric is the false-positive rate on the negatives, since that is what an over-broad
-  description costs.
+  `should_trigger`. Report false-positive and false-negative rates separately, since an over-broad description and a
+  missed valid invocation are different regressions
 - **Behaviour.** Present `prompt` with the skill loaded, and with `fixture` as the working directory where one is
-  given. Judge the response against each entry in `expectations` independently, so a case can partially pass and the
-  failing expectation is named.
+  given. Have an independent judge score each entry in `expectations` separately, so a case can partially pass and the
+  failing expectation is named. Every expectation is mandatory: one failure fails the case rather than being averaged
+  away by stronger results elsewhere
+
+Record the model and provider, reasoning setting, runner version, skill content hash, case ID, repetition number, raw
+response, and expectation-level verdicts for every sample. Reports should include per-expectation and per-case pass
+rates across repeated runs, alongside trigger false-positive and false-negative rates. This makes comparisons
+reproducible and shows whether a change improved capability or merely changed sampling luck.
 
 Keep new cases in this shape rather than adding a runner-specific field. Anything a runner needs that the schema does
 not carry belongs in the runner.
+
+### Scoring external results
+
+First export blind generator tasks. The export includes each task's canonical skill content and optional absolute
+fixture path, but omits trigger labels, expectations, and expected-output hints:
+
+```console
+./scripts/prepare_evals.py --output tasks.json
+./scripts/prepare_evals.py --category regression --output regression-tasks.json
+```
+
+Give these tasks to isolated generator agents. Keep the labelled corpus available only to the independent judge and
+scorer so the generated responses cannot copy their answers from the eval definition.
+
+The default selection is the full behaviour corpus. `--category regression` emits only behaviour cases declared as
+regressions while retaining every trigger case, since false-positive and false-negative boundaries remain part of the
+fast model gate. The export records this selection, and result files must carry it unchanged. The scorer applies the
+same filter before enforcing completeness, so omitted full-suite behaviour cases are valid only when the declared
+selection excludes them.
+
+`scripts/score_evals.py` validates and scores complete result sets without invoking a model. Each run must cover every
+trigger and behaviour case. Each behaviour expectation receives its own boolean verdict, and a case passes only when
+all its expectations pass.
+
+```console
+./scripts/score_evals.py results.json
+./scripts/score_evals.py results.json --format json
+```
+
+The input requires `model.name`, `model.provider`, `model.reasoning`, `runner.name`, `runner.version`, and the exact
+SHA-256 hash of every canonical `SKILL.md`. It requires at least two uniquely identified runs so a report cannot imply
+stability from one sample. Each run may carry arbitrary metadata such as a seed or timestamp.
+
+Every trigger result records the original query, observed `triggered` verdict, raw response, and judge rationale. Every
+behaviour result records the case ID, raw response, judge rationale, and an exact expectation-to-verdict mapping. Each
+expectation verdict includes non-empty evidence, which may cite the response, tool use, or resulting state. The scorer
+rejects stale skill hashes and missing, duplicate, or unknown cases and expectations. JSON output preserves all case
+responses, rationales, expectation verdicts, and evidence.
+
+```json
+{
+  "schema_version": 1,
+  "selection": {"behaviour_category": "regression"},
+  "model": {"name": "model-name", "provider": "provider-name", "reasoning": "high"},
+  "runner": {"name": "runner-name", "version": "1.0.0"},
+  "skill_hashes": {"write-code": "<canonical SKILL.md SHA-256>"},
+  "runs": [
+    {
+      "id": "run-1",
+      "metadata": {"seed": 1},
+      "triggers": [{"skill": "write-code", "cases": [{"query": "...", "triggered": true, "response": "...", "rationale": "..."}]}],
+      "behaviour": [{"skill": "write-code", "cases": [{"id": "case-id", "response": "...", "rationale": "...", "expectations": [{"expectation": "...", "passed": true, "evidence": "..."}]}]}]
+    },
+    {"id": "run-2", "metadata": {}, "triggers": ["..."], "behaviour": ["..."]}
+  ]
+}
+```
+
+The human report gives aggregate false-positive and false-negative trigger rates plus mandatory behaviour case and
+expectation pass rates. JSON output preserves model and run metadata and includes per-run and aggregate metrics.
