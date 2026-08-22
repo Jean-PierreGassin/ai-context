@@ -414,6 +414,30 @@
       ]
     },
     {
+      "id": "bash-command-substitution-preserves-status",
+      "category": "regression",
+      "prompt": "In a Bash function, assign the output of git rev-parse to a local repository_root and stop if git fails.",
+      "expected_output": "A separate local declaration and assignment whose status remains the command substitution's status.",
+      "expectations": [
+        "Declares repository_root separately from the command substitution",
+        "Assigns the command substitution in a command whose status can fail",
+        "Handles or propagates the git failure",
+        "Does not mask failure with local, readonly, declare, or export"
+      ]
+    },
+    {
+      "id": "bash-filenames-remain-nul-delimited",
+      "category": "normal",
+      "prompt": "Run a Bash function for every file below a directory, including names with spaces and newlines.",
+      "expected_output": "A NUL-delimited find loop using read -r -d with quoted expansions.",
+      "expectations": [
+        "Uses find with -print0",
+        "Reads with IFS= read -r -d ''",
+        "Quotes the filename passed to the function",
+        "Does not parse ls or iterate over command-substitution text"
+      ]
+    },
+    {
       "id": "commits-each-reviewed-stack-entry-before-continuing",
       "category": "regression",
       "prompt": "Implement the approved three-entry change stack. Review each entry as you go.",
