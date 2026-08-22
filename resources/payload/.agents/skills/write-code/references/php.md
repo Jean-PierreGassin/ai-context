@@ -12,11 +12,10 @@ alongside these PHP-specific rules.
 - Put a call passed to another call on its own line. Name an intermediate value when nested calls obscure the flow
 - Group properties by role and methods as public entry points, public support, then private helpers
 - Keep related assignments together. Within a declaration group, put short declarations before expanded ones
-- Order parameters by injected services, scalar configuration, then collections or complex values. Within a tier,
-  order by centrality, type, then optionality
+- Order parameters by meaning and importance, with required parameters before optional ones
 - Use named arguments at call sites
 - Do not align assignments or array arrows with padding
-- Avoid nested or long ternaries. A simple single-line ternary is fine
+- Avoid ternaries. Prefer guard clauses for conditional flow, `??` for defaults, and `match` for value selection
 - Prefer readable collection pipelines for clear transformations. Keep a loop when it better preserves short-circuiting,
   keys, ordering, memory use, or intent
 

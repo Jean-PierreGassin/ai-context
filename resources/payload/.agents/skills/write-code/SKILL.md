@@ -73,6 +73,9 @@ Treat more than three returns, more than four injected dependencies or method pa
 11 or higher as an extraction signal. Consolidate only where that does not increase nesting or obscure distinct
 outcomes. Stricter project-enforced limits win.
 
+Group related statements together and use vertical whitespace to separate logical blocks when it makes the flow easier
+to scan. Do not add blank lines that fragment one cohesive operation or reduce readability.
+
 ## Naming
 
 - Use strict parameter and return types, and named arguments where the language supports them

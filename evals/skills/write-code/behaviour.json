@@ -172,6 +172,30 @@
       ]
     },
     {
+      "id": "php-parameters-and-conditional-flow",
+      "category": "normal",
+      "prompt": "Refactor this PHP method: its optional label comes before the required subject, a ternary supplies a default, and a switch selects the delivery mode.",
+      "expected_output": "Parameters ordered by meaning and importance with required before optional, null coalescing for the default, guard clauses for flow, and match for selection.",
+      "expectations": [
+        "Orders parameters by their meaning and importance",
+        "Places required parameters before optional parameters",
+        "Uses null coalescing rather than a ternary for the default",
+        "Uses guard clauses for conditional flow and match for value selection"
+      ]
+    },
+    {
+      "id": "logical-blocks-use-proportionate-whitespace",
+      "category": "proportionality",
+      "prompt": "Clean up this method whose validation, transformation, and persistence statements currently run together without spacing.",
+      "expected_output": "Related statements grouped into readable logical blocks separated by proportionate vertical whitespace.",
+      "expectations": [
+        "Keeps statements serving the same step together",
+        "Separates distinct logical blocks with vertical whitespace",
+        "Does not insert blank lines between every statement",
+        "Leaves a cohesive operation unbroken where spacing would impede readability"
+      ]
+    },
+    {
       "id": "complexity-threshold-prompts-judgement",
       "category": "proportionality",
       "prompt": "This method has five parameters and four returns, but each return is a short guard and the complete flow fits on one screen. Clean it up.",
