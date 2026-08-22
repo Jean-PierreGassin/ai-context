@@ -107,6 +107,18 @@
         "Does not re-derive a different split from the diff",
         "Names each commit after its change's purpose in the plan"
       ]
+    },
+    {
+      "id": "self-reviews-before-commit",
+      "category": "regression",
+      "prompt": "Commit the completed change after reviewing it.",
+      "expected_output": "The staged diff reviewed with proportionate tools, findings fixed in the relevant change, and review repeated before committing.",
+      "expectations": [
+        "Selects review tools and depth based on the change rather than following a prescribed tool list",
+        "Reviews the staged diff before committing",
+        "Fixes every finding and repeats the review until it is clean",
+        "Folds each review fix into the reasoning step it corrects rather than creating a follow-up commit"
+      ]
     }
   ]
 }

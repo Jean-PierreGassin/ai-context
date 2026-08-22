@@ -10,14 +10,17 @@ when_to_use: Triggers on requests like "commit this", "commit these changes", "s
 
 ## Process
 
-1. Run Lint/format/relevant tests/coverage to ensure we're ready to proceed
+1. Run the project's formatter, linter, and relevant tests; stop on failure
 2. Split commits by [reasoning step](#one-commit-one-reasoning-step): Run `git status`/`git diff` and group changes by
    what each is for, not by which files they touch
 3. Find the ticket key: Extract it from the current branch name (e.g. `ABC-1234-fix-timeout` -> `ABC-1234`)
 4. No ticket found? Ask the user for it rather than inventing, omitting, or substituting one. If they confirm there
    isn't one, or the project doesn't use ticket keys, use the no-ticket format in the [example](#example)
 5. Look for a `commit-msg` hook (`.git/hooks/commit-msg`), or other message guidance/enforcement
-6. Use the [template](#template) to structure the commit message, and the [example](#example) for guidance
+6. Stage one reasoning step at a time
+7. Review each staged diff with the tools and depth it warrants. Fix every finding and fold the fix into the reasoning
+   step it corrects, then repeat until the review is clean
+8. Use the [template](#template) to structure the commit message, and the [example](#example) for guidance
 
 ## One commit, one reasoning step
 
@@ -29,26 +32,8 @@ A commit is a step someone can review or revert on its own. Split by what the ch
 
 ## Write the intent, not the file list
 
-The short description says what the change accomplishes, in the terms an engineer would use to describe the decision:
-
-```
-// Bad - names the files, not the thinking
-Update refund files
-Implement refund changes
-Fix stuff in OrderService
-```
-
-```
-// Good - a reasoning step someone could review on its own
-Extract refund calculation into RefundCalculator
-Add partial refund eligibility rules
-Guard the expiry-type label against a missing value
-```
-
-The ticket key still prefixes it, per the [template](#template).
-
-Where a commit is deliberately behaviour-preserving, say so in a bullet. It is the fact a reviewer most wants and the
-one the diff cannot show them.
+The subject states the commit's intent, not its files. Avoid generic summaries such as "update files" or "implement
+changes". For a behaviour-preserving commit, state that explicitly in a bullet.
 
 ## Rules
 
@@ -85,13 +70,4 @@ Branch (no ticket): `fix/roster-sync`
 Fix - sync fetch of rosters when trashed
 - Exclude soft-deleted rosters from the sync query
 - Add regression test for the trashed-roster case
-```
-
-Branch (ticket), the structural commit that precedes a behaviour change:
-
-```
-ABC-4610 - Extract refund calculation into RefundCalculator
-- Move `calculateRefund()` and its private helpers out of `OrderService`, unchanged
-- Point the two existing call sites at the new class
-- No behaviour change, the existing refund tests pass untouched
 ```
