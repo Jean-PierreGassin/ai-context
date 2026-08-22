@@ -1,7 +1,9 @@
 # Persisted Plans
 
 Read this when the work has to survive something: an interruption, a context reset, a handover, or a second session.
-Persistence is the reason these files exist. A plan that lives and dies inside one conversation does not need them.
+Persistence is the reason these files exist. A contained change that lives and dies inside one conversation does not
+need them. An implemented change stack always does: each approved commit must leave a restore point even when the user
+initially expects to finish in the same session.
 
 ## What gets persisted
 
@@ -12,20 +14,43 @@ Persistence is the reason these files exist. A plan that lives and dies inside o
 
 Persist the approved Markdown directly as one `PLAN.md` per change, numbered in stack order. It records:
 
+- Start here: the context-loading bootstrap described below
 - Objective
 - Stack position: purpose, kind, dependencies, reviewer focus, and rollback
 - Requirements and acceptance criteria
 - Ordered implementation checklist
 - Validation commands and expected outcomes
 
-Create `CONTEXT.md` only when the work must survive an interruption, handover, or later session. It is prose, and
-holds what the plan file deliberately does not:
+## Start here
+
+The first section of every `PLAN.md`, immediately after its title, tells a fresh session how to load the minimum
+sufficient context and begin without asking the user to repeat anything. Record concrete paths and commands, not
+generic directions:
+
+- **Skills to load:** every applicable skill, in load order, including the specific references needed for this change
+- **Read first:** `CONTEXT.md`, the relevant earlier and current plans, and committed project instructions, in order
+- **Repository context:** the source, tests, contracts, configuration, and nearest equivalent files that establish how
+  this change should be implemented, with a short reason for each
+- **Commands:** the working directory, discovery or baseline commands worth repeating, and the exact validation gates
+- **Begin with:** the first unchecked action that can be taken after the context is loaded
+
+Keep this executable and selective. Include information that changes implementation decisions or avoids rediscovery;
+do not inventory the repository or copy material already held by the linked files. An approved plan must not depend on
+the user supplying context already available in these sources. If a genuinely unresolved choice remains, name it and
+its impact explicitly rather than hiding it in the bootstrap.
+
+Create `CONTEXT.md` when the work must survive an interruption, handover, or later session, and whenever implementing a
+change stack. It is prose, and holds what the plan file deliberately does not:
 
 - Where the work actually got to, in a sentence, and what the next action is
 - Decisions already made and the reasoning behind them, so they are not relitigated
 - What was tried and rejected, which is the part a fresh session is most likely to waste time rediscovering
 - The files, commands, and environment specifics that took effort to find
 - Anything the user said that constrains the approach
+
+Together, the plans and context must be sufficient for a fresh session to identify the last completed entry, the
+current repository state, settled decisions, affected downstream work, and the single next action without repeating
+earlier investigation.
 
 ## Where plans live
 
@@ -55,12 +80,38 @@ disagree within a day, and nobody knows which one is current. Continue the exist
 
 - Check items off in real time as they are completed, not in a batch at the end
 - Phases run in order. Mark a phase's items done before moving to the next
-- Where new work surfaces mid-task, add it to the checklist. Confirm with the user before adding scope they did not
-  ask for
+- Where implementation or review reveals that an assumption was wrong, update the requirement, checklist item, or
+  decision where it belongs. Then trace the finding through every later plan and update its dependencies, acceptance
+  criteria, implementation, tests, validation, and rollback where affected
+- Keep each affected plan's `Start here` section aligned with those changes: add newly required skills or files, remove
+  obsolete context, and advance `Begin with` to the next unchecked action
+- Replace stale statements rather than keeping an append-only diary. Preserve only critical reasoning, rejected
+  directions that would otherwise recur, and facts a fresh session cannot cheaply recover
+- Where new work surfaces mid-task, add it to the checklist only when it is required by the agreed objective. Confirm
+  with the user before adding scope they did not ask for
 - Where the new work belongs to a different review objective, it becomes its own change in the stack rather than
   growing the current one
 - Update `CONTEXT.md` whenever a decision is made or an approach is abandoned. That is the moment the reasoning is
   cheapest to write down and most expensive to lose
+- Push back before changing requirements, architecture, stack boundaries or ordering, or accepting a revision with
+  broad side effects. Explain the impact on current and later entries, offer the smallest compatible alternative, and
+  wait for explicit user approval before revising the agreed direction
+
+## Commit checkpoints
+
+For each stack entry, update its plan and context as part of the implementation diff submitted for human review. The
+checkpoint records the state the commit will establish:
+
+- The entry completed and the acceptance criteria it satisfies
+- Critical decisions made during implementation or review, with superseded assumptions removed
+- Consequences already applied to every affected later plan
+- Updated `Start here` sections for every affected plan
+- The exact next entry and first action, or that the stack is complete
+
+After human approval, run the gates and commit the complete checkpoint. Then verify that the committed plan and
+context match the repository and can restore the work from a fresh session. If the gates or any correction changes
+that state, update the checkpoint, invalidate approval, and return the whole diff for human review. Do not create a
+separate metadata commit merely to say that the preceding commit happened.
 
 ## Handing over and finishing
 

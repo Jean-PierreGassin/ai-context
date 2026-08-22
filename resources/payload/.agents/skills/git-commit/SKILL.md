@@ -11,20 +11,26 @@ when_to_use: Triggers on requests like "commit this", "commit these changes", "s
 
 ## Process
 
-1. Run the project's formatter, linter, and relevant tests; stop on failure
-2. Split commits by [reasoning step](#one-commit-one-reasoning-step): Run `git status`/`git diff` and group changes by
+1. Split commits by [reasoning step](#one-commit-one-reasoning-step): Run `git status`/`git diff` and group changes by
    what each is for, not by which files they touch
-3. Find the ticket key: Extract it from the current branch name (e.g. `ABC-1234-fix-timeout` -> `ABC-1234`)
-4. No ticket found? Ask the user for it rather than inventing, omitting, or substituting one. If they confirm there
+2. Find the ticket key: Extract it from the current branch name (e.g. `ABC-1234-fix-timeout` -> `ABC-1234`)
+3. No ticket found? Ask the user for it rather than inventing, omitting, or substituting one. If they confirm there
    isn't one, or the project doesn't use ticket keys, use the no-ticket format in the [example](#example)
-5. Look for a `commit-msg` hook (`.git/hooks/commit-msg`), or other message guidance/enforcement
-6. Stage one reasoning step at a time
-7. Review each staged diff with the tools and depth it warrants. Fix every finding and fold the fix into the reasoning
-   step it corrects, then repeat until the review is clean
-8. Use the [template](#template) to structure the commit message, and the [example](#example) for guidance
-9. When `write-code` is executing a change stack, commit the clean entry before beginning the next one. Where the
-   entry adjusts an earlier commit and rewriting is safe, fold it into that commit; otherwise create its own commit
-   before continuing
+4. Look for a `commit-msg` hook (`.git/hooks/commit-msg`), or other message guidance/enforcement
+5. Stage one reasoning step at a time
+6. Self-review each staged diff with the tools and depth it warrants. Fix every finding and fold the fix into the
+   reasoning step it corrects, then repeat until the review is clean
+7. For a change-stack entry, confirm the staged diff includes its updated plan and restore context: completed state,
+   critical decisions, consequences applied to later entries, aligned `Start here` bootstraps, and the exact next
+   action
+8. Present the exact staged diff for human review and wait for explicit approval to commit it
+9. After approval, run the project's formatter, linter, static analysis, and relevant tests; stop on failure
+10. If a gate or its fix changes the staged diff, approval no longer applies: self-review the revised diff, present it
+   for human review, and rerun the gates after renewed approval
+11. Use the [template](#template) to structure the commit message, and the [example](#example) for guidance
+12. When `write-code` is executing a change stack, commit the approved entry after its gates pass, verify that its
+   persisted state can restore a fresh session, and only then begin the next one. Where the entry adjusts an earlier
+   commit and rewriting is safe, fold it into that commit; otherwise create its own commit before continuing
 
 ## One commit, one reasoning step
 

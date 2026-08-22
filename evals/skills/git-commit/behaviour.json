@@ -88,10 +88,12 @@
       "id": "runs-the-gate-before-committing",
       "category": "normal",
       "prompt": "Commit everything, I am about to push.",
-      "expected_output": "Formatter, linter, and the relevant tests run before the commit is created.",
+      "expected_output": "The diff receives explicit human approval, then formatter, linter, and relevant tests run before the commit is created.",
       "expectations": [
-        "Runs the project's format, lint, and relevant tests before committing",
+        "Presents the exact staged diff and waits for explicit human approval",
+        "Runs the project's format, lint, static analysis, and relevant tests after approval and before committing",
         "Reports a failure and stops, rather than committing over it",
+        "Returns for renewed human review if a gate or gate fix changes the approved diff",
         "Uses the project's own runner where one exists",
         "Reviews the diff before grouping it, rather than committing everything blind"
       ]
@@ -112,9 +114,14 @@
       "id": "commits-clean-stack-entry-before-next-entry",
       "category": "composition",
       "prompt": "The first entry in the approved stack has been implemented, reviewed, and fixed. Continue with the stack.",
-      "expected_output": "The clean first entry is committed before implementation starts on the next entry.",
+      "expected_output": "The clean first entry receives human approval, passes gates, and is committed before implementation starts on the next entry.",
       "expectations": [
-        "Commits the reviewed entry before beginning the next entry",
+        "Presents the reviewed entry and waits for explicit human approval",
+        "Includes updated plans and restore context in the reviewed stack entry",
+        "Confirms affected plans begin with current skills, files, commands, and next actions",
+        "Runs the project gates after approval",
+        "Commits the approved entry after its gates pass and before beginning the next entry",
+        "Verifies that a fresh session can resume from the committed state",
         "Preserves the stack's planned ordering",
         "Does not leave the completed entry uncommitted while implementing another entry",
         "Folds the entry into an earlier commit only when it adjusts that commit and rewriting is safe"
@@ -124,11 +131,13 @@
       "id": "self-reviews-before-commit",
       "category": "regression",
       "prompt": "Commit this completed one-line documentation correction after reviewing it.",
-      "expected_output": "The staged diff reviewed with proportionate tools, findings fixed in the relevant change, and review repeated before committing.",
+      "expected_output": "The staged diff is self-reviewed, approved by a human, then gated before committing.",
       "expectations": [
         "Uses review tools and depth proportionate to the change",
-        "Reviews the staged diff before committing",
+        "Self-reviews the staged diff before presenting it for human review",
         "Fixes every finding and repeats the review until it is clean",
+        "Waits for explicit human approval, then runs the project gates before committing",
+        "Requires renewed approval if anything changes after human review",
         "Folds each review fix into the reasoning step it corrects rather than creating a follow-up commit"
       ]
     }

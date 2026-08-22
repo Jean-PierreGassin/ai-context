@@ -77,6 +77,30 @@ as a decision.
 Use the fewest changes that preserve one review objective each. Never create branches or PRs before the split is
 agreed. `write-pr` governs each change's description, including how it names its neighbours in the stack.
 
-During implementation, complete entries in order. Review and adjust the current entry while it is uncommitted, then
-commit it before starting the next entry. If an entry exists to adjust an earlier commit and rewriting is safe, fold
-it into that commit. Do not postpone commits until the full stack has been implemented.
+### Reconcile implementation discoveries
+
+Treat the approved plan as living state, not a transcript of the first guess:
+
+- When repository inspection, implementation, or human review establishes a different fact, replace the stale
+  assumption in the entry where it belongs. Update its checklist, acceptance criteria, files, validation, reviewer
+  focus, or rollback as the finding requires
+- Trace the consequence through every later entry. Update affected dependencies, requirements, tests, ordering, and
+  rollback before continuing; remove superseded wording rather than appending a contradictory note
+- Record the decision and its reason once in the persisted context. Later entries should rely on that decision rather
+  than asking the next session to discover or debate it again
+- Leave unrelated findings out of the stack and report them separately
+
+A refinement stays within the agreed direction when it preserves the requirements, architecture, review objectives,
+and stack shape. If it changes any of those, adds scope, or creates broad side effects, stop and push back. Describe
+what would move, which later entries would change, and the smallest compatible alternative. Wait for explicit user
+approval of the revised plan before implementing the directional change.
+
+During implementation, complete entries in order. Self-review and adjust the current entry while it is uncommitted,
+then reconcile its findings across the persisted plans. Make the current entry's diff a restore point: mark what the
+commit will complete, record critical decisions and rejected directions, update every affected later entry, and name
+the exact next action. Present that complete diff for human review and wait for explicit approval. Run the project
+gates after approval, then commit it before starting the next entry. Verify after the commit that a fresh session can
+resume from the persisted state without repeating investigation or decisions. Any post-approval change invalidates
+approval and returns the entry to self-review, plan reconciliation, and human review before the gates run again. If an
+entry exists to adjust an earlier commit and rewriting is safe, fold it into that commit. Do not postpone commits
+until the full stack has been implemented.

@@ -19,7 +19,8 @@ Plan only enough to choose reviewable units and their order.
 3. Load the skills that shape the plan's content: `write-code` for how the implementation should look, `write-tests`
    for what coverage the change needs, and `git-commit` for the boundary between stack entries
 4. Gather context by investigating the areas the change touches
-5. Draft the split and confirm it with the user, with options, before detailing each change
+5. Draft the split and confirm it with the user, with options, before detailing each change. For every persisted plan,
+   put its context-loading bootstrap first so implementation can begin after a full context reset
 6. Return the plan as concise Markdown. The installed Plannotator host integration intercepts the response and opens
    the review surface; do not launch it through a shell command. Ask only questions whose answers could change the
    split, ordering, or approach
@@ -29,8 +30,13 @@ Plan only enough to choose reviewable units and their order.
 8. Hand over rather than implement: end referencing any persisted plan locations so implementation starts on fresh
    context. Carry on into implementation only where the user asked for both
 
-When implementing an approved stack, finish one entry at a time: write it, review and adjust it until clean, then
-commit it before beginning the next entry. An entry that adjusts an earlier commit may be folded into it where
+When implementing an approved stack, finish one entry at a time: write it, self-review and adjust it until clean, then
+reconcile implementation discoveries into the current plan and every affected later entry. Include an updated restore
+point in the diff, then present it for human review and wait for explicit approval. After approval, run the project
+gates and commit the entry before beginning the next one. Verify after the commit that the persisted plan and context
+describe the completed state, critical decisions, downstream consequences, and exact next action. Any change after
+approval, including formatter output or a gate fix, invalidates that approval: self-review the revised diff and return
+it for human review before rerunning the gates. An entry that adjusts an earlier commit may be folded into it where
 rewriting is safe. Never carry an uncommitted completed entry into the next entry.
 
 ## Route by shape
@@ -38,7 +44,7 @@ rewriting is safe. Never carry an uncommitted completed entry into the next entr
 | The work is                                                          | Read                                                 |
 |----------------------------------------------------------------------|------------------------------------------------------|
 | Contained: one review objective                                      | Nothing further. One change, no stack ceremony       |
-| Several independently reviewable changes                             | `references/change-stack.md`                         |
+| Several independently reviewable changes                             | `references/change-stack.md`; when implementing, also `references/persisted-plans.md` |
 | A replacement, a schema/API/contract migration, or a large refactor  | Also `references/change-strategies.md`               |
 | Work that must survive an interruption or another session            | Also `references/persisted-plans.md`                 |
 
@@ -56,6 +62,10 @@ averaging them into one shapeless sequence.
 - **Don't over-fragment.** A split that forces the reviewer to reassemble the feature to understand the intent has
   gone too far. Reviewability is the test, not slice count
 - **Confirm before creating.** Never create branches or PRs before the user has agreed the split
+- **Protect the agreed direction.** Fold discoveries that refine the agreed work into the plan. Stop and push back
+  when a proposed revision changes requirements, architecture, stack boundaries or ordering, adds a review objective,
+  or creates broad side effects. Explain the consequences and offer the smallest compatible alternative; revise the
+  direction only after explicit user approval
 
 ## Compose with other skills
 

@@ -29,8 +29,15 @@
   [use-worktrees](.agents/skills/use-worktrees)
 - Branch and worktree names use the tracker's ticket key (`ABC-1234` or `ABC-1234-slug`), otherwise
   `{type}/title-of-changes-summarized` (e.g. `fix/changes-summarized`)
-- After every code change, review the diff using the tools and depth the change warrants, fix every finding, and repeat
-  until the review is clean. Fold each review fix into the change it corrects rather than leaving a follow-up change
+- After every code change, self-review the diff using the tools and depth the change warrants, fix every finding, and
+  repeat until the review is clean. Present each clean diff for human review and wait for explicit approval, then run
+  the project gates before committing. Any post-approval change requires renewed human review. Fold each review fix
+  into the change it corrects rather than leaving a follow-up change
+- During a stack, fold implementation and review discoveries into the appropriate plan entry and every affected later
+  entry. Push back on revisions that change the agreed direction or create broad side effects. Include the updated
+  plan and restore context in each approved commit so a fresh session can resume at the exact next action
+- Start every persisted plan with the skills, ordered files, commands, and first action needed to execute it after a
+  full context reset without asking the user to provide the context again
 
 ## Tickets and PRs
 

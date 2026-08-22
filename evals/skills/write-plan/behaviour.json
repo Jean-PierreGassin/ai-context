@@ -54,15 +54,16 @@
       ]
     },
     {
-      "id": "persisted-files-only-when-persistence-is-needed",
+      "id": "implemented-stack-persists-restore-state",
       "category": "proportionality",
       "prompt": "Plan this with me now. I will implement it straight after, in this session.",
-      "expected_output": "A plan held in the conversation, with no persisted files created for work that never leaves it.",
+      "expected_output": "A contained change can remain in conversation, while an implemented stack persists plans and context for per-commit restoration.",
       "expectations": [
-        "Creates no persisted plan files for work that stays inside one session",
-        "Says what would change that answer, such as the work spanning sessions or being handed over",
+        "Creates no persisted plan files for a contained change that stays inside one session",
+        "Persists plans and context when the work is an implemented change stack, even in one session",
+        "Explains that each approved stack commit must be resumable after a context reset",
         "Still produces the split and the ordering",
-        "Creates the files if the user says the work will carry over"
+        "Creates the files for any work that will otherwise carry over"
       ]
     },
     {
@@ -141,11 +142,13 @@
       "id": "implementation-commits-between-stack-entries",
       "category": "composition",
       "prompt": "The plan is approved. Implement its three-change stack now, reviewing each change before moving on.",
-      "expected_output": "Implementation follows the approved order and creates a clean commit after reviewing each entry, before starting the next.",
+      "expected_output": "Implementation follows the approved order, obtains human approval for each entry, runs gates, and commits it before starting the next.",
       "expectations": [
         "Loads git-commit alongside write-code for implementation",
-        "Reviews and adjusts each entry before committing it",
-        "Commits each clean entry before beginning the next one",
+        "Self-reviews and adjusts each entry before presenting its diff for human review",
+        "Waits for explicit human approval before running the project gates",
+        "Commits each approved entry after its gates pass and before beginning the next one",
+        "Returns to human review if a gate or gate fix changes the approved diff",
         "Does not carry an uncommitted completed entry into another stack entry",
         "Allows a corrective entry to be folded into an earlier commit when rewriting is safe"
       ]
@@ -160,6 +163,62 @@
         "Continues the existing plan and says what changed, rather than starting another one",
         "Reads the context file before the plan file when resuming",
         "Verifies the plan against the repository and reports where the two disagree"
+      ]
+    },
+    {
+      "id": "implementation-finding-propagates-through-stack",
+      "category": "composition",
+      "prompt": "While implementing entry two, repository inspection shows the planned adapter already exists under a different abstraction. This changes entry two's checklist and the tests and dependency described in entries three and four. Continue the stack.",
+      "expected_output": "The established fact replaces the stale assumption in entry two and every affected later plan before implementation continues.",
+      "expectations": [
+        "Updates the existing entry two plan rather than creating a parallel plan or workaround",
+        "Propagates the consequence into the tests, dependency, and implementation details of entries three and four",
+        "Removes superseded assumptions instead of preserving contradictory instructions",
+        "Records the decision and reasoning once so later sessions do not rediscover it",
+        "Keeps the revision within the agreed direction because its objectives and stack shape are unchanged"
+      ]
+    },
+    {
+      "id": "directional-change-gets-pushback",
+      "category": "counterexample",
+      "prompt": "During entry two I decided replacing the persistence layer would be cleaner. It changes the architecture, expands four later entries, and adds a data migration. Fold it into the approved stack and keep going.",
+      "expected_output": "Implementation stops and the directional change is challenged before the approved stack is revised.",
+      "expectations": [
+        "Identifies the architecture change, migration, added scope, and downstream expansion",
+        "Pushes back with the concrete side effects rather than silently revising the plan",
+        "Offers the smallest alternative compatible with the approved direction",
+        "Waits for explicit user approval before changing the stack or implementing the new direction",
+        "Updates every affected plan only if the user approves the directional change"
+      ]
+    },
+    {
+      "id": "commit-is-a-resumable-checkpoint",
+      "category": "regression",
+      "prompt": "Entry two has been implemented and is ready for human review. Make sure I can clear context immediately after it is approved and committed, then continue entry three without repeating anything.",
+      "expected_output": "The reviewed commit includes current plans and a restore context that identify completed work, settled decisions, downstream changes, and the exact next action.",
+      "expectations": [
+        "Updates the current plan and context before presenting the complete diff for human review",
+        "Records critical decisions and removes superseded assumptions",
+        "Updates all affected later entries before the commit",
+        "Names entry three and its exact first action as the restore point",
+        "Runs gates after approval and commits the code and checkpoint together",
+        "Verifies after the commit that a fresh session can resume from the persisted state",
+        "Does not create a recursive metadata-only commit to record that the work commit happened"
+      ]
+    },
+    {
+      "id": "persisted-plan-starts-with-context-bootstrap",
+      "category": "regression",
+      "prompt": "Write the persisted plan so I can clear all context, point a fresh agent at PLAN.md, and have it start without asking me what to load or inspect.",
+      "expected_output": "The plan begins with a selective, executable context-loading sequence and the first implementation action.",
+      "expectations": [
+        "Places the context-loading section first, immediately after the plan title",
+        "Lists every applicable skill and relevant skill reference in load order",
+        "Lists CONTEXT.md, relevant plans, project instructions, source, tests, contracts, and configuration to read in order",
+        "Explains briefly why each repository file is relevant instead of inventorying the repository",
+        "Names the working directory, useful baseline or discovery commands, and exact validation gates",
+        "Ends the bootstrap with the first unchecked implementation action",
+        "Does not ask the user to resupply context already available from the listed sources"
       ]
     }
   ]

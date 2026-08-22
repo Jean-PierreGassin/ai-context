@@ -296,11 +296,17 @@
       "id": "commits-each-reviewed-stack-entry-before-continuing",
       "category": "regression",
       "prompt": "Implement the approved three-entry change stack. Review each entry as you go.",
-      "expected_output": "Each entry is reviewed and adjusted while uncommitted, then committed before implementation begins on the next entry.",
+      "expected_output": "Each entry is self-reviewed, approved by a human, gated, and committed before implementation begins on the next entry.",
       "expectations": [
         "Implements only one stack entry at a time",
-        "Reviews and fixes the current entry before committing it",
-        "Commits the clean entry before beginning the next entry",
+        "Self-reviews and fixes the current entry before presenting it for human review",
+        "Reconciles implementation and review discoveries into the current and affected later plans",
+        "Includes a restore context with settled decisions and the exact next action in the reviewed diff",
+        "Keeps each affected plan's context bootstrap aligned with the revised skills, files, commands, and next action",
+        "Waits for explicit human approval before running the project gates",
+        "Commits the approved entry after its gates pass and before beginning the next entry",
+        "Verifies that the committed checkpoint can resume in a fresh session",
+        "Returns for renewed human review if anything changes after approval",
         "Does not defer all commits until the complete stack has been implemented",
         "Folds an adjustment into its earlier commit when rewriting is safe"
       ]

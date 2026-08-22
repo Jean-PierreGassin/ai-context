@@ -16,7 +16,9 @@ Keep code readable, cohesive, and limited to the task.
 1. Read the [references](#references) for the languages and frameworks in scope, and nothing else; if none exists,
    use the fallback below
 2. Open the nearest equivalent capability already in the repository and match how it is arranged
-3. For each change-stack entry, write and review the change, commit the clean entry, then start the next entry
+3. For each change-stack entry, write and self-review the change, reconcile discoveries into the persisted plan and
+   affected later entries, obtain human approval, run the project gates, commit the approved restore point, then start
+   the next entry
 4. [Check the completed change](#before-reporting-it-done) before reporting it as done
 
 Shape the work before writing it:
@@ -27,13 +29,25 @@ Shape the work before writing it:
 | Several review objectives, migration sequencing, or work that must survive a session boundary  | Use `write-plan` first |
 
 A plan that already exists is the authority on ordering: follow its change stack rather than re-deciding the split.
-Confirm an agreed stack before writing. Assign every edit to its relevant entry. Fold review fixes into that entry's
-commit where rewriting is safe; a genuinely new review objective becomes a new entry.
+On a fresh context, execute the plan's `Start here` section before writing. Confirm an agreed stack before writing.
+Assign every edit to its relevant entry. Fold review fixes into that entry's commit where rewriting is safe; a
+genuinely new review objective becomes a new entry.
 
-Review and adjust each stack entry before committing it. Once its review is clean, use `git-commit` to create its
-preserving commit before beginning the next entry. Do not continue into another stack entry, or defer the stack's
-commits until all entries have been implemented. Where an entry adjusts an earlier commit and rewriting is safe, fold
-it into that commit; otherwise create its own commit before continuing.
+When implementation or review disproves a plan assumption, update it where it belongs and propagate its consequences
+through every affected later entry before continuing. A discovery may refine implementation within the agreed
+requirements, architecture, review objectives, and stack shape. Push back when a proposed change moves any of those,
+adds scope, or creates broad side effects: explain the downstream impact, offer the smallest compatible alternative,
+and wait for explicit approval of the revised plan.
+
+Self-review and adjust each stack entry, then update the persisted plan and context so the diff records the completed
+state, critical decisions, downstream plan changes, and exact next action. Present that complete restore point for
+human review and wait for explicit approval. After approval, use `git-commit` to run the project gates and create its
+preserving commit before beginning the next entry. Verify after the commit that a fresh session can resume without
+repeating investigation or decisions, and that the next plan's `Start here` section names all required skills, files,
+commands, and its first action. Any post-approval change invalidates approval and must go through self-review, plan
+reconciliation, and human review again. Do not continue into another stack entry, or defer the stack's commits until
+all entries have been implemented. Where an entry adjusts an earlier commit and rewriting is safe, fold it into that
+commit; otherwise create its own commit before continuing.
 
 ## References
 
