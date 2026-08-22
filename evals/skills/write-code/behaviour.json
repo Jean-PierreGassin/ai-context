@@ -256,13 +256,13 @@
       ]
     },
     {
-      "id": "laravel-prefers-facades-and-purpose-built-methods",
+      "id": "laravel-helpers-and-purpose-built-methods",
       "category": "normal",
       "prompt": "Read a nested array value, fetch runtime configuration, resolve a runtime-selected handler, and split a collection into accepted and rejected records in Laravel.",
-      "expected_output": "Facade-based array and configuration access, resolve for the runtime-selected dependency, and Collection partition for the two groups.",
+      "expected_output": "Laravel helpers for array and configuration access, resolve for the runtime-selected dependency, and Collection partition for the two groups.",
       "expectations": [
-        "Uses Arr instead of the equivalent global array helper",
-        "Uses the Config facade for runtime configuration",
+        "Allows data_get or an equivalent clear Laravel API for nested array access",
+        "Uses config for runtime configuration and never env outside a configuration file",
         "Uses resolve for the dependency that genuinely requires runtime container selection",
         "Uses partition instead of duplicating filter and reject passes"
       ]

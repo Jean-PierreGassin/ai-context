@@ -13,8 +13,8 @@ quality tooling, not this framework reference.
 - Create framework-owned files with the relevant `php artisan make:` generator, then edit its output. Migration
   timestamps come from generation and determine order
 - Keep framework-defined `array` signatures
-- Read runtime configuration through the `Config` facade and use `env()` only in configuration files
-- Prefer Laravel facades over equivalent global helpers, such as `Arr::get()` over `data_get()`
+- Use `config()` for runtime configuration and `env()` only in configuration files
+- Use Laravel helpers such as `data_get()` where they express the operation clearly; facades are not preferred by default
 - Use `resolve()` when runtime container resolution is required; prefer constructor injection for declared collaborators
 - Put user-facing text in language files and application values in configuration
 - Use `when()` and `whenNotNull()` for conditional resource fields
