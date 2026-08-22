@@ -13,7 +13,8 @@ Keep code readable, cohesive, and limited to the task.
 
 ## Process
 
-1. Read the [references](#references) for the languages and frameworks in scope, and nothing else
+1. Read the [references](#references) for the languages and frameworks in scope, and nothing else; if none exists,
+   use the fallback below
 2. Open the nearest equivalent capability already in the repository and match how it is arranged
 3. Write the change, then [check it](#before-reporting-it-done) before reporting it as done
 
@@ -46,6 +47,12 @@ Each reference splits its rules in two, and the section a rule sits in is its st
 - **Follow the project where it is consistent** is a preference, the default for a greenfield choice, which the project
   displaces where it consistently does something else
 
+When no reference covers the language or framework, still apply this skill. Use its shared guidance directly, then
+carry over the intent of known documented language preferences where the target language has an idiomatic equivalent.
+For example, prefer explicit contracts and descriptive names without forcing syntax, patterns, or tooling from another
+language. Do not load unrelated references merely to manufacture rules, and do not leave a choice arbitrary when this
+skill or a known preference supplies a sane default.
+
 ## Precedence
 
 - What the project enforces wins: formatters, linters, static analysis, CI, `.editorconfig`, framework and interface
@@ -53,6 +60,8 @@ Each reference splits its rules in two, and the section a rule sits in is its st
 - The references are settled preferences rather than observations of this repository. Neighbouring code that predates
   one does not excuse a new violation, and a correctly applied rule is never worth reverting because the neighbours
   look different
+- When no project, plugin, or applicable reference supplies guidance, this skill's rules and preferences are the
+  defaults; apply them rather than treating the absence of loaded guidance as permission to improvise
 - Where a deviation is deliberate, say so with the reason rather than shipping it silently
 
 ## Architecture

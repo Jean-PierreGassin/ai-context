@@ -2,6 +2,19 @@
   "skill_name": "write-code",
   "evals": [
     {
+      "id": "unsupported-language-uses-documented-defaults",
+      "category": "normal",
+      "prompt": "Write a small retry-policy module in Rust. This empty project has no local instructions, established conventions, or Rust reference in the loaded skills.",
+      "expected_output": "Idiomatic Rust that follows write-code's shared rules and carries applicable documented preferences across without importing another language's syntax or architecture.",
+      "expectations": [
+        "Applies write-code's guidance even though no project, plugin, or Rust-specific reference is loaded",
+        "Uses descriptive names, explicit contracts, cohesive units, and guard-style early exits where Rust supports them idiomatically",
+        "Uses sane defaults inferred from documented preferences rather than making every unspecified choice arbitrary",
+        "Does not copy PHP, TypeScript, or framework-specific syntax, tooling, or architecture into the Rust module",
+        "Does not load unrelated language references solely because the target language lacks one"
+      ]
+    },
+    {
       "id": "follows-project-architecture-over-reference",
       "category": "project-precedence",
       "prompt": "This project keeps each piece of business logic in its own single-purpose class, called directly from the controller. There is no service layer and no repository layer. Add the ability to reopen a closed record.",
