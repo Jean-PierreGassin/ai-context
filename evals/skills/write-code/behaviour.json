@@ -342,6 +342,30 @@
       ]
     },
     {
+      "id": "laravel-related-writes-share-transaction-boundary",
+      "category": "regression",
+      "prompt": "Issuing an invoice saves it and records its ledger entry through two repositories. Both writes must succeed or fail together.",
+      "expected_output": "One DB transaction at the established orchestration layer around both repository calls.",
+      "expectations": [
+        "Places one transaction around the complete business operation",
+        "Keeps the transaction in the layer that orchestrates both writes",
+        "Does not put independent partial transactions inside each repository",
+        "Keeps business decisions out of the persistence repositories"
+      ]
+    },
+    {
+      "id": "laravel-resource-uses-conditional-field-apis",
+      "category": "normal",
+      "prompt": "Return a Laravel API resource whose customer relation is optional and whose reference field may be null.",
+      "expected_output": "A JsonResource using whenLoaded for the relation and whenNotNull for the nullable field.",
+      "expectations": [
+        "Uses a JsonResource rather than returning a model or raw response array from the controller",
+        "Uses whenLoaded for the optional customer relation",
+        "Uses whenNotNull for the nullable reference",
+        "Does not mutate the resource array through conditional branches"
+      ]
+    },
+    {
       "id": "commits-each-reviewed-stack-entry-before-continuing",
       "category": "regression",
       "prompt": "Implement the approved three-entry change stack. Review each entry as you go.",

@@ -27,16 +27,16 @@ Restore Laravel-specific examples that teach framework responsibility boundaries
 - Remove generic PHP guidance and speculative architectural prescriptions
 - Correct behavior-changing or contradictory pairs
 - Add Laravel behavior evals for restored decisions
-- Anticipated diff: 2 files, 450–800 lines
+- Anticipated diff: 3 files, 300–450 lines, including the persisted checkpoint update
 
 ## Implementation checklist
 
-- [ ] Inventory historical framework pairs
-- [ ] Restore, deduplicate, and correct Laravel examples
-- [ ] Add behavior evals
-- [ ] Reconcile findings into later plans and context
-- [ ] Self-review and present the complete diff for human approval
-- [ ] After approval, run gates and commit
+- [x] Inventory historical framework pairs
+- [x] Restore, deduplicate, and correct Laravel examples
+- [x] Add behavior evals
+- [x] Reconcile findings into later plans and context
+- [x] Self-review and present the complete diff for human approval
+- [x] After approval, run gates and commit
 
 ## Validation
 

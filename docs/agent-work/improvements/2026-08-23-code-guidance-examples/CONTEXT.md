@@ -3,8 +3,9 @@
 The prerequisite workflow change is committed as `07b8e59`. The approved implementation stack restores concrete
 good/bad code guidance, adds an always-loaded clean-code reference, and introduces researched Go guidance.
 
-Stack entry 1 is committed as `44f4b66`. Entry 2 has passed review and the full `task test` gate and is complete in
-the next restore point. Resume with `03-laravel/PLAN.md` and its first unchecked action.
+Entries 1 and 2 are committed as `44f4b66` and `91cd448`. Entry 3 passed self-review and the full `task test` gate and
+is complete in the next restore point. Resume with `04-typescript-vue/PLAN.md` and its first unchecked action. The user
+waived the remaining per-entry approval pauses and requested review on the final PR.
 
 ## Settled decisions
 
@@ -31,6 +32,10 @@ the next restore point. Resume with `03-laravel/PLAN.md` and its first unchecked
   order, short-circuit, or memory behavior
 - Typed class constants remain project-consistent because they require PHP 8.3 or later; examples do not make them an
   unconditional compatibility requirement
+- Historical Laravel mass-assignment guidance conflicted with the settled preference and was not restored. Writes show
+  explicit attributes, even after validation
+- Laravel examples teach framework contracts and responsibility boundaries without prescribing naming conventions or
+  introducing Actions, repositories, DTOs, or FormRequests where the project uses another consistent design
 
 ## Rejected directions
 
