@@ -39,9 +39,9 @@ requirements, architecture, review objectives, and stack shape. Push back when a
 adds scope, or creates broad side effects: explain the downstream impact, offer the smallest compatible alternative,
 and wait for explicit approval of the revised plan.
 
-Self-review and adjust each stack entry, then update the persisted plan and context so the diff records the completed
-state, critical decisions, downstream plan changes, and exact next action. Present that complete restore point for
-human review and wait for explicit approval. After approval, use `git-commit` to run the project gates and create its
+Self-review and adjust each stack entry, then update the ignored persisted plan and context with the completed state,
+critical decisions, downstream plan changes, and exact next action. Present the implementation diff for human review
+and wait for explicit approval. After approval, use `git-commit` to run the project gates and create its
 preserving commit before beginning the next entry. Verify after the commit that a fresh session can resume without
 repeating investigation or decisions, and that the next plan's `Start here` section names all required skills, files,
 commands, and its first action. Any post-approval change invalidates approval and must go through self-review, plan

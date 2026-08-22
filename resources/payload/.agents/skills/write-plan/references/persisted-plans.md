@@ -54,15 +54,19 @@ earlier investigation.
 
 ## Where plans live
 
-Infer the repository's convention rather than assuming one:
+Persisted plans are local agent-working state. Never stage or commit `PLAN.md`, `CONTEXT.md`, or their agent-work
+directory. Infer the repository's ignored convention rather than assuming one:
 
-- Look for an existing planning-docs directory (common names: `docs/plans/`, `.docs/agent-work/`, `tasks/`, `PLANS/`)
-  and follow whatever structure it already uses
-- If nothing exists yet, ask the user once where planning docs should live, or default to
+- Look for an existing ignored agent-work directory and follow its structure
+- If nothing exists yet, default to
   `docs/agent-work/{type}/{ticket-or-slug}/{change-title}/PLAN.md`, where `{type}` is `features`, `bugs`,
   `improvements`, or `tasks`
 - Derive `{ticket-or-slug}` from the branch name's ticket key where one exists, otherwise
   `{YYYY-MM-DD}-{short-description}`
+- Before writing, verify the chosen path with `git check-ignore`. If it is not ignored, add the repository's standard
+  agent-work ignore rule, or use `.git/info/exclude` when the ignore must remain local
+- Before every commit, verify no plan path is tracked or staged. If an agent-work path is already tracked, keep the
+  local files but remove them from the index before continuing
 
 ## Before creating anything
 
@@ -99,8 +103,8 @@ disagree within a day, and nobody knows which one is current. Continue the exist
 
 ## Commit checkpoints
 
-For each stack entry, update its plan and context as part of the implementation diff submitted for human review. The
-checkpoint records the state the commit will establish:
+For each stack entry, update its local plan and context before submitting the implementation diff for human review.
+The local checkpoint records the state the commit will establish:
 
 - The entry completed and the acceptance criteria it satisfies
 - Critical decisions made during implementation or review, with superseded assumptions removed
@@ -108,10 +112,10 @@ checkpoint records the state the commit will establish:
 - Updated `Start here` sections for every affected plan
 - The exact next entry and first action, or that the stack is complete
 
-After human approval, run the gates and commit the complete checkpoint. Then verify that the committed plan and
-context match the repository and can restore the work from a fresh session. If the gates or any correction changes
-that state, update the checkpoint, invalidate approval, and return the whole diff for human review. Do not create a
-separate metadata commit merely to say that the preceding commit happened.
+After human approval, run the gates and commit the reviewed implementation without the ignored plan files. Then update
+the local checkpoint with the commit identifier and verify it matches the repository and can restore the work from a
+fresh session. If a gate or correction changes the implementation, update the local checkpoint, invalidate approval,
+and return the implementation diff for human review. Do not create a metadata commit for local restore state.
 
 ## Handing over and finishing
 

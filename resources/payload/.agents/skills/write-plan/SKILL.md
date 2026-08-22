@@ -20,7 +20,8 @@ Plan only enough to choose reviewable units and their order.
    for what coverage the change needs, and `git-commit` for the boundary between stack entries
 4. Gather context by investigating the areas the change touches
 5. Draft the split and confirm it with the user, with options, before detailing each change. For every persisted plan,
-   put its context-loading bootstrap first so implementation can begin after a full context reset
+   verify its location is ignored and put its context-loading bootstrap first so implementation can begin after a full
+   context reset
 6. Return the plan as concise Markdown. The installed Plannotator host integration intercepts the response and opens
    the review surface; do not launch it through a shell command. Ask only questions whose answers could change the
    split, ordering, or approach
@@ -31,8 +32,8 @@ Plan only enough to choose reviewable units and their order.
    context. Carry on into implementation only where the user asked for both
 
 When implementing an approved stack, finish one entry at a time: write it, self-review and adjust it until clean, then
-reconcile implementation discoveries into the current plan and every affected later entry. Include an updated restore
-point in the diff, then present it for human review and wait for explicit approval. After approval, run the project
+reconcile implementation discoveries into the current plan and every affected later entry. Keep that restore point in
+the ignored agent-work directory, then present the implementation diff for human review and wait for explicit approval. After approval, run the project
 gates and commit the entry before beginning the next one. Verify after the commit that the persisted plan and context
 describe the completed state, critical decisions, downstream consequences, and exact next action. Any change after
 approval, including formatter output or a gate fix, invalidates that approval: self-review the revised diff and return

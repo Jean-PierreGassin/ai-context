@@ -195,13 +195,14 @@
       "id": "commit-is-a-resumable-checkpoint",
       "category": "regression",
       "prompt": "Entry two has been implemented and is ready for human review. Make sure I can clear context immediately after it is approved and committed, then continue entry three without repeating anything.",
-      "expected_output": "The reviewed commit includes current plans and a restore context that identify completed work, settled decisions, downstream changes, and the exact next action.",
+      "expected_output": "Ignored local plans and restore context identify completed work, settled decisions, downstream changes, and the exact next action without entering the commit.",
       "expectations": [
-        "Updates the current plan and context before presenting the complete diff for human review",
+        "Updates the current ignored plan and context before presenting the implementation diff for human review",
         "Records critical decisions and removes superseded assumptions",
         "Updates all affected later entries before the commit",
         "Names entry three and its exact first action as the restore point",
-        "Runs gates after approval and commits the code and checkpoint together",
+        "Runs gates after approval and commits the reviewed implementation without agent-work files",
+        "Updates the ignored local checkpoint with the commit identifier after the commit",
         "Verifies after the commit that a fresh session can resume from the persisted state",
         "Does not create a recursive metadata-only commit to record that the work commit happened"
       ]
@@ -219,6 +220,19 @@
         "Names the working directory, useful baseline or discovery commands, and exact validation gates",
         "Ends the bootstrap with the first unchecked implementation action",
         "Does not ask the user to resupply context already available from the listed sources"
+      ]
+    },
+    {
+      "id": "persisted-plans-remain-untracked",
+      "category": "regression",
+      "prompt": "Persist this multi-entry implementation plan in the repository so another session can resume it, then prepare the first code commit.",
+      "expected_output": "Plans stored in an ignored agent-work path and excluded from the implementation commit.",
+      "expectations": [
+        "Chooses the repository's ignored agent-work convention or defaults to docs/agent-work",
+        "Verifies the plan path with git check-ignore before writing",
+        "Adds a local or repository ignore rule when the path is not already ignored",
+        "Verifies no PLAN.md, CONTEXT.md, or agent-work path is tracked or staged before committing",
+        "Keeps the local restore state current without including it in the code commit"
       ]
     }
   ]

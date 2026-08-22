@@ -96,9 +96,9 @@ what would move, which later entries would change, and the smallest compatible a
 approval of the revised plan before implementing the directional change.
 
 During implementation, complete entries in order. Self-review and adjust the current entry while it is uncommitted,
-then reconcile its findings across the persisted plans. Make the current entry's diff a restore point: mark what the
-commit will complete, record critical decisions and rejected directions, update every affected later entry, and name
-the exact next action. Present that complete diff for human review and wait for explicit approval. Run the project
+then reconcile its findings across the ignored persisted plans. Make the local restore point mark what the commit will
+complete, record critical decisions and rejected directions, update every affected later entry, and name the exact
+next action. Present the implementation diff for human review and wait for explicit approval. Run the project
 gates after approval, then commit it before starting the next entry. Verify after the commit that a fresh session can
 resume from the persisted state without repeating investigation or decisions. Any post-approval change invalidates
 approval and returns the entry to self-review, plan reconciliation, and human review before the gates run again. If an

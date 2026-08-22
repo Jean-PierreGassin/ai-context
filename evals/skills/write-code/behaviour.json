@@ -410,11 +410,11 @@
         "Implements only one stack entry at a time",
         "Self-reviews and fixes the current entry before presenting it for human review",
         "Reconciles implementation and review discoveries into the current and affected later plans",
-        "Includes a restore context with settled decisions and the exact next action in the reviewed diff",
+        "Updates an ignored restore context with settled decisions and the exact next action before review",
         "Keeps each affected plan's context bootstrap aligned with the revised skills, files, commands, and next action",
         "Waits for explicit human approval before running the project gates",
         "Commits the approved entry after its gates pass and before beginning the next entry",
-        "Verifies that the committed checkpoint can resume in a fresh session",
+        "Verifies that the local checkpoint matches the commit and can resume in a fresh session",
         "Returns for renewed human review if anything changes after approval",
         "Does not defer all commits until the complete stack has been implemented",
         "Folds an adjustment into its earlier commit when rewriting is safe"
