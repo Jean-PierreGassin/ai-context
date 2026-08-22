@@ -49,7 +49,10 @@ unmanaged stack in prose. Name adjacent changes in each PR and restack after rev
 
 ### Content
 
-- Prose explains the why and the overall approach. A restatement of the diff is not a description
+- Open with the overall behavioural or architectural change and why it matters. A restatement of the diff is not a
+  description
+- Treat the specific bug, incident, or issue that prompted the work as supporting context. It may explain why the work
+  started, but it does not become the main description when the PR establishes a broader final state
 - State the new behaviour and contrast it with the old ("retries with backoff rather than failing on the first
   timeout"). Describe the final state, not the edit history
 - Write in natural, human-readable English without class, method, column, or file references. Explain why the change

@@ -8,11 +8,11 @@ Ticket: [TICKET-KEY](https://tracker.example/browse/TICKET-KEY)
 
 Change Type: Feature | Bugfix | Improvement | Task | Story | Chore | Hotfix
 
-Description: [why the change exists, what it now supports, and the overall approach]
+Description: [the overall behavioural or architectural change, why it matters, and the final state it establishes]
 
 - [Most important behaviour]
 - [Next important behaviour]
-- [Supporting detail only where it helps the reader]
+- [The prompting bug or issue only where it adds useful supporting context]
 
 **Review focus:** [where the reviewer's attention is best spent, and what needs none of it]
 ```
@@ -43,8 +43,9 @@ Where the change needs a way out beyond reverting, say so in the same place:
 
 ## Bug bodies
 
-Where a bug PR has both reproduction steps and a what-changed list, give each its own bold header, so the numbered
-steps are not mistaken for the change itself:
+Where a bug PR has both reproduction steps and a what-changed list, lead with the broader behavioural or architectural
+change. Give the supporting reproduction and change details their own bold headers so they are not mistaken for the
+main description:
 
 ```
 **Reproduction**

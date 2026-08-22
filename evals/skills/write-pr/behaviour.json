@@ -34,11 +34,24 @@
       "prompt": "Open the PR for the export truncation fix. The export reused the list view's query, so it inherited the page size.",
       "expected_output": "A body with numbered reproduction steps under their own header, followed by what changed and a review focus.",
       "expectations": [
+        "Leads with the overall behavioural or architectural change rather than the truncation symptom",
         "Uses numbered reproduction steps, under their own header where a what-changed list follows",
         "States the established mechanism rather than narrating a guess at it",
         "Includes a link to the evidence that the defect exists, where one is available",
         "Says what each change buys, not only that it was made",
         "Points the review focus at the riskiest part rather than the one-line fix"
+      ]
+    },
+    {
+      "id": "prompting-issue-is-supporting-context",
+      "category": "counterexample",
+      "prompt": "Write the PR body. A duplicate webhook incident prompted the work, but the branch introduces durable idempotent webhook processing across every delivery path.",
+      "expected_output": "A body led by the idempotent processing architecture, with the duplicate incident included only as supporting context.",
+      "expectations": [
+        "Opens with the overall idempotent processing behavior and architecture",
+        "Describes the durable final state across delivery paths",
+        "Uses the duplicate incident only to support why the change was needed",
+        "Does not frame the PR primarily as a fix for one incident"
       ]
     },
     {
