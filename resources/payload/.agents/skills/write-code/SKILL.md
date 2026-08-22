@@ -60,6 +60,10 @@ Each reference splits its rules in two, and the section a rule sits in is its st
 Follow the architecture used by the nearest equivalent capability: Actions, DDD, service/repository, modular monolith,
 or whatever the project already uses. The references demonstrate one arrangement, and their rules hold in all of them.
 
+Before creating a class or file, inspect how the project organizes the domain and place it with the capability that owns
+its responsibility. If the project offers no usable structure, create the smallest clear domain-specific location for
+it rather than putting it in a generic `utils`, `helpers`, `services`, or `common` area.
+
 Do not introduce Actions, services, repositories, DDD boundaries, or another architecture merely because a reference
 demonstrates one. Change the architecture when the user asks for it, or when the task is itself architectural.
 

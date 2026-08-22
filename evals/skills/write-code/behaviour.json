@@ -15,6 +15,18 @@
       ]
     },
     {
+      "id": "new-files-belong-to-a-specific-domain",
+      "category": "normal",
+      "prompt": "Add a class that calculates invoice retry eligibility. First consider where the new file belongs. This small project has no established domain folders or equivalent capability yet.",
+      "expected_output": "The class in a clear invoice-specific location, with no generic catch-all directory introduced.",
+      "expectations": [
+        "Inspects the repository structure before choosing the file location",
+        "Uses an existing owning domain or module when one exists",
+        "Creates the smallest clear domain-specific location when no project structure can guide placement",
+        "Does not place the class in a generic utils, helpers, services, or common directory"
+      ]
+    },
+    {
       "id": "enforced-tooling-beats-reference-preference",
       "category": "project-precedence",
       "prompt": "The formatter config in this repository enables a file-level declaration that the language reference says never to add, and every existing file has it. Add a new class.",
