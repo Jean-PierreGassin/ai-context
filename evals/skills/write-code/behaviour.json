@@ -220,6 +220,30 @@
       ]
     },
     {
+      "id": "laravel-avoids-mass-assignment",
+      "category": "normal",
+      "prompt": "Persist a new Laravel model from already validated request data.",
+      "expected_output": "Explicit model attribute assignment followed by persistence, without create, fill, or other mass assignment.",
+      "expectations": [
+        "Assigns each intended model attribute explicitly",
+        "Does not pass the validated array to create or fill",
+        "Persists the model only after its intended attributes are visible in code",
+        "Does not weaken fillable or guarded configuration"
+      ]
+    },
+    {
+      "id": "laravel-prefers-facades-and-purpose-built-methods",
+      "category": "normal",
+      "prompt": "Read a nested array value, fetch runtime configuration, resolve a runtime-selected handler, and split a collection into accepted and rejected records in Laravel.",
+      "expected_output": "Facade-based array and configuration access, resolve for the runtime-selected dependency, and Collection partition for the two groups.",
+      "expectations": [
+        "Uses Arr instead of the equivalent global array helper",
+        "Uses the Config facade for runtime configuration",
+        "Uses resolve for the dependency that genuinely requires runtime container selection",
+        "Uses partition instead of duplicating filter and reject passes"
+      ]
+    },
+    {
       "id": "laravel-action-composition-needs-one-operation",
       "category": "counterexample",
       "prompt": "This Laravel project uses Actions. Make PlaceOrderAction call ChargeCardAction, SendReceiptAction, UpdateAnalyticsAction, and RebuildSearchIndexAction so the controller stays one line.",

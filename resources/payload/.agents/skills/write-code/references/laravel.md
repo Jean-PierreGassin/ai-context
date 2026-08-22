@@ -13,7 +13,9 @@ quality tooling, not this framework reference.
 - Create framework-owned files with the relevant `php artisan make:` generator, then edit its output. Migration
   timestamps come from generation and determine order
 - Keep framework-defined `array` signatures
-- Use `config()` at runtime and `env()` only in configuration files
+- Read runtime configuration through the `Config` facade and use `env()` only in configuration files
+- Prefer Laravel facades over equivalent global helpers, such as `Arr::get()` over `data_get()`
+- Use `resolve()` when runtime container resolution is required; prefer constructor injection for declared collaborators
 - Put user-facing text in language files and application values in configuration
 - Use `when()` and `whenNotNull()` for conditional resource fields
 - Use a `JsonResource` for API output. Put repeated response formatting in a shared base resource, and use a JSON:API
@@ -23,12 +25,13 @@ quality tooling, not this framework reference.
 
 - Wrap writes that must succeed or fail together in `DB::transaction()` at the layer orchestrating them
 - Eager load relations before iteration and never query from Blade templates
-- Use mass assignment through `create()` or `fill()` with the model's assignment protection configured
+- Avoid mass assignment. Set explicit model attributes before saving
 - Chunk large datasets instead of loading the entire result set
 - Put a reusable constraint that describes a model subset in a named model scope. Keep one-off orchestration and
   cross-model queries in the repository or query layer the project designates
-- Prefer collection pipelines when they clearly express a transformation. Keep an explicit loop for early exit,
-  complex mutation, memory sensitivity, or clearer control flow
+- Prefer framework-native collection operations when they make intent clearer, such as `partition()` when splitting a
+  collection into two groups. Keep an explicit loop for early exit, complex mutation, memory sensitivity, or clearer
+  control flow
 - Cast dates to Carbon-compatible values and format them only at the display boundary
 
 ### Responsibilities
