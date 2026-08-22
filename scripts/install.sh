@@ -21,8 +21,77 @@ is_dry_run="$requested_dry_run"
 is_planning=false
 
 readonly payload_root="$repository_root/resources/payload"
+readonly legacy_ownership="$repository_root/resources/previous-owned-skill-paths.txt"
 target_root="$(resolve_target_root "$scope" "$caller_dir")"
 readonly target_root
+
+desired_skill_paths() {
+  find "$payload_root/.agents/skills" "$payload_root/.claude/skills" -type f -print \
+    | sed "s|^$payload_root/||" \
+    | sort
+  if [[ "$scope" == project ]]; then
+    find "$payload_root/.agents/skills" "$payload_root/.claude/skills" -mindepth 1 -maxdepth 1 -type d -print \
+      | sed "s|^$payload_root/||" \
+      | sed 's|$|/.gitignore|' \
+      | sort
+  fi
+}
+
+remove_empty_skill_parents() {
+  local parent_path="$1" skill_root="$2"
+  while [[ "$parent_path" != "$target_root/$skill_root" ]]; do
+    rmdir "$parent_path" 2>/dev/null || break
+    parent_path="$(dirname "$parent_path")"
+  done
+}
+
+reject_symlinked_skill_parent() {
+  local parent_path display_path="$2"
+  parent_path="$(dirname "$1")"
+  while [[ "$parent_path" != "$target_root" ]]; do
+    if [[ -L "$parent_path" ]]; then
+      record_failure "refused symlinked parent for owned file $display_path"
+      return 0
+    fi
+    parent_path="$(dirname "$parent_path")"
+  done
+  return 1
+}
+
+remove_stale_owned_skills() {
+  local stale_path target_path display_path skill_root
+  local previous_paths desired_paths
+  previous_paths="$(mktemp "${TMPDIR:-/tmp}/ai-context-owned.XXXXXX")"
+  desired_paths="$(mktemp "${TMPDIR:-/tmp}/ai-context-desired.XXXXXX")"
+  if ! python3 "$repository_root/scripts/state.py" ownership \
+    --scope "$scope" --target "$target_root" --payload "$payload_root" \
+    --state-root "$(resolve_state_root)" --legacy-ownership "$legacy_ownership" >"$previous_paths"; then
+    rm -f "$previous_paths" "$desired_paths"
+    return 1
+  fi
+  desired_skill_paths | sort >"$desired_paths"
+
+  while IFS= read -r stale_path; do
+    [[ -n "$stale_path" ]] || continue
+    target_path="$target_root/$stale_path"
+    if [[ "$scope" == global ]]; then display_path="$home_display/$stale_path"; else display_path="$stale_path"; fi
+    if reject_symlinked_skill_parent "$target_path" "$display_path"; then continue; fi
+    if [[ -d "$target_path" && ! -L "$target_path" ]]; then
+      record_failure "refused directory at owned file path $display_path"
+      continue
+    fi
+    if [[ ! -e "$target_path" && ! -L "$target_path" ]]; then continue; fi
+    record_change "removed $display_path"
+    if [[ "$is_dry_run" == true ]]; then continue; fi
+    rm -f -- "$target_path"
+    case "$stale_path" in
+      .agents/skills/*) skill_root='.agents/skills' ;;
+      .claude/skills/*) skill_root='.claude/skills' ;;
+    esac
+    remove_empty_skill_parents "$(dirname "$target_path")" "$skill_root"
+  done < <(comm -23 "$previous_paths" "$desired_paths")
+  rm -f "$previous_paths" "$desired_paths"
+}
 
 install_project() {
   while IFS= read -r -d '' source_path; do
@@ -132,6 +201,7 @@ install_structured_configuration() {
 }
 
 run_install() {
+  remove_stale_owned_skills
   if [[ "$scope" == global ]]; then
     install_global
   else
@@ -164,7 +234,8 @@ save_pre_install_version() {
     --scope "$scope" \
     --target "$target_root" \
     --payload "$payload_root" \
-    --state-root "$state_root")"
+    --state-root "$state_root" \
+    --legacy-ownership "$legacy_ownership")"
   snapshot_state="$(python3 "$repository_root/scripts/state.py" history \
     --scope "$scope" \
     --target "$target_root" \
@@ -192,8 +263,13 @@ apply_installation() {
     error "installation failed: $failure_count failure(s), $changed_count change(s), $skipped_count skipped"
     return 1
   fi
+  python3 "$repository_root/scripts/state.py" set-ownership \
+    --scope "$scope" --target "$target_root" --payload "$payload_root" --state-root "$state_root"
   printf '\n'
   success "Installed: $changed_count changed, $skipped_count unchanged"
+  if ! command -v plannotator >/dev/null 2>&1; then
+    warn 'Plannotator is unavailable. Install it from https://plannotator.ai before using interactive plan review.'
+  fi
 }
 
 main() {

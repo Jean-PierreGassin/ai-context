@@ -20,6 +20,7 @@ readonly inline_root="$fixture_root/inline"
 readonly symlink_root="$fixture_root/symlink-home"
 readonly outside_root="$fixture_root/outside"
 readonly version_target="$fixture_root/version-target"
+readonly ownership_root="$fixture_root/ownership-target"
 
 scope=project
 caller_dir=
@@ -36,6 +37,10 @@ fail() {
 
 run_install() {
   "$repository_root/scripts/install.sh" "$scope" "$caller_dir" "$force_install" false false "$replace_config"
+}
+
+run_dry_install() {
+  "$repository_root/scripts/install.sh" "$scope" "$caller_dir" "$force_install" true false "$replace_config"
 }
 
 run_rollback() {
@@ -132,6 +137,80 @@ test_project_install() {
     "$project_root/.codex/hooks.json" >/dev/null
 }
 
+test_owned_skill_pruning_and_rollback() {
+  local ledger_path
+  scope=project
+  caller_dir="$ownership_root"
+  mkdir -p "$ownership_root/.agents/skills/write-plan/assets"
+  printf 'legacy\n' >"$ownership_root/.agents/skills/write-plan/assets/plan-artifact.html"
+  printf 'keep\n' >"$ownership_root/.agents/skills/write-plan/assets/notes.md"
+  run_install >/dev/null
+  [[ ! -e "$ownership_root/.agents/skills/write-plan/assets/plan-artifact.html" ]]
+  [[ -f "$ownership_root/.agents/skills/write-plan/assets/notes.md" ]]
+  ledger_path="$state_root/project/$(python3 -c '
+import hashlib, pathlib, sys
+print(hashlib.sha256(str(pathlib.Path(sys.argv[1]).resolve()).encode()).hexdigest()[:16])
+' "$ownership_root")/ownership.json"
+  [[ -f "$ledger_path" ]]
+
+  mkdir -p "$ownership_root/.agents/skills/retired-skill"
+  printf 'retired\n' >"$ownership_root/.agents/skills/retired-skill/SKILL.md"
+  printf 'keep\n' >"$ownership_root/.agents/skills/retired-skill/notes.md"
+  mkdir -p "$ownership_root/.claude/skills/retired-adapter"
+  printf 'outside\n' >"$fixture_root/retired-adapter.md"
+  ln -s "$fixture_root/retired-adapter.md" "$ownership_root/.claude/skills/retired-adapter/SKILL.md"
+  python3 -c '
+import json, pathlib, sys
+path = pathlib.Path(sys.argv[1])
+data = json.loads(path.read_text())
+data["owned_skill_paths"].append(".agents/skills/retired-skill/SKILL.md")
+data["owned_skill_paths"].append(".claude/skills/retired-adapter/SKILL.md")
+path.write_text(json.dumps(data, indent=2) + "\n")
+' "$ledger_path"
+
+  run_dry_install >/dev/null
+  [[ -f "$ownership_root/.agents/skills/retired-skill/SKILL.md" ]]
+  run_install >/dev/null
+  [[ ! -e "$ownership_root/.agents/skills/retired-skill/SKILL.md" ]]
+  [[ ! -L "$ownership_root/.claude/skills/retired-adapter/SKILL.md" ]]
+  grep -Fxq 'outside' "$fixture_root/retired-adapter.md"
+  [[ -f "$ownership_root/.agents/skills/retired-skill/notes.md" ]]
+
+  run_rollback >/dev/null
+  [[ -f "$ownership_root/.agents/skills/retired-skill/SKILL.md" ]]
+  [[ -L "$ownership_root/.claude/skills/retired-adapter/SKILL.md" ]]
+  grep -Fq '.agents/skills/retired-skill/SKILL.md' "$ledger_path"
+  run_rollback >/dev/null
+  [[ ! -e "$ownership_root/.agents/skills/retired-skill/SKILL.md" ]]
+  [[ ! -L "$ownership_root/.claude/skills/retired-adapter/SKILL.md" ]]
+  [[ -f "$ownership_root/.agents/skills/retired-skill/notes.md" ]]
+
+  mkdir -p "$fixture_root/linked-skill"
+  printf 'outside skill\n' >"$fixture_root/linked-skill/SKILL.md"
+  ln -s "$fixture_root/linked-skill" "$ownership_root/.agents/skills/linked-skill"
+  python3 -c '
+import json, pathlib, sys
+path = pathlib.Path(sys.argv[1])
+data = json.loads(path.read_text())
+data["owned_skill_paths"].append(".agents/skills/linked-skill/SKILL.md")
+path.write_text(json.dumps(data, indent=2) + "\n")
+' "$ledger_path"
+  ! run_dry_install >/dev/null 2>&1 || fail 'symlinked skill parent was accepted'
+  grep -Fxq 'outside skill' "$fixture_root/linked-skill/SKILL.md"
+  rm "$ownership_root/.agents/skills/linked-skill"
+
+  python3 -c '
+import json, pathlib, sys
+path = pathlib.Path(sys.argv[1])
+data = json.loads(path.read_text())
+data["owned_skill_paths"].append("../outside.md")
+path.write_text(json.dumps(data, indent=2) + "\n")
+' "$ledger_path"
+  ! run_dry_install >/dev/null 2>&1 || fail 'unsafe ownership ledger was accepted'
+  grep -Fxq 'outside' "$fixture_root/retired-adapter.md"
+  caller_dir="$project_root"
+}
+
 test_rollback_restores_and_reapplies() {
   local rollback_hash payload_hash
 
@@ -173,6 +252,9 @@ test_fresh_install_rolls_back_to_nothing() {
 
 test_global_install() {
   mkdir -p "$global_root/.claude" "$global_root/.codex"
+  mkdir -p "$global_root/.agents/skills/write-plan/assets"
+  printf 'legacy\n' >"$global_root/.agents/skills/write-plan/assets/plan-template.md"
+  printf 'keep\n' >"$global_root/.agents/skills/write-plan/assets/notes.md"
   printf '# Personal\n' >"$global_root/.claude/CLAUDE.md"
   printf '{"enabledPlugins":{"personal@example":true},"hooks":{"Stop":[{"matcher":"","hooks":[{"type":"command","command":"~/.claude/hooks/play-sound.sh"}]},{"matcher":"mine","hooks":[{"type":"command","command":"~/mine/play-sound.sh"}]}],"PreToolUse":[{"matcher":"Bash","hooks":[{"type":"command","command":"~/mine/audit.sh"}]}]}}\n' >"$global_root/.claude/settings.json"
   printf '[marketplaces.personal]\nsource = "local"\n' >"$global_root/.codex/config.toml"
@@ -181,6 +263,8 @@ test_global_install() {
   HOME="$global_root"
   export HOME
   run_install
+  [[ ! -e "$global_root/.agents/skills/write-plan/assets/plan-template.md" ]]
+  [[ -f "$global_root/.agents/skills/write-plan/assets/notes.md" ]]
   grep -Fxq '# Personal' "$global_root/.claude/CLAUDE.md"
   printf 'outdated global skill\n' >"$global_root/.agents/skills/write-code/SKILL.md"
   printf 'outdated global adapter\n' >"$global_root/.claude/skills/write-code/SKILL.md"
@@ -313,6 +397,7 @@ main() {
   create_project_fixture
 
   test_project_install
+  test_owned_skill_pruning_and_rollback
   test_rollback_restores_and_reapplies
   test_fresh_install_rolls_back_to_nothing
   test_global_install

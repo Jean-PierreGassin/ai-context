@@ -11,6 +11,13 @@ and Codex need, which is what `CLAUDE.md`, `.claude/`, and `.codex/` are for.
 The installer shows a preview before it changes files. It updates packaged skills to the bundled versions, keeps
 structured settings that it does not manage, and saves a version that you can restore.
 
+Each successful installation records the individual skill files owned by `ai-context` for that target. Later installs
+remove owned files that the package no longer ships, while preserving unrecorded files and non-empty directories. Dry
+runs preview removals, and rollback restores both files and ownership state.
+
+Interactive plan review uses [Plannotator](https://plannotator.ai). The installer reports when it is unavailable, but
+does not execute a remote installation script automatically.
+
 ## Supported systems
 
 `ai-context` supports macOS, Linux, WSL, and Git Bash. Native PowerShell is not supported.

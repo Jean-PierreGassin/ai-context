@@ -16,6 +16,7 @@ target_root="$(resolve_target_root "$scope" "$caller_dir")"
 readonly target_root
 state_root="$(resolve_state_root)"
 readonly state_root
+readonly legacy_ownership="$repository_root/resources/previous-owned-skill-paths.txt"
 
 render_header 'ai-context rollback' "$scope" "$target_root"
 
@@ -90,6 +91,7 @@ rollback_arguments=(
   --target "$target_root"
   --payload "$repository_root/resources/payload"
   --state-root "$state_root"
+  --legacy-ownership "$legacy_ownership"
   --snapshot-id "$snapshot_id"
 )
 
