@@ -224,6 +224,39 @@ return invoice
 
 Language formatters decide mechanical whitespace; semantic grouping remains the author's responsibility.
 
+### Group configuration by category
+
+In a new or substantially reorganized configuration file that supports comments, separate distinct categories with
+section banners. Follow the repository's existing banner style; when none exists, use a compact three-line banner.
+Keep entries within a section together and do not add a banner around a single undivided category.
+
+Bad:
+
+```text
+LOG_LEVEL=info
+CACHE_DRIVER=redis
+LOG_CHANNEL=stderr
+CACHE_TTL=300
+```
+
+Good:
+
+```text
+#############
+## Logging ##
+#############
+LOG_LEVEL=info
+LOG_CHANNEL=stderr
+
+#############
+## Cache   ##
+#############
+CACHE_DRIVER=redis
+CACHE_TTL=300
+```
+
+For formats that do not support comments, use their native grouping structure rather than inventing invalid syntax.
+
 ### Name for meaning in context
 
 Use names that make the value or action clear at its scope. Avoid generic placeholders such as `data`, `result`,

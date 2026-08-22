@@ -402,6 +402,18 @@
       ]
     },
     {
+      "id": "configuration-categories-use-section-banners",
+      "category": "normal",
+      "prompt": "Create a new comment-capable configuration file with logging, cache, and queue settings. The repository has no existing banner convention.",
+      "expected_output": "Configuration grouped by category under compact three-line section banners.",
+      "expectations": [
+        "Groups logging, cache, and queue entries into distinct sections",
+        "Uses a three-line hash banner for each category",
+        "Keeps entries belonging to one category together",
+        "Does not apply comment syntax to a format that forbids comments"
+      ]
+    },
+    {
       "id": "commits-each-reviewed-stack-entry-before-continuing",
       "category": "regression",
       "prompt": "Implement the approved three-entry change stack. Review each entry as you go.",
