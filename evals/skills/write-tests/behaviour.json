@@ -120,6 +120,18 @@
         "Offers the real fix, such as removing the environmental dependency, as the preferred option",
         "Leaves the test discoverable in the suite rather than hidden in a comment"
       ]
+    },
+    {
+      "id": "orders-cases-without-repeating-branches",
+      "category": "normal",
+      "prompt": "Add cases for the normal result, an alternate result, two boundary inputs that hit the same branch, and an exception.",
+      "expected_output": "Cases ordered from success through alternatives and boundaries to failure, with duplicate branch coverage removed.",
+      "expectations": [
+        "Orders cases from the primary success path through alternatives and boundaries to the exception",
+        "Follows a different repository-enforced ordering where one exists",
+        "Keeps only one of the two boundary inputs when both exercise the same behavior",
+        "Asserts the specific exception and observable outcomes"
+      ]
     }
   ]
 }

@@ -26,8 +26,8 @@ the tests that prove it.
 
 ## Principles
 
-- Cover each meaningful branch, edge case, and error path once. A second test that exercises the same branch with
-  different data proves nothing the first did not
+- Cover each meaningful branch, edge case, and error path once. Order cases from the primary success path through
+  alternatives and boundaries to failures, following repository convention where it is consistent
 - Assert observable outcomes and business rules, not internal calls, private state, or implementation details. A test
   that breaks under a behaviour-preserving refactor was testing the wrong thing
 - Test your own code. Language and framework internals, trivial getters and setters, and branches someone else's suite
@@ -40,6 +40,10 @@ the tests that prove it.
   and expected value
 - Name the behaviour, not the method: the name should say what must be true, so a failure reads as a statement about
   the system
+- Keep flaky or environment-dependent tests visible. Fix the dependency, or skip the test with the reason and the
+  condition for restoring it; never delete or comment it out to make the suite pass
+- Load complex fixture data through a named helper. Reject tautological assertions that only prove a stub returned its
+  configured value
 
 ## Follow the repository's shape
 
@@ -54,7 +58,7 @@ still applies on top of it, and an existing test that predates one does not excu
 
 ## References
 
-Read only the language in scope. Each pairs a bad and good example with every principle above.
+Read only the language in scope. References contain syntax-specific patterns that supplement these principles.
 
 | In scope   | Read                       | Covers        |
 |------------|----------------------------|---------------|
