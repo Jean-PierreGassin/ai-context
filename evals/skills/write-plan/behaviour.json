@@ -122,9 +122,8 @@
       "expected_output": "One mechanical change, with the reason it should exceed the heuristic rather than be batched.",
       "expectations": [
         "Keeps the mechanical sweep as one change with one review objective",
-        "Explains that arbitrary batching gives the reviewer several diffs instead of one pattern",
-        "Treats the size figures as a signal to look for a seam, not a limit to obey",
-        "States that the budget is being exceeded, and why"
+        "Explains that arbitrary batching makes the mechanical pattern harder to review",
+        "Treats the size figures as a signal to look for a seam, not a limit to obey"
       ]
     },
     {

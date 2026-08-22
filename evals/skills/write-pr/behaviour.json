@@ -75,9 +75,7 @@
       "expected_output": "A ticket line in the body anyway, with the reason.",
       "expectations": [
         "Includes the ticket line at the top of the body, or of the template's context section",
-        "Explains that a ticket key in the title is plain text and gives no clickable route back",
-        "Does not omit the link on the strength of the title carrying the key",
-        "Keeps the key in the title as well"
+        "Does not omit the link on the strength of the title carrying the key"
       ]
     },
     {

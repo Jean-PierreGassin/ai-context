@@ -102,7 +102,7 @@
     {
       "id": "type-structures-do-not-mix",
       "category": "regression",
-      "prompt": "Write a bug ticket, but open it with the user story format, since that is how our other tickets start.",
+      "prompt": "Write a bug ticket, but open it with the user story format since that is how our other tickets start. Scheduled exports stop after the first 100 matching records, while the preview correctly shows more. The export should include every matching record in the same order.",
       "expected_output": "A bug in the bug structure, with the borrowed format declined and explained.",
       "expectations": [
         "Uses the bug structure rather than the story's opening sentence",

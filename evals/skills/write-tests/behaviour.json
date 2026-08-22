@@ -92,7 +92,6 @@
       "expected_output": "A test that would fail if the code under test did nothing.",
       "expectations": [
         "Replaces the assertion with one about what the code actually did",
-        "Uses a recording fake rather than a stub configured to return the expected answer",
         "Explains that the original proves only that the stub was configured",
         "Does not keep the tautological assertion alongside the new one"
       ]

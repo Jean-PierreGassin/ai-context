@@ -111,7 +111,7 @@
     {
       "id": "self-reviews-before-commit",
       "category": "regression",
-      "prompt": "Commit the completed change after reviewing it.",
+      "prompt": "Commit this completed one-line documentation correction after reviewing it.",
       "expected_output": "The staged diff reviewed with proportionate tools, findings fixed in the relevant change, and review repeated before committing.",
       "expectations": [
         "Selects review tools and depth based on the change rather than following a prescribed tool list",
