@@ -2,6 +2,9 @@
 
 The central `write-code` rules apply alongside these shell-specific safety rules.
 
+The `#!/usr/bin/env bash` shebang is a portability preference and differs from guides that pin `/bin/bash`. The
+project's deployment environment and enforced interpreter path win.
+
 ## Always apply
 
 - Start executable scripts with `#!/usr/bin/env bash` and `set -euo pipefail`. Sourced libraries inherit their caller's

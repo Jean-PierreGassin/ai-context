@@ -3,6 +3,9 @@
 Follow the latest PER coding style unless the project enforces another standard. Read this after `clean-code.md`.
 Each pair isolates one PHP-specific decision; preserve behavior when applying it.
 
+The strict-types, named-argument, DTO, and explicit-assignment rules are deliberate project preferences beyond PER's
+formatting standard. Project runtime versions and enforced contracts still take precedence.
+
 ## Always apply
 
 ### Declare strict types in new files
@@ -52,7 +55,8 @@ function render(
     string $template,
     array $rows,
     ?string $label = null,
-): string {
+): string
+{
 }
 
 $output = render(

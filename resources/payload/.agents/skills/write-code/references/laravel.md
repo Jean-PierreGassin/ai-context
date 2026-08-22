@@ -143,6 +143,9 @@ Never execute queries from Blade templates.
 
 Validated input can still contain fields that do not belong to the write operation.
 
+This is intentionally stricter than Laravel's guarded or fillable mass-assignment workflow: make the operation's
+persistence contract visible even when mass assignment could be configured safely.
+
 Bad:
 
 ```php

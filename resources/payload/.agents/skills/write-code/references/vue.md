@@ -5,7 +5,8 @@ Read this with the TypeScript reference.
 ## Always apply
 
 - Put `<script setup>` before `<template>`
-- Define props with typed destructuring and defaults, rather than `withDefaults`
+- Define props with typed reactive destructuring and defaults on Vue 3.5 or later. Use `withDefaults` when the project's
+  supported Vue version requires it
 - Use `computed` for derived state, not to rename or pass through a value
 - Use the project's spacing and size scale rather than custom pixel values
 - Self-close components without content and use directive shorthands consistently
@@ -34,7 +35,7 @@ Each example has the strength of its corresponding rule above.
 
 ### Destructure typed props with defaults
 
-Bad:
+Bad on Vue 3.5 or later:
 
 ```vue
 <script setup lang="ts">
@@ -44,7 +45,7 @@ const props = withDefaults(defineProps<{ label?: string }>(), {
 </script>
 ```
 
-Good:
+Good on Vue 3.5 or later:
 
 ```vue
 <script setup lang="ts">
