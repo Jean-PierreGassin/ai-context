@@ -268,7 +268,22 @@ apply_installation() {
   printf '\n'
   success "Installed: $changed_count changed, $skipped_count unchanged"
   if ! command -v plannotator >/dev/null 2>&1; then
-    warn 'Plannotator is unavailable. Install it from https://plannotator.ai before using interactive plan review.'
+    warn 'Plannotator and its managed Codex Stop hook are required for automatic plan review. Install Plannotator from https://plannotator.ai.'
+  elif ! python3 -c '
+import json, pathlib, sys
+hooks_path = pathlib.Path(sys.argv[1])
+if not hooks_path.is_file():
+    raise SystemExit(1)
+data = json.loads(hooks_path.read_text())
+commands = (
+    hook.get("command", "")
+    for group in data.get("hooks", {}).get("Stop", [])
+    for hook in group.get("hooks", [])
+    if hook.get("type") == "command"
+)
+raise SystemExit(0 if any(command == "plannotator" or command.endswith("/plannotator") for command in commands) else 1)
+' "$HOME/.codex/hooks.json"; then
+    warn 'Plannotator is installed, but its managed Codex Stop hook is missing. Re-run the Plannotator installer to enable automatic browser opening and feedback.'
   fi
 }
 

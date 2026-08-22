@@ -159,8 +159,18 @@ fallback_root="$fixture_root/fallback-project"
 mkdir -p "$fallback_bin" "$fallback_root"
 ln -s "$(command -v python3)" "$fallback_bin/python3"
 fallback_path="$fallback_bin:/usr/bin:/bin"
-(cd "$fallback_root" && PATH="$fallback_path" XDG_STATE_HOME="$state_home" "$repository_root/bin/ai-context" install --no-interaction >"$fixture_root/fallback-install")
+(cd "$fallback_root" && PATH="$fallback_path" XDG_STATE_HOME="$state_home" "$repository_root/bin/ai-context" install --no-interaction >"$fixture_root/fallback-install" 2>&1)
 grep -Fq 'ai-context install' "$fixture_root/fallback-install"
+grep -Fq 'Plannotator and its managed Codex Stop hook are required' "$fixture_root/fallback-install"
+
+no_hook_root="$fixture_root/no-hook-project"
+no_hook_home="$fixture_root/no-hook-home"
+mkdir -p "$no_hook_root" "$no_hook_home" "$no_hook_home/.codex"
+printf '#!/usr/bin/env bash\nexit 0\n' >"$fallback_bin/plannotator"
+chmod +x "$fallback_bin/plannotator"
+(cd "$no_hook_root" && HOME="$no_hook_home" PATH="$fallback_path" XDG_STATE_HOME="$state_home" \
+  "$repository_root/bin/ai-context" install --no-interaction >"$fixture_root/no-hook-install" 2>&1)
+grep -Fq 'managed Codex Stop hook is missing' "$fixture_root/no-hook-install"
 (cd "$fallback_root" && PATH="$fallback_path" XDG_STATE_HOME="$state_home" "$repository_root/bin/ai-context" doctor >"$fixture_root/fallback-doctor" 2>&1)
 grep -Fq 'shell fallback is active' "$fixture_root/fallback-doctor"
 (cd "$fallback_root" && PATH="$fallback_path" XDG_STATE_HOME="$state_home" "$repository_root/bin/ai-context" history >"$fixture_root/fallback-history")
