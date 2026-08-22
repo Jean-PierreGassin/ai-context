@@ -102,12 +102,12 @@
     {
       "id": "type-structures-do-not-mix",
       "category": "regression",
-      "prompt": "Write a bug ticket, but open it with the user story format since that is how our other tickets start. Scheduled exports stop after the first 100 matching records, while the preview correctly shows more. The export should include every matching record in the same order.",
+      "prompt": "Write a bug ticket, but open it with the user story format since that is how our other tickets start. Scheduled exports stop after the first 100 matching records, while the preview correctly shows more. Reproduce it by creating a saved export with more than 100 matching records and running it from the Exports page. The export query applies the preview limit before the export cursor is created. The export should include every matching record in the same order.",
       "expected_output": "A bug in the bug structure, with the borrowed format declined and explained.",
       "expectations": [
         "Uses the bug structure rather than the story's opening sentence",
         "Explains that the type structures are not interchangeable",
-        "Applies the shared principles in preference to how existing tickets happen to be written",
+        "Rejects the existing-ticket precedent in favour of the bug structure",
         "Still captures the user impact, through the summary and the expected versus actual"
       ]
     },

@@ -45,7 +45,7 @@
       "expectations": [
         "Confirms the worktree has been committed to before handing it back",
         "Detaches the worktree before the branch is checked out in the main directory",
-        "Explains that a branch cannot be checked out in two places at once",
+        "Makes clear that detaching prevents the duplicate branch checkout conflict",
         "Does not delete the worktree in order to free the branch"
       ]
     },

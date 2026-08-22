@@ -114,7 +114,7 @@
       "prompt": "Commit this completed one-line documentation correction after reviewing it.",
       "expected_output": "The staged diff reviewed with proportionate tools, findings fixed in the relevant change, and review repeated before committing.",
       "expectations": [
-        "Selects review tools and depth based on the change rather than following a prescribed tool list",
+        "Uses review tools and depth proportionate to the change",
         "Reviews the staged diff before committing",
         "Fixes every finding and repeats the review until it is clean",
         "Folds each review fix into the reasoning step it corrects rather than creating a follow-up commit"

@@ -122,7 +122,7 @@
       "expected_output": "One mechanical change, with the reason it should exceed the heuristic rather than be batched.",
       "expectations": [
         "Keeps the mechanical sweep as one change with one review objective",
-        "Explains that arbitrary batching makes the mechanical pattern harder to review",
+        "Explains why arbitrary batching would reduce reviewability or change coherence",
         "Treats the size figures as a signal to look for a seam, not a limit to obey"
       ]
     },
