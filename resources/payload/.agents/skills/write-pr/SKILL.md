@@ -16,7 +16,7 @@ behaviour is, and which part of the diff carries the risk. The diff already list
 
 1. Check the change against [reviewability](#reviewability) and raise a split where one is warranted
 2. Write the title: `TICKET-KEY: [Short descriptor]`, colon after the key, descriptor in sentence case. Prefer an
-   imperative verb and the domain class names as they appear in code over a prose paraphrase. Where the PR ships more
+   imperative verb and the domain terms people use over implementation names. Where the PR ships more
    than one deliverable, join them with ` + `, the feature first and reusable infrastructure second. No ticket key
    available? Ask rather than inventing one
 3. Pick the Change Type: Feature, Bugfix, Improvement, Task, Story, Chore, or Hotfix. Combine two
@@ -29,20 +29,11 @@ squash-merges, the merged subject deliberately inherits this title's colon.
 
 ## Reviewability
 
-A PR carries one review objective. Before opening it, answer:
+A PR has one review objective. Split mechanical work from behaviour, extract useful dependency steps, and isolate risky
+logic. If the user keeps a mixed PR, open it and direct the review focus to the risky parts.
 
-- What is the one thing this PR asks the reviewer to judge?
-- Can they get the intent from the title and description, without reading the whole diff?
-- Does it mix mechanical changes (renames, moves, formatting) with behavioural ones?
-- Could a dependency step come out first as its own PR, leaving a smaller change behind?
-- Is the risky logic isolated, or spread through changes that are individually safe?
-
-Never make a reviewer reason about a refactor, new behaviour, an API change, a UI change, and a migration at once.
-Where a PR does, name the split you would make and offer it before opening. Where the user wants it as one PR anyway,
-open it and use the review focus line to point at the parts that carry the risk.
-
-Where the branch is one change out of a planned stack, say what landed before it and what depends on it, so the
-reviewer knows what they are not being asked to judge.
+For dependent changes, use the repository or hosting provider's actual stacked-PR tooling rather than describing an
+unmanaged stack in prose. Name adjacent changes in each PR and restack after review changes where the tool requires it.
 
 ## Rules
 
@@ -62,10 +53,9 @@ reviewer knows what they are not being asked to judge.
 - Prose explains the why and the overall approach. A restatement of the diff is not a description
 - State the new behaviour and contrast it with the old ("retries with backoff rather than failing on the first
   timeout"). Describe the final state, not the edit history
-- Wrap every code reference (class, method, column, file path) in backticks, and only code references. Plain English
-  section names read as plain English
-- Root cause is the established facts plus an honest hedge, never an inferred mechanism narrated as fact: state the
-  measured numbers, then say what could resolve it, where the causal chain is inferred rather than captured
+- Write in natural, human-readable English without class, method, column, or file references. Explain why the change
+  exists and what it supports, then state the important behaviour in a short natural list
+- State root cause as fact only when evidence establishes it. Otherwise name the observed facts and remaining uncertainty
 - Say what a chosen value buys later, not only what it fixes now
 - Screenshots go in the body for any visible change; offer to capture them rather than waiting to be asked
 - Operational commands the change unlocks belong in the body, in their own labelled fenced block, since that is
@@ -91,13 +81,6 @@ reviewer knows what they are not being asked to judge.
 
 ### Voice
 
-Keep the author's direct voice. Opening with "This PR ..." is a common and acceptable pattern, especially for larger
-features. Brief first-person hedges ("not 100% sure this covers every case") match how the author actually writes.
-Throat-clearing filler that adds nothing does not.
+Use the author's direct voice. State uncertainty precisely, including what is unknown; omit throat-clearing.
 
-## Supporting files
-
-- `assets/body-template.md` - the body template to fill in, and the review focus patterns
-- `examples/feature.md` - a complete feature PR
-- `examples/bugfix.md` - a complete bug PR with reproduction steps
-- `examples/stacked-change.md` - a behaviour-preserving change inside a stack
+Repository-enforced templates and workflow win on format. The rules above govern content where the project is silent.

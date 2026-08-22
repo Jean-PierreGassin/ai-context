@@ -120,8 +120,6 @@ test_project_install() {
     "$project_root/.agents/skills/write-code/references/php.md"
   cmp -s "$payload_root/.agents/skills/write-pr/assets/body-template.md" \
     "$project_root/.agents/skills/write-pr/assets/body-template.md"
-  cmp -s "$payload_root/.agents/skills/write-pr/examples/feature.md" \
-    "$project_root/.agents/skills/write-pr/examples/feature.md"
   cmp -s "$payload_root/.claude/skills/write-code/SKILL.md" \
     "$project_root/.claude/skills/write-code/SKILL.md"
   assert_every_skill_resource_installed

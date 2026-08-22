@@ -12,7 +12,8 @@
         "Opens with why the feature exists rather than restating the diff",
         "Groups the bullets by surface, ordered by importance",
         "Offers or includes a screenshot, because part of the change is visible",
-        "Ends with a review focus naming the part that carries risk"
+        "Ends with a review focus naming the part that carries risk",
+        "Uses natural domain language without class, method, column, or file references"
       ]
     },
     {
@@ -37,6 +38,7 @@
         "States that the diff is a move with no behaviour change",
         "Backs the claim, rather than only asserting it",
         "Names what landed before and what depends on it, so the reviewer knows what they are not judging",
+        "Uses the repository or provider's stacked-PR tooling rather than representing the stack only in prose",
         "Calls out any part that is not a pure move",
         "Does not ask the reviewer to scrutinise the mechanical part"
       ]
