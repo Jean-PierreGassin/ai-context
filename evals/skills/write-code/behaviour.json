@@ -54,7 +54,7 @@
     {
       "id": "reformatting-preserves-the-contract",
       "category": "regression",
-      "prompt": "Reformat this signature onto one parameter per line. Do not change anything else about it.",
+      "prompt": "Reformat this PHP signature onto one parameter per line without changing its contract: public function send(Notifier $notifier, string $recipient, ?string $label = null): DeliveryResult",
       "expected_output": "The same signature across several lines, with every parameter and type exactly as it was.",
       "expectations": [
         "Leaves every parameter's declared type exactly as given, including its nullability",
@@ -138,7 +138,7 @@
     {
       "id": "comments-require-request-or-complexity",
       "category": "regression",
-      "prompt": "Add a formatter for this response object, with comments documenting the two external format constraints I described.",
+      "prompt": "Add a formatter for this response object. Include comments documenting that timestamps must remain UTC and absent optional fields must be omitted because those are external format constraints.",
       "expected_output": "The formatter with comments because the user explicitly requested them, while keeping them narrow and non-redundant.",
       "expectations": [
         "Writes comments because the user specifically requested them",

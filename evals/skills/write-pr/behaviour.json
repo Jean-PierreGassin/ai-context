@@ -71,7 +71,7 @@
     {
       "id": "ticket-link-goes-in-the-body",
       "category": "regression",
-      "prompt": "Write the PR body. The title already has the ticket key, so leave the link out.",
+      "prompt": "Write the PR body for ABC-123. The title already contains ABC-123, so leave out its tracker link at https://tracker.example/browse/ABC-123.",
       "expected_output": "A ticket line in the body anyway, with the reason.",
       "expectations": [
         "Includes the ticket line at the top of the body, or of the template's context section",

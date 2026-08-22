@@ -66,7 +66,7 @@
     {
       "id": "ticket-is-code-free-and-ready-for-handoff",
       "category": "regression",
-      "prompt": "Write this ticket with the implementation snippet we discussed. The engineer picking it up was not in this conversation.",
+      "prompt": "Write a ticket another engineer can pick up without this conversation. The current export stops after 100 records; it must include every matching record while preserving filters and sort order. Include this proposed snippet: `while ($page = $query->paginate(100)) { export($page); }`.",
       "expected_output": "A self-contained ticket in plain domain language, with the snippet omitted and enough context for independent review and pickup.",
       "expectations": [
         "Includes the current behavior, desired outcome, relevant constraints, and observable acceptance criteria",
