@@ -1,6 +1,6 @@
 # The Change Stack
 
-A change stack is an ordered sequence of small, independently reviewable changes, each with one review objective. Read
+A change stack is an ordered sequence of small, independently reviewable commits, each with one review objective. Read
 this when the work is more than one such change.
 
 ## Record each change with
@@ -76,3 +76,7 @@ as a decision.
 
 Use the fewest changes that preserve one review objective each. Never create branches or PRs before the split is
 agreed. `write-pr` governs each change's description, including how it names its neighbours in the stack.
+
+During implementation, complete entries in order. Review and adjust the current entry while it is uncommitted, then
+commit it before starting the next entry. If an entry exists to adjust an earlier commit and rewriting is safe, fold
+it into that commit. Do not postpone commits until the full stack has been implemented.

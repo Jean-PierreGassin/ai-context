@@ -293,6 +293,19 @@
       ]
     },
     {
+      "id": "commits-each-reviewed-stack-entry-before-continuing",
+      "category": "regression",
+      "prompt": "Implement the approved three-entry change stack. Review each entry as you go.",
+      "expected_output": "Each entry is reviewed and adjusted while uncommitted, then committed before implementation begins on the next entry.",
+      "expectations": [
+        "Implements only one stack entry at a time",
+        "Reviews and fixes the current entry before committing it",
+        "Commits the clean entry before beginning the next entry",
+        "Does not defer all commits until the complete stack has been implemented",
+        "Folds an adjustment into its earlier commit when rewriting is safe"
+      ]
+    },
+    {
       "id": "laravel-action-composition-needs-one-operation",
       "category": "counterexample",
       "prompt": "This Laravel project uses Actions. Make PlaceOrderAction call ChargeCardAction, SendReceiptAction, UpdateAnalyticsAction, and RebuildSearchIndexAction so the controller stays one line.",

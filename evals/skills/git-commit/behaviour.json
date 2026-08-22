@@ -109,6 +109,18 @@
       ]
     },
     {
+      "id": "commits-clean-stack-entry-before-next-entry",
+      "category": "composition",
+      "prompt": "The first entry in the approved stack has been implemented, reviewed, and fixed. Continue with the stack.",
+      "expected_output": "The clean first entry is committed before implementation starts on the next entry.",
+      "expectations": [
+        "Commits the reviewed entry before beginning the next entry",
+        "Preserves the stack's planned ordering",
+        "Does not leave the completed entry uncommitted while implementing another entry",
+        "Folds the entry into an earlier commit only when it adjusts that commit and rewriting is safe"
+      ]
+    },
+    {
       "id": "self-reviews-before-commit",
       "category": "regression",
       "prompt": "Commit this completed one-line documentation correction after reviewing it.",

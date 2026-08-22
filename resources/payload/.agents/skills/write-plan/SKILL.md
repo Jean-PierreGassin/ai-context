@@ -17,7 +17,7 @@ Plan only enough to choose reviewable units and their order.
    starting a second one
 2. Name the shape of the work and [route](#route-by-shape) to what you need
 3. Load the skills that shape the plan's content: `write-code` for how the implementation should look, `write-tests`
-   for what coverage the change needs
+   for what coverage the change needs, and `git-commit` for the boundary between stack entries
 4. Gather context by investigating the areas the change touches
 5. Draft the split and confirm it with the user, with options, before detailing each change
 6. Return the plan as concise Markdown. The installed Plannotator host integration intercepts the response and opens
@@ -28,6 +28,10 @@ Plan only enough to choose reviewable units and their order.
    missing dependency, so do not download or install it from this skill
 8. Hand over rather than implement: end referencing any persisted plan locations so implementation starts on fresh
    context. Carry on into implementation only where the user asked for both
+
+When implementing an approved stack, finish one entry at a time: write it, review and adjust it until clean, then
+commit it before beginning the next entry. An entry that adjusts an earlier commit may be folded into it where
+rewriting is safe. Never carry an uncommitted completed entry into the next entry.
 
 ## Route by shape
 
@@ -59,6 +63,7 @@ averaging them into one shapeless sequence.
 |----------------------------------------------|-----------------------------|
 | How the implementation should be written     | `write-code`                |
 | What coverage the change needs               | `write-tests`               |
+| How each stack entry is committed             | `git-commit`                |
 | A tracker ticket for the outcome             | `write-ticket`              |
 
 `write-plan` decides how the work is cut and ordered. Where the facts are not yet settled, establish them first and

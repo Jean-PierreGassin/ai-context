@@ -22,6 +22,9 @@ when_to_use: Triggers on requests like "commit this", "commit these changes", "s
 7. Review each staged diff with the tools and depth it warrants. Fix every finding and fold the fix into the reasoning
    step it corrects, then repeat until the review is clean
 8. Use the [template](#template) to structure the commit message, and the [example](#example) for guidance
+9. When `write-code` is executing a change stack, commit the clean entry before beginning the next one. Where the
+   entry adjusts an earlier commit and rewriting is safe, fold it into that commit; otherwise create its own commit
+   before continuing
 
 ## One commit, one reasoning step
 

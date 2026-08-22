@@ -16,7 +16,8 @@ Keep code readable, cohesive, and limited to the task.
 1. Read the [references](#references) for the languages and frameworks in scope, and nothing else; if none exists,
    use the fallback below
 2. Open the nearest equivalent capability already in the repository and match how it is arranged
-3. Write the change, then [check it](#before-reporting-it-done) before reporting it as done
+3. For each change-stack entry, write and review the change, commit the clean entry, then start the next entry
+4. [Check the completed change](#before-reporting-it-done) before reporting it as done
 
 Shape the work before writing it:
 
@@ -28,6 +29,11 @@ Shape the work before writing it:
 A plan that already exists is the authority on ordering: follow its change stack rather than re-deciding the split.
 Confirm an agreed stack before writing. Assign every edit to its relevant entry. Fold review fixes into that entry's
 commit where rewriting is safe; a genuinely new review objective becomes a new entry.
+
+Review and adjust each stack entry before committing it. Once its review is clean, use `git-commit` to create its
+preserving commit before beginning the next entry. Do not continue into another stack entry, or defer the stack's
+commits until all entries have been implemented. Where an entry adjusts an earlier commit and rewriting is safe, fold
+it into that commit; otherwise create its own commit before continuing.
 
 ## References
 

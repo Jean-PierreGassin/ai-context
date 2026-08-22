@@ -138,6 +138,19 @@
       ]
     },
     {
+      "id": "implementation-commits-between-stack-entries",
+      "category": "composition",
+      "prompt": "The plan is approved. Implement its three-change stack now, reviewing each change before moving on.",
+      "expected_output": "Implementation follows the approved order and creates a clean commit after reviewing each entry, before starting the next.",
+      "expectations": [
+        "Loads git-commit alongside write-code for implementation",
+        "Reviews and adjusts each entry before committing it",
+        "Commits each clean entry before beginning the next one",
+        "Does not carry an uncommitted completed entry into another stack entry",
+        "Allows a corrective entry to be folded into an earlier commit when rewriting is safe"
+      ]
+    },
+    {
       "id": "resumes-rather-than-duplicating",
       "category": "normal",
       "prompt": "Plan the export feature.",
