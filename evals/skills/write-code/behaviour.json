@@ -124,6 +124,30 @@
       ]
     },
     {
+      "id": "comments-require-request-or-complexity",
+      "category": "regression",
+      "prompt": "Add a formatter for this response object, with comments documenting the two external format constraints I described.",
+      "expected_output": "The formatter with comments because the user explicitly requested them, while keeping them narrow and non-redundant.",
+      "expectations": [
+        "Writes comments because the user specifically requested them",
+        "Keeps comments focused on information the code does not already state",
+        "Does not use the request as permission to narrate obvious syntax",
+        "Still uses clear names and structure"
+      ]
+    },
+    {
+      "id": "complexity-can-justify-a-comment",
+      "category": "counterexample",
+      "prompt": "Implement this protocol parser. One state transition must preserve a counterintuitive wire-compatibility rule, and extracting it would split the state machine across files.",
+      "expected_output": "Clear structured code with one narrow comment for the irreducible compatibility constraint.",
+      "expectations": [
+        "First uses names and structure to make the state machine readable",
+        "Adds only the narrow comment needed to preserve the irreducible compatibility knowledge",
+        "Does not fragment the cohesive state machine merely to avoid every comment",
+        "Adds no comments that narrate ordinary control flow"
+      ]
+    },
+    {
       "id": "non-obvious-reasoning-stays-out-of-the-file",
       "category": "counterexample",
       "prompt": "This retry threshold has to be exactly this value because of a downstream limit nobody would guess from reading the code. Raise it, and make sure whoever touches it next understands why.",

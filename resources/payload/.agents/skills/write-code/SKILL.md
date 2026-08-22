@@ -87,9 +87,12 @@ outcomes. Stricter project-enforced limits win.
 
 ## Comments
 
-Express intent through names and structure rather than explanatory comments. Retain machine annotations, `@throws`,
-narrowly scoped suppressions with a reason, TODOs for tracked debt, and section banners where the language provides no
-grouping.
+Do not write comments unless the user specifically asks for them or the code's irreducible complexity requires one.
+Prefer names, extraction, and structure first; complexity warrants a comment only when those options would obscure the
+flow or misrepresent the design. Keep any necessary comment narrow and focused on information the code cannot express.
+
+Machine annotations, `@throws`, narrowly scoped suppressions with a reason, TODOs for tracked debt, and section banners
+where the language provides no grouping are not explanatory comments and may be retained.
 
 ## Keep the diff to the task
 
