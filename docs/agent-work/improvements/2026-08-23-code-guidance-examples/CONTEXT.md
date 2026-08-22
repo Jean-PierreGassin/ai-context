@@ -3,8 +3,8 @@
 The prerequisite workflow change is committed as `07b8e59`. The approved implementation stack restores concrete
 good/bad code guidance, adds an always-loaded clean-code reference, and introduces researched Go guidance.
 
-Stack entry 1 is complete in the first feature-branch restore point. Its human review and full `task test` gate passed.
-Resume with `02-php/PLAN.md` and its first unchecked action.
+Stack entry 1 is committed as `44f4b66`. Entry 2 has passed review and the full `task test` gate and is complete in
+the next restore point. Resume with `03-laravel/PLAN.md` and its first unchecked action.
 
 ## Settled decisions
 
@@ -25,6 +25,12 @@ Resume with `02-php/PLAN.md` and its first unchecked action.
   `log`, `style`, and `confirm` must not wait for input. Exiting early races the producer and causes intermittent
   `SIGPIPE` failures under `pipefail`; consuming input unconditionally blocks terminal runs. Its literal `$1` is part
   of the generated stub and has a focused `SC2016` suppression
+- PHP restoration keeps focused example pairs from the broader historical guidance. Shared organization and naming
+  examples remain in `clean-code.md` instead of being duplicated
+- PHP collection examples preserve sequential output keys with `array_values`; fluent rewrites must not change key,
+  order, short-circuit, or memory behavior
+- Typed class constants remain project-consistent because they require PHP 8.3 or later; examples do not make them an
+  unconditional compatibility requirement
 
 ## Rejected directions
 

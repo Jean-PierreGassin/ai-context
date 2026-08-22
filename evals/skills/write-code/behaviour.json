@@ -234,6 +234,30 @@
       ]
     },
     {
+      "id": "php-domain-data-uses-explicit-types",
+      "category": "normal",
+      "prompt": "Implement a PHP method we own that accepts a nested keyed invoice array and returns an array-shape containing invoice and customer fields.",
+      "expected_output": "Purpose-named nested DTOs in the parameter and return contract, with a typed collection if the method handles a group.",
+      "expectations": [
+        "Replaces the keyed input shape with a purpose-named DTO because the signature is owned",
+        "Returns a purpose-named DTO rather than an array-shape docblock",
+        "Uses a dedicated typed collection rather than an array plus PHPDoc when returning a group",
+        "Does not rewrite a framework-defined array signature that the method must implement"
+      ]
+    },
+    {
+      "id": "php-exception-translation-retains-cause",
+      "category": "regression",
+      "prompt": "Translate a GatewayUnavailable exception into the domain's PaymentFailed exception in PHP.",
+      "expected_output": "A narrow catch and domain exception that retains the infrastructure exception as its previous cause.",
+      "expectations": [
+        "Catches the narrow infrastructure exception rather than Throwable",
+        "Throws the purpose-named domain exception rather than a generic Exception",
+        "Passes the caught exception as previous when constructing the domain exception",
+        "Does not both log and rethrow the same failure at this boundary"
+      ]
+    },
+    {
       "id": "logical-blocks-use-proportionate-whitespace",
       "category": "proportionality",
       "prompt": "Clean up this method whose validation, transformation, and persistence statements currently run together without spacing.",

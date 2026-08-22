@@ -29,16 +29,16 @@ Restore audited PHP examples that define the user's PHP-specific implementation 
 - Correct pairs that change types, values, parameters, attributes, or behavior accidentally
 - Cover strict types, signatures, named arguments, collections, DTOs, enums, control flow, and readable layout
 - Add PHP behavior evals for the restored decisions
-- Anticipated diff: 2 files, 600–1,000 lines
+- Anticipated diff: 3 files, 350–500 lines, including the persisted checkpoint update
 
 ## Implementation checklist
 
-- [ ] Inventory and classify historical pairs
-- [ ] Restore, deduplicate, and correct PHP examples
-- [ ] Add behavior evals
-- [ ] Reconcile findings into later plans and context
-- [ ] Self-review and present the complete diff for human approval
-- [ ] After approval, run gates and commit
+- [x] Inventory and classify historical pairs
+- [x] Restore, deduplicate, and correct PHP examples
+- [x] Add behavior evals
+- [x] Reconcile findings into later plans and context
+- [x] Self-review and present the complete diff for human approval
+- [x] After approval, run gates and commit
 
 ## Validation
 
