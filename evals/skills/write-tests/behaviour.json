@@ -131,6 +131,30 @@
         "Keeps only one of the two boundary inputs when both exercise the same behavior",
         "Asserts the specific exception and observable outcomes"
       ]
+    },
+    {
+      "id": "go-table-tests-share-one-behaviour",
+      "category": "proportionality",
+      "prompt": "Write Go tests for three invoice tiers with identical setup and assertion, plus a storage failure that needs different setup and assertions.",
+      "expected_output": "One table test for the tiers and a separate focused storage-failure test.",
+      "expectations": [
+        "Uses named table rows for the three equivalent tier cases",
+        "Keeps the shared arrange, act, and assert in one table body",
+        "Tests the storage failure separately because its setup and assertion differ",
+        "Reports got before want in useful failure messages"
+      ]
+    },
+    {
+      "id": "go-concurrency-test-synchronizes-without-sleep",
+      "category": "regression",
+      "prompt": "Test that a Go processor finishes asynchronous work before a context deadline.",
+      "expected_output": "Explicit completion synchronization selected against context cancellation, without time.Sleep.",
+      "expectations": [
+        "Waits on an observable completion or error channel",
+        "Selects against context cancellation or a controlled deadline",
+        "Does not use time.Sleep to guess when work finished",
+        "Leaves no goroutine whose completion the test does not own"
+      ]
     }
   ]
 }

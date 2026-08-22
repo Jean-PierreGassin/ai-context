@@ -61,6 +61,7 @@ reference applies on top of its language reference.
 | TypeScript | `references/typescript.md`                           |
 | Vue        | `references/vue.md` and `references/typescript.md`   |
 | Bash       | `references/bash.md`                                 |
+| Go         | `references/go.md`                                   |
 
 Each reference splits its rules in two, and the section a rule sits in is its strength:
 

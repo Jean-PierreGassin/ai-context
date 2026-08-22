@@ -438,6 +438,54 @@
       ]
     },
     {
+      "id": "go-semantic-whitespace-keeps-error-guard-attached",
+      "category": "normal",
+      "prompt": "Format a Go function that loads a customer, checks that error, creates an invoice, checks that error, saves it, and returns it.",
+      "expected_output": "Operation and error guards kept together, with one blank line between unrelated phases.",
+      "expectations": [
+        "Keeps each operation directly beside the guard checking its error",
+        "Separates loading, creation, persistence, and final return into semantic paragraphs",
+        "Does not insert a blank line between an operation and its error guard",
+        "Does not add a blank line after every guard mechanically"
+      ]
+    },
+    {
+      "id": "go-interface-belongs-to-consumer",
+      "category": "regression",
+      "prompt": "A Go invoice package can consume either the production Postgres store or a runtime-selected in-memory store. Add the abstraction at their boundary.",
+      "expected_output": "A narrow interface in the consuming invoice package, while constructors return concrete implementations.",
+      "expectations": [
+        "Defines the narrow interface in the consuming package",
+        "Includes only methods the consumer uses",
+        "Keeps the implementation constructor's return type concrete",
+        "Does not create a pointer to an interface or an interface in the provider package"
+      ]
+    },
+    {
+      "id": "go-error-wrapping-is-api-design",
+      "category": "normal",
+      "prompt": "Add context to a Go storage error. Callers may classify the underlying not-found error, but implementation errors at the HTTP boundary must remain hidden.",
+      "expected_output": "Percent-w wrapping where classification is supported and non-wrapping context at the encapsulation boundary.",
+      "expectations": [
+        "Wraps with %w where callers intentionally use errors.Is or errors.As",
+        "Does not expose an implementation error through %w at the HTTP boundary",
+        "Uses lower-case operation-focused error text without trailing punctuation",
+        "Handles each error once rather than logging and returning it"
+      ]
+    },
+    {
+      "id": "go-goroutine-has-owner-and-stop-condition",
+      "category": "regression",
+      "prompt": "Start a long-running Go processor in the background and make shutdown reliable.",
+      "expected_output": "A caller-owned goroutine tied to context cancellation and explicitly awaited.",
+      "expectations": [
+        "Provides a cancellation or completion condition",
+        "Keeps ownership of waiting for the goroutine explicit",
+        "Propagates context into blocking work",
+        "Does not launch fire-and-forget work or use context.Background inside the component"
+      ]
+    },
+    {
       "id": "commits-each-reviewed-stack-entry-before-continuing",
       "category": "regression",
       "prompt": "Implement the approved three-entry change stack. Review each entry as you go.",

@@ -66,3 +66,4 @@ Read only the language in scope. References contain syntax-specific patterns tha
 |------------|----------------------------|---------------|
 | PHP        | `references/php.md`        | PHPUnit, Pest |
 | TypeScript | `references/typescript.md` | Vitest, Jest  |
+| Go         | `references/go.md`         | testing       |
