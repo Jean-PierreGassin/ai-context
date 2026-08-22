@@ -15,9 +15,8 @@ behaviour is, and which part of the diff carries the risk. The diff already list
 ## Process
 
 1. Check the change against [reviewability](#reviewability) and raise a split where one is warranted
-2. Write the title: `TICKET-KEY: [Short descriptor]`, colon after the key, descriptor in sentence case. Prefer an
-   imperative verb and the domain terms people use over implementation names. Where the PR ships more
-   than one deliverable, join them with ` + `, the feature first and reusable infrastructure second. No ticket key
+2. Write a concise, descriptive, well-scoped title: `TICKET-KEY: [Outcome]`, with a colon after the key and the outcome
+   in sentence case. Prefer `Add retry handling for failed webhooks` to `Changes to webhook code`. No ticket key
    available? Ask rather than inventing one
 3. Pick the Change Type: Feature, Bugfix, Improvement, Task, Story, Chore, or Hotfix. Combine two
    (`Bugfix/Improvement`, `Feature/Story`) only where the PR genuinely spans both
