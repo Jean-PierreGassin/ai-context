@@ -122,6 +122,29 @@
         "Names no test classes, methods, or coverage percentage",
         "Does not describe how the tests are structured"
       ]
+    },
+    {
+      "id": "substantial-work-confirms-missing-ticket",
+      "category": "composition",
+      "prompt": "Implement this shippable migration over several sessions. I have not mentioned a ticket.",
+      "expected_output": "The existing tracker is checked and the missing ticket confirmed before implementation.",
+      "expectations": [
+        "Recognises the work as substantial and multi-session",
+        "Looks for an existing ticket before asking",
+        "Confirms whether to create or proceed without a ticket when none exists",
+        "Does not invent a ticket key"
+      ]
+    },
+    {
+      "id": "exploration-does-not-demand-ticket",
+      "category": "proportionality",
+      "prompt": "Try a disposable local experiment to see whether the parser can handle this shape.",
+      "expected_output": "The experiment proceeds without a ticket interruption.",
+      "expectations": [
+        "Recognises the work as exploratory and disposable",
+        "Does not ask for a ticket solely because code may be written",
+        "Keeps the work local and scoped to the experiment"
+      ]
     }
   ]
 }

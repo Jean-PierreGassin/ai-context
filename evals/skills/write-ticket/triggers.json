@@ -20,6 +20,10 @@
     "should_trigger": true
   },
   {
+    "query": "This will ship across several sessions and there is no ticket yet. Work out whether we need one.",
+    "should_trigger": true
+  },
+  {
     "query": "Write the implementation plan for scheduled exports",
     "should_trigger": false,
     "note": "A decomposition and sequencing deliverable outside the tracker. Routes to write-plan."
@@ -43,5 +47,10 @@
     "query": "Summarise the export problem for the team channel",
     "should_trigger": false,
     "note": "Communication about a defect, not a ticket with a type, panels, and field rules."
+  },
+  {
+    "query": "Try a quick local experiment to see whether this API shape is viable",
+    "should_trigger": false,
+    "note": "Exploratory side work should not be interrupted solely to request a ticket."
   }
 ]

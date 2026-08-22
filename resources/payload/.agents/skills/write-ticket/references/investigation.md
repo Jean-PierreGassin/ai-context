@@ -20,29 +20,20 @@ it isn't an investigation
 - Dependencies/metadata: an investigation typically blocks the story/task that depends on its answer, not the other way
   around - wire that link on the ticket it blocks, once known
 
-## Example
+## Skeleton
 
-A technical spike prompted by rising infrastructure cost, where the outcome (whether to migrate) is genuinely unknown up
-front
-
-**Ticket - `Investigate nightly polling`**
+**Ticket - `Investigate [subject]`**
 
 > **Question**
 >
-> Can `ProductSearchReindexJob`'s nightly full-table scan be replaced with a change-data-capture stream, and if so, does
-> it meaningfully reduce database load and indexing lag?
+> [Specific, answerable question within the time-box?]
 >
 > **Background**
 >
-> The nightly reindex job introduced in [PROJ-88](https://your-tracker.example/browse/PROJ-88) now scans the full
-`products` table every night, and that scan's duration has grown alongside catalog size, prompting infra to flag it in
-> the last capacity review. A CDC-based approach (e.g. streaming `products` changes via the existing Debezium connector)
-> could index changes as they happen instead of once nightly, but it's unproven for our write volume and schema, and would
-> add an operational dependency we don't currently run in production.
+> [What prompted the investigation, what is known or ruled out, and any related ticket link.]
 >
 > **Approach & Definition of Done**
 >
-> * Prototype a CDC stream from `products` into a throwaway index and measure indexing lag under production-like write
-    volume
-> * Compare database load (query time, lock contention) of the CDC approach against the current nightly scan
-> * Identify the operational cost of running the CDC connector (on-call burden, failure modes, monitoring gaps)
+> * [Evidence to inspect, measure, or prototype]
+> * [Comparison or constraint to evaluate]
+> * [Explicit exit criterion: recorded decision, recommendation, or linked follow-up ticket]

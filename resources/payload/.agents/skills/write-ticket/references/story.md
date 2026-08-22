@@ -42,37 +42,22 @@ A story is the business-value container; the technical breakdown lives in one or
 - If the underlying capability is actually multiple distinct pieces of user-facing value, not just implementation
   layers, split into multiple stories instead, each with its own Acceptance Criteria and its own linked Task ticket(s)
 
-## Example
+## Skeleton
 
-A feature that adds a per-workspace "publish lock window": once a post is scheduled, edits within N minutes of its
-publish time are blocked. The story captures the business value end-to-end; the underlying schema/service work and the
-UI wiring are split into two linked Task tickets, since the schema/service piece is shared groundwork the UI wiring
-depends on.
-
-**Story - `Publish Lock Window - Configurable notice period before edits are blocked`**
+**Story - `[Area] - [Capability]`**
 
 > **User Story**
 >
-> As a content manager, I would like to configure a minimum notice period before a scheduled post publishes and have
-> edits blocked once a post is inside that window, so that a scheduled post can't be changed once it's too close to going
-> live.
+> As a [role], I would like [capability], so that [benefit].
 >
 > **Background**
 >
-> Workspaces currently have no way to prevent edits to a scheduled post once it's close to publishing. This adds a
-> per-workspace lock window (in minutes), configurable from workspace settings and enforced at both places a scheduled
-> post can be edited. Existing workspaces default to a 0-minute window, so behavior is unchanged until an admin configures
-> one.
+> [Why the work exists, its costly-to-reverse constraints, and linked dependencies.]
 >
 > **Acceptance Criteria**
 >
-> * A workspace admin can set a "Publish lock window (minutes)" value from workspace settings
-> * Editing a scheduled post outside the configured window succeeds as today
-> * Editing a scheduled post inside the configured window is blocked, with a message naming the cutoff time, from both
-    the post list's inline edit and the post detail drawer
-> * A workspace with no configured window behaves exactly as it does today
-> * Implemented by [PROJ-101](https://your-tracker.example/browse/PROJ-101) (schema and edit-lock
-    service), [PROJ-102](https://your-tracker.example/browse/PROJ-102) (settings field and editor enforcement)
-
-See `references/task.md` for how PROJ-101 and PROJ-102 look as Task tickets, including how the second links back to this
-story and to PROJ-101 as a blocker.
+> * [Observable happy-path outcome]
+> * [Observable edge-case outcome]
+> * [Explicit non-goal, where needed]
+> * Implemented by [TASK-1](https://your-tracker.example/browse/TASK-1) and
+>   [TASK-2](https://your-tracker.example/browse/TASK-2)

@@ -1,57 +1,37 @@
 ---
 name: write-ticket
-description: Use when writing or editing the content of a tracker ticket for a story, bug, task, or investigation.
+description: Use when writing or editing a tracker ticket, or deciding whether substantial work needs one. Do not
+  interrupt exploratory, incidental, or personal side work solely to request a ticket.
 ---
 
 # Write Ticket
 
-A ticket is the guardrail around an outcome. It says what must be true when the work is done and which decisions are
-too expensive to get wrong, and it leaves the implementation to whoever picks it up.
-
-| Deliverable                                        | Skill          |
-|----------------------------------------------------|----------------|
-| A ticket in the tracker                            | `write-ticket` |
-| An implementation or decomposition plan outside it | `write-plan`   |
-
-Both can be warranted for one piece of work. The ticket carries the outcome, the plan carries the sequencing.
+A ticket defines the outcome, correctness rules, and expensive-to-reverse constraints. Implementation sequencing
+belongs in `write-plan`.
 
 ## Process
 
-1. Determine the type: story, bug, task, or investigation
-2. Read the matching reference and follow its panel structure and field rules exactly, without borrowing another
+1. Decide whether the work warrants a ticket. For substantial, shippable, assigned, or multi-session work, look for an
+   existing ticket and confirm when none is found. Do not prompt solely for exploratory, incidental, or personal work
+2. Determine the type: story, bug, task, or investigation
+3. Read the matching reference and follow its panel structure and field rules exactly, without borrowing another
    type's structure
-3. Apply the [shared principles](#shared-principles) regardless of type, in preference to how existing tickets in the
+4. Apply the [shared principles](#shared-principles) regardless of type, in preference to how existing tickets in the
    tracker happen to be written
-4. Check the draft against the type's field rules and the shared principles before finishing
+5. Check the draft against the type's field rules and the shared principles before finishing
 
 ## Shared principles
 
 ### Outcome-focused, not implementation
 
-Keep in the ticket:
-
-- The desired outcome, in terms of what success looks like
-- Business rules and edge cases that define correctness
-- Decisions that are expensive to reverse later, and the architectural constraints they impose
-- Which components or entry points are in play
-- Test scenarios, expressed as outcomes
-
-Leave out anything that could change without changing the outcome:
-
-- The exact algorithm, loop, or control flow
-- Method and class internals, parameter and return types
-- Exact error message copy, CSS class names, and other framework mechanics, unless the outcome depends on them
-- Step-by-step implementation sequencing, which belongs in a plan
-
-The boundary: needed to deliver the correct outcome, or expensive to reverse later, goes in the ticket. Needed to write
-correct code but free to change without affecting the outcome goes in the plan.
+Include outcomes, correctness rules and edge cases, affected entry points, outcome-based test scenarios, and decisions
+that are expensive to reverse. Exclude algorithms, internal signatures, incidental framework mechanics, exact copy
+unless required, and implementation sequencing.
 
 ### Don't restate standard practice
 
-Standard framework and architecture practice is implicit and enforced in review. Omit constructor DI only, no raw
-database writes, no N+1 queries, scalar params before collections, no side effects in pure functions, single source of
-truth, idempotent-migration guards, and their like. Keep the specific business rules, the non-obvious constraints, and
-the edge cases a developer could reasonably miss.
+Do not restate framework or architecture practice enforced in review. Keep project-specific business rules,
+non-obvious constraints, and missable edge cases.
 
 ### Write it so it can be read
 
@@ -60,7 +40,7 @@ the edge cases a developer could reasonably miss.
 
 ## References
 
-Each reference gives that type's panel structure, field rules, and a worked example:
+Each reference gives that type's panel structure, field rules, and a compact skeleton:
 
 | Type          | Read                              | Use it for                                                                     |
 |---------------|-----------------------------------|--------------------------------------------------------------------------------|
