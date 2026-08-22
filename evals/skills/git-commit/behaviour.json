@@ -39,13 +39,25 @@
     {
       "id": "never-invents-a-ticket-key",
       "category": "regression",
-      "prompt": "Commit this. The branch name has no ticket key in it.",
-      "expected_output": "A request for the key, then the no-ticket format if there is not one.",
+      "prompt": "Commit this. The branch name has no ticket key in it, and the repository context does not yet establish whether this work is normally ticketed.",
+      "expected_output": "A contextual ticket judgment, with a question only if the remaining ambiguity would change the workflow.",
       "expectations": [
-        "Asks for the ticket key rather than inventing, guessing, or substituting one",
+        "Checks branch, repository workflow, tracker context, task scope, and prior user direction before deciding",
         "Does not take a key from an unrelated commit, comment, or file",
-        "Falls back to the documented no-ticket format once the user confirms there is none",
-        "Does not silently omit the key without saying so"
+        "Asks only if the available evidence remains genuinely ambiguous",
+        "Uses the documented no-ticket format when the work is reasonably judged to be unticketed"
+      ]
+    },
+    {
+      "id": "clear-no-ticket-work-does-not-prompt",
+      "category": "proportionality",
+      "prompt": "Commit this personal repository change. The project has no tracker or ticket convention, and the branch is fix/installer-output.",
+      "expected_output": "A no-ticket commit message without interrupting for a ticket key.",
+      "expectations": [
+        "Judges from explicit project context that no ticket is expected",
+        "Uses the documented no-ticket commit format",
+        "Does not ask for a ticket key",
+        "Does not invent or borrow a key"
       ]
     },
     {

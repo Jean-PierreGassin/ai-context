@@ -14,15 +14,17 @@ when_to_use: Triggers on requests like "commit this", "commit these changes", "s
 1. Split commits by [reasoning step](#one-commit-one-reasoning-step): Run `git status`/`git diff` and group changes by
    what each is for, not by which files they touch
 2. Find the ticket key: Extract it from the current branch name (e.g. `ABC-1234-fix-timeout` -> `ABC-1234`)
-3. No ticket found? Ask the user for it rather than inventing, omitting, or substituting one. If they confirm there
-   isn't one, or the project doesn't use ticket keys, use the no-ticket format in the [example](#example)
+3. If no ticket is found, judge whether one should exist from the repository workflow, branch conventions, task size,
+   tracker context, and what the user has already said. Use the no-ticket format when the work is clearly unticketed.
+   Ask only when the evidence is genuinely ambiguous and the answer would change the workflow. Never invent, guess,
+   or substitute a ticket key
 4. Look for a `commit-msg` hook (`.git/hooks/commit-msg`), or other message guidance/enforcement
 5. Stage one reasoning step at a time
 6. Self-review each staged diff with the tools and depth it warrants. Fix every finding and fold the fix into the
    reasoning step it corrects, then repeat until the review is clean
-7. For a change-stack entry, confirm the staged diff includes its updated plan and restore context: completed state,
-   critical decisions, consequences applied to later entries, aligned `Start here` bootstraps, and the exact next
-   action
+7. For a change-stack entry, confirm its ignored local plan and restore context record the completed state, critical
+   decisions, consequences applied to later entries, aligned `Start here` bootstraps, and the exact next action. Verify
+   that no plan or restore-context path is tracked or staged
 8. Present the exact staged diff for human review and wait for explicit approval to commit it
 9. After approval, run the project's formatter, linter, static analysis, and relevant tests; stop on failure
 10. If a gate or its fix changes the staged diff, approval no longer applies: self-review the revised diff, present it

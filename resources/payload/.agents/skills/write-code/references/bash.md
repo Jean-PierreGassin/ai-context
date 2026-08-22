@@ -1,6 +1,8 @@
 # Bash
 
-The central `write-code` rules apply alongside these shell-specific safety rules.
+Use the University of Washington CSE 374 Bash Style Guide as the baseline for Bash formatting, quoting, naming, and
+control structures. Its author, student ID, and assignment headers are course requirements, not production-code style,
+so do not reproduce them. The central `write-code` rules apply alongside the shell-specific safety rules below.
 
 The `#!/usr/bin/env bash` shebang is a portability preference and differs from guides that pin `/bin/bash`. The
 project's deployment environment and enforced interpreter path win.
@@ -16,6 +18,10 @@ project's deployment environment and enforced interpreter path win.
 - Declare `local`, `readonly`, `declare`, or `export` separately from a command substitution so the substitution's exit
   status is not masked
 - Make function variables `local`
+- Name functions and ordinary variables in `snake_case`; name constants and exported environment variables in
+  `ALL_CAPS`. An option-state variable may keep the option's natural name, such as `force`, rather than adding an
+  artificial boolean prefix
+- Test string presence explicitly with `[[ -n "${value}" ]]` or `[[ -z "${value}" ]]`
 - Read lines with `read -r`, adding `IFS=` when whitespace must be preserved
 - Process filenames NUL-delimited, such as `find ... -print0` with `read -r -d ''`; never parse `ls`
 - Enable `nullglob` locally before iterating over a glob that may match nothing, then restore it if the caller can observe

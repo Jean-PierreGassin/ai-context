@@ -1,7 +1,8 @@
 # Go
 
-Read this after `clean-code.md`. Prefer clarity, simplicity, and explicit lifetimes. Let `gofmt` decide mechanical
-formatting, then use semantic structure to make the code read from top to bottom.
+Use the Google Go Style Guide, Style Decisions, and Effective Go as the Go baseline. Read this after `clean-code.md`.
+Prefer clarity, simplicity, and explicit lifetimes. Let `gofmt` decide mechanical formatting, then use semantic
+structure to make the code read from top to bottom.
 
 ## Always apply
 
@@ -27,6 +28,30 @@ internal/invoice/issue.go package invoice
 Split a file around a cohesive capability, not a line count. Keep closely related types and operations together when
 separating them would force readers to jump between trivial files.
 
+### Use Go names in Go context
+
+Go naming overrides generic naming shapes where they conflict. Keep receiver names short and consistent, make local
+name length proportional to scope, and preserve initialisms such as `ID` and `HTTP`. Accessors omit `Get` and may use
+the noun directly, such as `Name()`. Predicates may use concise names such as `Valid`, `Empty`, or `Ready`; do not add
+`Is`, `Has`, `Can`, or `Should` mechanically when the shorter name reads naturally at the call site.
+
+Bad:
+
+```go
+func (invoiceIssuer *invoiceIssuer) getInvoiceID() string {
+	return invoiceIssuer.invoiceID
+}
+```
+
+Good:
+
+```go
+// InvoiceID returns the identifier of the invoice being issued.
+func (i *invoiceIssuer) InvoiceID() string {
+	return i.invoiceID
+}
+```
+
 ### Accept interfaces at the consumer boundary
 
 Define a small interface in the package that consumes it when substitution or a real boundary exists. Return the
@@ -37,11 +62,11 @@ Bad:
 ```go
 package postgres
 
-type InvoiceStore interface {
+type invoiceStore interface {
 	Save(context.Context, Invoice) error
 }
 
-func NewInvoiceStore(db *sql.DB) InvoiceStore {
+func newInvoiceStore(db *sql.DB) invoiceStore {
 	return &Store{db: db}
 }
 ```
@@ -51,16 +76,16 @@ Good:
 ```go
 package invoice
 
-type Store interface {
+type store interface {
 	Save(context.Context, Invoice) error
 }
 
-type Issuer struct {
-	store Store
+type issuer struct {
+	store store
 }
 
-func NewIssuer(store Store) *Issuer {
-	return &Issuer{store: store}
+func newIssuer(store store) *issuer {
+	return &issuer{store: store}
 }
 ```
 
@@ -75,20 +100,20 @@ sets defaults that cannot be represented by the zero value.
 Bad:
 
 ```go
-type Counter struct {
+type counter struct {
 	value int
 }
 
-func NewCounter() *Counter {
-	return &Counter{}
+func newCounter() *counter {
+	return &counter{}
 }
 ```
 
 Good:
 
 ```go
-var counter Counter
-counter.Increment()
+var count counter
+count.increment()
 ```
 
 When a constructor is required, return the concrete type and validate required dependencies there.
@@ -207,12 +232,12 @@ runtime failure that a caller can handle.
 Bad:
 
 ```go
-type Issuer struct {
+type issuer struct {
 	ctx   context.Context
-	store Store
+	store store
 }
 
-func (i *Issuer) Issue(request Request) error {
+func (i *issuer) issue(request Request) error {
 	return i.store.Save(i.ctx, request.Invoice())
 }
 ```
@@ -220,11 +245,11 @@ func (i *Issuer) Issue(request Request) error {
 Good:
 
 ```go
-type Issuer struct {
-	store Store
+type issuer struct {
+	store store
 }
 
-func (i *Issuer) Issue(ctx context.Context, request Request) error {
+func (i *issuer) issue(ctx context.Context, request Request) error {
 	return i.store.Save(ctx, request.Invoice())
 }
 ```
@@ -240,7 +265,7 @@ start goroutines from `init`.
 Bad:
 
 ```go
-func (p *Processor) Start() {
+func (p *processor) start() {
 	go p.consume(context.Background())
 }
 ```
@@ -248,7 +273,7 @@ func (p *Processor) Start() {
 Good:
 
 ```go
-func (p *Processor) Run(ctx context.Context) error {
+func (p *processor) run(ctx context.Context) error {
 	group, ctx := errgroup.WithContext(ctx)
 	group.Go(func() error {
 		return p.consume(ctx)
@@ -268,7 +293,7 @@ Slices and maps share backing state. Copy them when a constructor or API promise
 Bad:
 
 ```go
-func NewInvoice(tags []string) Invoice {
+func newInvoice(tags []string) Invoice {
 	return Invoice{tags: tags}
 }
 ```
@@ -276,7 +301,7 @@ func NewInvoice(tags []string) Invoice {
 Good:
 
 ```go
-func NewInvoice(tags []string) Invoice {
+func newInvoice(tags []string) Invoice {
 	return Invoice{tags: slices.Clone(tags)}
 }
 ```
@@ -305,7 +330,7 @@ func LookupInvoice(id string) Invoice
 
 ### Let tools own mechanical style
 
-- Run `gofmt` or `goimports`; do not hand-align or fight their output
+- Run `gofmt` or `goimports`; accept alignment they produce, but do not add or preserve manual padding beyond it
 - Use `MixedCaps`, preserve common initialisms such as `ID` and `HTTP`, and avoid getters named `GetX`
 - Keep package names singular, short, lower-case, and free of underscores
 - Use field names in struct literals outside the defining package

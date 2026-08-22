@@ -31,6 +31,8 @@ generic directions:
 - **Read first:** `CONTEXT.md`, the relevant earlier and current plans, and committed project instructions, in order
 - **Repository context:** the source, tests, contracts, configuration, and nearest equivalent files that establish how
   this change should be implemented, with a short reason for each
+- **Ticket context:** the ticket key and link, or the settled reason this work has no ticket. A fresh session must not
+  repeat the ticket decision unless repository or user context has materially changed
 - **Commands:** the working directory, discovery or baseline commands worth repeating, and the exact validation gates
 - **Begin with:** the first unchecked action that can be taken after the context is loaded
 

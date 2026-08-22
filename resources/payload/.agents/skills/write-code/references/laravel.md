@@ -21,8 +21,9 @@ Good:
 $reference = $request->input('reference');
 ```
 
-Keep framework-defined `array` signatures. When the signature is yours, pass the validated data using the established
-project contract, whether that is an array or a DTO.
+Keep framework-defined `array` signatures. At an application entrypoint whose signature is yours, convert validated
+input into a purpose-named DTO. Follow the project's established Result contract for Action output; do not use a DTO
+merely because an operation returns data.
 
 ### Make validation rules reviewable
 
@@ -53,7 +54,10 @@ Put validation in a FormRequest when that is the project's consistent convention
 Bad:
 
 ```php
-$queue = env('INVOICE_QUEUE', 'default');
+$queue = env(
+    'INVOICE_QUEUE',
+    'default',
+);
 ```
 
 Good, outside a configuration file:
@@ -70,13 +74,16 @@ configuration rather than hardcoding them at use sites.
 Bad:
 
 ```php
-Route::post('/invoices', function (Request $request) {
-    $invoice = new Invoice();
-    $invoice->customer_id = $request->integer('customer_id');
-    $invoice->save();
+Route::post(
+    uri: '/invoices',
+    action: function (Request $request) {
+        $invoice = new Invoice();
+        $invoice->customer_id = $request->integer('customer_id');
+        $invoice->save();
 
-    return response()->json($invoice);
-});
+        return response()->json($invoice);
+    },
+);
 ```
 
 Good:
@@ -170,8 +177,15 @@ Bad:
 
 ```php
 $invoices = Invoice::query()
-    ->where('status', InvoiceStatus::Issued)
-    ->where('due_at', '<', now())
+    ->where(
+        'status',
+        InvoiceStatus::Issued,
+    )
+    ->where(
+        'due_at',
+        '<',
+        now(),
+    )
     ->get();
 ```
 
@@ -185,8 +199,15 @@ $invoices = Invoice::query()
 public function scopeOverdue(Builder $query): void
 {
     $query
-        ->where('status', InvoiceStatus::Issued)
-        ->where('due_at', '<', now());
+        ->where(
+            'status',
+            InvoiceStatus::Issued,
+        )
+        ->where(
+            'due_at',
+            '<',
+            now(),
+        );
 }
 ```
 

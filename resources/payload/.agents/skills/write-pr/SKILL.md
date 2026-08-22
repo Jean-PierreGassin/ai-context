@@ -16,8 +16,10 @@ behaviour is, and which part of the diff carries the risk. The diff already list
 
 1. Check the change against [reviewability](#reviewability) and raise a split where one is warranted
 2. Write a concise, descriptive, well-scoped title: `TICKET-KEY: [Outcome]`, with a colon after the key and the outcome
-   in sentence case. Prefer `Add retry handling for failed webhooks` to `Changes to webhook code`. No ticket key
-   available? Ask rather than inventing one
+   in sentence case. Prefer `Add retry handling for failed webhooks` to `Changes to webhook code`. If no ticket key is
+   available, judge from the branch, repository workflow, tracker context, task scope, and prior user direction whether
+   the PR is intentionally unticketed. Omit the key when that is clear; ask only when the evidence is genuinely
+   ambiguous. Never invent one
 3. Pick the Change Type: Feature, Bugfix, Improvement, Task, Story, Chore, or Hotfix. Combine two
    (`Bugfix/Improvement`, `Feature/Story`) only where the PR genuinely spans both
 4. Write the body from `assets/body-template.md`, or the repository's own template where it has one
@@ -41,8 +43,9 @@ unmanaged stack in prose. Name adjacent changes in each PR and restack after rev
 - Follow the repository's PR template and any enforced checks. It wins over `assets/body-template.md`, and previous
   PRs in the repository are not the standard. A template sets which sections exist rather than how to write them, so
   the content, review focus, and voice rules below still apply inside whatever structure it imposes
-- Link the ticket as a `Ticket: [KEY](url)` line at the top of the body, or of the template's context section where one
-  exists. A ticket key in a GitHub title is plain text, so the body carries the only clickable route back
+- When a ticket exists, link it as a `Ticket: [KEY](url)` line at the top of the body, or of the template's context
+  section where one exists. A ticket key in a GitHub title is plain text, so the body carries the only clickable route
+  back. Do not add a placeholder ticket line to an intentionally unticketed PR
 - Order by importance: the most impactful change first, trivia last, never by diff or file convenience
 - Assign the PR to the author (`--assignee @me` at create, or `gh pr edit --add-assignee @me` after), and keep the body
   current as later commits land, including incidental work
@@ -83,6 +86,15 @@ unmanaged stack in prose. Name adjacent changes in each PR and restack after rev
 
 ### Voice
 
-Use the author's direct voice. State uncertainty precisely, including what is unknown; omit throat-clearing.
+Use the author's direct voice. Apply ASD-STE100 writing principles to the title and body:
+
+- Use short, active sentences
+- Put one topic or instruction in each sentence
+- Use one consistent term for each concept
+- Remove ambiguous pronouns, unnecessary synonyms, and dense noun groups
+- Keep exact ticket keys, commands, identifiers, code, URLs, template labels, and project terms unchanged
+
+State uncertainty precisely, including what is unknown. Omit throat-clearing. Do not claim verified ASD-STE100
+compliance unless an approved checker or qualified reviewer verifies the complete standard and controlled dictionary.
 
 Repository-enforced templates and workflow win on format. The rules above govern content where the project is silent.

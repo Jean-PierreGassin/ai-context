@@ -2,6 +2,19 @@
   "skill_name": "write-plan",
   "evals": [
     {
+      "id": "plan-output-uses-asd-ste100-style",
+      "category": "regression",
+      "prompt": "Write the implementation plan. Keep exact commands, paths, and API names, but make the plan easy to read.",
+      "expected_output": "A concise plan that applies ASD-STE100 principles without changing technical identifiers or claiming verified compliance.",
+      "expectations": [
+        "Uses short active sentences",
+        "Keeps one instruction or topic in each sentence",
+        "Uses consistent terms and avoids ambiguous pronouns and dense noun groups",
+        "Preserves exact commands, paths, API names, and project terms",
+        "Does not claim verified ASD-STE100 compliance without full validation"
+      ]
+    },
+    {
       "id": "small-bug-stays-one-change",
       "category": "proportionality",
       "prompt": "A page throws a deprecation warning when one of the fields it formats is missing. Plan the fix.",
@@ -220,6 +233,18 @@
         "Names the working directory, useful baseline or discovery commands, and exact validation gates",
         "Ends the bootstrap with the first unchecked implementation action",
         "Does not ask the user to resupply context already available from the listed sources"
+      ]
+    },
+    {
+      "id": "persisted-plan-settles-ticket-context-once",
+      "category": "regression",
+      "prompt": "Persist this approved stack. The branch and repository workflow establish that this personal improvement has no ticket, and I need a fresh session to continue without repeating setup questions.",
+      "expected_output": "The Start here section records the settled no-ticket context so later sessions proceed without asking again.",
+      "expectations": [
+        "Records that the work is intentionally unticketed and why",
+        "Does not invent a ticket key or placeholder link",
+        "Does not ask for a ticket when the supplied context already settles the decision",
+        "Includes ticket context in the fresh-session bootstrap"
       ]
     },
     {

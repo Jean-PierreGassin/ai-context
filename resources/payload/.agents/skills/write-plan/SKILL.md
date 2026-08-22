@@ -18,7 +18,9 @@ Plan only enough to choose reviewable units and their order.
 2. Name the shape of the work and [route](#route-by-shape) to what you need
 3. Load the skills that shape the plan's content: `write-code` for how the implementation should look, `write-tests`
    for what coverage the change needs, and `git-commit` for the boundary between stack entries
-4. Gather context by investigating the areas the change touches
+4. Gather context by investigating the areas the change touches. Decide whether the work has a ticket from the branch,
+   tracker context, repository workflow, task scope, and what the user has already said. Ask only when the evidence is
+   genuinely ambiguous and the answer changes planning or delivery
 5. Draft the split and confirm it with the user, with options, before detailing each change. For every persisted plan,
    verify its location is ignored and put its context-loading bootstrap first so implementation can begin after a full
    context reset
@@ -54,6 +56,11 @@ averaging them into one shapeless sequence.
 
 ## Principles
 
+- **Use ASD-STE100 style.** Apply ASD-STE100 writing principles to plan output and persisted plan prose. Use short,
+  active sentences. Put one instruction or topic in each sentence. Use one consistent term for each concept. Remove
+  ambiguous pronouns, unnecessary synonyms, and dense noun groups. Keep exact commands, paths, identifiers, code,
+  template labels, and project terms unchanged. Do not claim verified ASD-STE100 compliance unless an approved checker
+  or qualified reviewer verifies the complete standard and controlled dictionary
 - **Proportionality.** The goal is smaller review units and clearer intent, not process. A single-change task gets a
   single-entry stack, and saying so is the whole decision
 - **One review objective per change**, where splitting is warranted at all. A reviewer should be able to approve a
@@ -63,6 +70,8 @@ averaging them into one shapeless sequence.
 - **Don't over-fragment.** A split that forces the reviewer to reassemble the feature to understand the intent has
   gone too far. Reviewability is the test, not slice count
 - **Confirm before creating.** Never create branches or PRs before the user has agreed the split
+- **Settle ticket context once.** Record the ticket key and link, or the reason the work is proceeding without one, so
+  later entries and fresh sessions do not ask again. Never invent a key
 - **Protect the agreed direction.** Fold discoveries that refine the agreed work into the plan. Stop and push back
   when a proposed revision changes requirements, architecture, stack boundaries or ordering, adds a review objective,
   or creates broad side effects. Explain the consequences and offer the smallest compatible alternative; revise the

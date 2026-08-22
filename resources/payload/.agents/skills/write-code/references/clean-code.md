@@ -191,6 +191,28 @@ issue(request):
 
 Combine guards only when they express the same concern and have the same outcome without hiding distinct cases.
 
+### Expose nested evaluation
+
+When one call feeds another, format the inner call as its own visible block. Name intermediate results when nesting
+still hides evaluation order or meaning. Apply the same rule to multiline fluent chains, with one operation per line.
+
+Bad:
+
+```text
+return createInvoice(parseInvoice(normalizePayload(payload)))
+```
+
+Good:
+
+```text
+normalizedPayload = normalizePayload(payload)
+parsedInvoice = parseInvoice(normalizedPayload)
+
+return createInvoice(parsedInvoice)
+```
+
+Keep a short nested expression inline when its order and intent remain immediately clear.
+
 ### Use whitespace as semantic grouping
 
 Read a function as paragraphs. Keep statements serving one operation together, then use one blank line before the next
@@ -223,6 +245,26 @@ return invoice
 ```
 
 Language formatters decide mechanical whitespace; semantic grouping remains the author's responsibility.
+
+### Do not align code with padding
+
+Use the language's ordinary single spacing. Do not add spaces to vertically align assignments, object keys, array
+arrows, declarations, or comments. Padding makes unrelated lines appear coupled and creates formatting churn when one
+name changes.
+
+Bad:
+
+```text
+invoiceTotal = calculateTotal(invoice)
+taxRate     = taxRateFor(invoice)
+```
+
+Good:
+
+```text
+invoiceTotal = calculateTotal(invoice)
+taxRate = taxRateFor(invoice)
+```
 
 ### Group configuration by category
 
@@ -263,6 +305,13 @@ Use names that make the value or action clear at its scope. Avoid generic placeh
 `item`, `value`, `handler`, or `manager` when the domain supplies a precise name. Do not repeat context already carried
 by a package, module, receiver, or type.
 
+- Name functions and methods with an active verb that describes their action
+- Prefix booleans with `is`, `has`, `can`, or `should`
+- Use full parameter names rather than abbreviations
+- Name related collections by their meaning or contrast, such as `acceptedInvoices` and `rejectedInvoices`, not by an
+  index or numeric suffix
+- Do not suffix a name with its generic container type, such as `Array`, `List`, or `Data`
+
 Bad:
 
 ```text
@@ -280,6 +329,28 @@ for invoice in overdueInvoices:
 ```
 
 Short conventional names remain clear in a genuinely small scope where the language expects them.
+
+### Give unexplained literals a name
+
+Search for an existing domain constant, enum, or equivalent before introducing another representation. When no
+existing representation fits, name a business-significant number or string instead of repeating or leaving it inline.
+Ordinary structural values, such as an empty collection or a loop increment, are not magic literals.
+
+Bad:
+
+```text
+if invoice.status == "overdue":
+    scheduleReminder(invoice, 7)
+```
+
+Good:
+
+```text
+reminderDelayDays = 7
+
+if invoice.status == overdueStatus:
+    scheduleReminder(invoice, reminderDelayDays)
+```
 
 ### Extract cohesive responsibilities, not line counts
 
@@ -318,6 +389,10 @@ reason, and tracked TODOs. Add an explanatory comment only when the user asks fo
 complexity would become harder to understand if extracted. Record business rationale, downstream constraints, and
 other durable context in the project's documentation or decision record instead of embedding it beside the code.
 
+When a comment is necessary, describe the stable constraint rather than the incident, ticket, current roster, machine
+topology, or temporary count that exposed it. Wrap multiline comments into short paragraphs at the width used by the
+project instead of leaving a long run-on line.
+
 Bad:
 
 ```text
@@ -333,6 +408,12 @@ Good:
 if invoice.isOverdueAt(now):
     reminders.send(invoice)
 ```
+
+### Match user-facing copy to its contract
+
+Read neighboring messages and follow their established voice and structure. Keep terse groups terse, put dynamic
+labels where the surrounding pattern puts them, and verify that copy describing configuration or validation agrees
+with the behavior it represents.
 
 ## Follow the project where it is consistent
 

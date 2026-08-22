@@ -11,8 +11,11 @@ belongs in `write-plan`.
 
 ## Process
 
-1. Decide whether the work warrants a ticket. For substantial, shippable, assigned, or multi-session work, look for an
-   existing ticket and confirm when none is found. Do not prompt solely for exploratory, incidental, or personal work
+1. Decide whether the work warrants a ticket from its scope and the repository's actual workflow. Look for an existing
+   ticket when substantial, shippable, assigned, or multi-session work is normally tracked. Proceed without prompting
+   when the work is clearly unticketed, including exploratory, incidental, or personal work and cases where the user
+   has already said there is no ticket. Ask only when the available evidence leaves a consequential ambiguity. Never
+   invent a ticket or key
 2. Determine the type: story, bug, task, or investigation
 3. Read the matching reference and follow its panel structure and field rules exactly, without borrowing another
    type's structure

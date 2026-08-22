@@ -136,14 +136,15 @@
       ]
     },
     {
-      "id": "substantial-work-confirms-missing-ticket",
+      "id": "substantial-work-judges-missing-ticket",
       "category": "composition",
       "prompt": "Implement this shippable migration over several sessions. I have not mentioned a ticket.",
-      "expected_output": "The existing tracker is checked and the missing ticket confirmed before implementation.",
+      "expected_output": "Repository and tracker context determine whether a ticket is expected, with a question only if consequential ambiguity remains.",
       "expectations": [
         "Recognises the work as substantial and multi-session",
-        "Looks for an existing ticket before asking",
-        "Confirms whether to create or proceed without a ticket when none exists",
+        "Looks for an existing ticket and inspects the repository workflow before asking",
+        "Proceeds without prompting when context reasonably establishes that the work is unticketed",
+        "Asks only when uncertainty about the ticket would change the workflow",
         "Does not invent a ticket key"
       ]
     },

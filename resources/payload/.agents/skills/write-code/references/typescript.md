@@ -7,18 +7,17 @@ The central `write-code` rules apply alongside these TypeScript-specific rules.
 ### Layout and flow
 
 - Split multi-element values, multi-argument calls, and long signatures one item per line with trailing commas
-- Format a multiline fluent chain with one call per line
-- Name intermediate results when nesting calls hides the evaluation order or intent
 - Group properties by role and methods as public entry points, public support, then private helpers
 - Keep related declarations together, with short declarations before expanded ones
 - Order parameters by injected services, scalar configuration, then collections or complex values. Within a tier, order
   by centrality, type, then optionality
 - Group imports as external packages, internal aliases, then relative imports
-- Do not align assignments or object keys with padding
 - Avoid nested or long ternaries. A simple single-line ternary is fine
 - Prefer readable array pipelines for clear transformations. Keep a loop when it better preserves short-circuiting,
   ordering, memory use, or intent
 - Use `async`/`await` instead of promise chains, and extract repeated multi-step asynchronous operations
+- Use template literals for interpolation instead of string concatenation
+- Document `@throws` when a function can throw, including non-exported helpers
 
 ### Types
 
@@ -61,23 +60,6 @@ The central `write-code` rules apply alongside these TypeScript-specific rules.
 ## Examples
 
 Each example has the strength of its corresponding rule above.
-
-### Expose nested evaluation
-
-Bad:
-
-```typescript
-return createInvoice(parseInvoice(normalizePayload(payload)));
-```
-
-Good:
-
-```typescript
-const normalizedPayload = normalizePayload(payload);
-const parsedInvoice = parseInvoice(normalizedPayload);
-
-return createInvoice(parsedInvoice);
-```
 
 ### Use async control flow
 

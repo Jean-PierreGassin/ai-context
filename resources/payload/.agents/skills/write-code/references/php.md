@@ -1,10 +1,11 @@
 # PHP
 
-Follow the latest PER coding style unless the project enforces another standard. Read this after `clean-code.md`.
-Each pair isolates one PHP-specific decision; preserve behavior when applying it.
+Use PER Coding Style 3.0 as the baseline PHP formatting standard unless the project enforces another standard. This
+reference does not repeat rules owned by PER or PSR; it records additional implementation preferences and examples.
+Read it after `clean-code.md`. Each pair isolates one PHP-specific decision; preserve behavior when applying it.
 
-The strict-types, named-argument, DTO, and explicit-assignment rules are deliberate project preferences beyond PER's
-formatting standard. Project runtime versions and enforced contracts still take precedence.
+The strict-types, named-argument, input-DTO, and explicit-assignment rules are deliberate project preferences beyond
+PER's formatting standard. Project runtime versions and enforced contracts still take precedence.
 
 ## Always apply
 
@@ -33,16 +34,14 @@ namespace App\Invoice;
 
 ### Make signatures and calls readable
 
-Split long signatures and multi-argument calls one item per line with trailing commas. Order parameters by meaning and
-importance, with the subject and required collaborators before optional configuration. Use named arguments for
-signatures you own, including a single argument.
+Expand long signatures and every multi-argument call. PER governs the resulting indentation, one-item-per-line layout,
+and trailing commas. Order parameters by meaning and importance, with the subject and required collaborators before
+optional configuration. At call sites, use named arguments for signatures you own, including a single argument.
 
 Bad:
 
 ```php
-function render(?string $label, TemplateEngine $engine, array $rows, string $template): string
-{
-}
+function render(?string $label, TemplateEngine $engine, array $rows, string $template): string {}
 
 $output = render(null, $engine, $rows, 'invoice');
 ```
@@ -55,9 +54,7 @@ function render(
     string $template,
     array $rows,
     ?string $label = null,
-): string
-{
-}
+): string {}
 
 $output = render(
     engine: $engine,
@@ -69,41 +66,12 @@ $output = render(
 Third-party and inherited signatures may make positional arguments safer. Name a third-party argument when its name is
 what makes a bare literal clear, such as `json_decode($body, associative: true)`.
 
-### Give nested calls room
-
-Put a call passed into another call on its own line. Introduce an intermediate only when nesting still obscures the
-flow.
-
-Bad:
-
-```php
-return new InvoiceCollection(array_map(
-    fn (array $invoice): Invoice => Invoice::fromArray($invoice),
-    $invoices,
-));
-```
-
-Good:
-
-```php
-return new InvoiceCollection(
-    array_map(
-        fn (array $invoice): Invoice => Invoice::fromArray($invoice),
-        $invoices,
-    ),
-);
-```
-
-Format a multiline fluent chain with one call per line.
-
 ### Import class names
 
 Bad:
 
 ```php
-function issue(\App\Billing\InvoiceStore $store): \App\Billing\Invoice
-{
-}
+function issue(\App\Billing\InvoiceStore $store): \App\Billing\Invoice {}
 ```
 
 Good:
@@ -112,9 +80,7 @@ Good:
 use App\Billing\Invoice;
 use App\Billing\InvoiceStore;
 
-function issue(InvoiceStore $store): Invoice
-{
-}
+function issue(InvoiceStore $store): Invoice {}
 ```
 
 ### Promote constructor properties
@@ -140,8 +106,7 @@ final class InvoiceIssuer
 {
     public function __construct(
         private InvoiceStore $store,
-    ) {
-    }
+    ) {}
 }
 ```
 
@@ -165,36 +130,39 @@ $owner = "Owned by {$invoice->customer->name}";
 
 Use braces only where a property or method chain needs them.
 
-### Use explicit domain types
+### Use DTOs at owned input boundaries
 
-Type parameters and returns. A keyed array read through names is a DTO when the signature is yours, including nested
-shapes. Return a purpose-named DTO instead of an array-shape docblock, and use a dedicated typed collection for groups
-of DTOs.
+Type parameters and returns. Structured data entering an operation through a signature you own belongs in a
+purpose-named DTO, including nested input shapes. A DTO is not the default return type. Return the operation's actual
+contract. For an Action that must report success, failure, and returned data, use the project's established Result
+pattern.
 
 Bad:
 
 ```php
-/** @return array{id: int, customer: array{name: string}} */
-function invoice(int $id): array
+/** @param array{customer: array{name: string}} $input */
+function issueInvoice(array $input): array
 {
-    return ['id' => $id, 'customer' => ['name' => 'Ada']];
+    return ['success' => true, 'data' => $input];
 }
 ```
 
 Good:
 
 ```php
-function invoice(InvoiceId $id): InvoiceDetails
+function issueInvoice(IssueInvoiceData $input): IssueInvoiceResult
 {
-    return new InvoiceDetails(
-        id: $id,
-        customer: new CustomerDetails(name: 'Ada'),
+    return IssueInvoiceResult::success(
+        invoice: Invoice::issue(
+            customer: $input->customer,
+        ),
     );
 }
 ```
 
-Framework-defined array signatures remain arrays. PHPDoc carries information the signature cannot, such as `@throws`
-and genuinely unavoidable generic detail; it does not restate declarations.
+Do not introduce a Result wrapper for a function whose natural contract is already a value, collection, stream, or
+`void`. Framework-defined array signatures remain arrays. PHPDoc carries information the signature cannot, such as
+`@throws` and genuinely unavoidable generic detail; it does not restate declarations.
 
 ### Use enums and constants for named values
 
@@ -204,7 +172,10 @@ Bad:
 
 ```php
 if ($invoice->status === 'overdue') {
-    scheduleReminder($invoice, 7);
+    scheduleReminder(
+        invoice: $invoice,
+        delayDays: 7,
+    );
 }
 ```
 
@@ -214,9 +185,50 @@ Good:
 private const REMINDER_DELAY_DAYS = 7;
 
 if ($invoice->status === InvoiceStatus::Overdue) {
-    scheduleReminder($invoice, self::REMINDER_DELAY_DAYS);
+    scheduleReminder(
+        invoice: $invoice,
+        delayDays: self::REMINDER_DELAY_DAYS,
+    );
 }
 ```
+
+### Enable strict comparison modes
+
+When a PHP API offers an explicit strict-comparison or strict-validation argument, enable it. Do not allow loose
+coercion to make values of different types compare as equal.
+
+Bad:
+
+```php
+$isFirst = in_array(
+    needle: 'first',
+    haystack: $elements,
+);
+$position = array_search(
+    needle: $invoiceId,
+    haystack: $invoiceIds,
+);
+```
+
+Good:
+
+```php
+$isFirst = in_array(
+    needle: 'first',
+    haystack: $elements,
+    strict: true,
+);
+$position = array_search(
+    needle: $invoiceId,
+    haystack: $invoiceIds,
+    strict: true,
+);
+if ($position === false) {
+    throw InvoiceNotFound::withId(invoiceId: $invoiceId);
+}
+```
+
+Apply the same preference to other APIs whose strict option prevents coercion or ambiguous validation.
 
 ### Prefer `match` for value selection
 
@@ -331,7 +343,10 @@ try {
 Bad:
 
 ```php
-$payload = json_decode($body, true);
+$payload = json_decode(
+    json: $body,
+    associative: true,
+);
 ```
 
 Good:
@@ -344,7 +359,7 @@ try {
         flags: JSON_THROW_ON_ERROR,
     );
 } catch (JsonException $exception) {
-    throw InvalidWebhookPayload::fromJsonException($exception);
+    throw InvalidWebhookPayload::fromJsonException(exception: $exception);
 }
 ```
 
@@ -354,9 +369,7 @@ Use `JSON_THROW_ON_ERROR` for encoding too.
 
 - Group properties by role
 - Order methods as public entry points, public support, then private helpers
-- Keep related assignments with the control flow that consumes them; separate unrelated phases with one blank line
 - Put short declarations before expanded declarations within one group
-- Do not align assignments or array arrows with padding
 - Extract repeated multi-step operations into one shared helper
 - Group DTOs, collections, services, and other roles into their own namespaces
 

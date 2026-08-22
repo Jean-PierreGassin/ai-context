@@ -222,6 +222,18 @@
       ]
     },
     {
+      "id": "shared-layout-does-not-pad-for-alignment",
+      "category": "normal",
+      "prompt": "Clean up these declarations in a language without a dedicated write-code reference. The assignments and object keys have extra spaces so their separators line up vertically.",
+      "expected_output": "Ordinary language spacing without manual alignment padding.",
+      "expectations": [
+        "Removes padding added only to align assignments or keys vertically",
+        "Uses the language formatter or ordinary single spacing for mechanical layout",
+        "Preserves semantic blank lines between unrelated logical phases",
+        "Does not collapse distinct phases into one dense block"
+      ]
+    },
+    {
       "id": "php-parameters-and-conditional-flow",
       "category": "normal",
       "prompt": "Refactor this PHP method: its optional label comes before the required subject, a ternary supplies a default, and a switch selects the delivery mode.",
@@ -234,14 +246,26 @@
       ]
     },
     {
+      "id": "php-enables-strict-api-comparison",
+      "category": "normal",
+      "prompt": "Check whether the string 'first' exists in a PHP array of elements, then find an invoice ID in an array of IDs.",
+      "expected_output": "Strict in_array and array_search calls that cannot match values through loose coercion.",
+      "expectations": [
+        "Passes true for the strict argument to in_array",
+        "Passes true for the strict argument to array_search",
+        "Uses named arguments where the PHP signature and project runtime support them",
+        "Does not rely on loose equality or implicit coercion"
+      ]
+    },
+    {
       "id": "php-domain-data-uses-explicit-types",
       "category": "normal",
-      "prompt": "Implement a PHP method we own that accepts a nested keyed invoice array and returns an array-shape containing invoice and customer fields.",
-      "expected_output": "Purpose-named nested DTOs in the parameter and return contract, with a typed collection if the method handles a group.",
+      "prompt": "Implement a PHP Action we own that accepts nested keyed invoice input and must return success or failure with optional invoice data.",
+      "expected_output": "A purpose-named input DTO and the project's Result pattern for the Action outcome.",
       "expectations": [
         "Replaces the keyed input shape with a purpose-named DTO because the signature is owned",
-        "Returns a purpose-named DTO rather than an array-shape docblock",
-        "Uses a dedicated typed collection rather than an array plus PHPDoc when returning a group",
+        "Returns a purpose-named Result that represents success, failure, and optional returned data",
+        "Does not use a DTO merely because the Action returns data",
         "Does not rewrite a framework-defined array signature that the method must implement"
       ]
     },
@@ -306,15 +330,15 @@
       ]
     },
     {
-      "id": "laravel-data-transfer-follows-project-contracts",
+      "id": "laravel-data-transfer-respects-framework-contracts",
       "category": "project-precedence",
-      "prompt": "Add a Laravel write endpoint in a project that consistently passes validated arrays into its application layer and does not use DTOs.",
-      "expected_output": "An endpoint using the project's established validated-array contract without introducing a DTO boundary.",
+      "prompt": "Add a Laravel write endpoint whose framework interface requires an array, then pass its validated input into an application Action whose signature we own.",
+      "expected_output": "The required framework array signature at the edge, converted into a purpose-named DTO for the owned Action input.",
       "expectations": [
-        "Preserves the application's established data-transfer contract",
-        "Does not add a DTO accessor to the FormRequest",
-        "Does not introduce new payload or collection types solely because Laravel is in scope",
-        "Still respects framework-defined signatures and the project's enforced type checks"
+        "Preserves the framework-defined array signature",
+        "Converts validated input into a purpose-named DTO at the owned application entrypoint",
+        "Does not use a DTO as the Action return type merely because it returns data",
+        "Uses the established Result pattern when the Action must represent success or failure with data"
       ]
     },
     {
@@ -438,6 +462,18 @@
       ]
     },
     {
+      "id": "bash-follows-language-naming-and-string-tests",
+      "category": "normal",
+      "prompt": "Add a Bash function with a local output directory, an exported cache directory, a force option flag, and a guard for an empty label.",
+      "expected_output": "CSE 374-style Bash names and an explicit -z string test without artificial boolean naming.",
+      "expectations": [
+        "Uses snake_case for the function and local variable",
+        "Uses ALL_CAPS for the exported environment variable",
+        "Allows the option-state variable to be named force",
+        "Checks the empty label with quoted expansion and -z inside double brackets"
+      ]
+    },
+    {
       "id": "go-semantic-whitespace-keeps-error-guard-attached",
       "category": "normal",
       "prompt": "Format a Go function that loads a customer, checks that error, creates an invoice, checks that error, saves it, and returns it.",
@@ -483,6 +519,18 @@
         "Keeps ownership of waiting for the goroutine explicit",
         "Propagates context into blocking work",
         "Does not launch fire-and-forget work or use context.Background inside the component"
+      ]
+    },
+    {
+      "id": "go-naming-overrides-generic-shapes",
+      "category": "normal",
+      "prompt": "Implement a Go accessor for an invoice ID, a validity predicate, and a method receiver. Keep the code compatible with gofmt.",
+      "expected_output": "Idiomatic Go names such as InvoiceID, Valid, and a short receiver, with only gofmt-produced alignment.",
+      "expectations": [
+        "Preserves ID as a Go initialism",
+        "Omits the Get prefix from the accessor",
+        "Allows Valid rather than mechanically requiring IsValid",
+        "Uses a short consistent receiver name and does not hand-pad declarations"
       ]
     },
     {
