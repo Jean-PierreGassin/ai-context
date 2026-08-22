@@ -27,18 +27,18 @@ Restore TypeScript modeling and Vue component examples as one layered ecosystem.
 - Restore Vue examples for props, events, composables, state ownership, templates, and component organization
 - Remove shared duplication and correct pairs that alter contracts or behavior
 - Add TypeScript and Vue behavior evals
-- Anticipated diff: 3 files, 800–1,300 lines
+- Anticipated diff: 4 files, 300–500 lines, including the persisted checkpoint update
 
 ## Implementation checklist
 
-- [ ] Inventory TypeScript pairs
-- [ ] Restore and correct TypeScript examples
-- [ ] Inventory Vue-only pairs
-- [ ] Restore and correct Vue examples
-- [ ] Add behavior evals
-- [ ] Reconcile findings into later plans and context
-- [ ] Self-review and present the complete diff for human approval
-- [ ] After approval, run gates and commit
+- [x] Inventory TypeScript pairs
+- [x] Restore and correct TypeScript examples
+- [x] Inventory Vue-only pairs
+- [x] Restore and correct Vue examples
+- [x] Add behavior evals
+- [x] Reconcile findings into later plans and context
+- [x] Self-review and present the complete diff for human approval
+- [x] After approval, run gates and commit
 
 ## Validation
 

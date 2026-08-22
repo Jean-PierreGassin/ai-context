@@ -3,9 +3,9 @@
 The prerequisite workflow change is committed as `07b8e59`. The approved implementation stack restores concrete
 good/bad code guidance, adds an always-loaded clean-code reference, and introduces researched Go guidance.
 
-Entries 1 and 2 are committed as `44f4b66` and `91cd448`. Entry 3 passed self-review and the full `task test` gate and
-is complete in the next restore point. Resume with `04-typescript-vue/PLAN.md` and its first unchecked action. The user
-waived the remaining per-entry approval pauses and requested review on the final PR.
+Entries 1 through 3 are committed as `44f4b66`, `91cd448`, and `8a3b062`. Entry 4 passed self-review and the full
+`task test` gate and is complete in the next restore point. Resume with `05-bash/PLAN.md` and its first unchecked action.
+The user waived the remaining per-entry approval pauses and requested review on the final PR.
 
 ## Settled decisions
 
@@ -36,6 +36,10 @@ waived the remaining per-entry approval pauses and requested review on the final
   explicit attributes, even after validation
 - Laravel examples teach framework contracts and responsibility boundaries without prescribing naming conventions or
   introducing Actions, repositories, DTOs, or FormRequests where the project uses another consistent design
+- TypeScript restoration keeps assertions exceptional, makes closed-variant dispatch exhaustive, and separates pure
+  parsing from side effects without requiring polymorphism for every branch
+- Vue restoration distinguishes computed derived state from watched external effects and preserves component ownership:
+  local UI state stays local, while state owned by a parent is changed through emitted events
 
 ## Rejected directions
 

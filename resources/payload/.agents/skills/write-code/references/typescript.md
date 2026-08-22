@@ -57,3 +57,164 @@ The central `write-code` rules apply alongside these TypeScript-specific rules.
 - Promote constructor parameters and mark them `readonly` when they are never reassigned
 - Inject collaborators rather than constructing them inside methods
 - Avoid mutable out-parameters; return the changed value instead
+
+## Examples
+
+Each example has the strength of its corresponding rule above.
+
+### Expose nested evaluation
+
+Bad:
+
+```typescript
+return createInvoice(parseInvoice(normalizePayload(payload)));
+```
+
+Good:
+
+```typescript
+const normalizedPayload = normalizePayload(payload);
+const parsedInvoice = parseInvoice(normalizedPayload);
+
+return createInvoice(parsedInvoice);
+```
+
+### Use async control flow
+
+Bad:
+
+```typescript
+return invoiceStore.find(invoiceId).then((invoice) => gateway.charge(invoice));
+```
+
+Good:
+
+```typescript
+const invoice = await invoiceStore.find(invoiceId);
+
+return gateway.charge(invoice);
+```
+
+### Type contracts, not obvious locals
+
+Bad:
+
+```typescript
+function overdue(invoices) {
+  const overdueInvoices: Invoice[] = invoices.filter((invoice: Invoice) => invoice.isOverdue);
+  return overdueInvoices;
+}
+```
+
+Good:
+
+```typescript
+function overdue(invoices: Invoice[]): Invoice[] {
+  const overdueInvoices = invoices.filter((invoice) => invoice.isOverdue);
+
+  return overdueInvoices;
+}
+```
+
+### Narrow values instead of asserting them
+
+Bad:
+
+```typescript
+const input = event.target as HTMLInputElement;
+saveReference(input.value);
+```
+
+Good:
+
+```typescript
+if (!(event.target instanceof HTMLInputElement)) {
+  return;
+}
+
+saveReference(event.target.value);
+```
+
+### Model variants from one literal definition
+
+Bad:
+
+```typescript
+type InvoiceStatus = "draft" | "issued";
+const issuedStatus = "issued";
+```
+
+Good:
+
+```typescript
+const invoiceStatus = {
+  draft: "draft",
+  issued: "issued",
+} as const;
+
+type InvoiceStatus = (typeof invoiceStatus)[keyof typeof invoiceStatus];
+```
+
+### Make closed dispatch exhaustive
+
+Bad:
+
+```typescript
+if (invoice.status === "draft") return editInvoice;
+return viewInvoice;
+```
+
+Good:
+
+```typescript
+const handlerByStatus: Record<InvoiceStatus, InvoiceHandler> = {
+  [invoiceStatus.draft]: editInvoice,
+  [invoiceStatus.issued]: viewInvoice,
+};
+
+return handlerByStatus[invoice.status];
+```
+
+Use a contained exhaustive branch when it is clearer. Introduce polymorphism only when behavior repeats or callers
+need an extension seam.
+
+### Keep parse helpers pure
+
+Bad:
+
+```typescript
+function parseInvoice(payload: unknown): void {
+  const invoice = invoiceSchema.parse(payload);
+  invoiceStore.save(invoice);
+}
+```
+
+Good:
+
+```typescript
+function parseInvoice(payload: unknown): Invoice {
+  return invoiceSchema.parse(payload);
+}
+
+const invoice = parseInvoice(payload);
+await invoiceStore.save(invoice);
+```
+
+### Derive intentionally coupled variants
+
+Bad:
+
+```typescript
+interface InvoiceSummary {
+  id: InvoiceId;
+  reference: string;
+}
+```
+
+Good, when the summary must track `Invoice`:
+
+```typescript
+type InvoiceSummary = Pick<Invoice, "id" | "reference">;
+```
+
+Write an independent interface instead when the contracts should be free to evolve separately.

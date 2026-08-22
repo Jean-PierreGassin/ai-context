@@ -366,6 +366,42 @@
       ]
     },
     {
+      "id": "typescript-narrows-instead-of-asserting",
+      "category": "normal",
+      "prompt": "Handle a browser input event in TypeScript and save the target value. The event target is not statically known to be an input.",
+      "expected_output": "An instanceof guard that narrows the event target before its value is used.",
+      "expectations": [
+        "Narrows event.target with instanceof HTMLInputElement",
+        "Returns or otherwise handles the non-input case explicitly",
+        "Does not assert event.target with as HTMLInputElement",
+        "Does not coerce the value defensively after it has been narrowed"
+      ]
+    },
+    {
+      "id": "typescript-variant-dispatch-is-exhaustive",
+      "category": "regression",
+      "prompt": "Map every member of a closed TypeScript invoice-status union to its handler.",
+      "expected_output": "One as-const literal definition and a Record keyed by the derived discriminant union.",
+      "expectations": [
+        "Defines each variant literal once in an as-const value map",
+        "Derives the discriminant union from the value map",
+        "Uses Record keyed by the union so missing handlers are a type error",
+        "Does not duplicate literals across a union, comparisons, and dispatch table"
+      ]
+    },
+    {
+      "id": "vue-derived-state-does-not-use-watch",
+      "category": "normal",
+      "prompt": "In a Vue component, keep an invoice total updated from a reactive list of line items.",
+      "expected_output": "A computed value derived directly from the reactive line items.",
+      "expectations": [
+        "Uses computed for the invoice total",
+        "Does not copy derived state into a ref",
+        "Does not use watch or watchEffect to update other reactive state",
+        "Keeps watch APIs available for external side-effect synchronization"
+      ]
+    },
+    {
       "id": "commits-each-reviewed-stack-entry-before-continuing",
       "category": "regression",
       "prompt": "Implement the approved three-entry change stack. Review each entry as you go.",

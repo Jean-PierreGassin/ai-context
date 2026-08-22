@@ -27,3 +27,151 @@ Read this with the TypeScript reference.
 - Co-locate component types in `<script setup>` until another component shares the exact shape
 - Drive repeated rendering from typed data rather than hardcoded branches
 - Let a component own its internal styling; let its parent own external spacing
+
+## Examples
+
+Each example has the strength of its corresponding rule above.
+
+### Destructure typed props with defaults
+
+Bad:
+
+```vue
+<script setup lang="ts">
+const props = withDefaults(defineProps<{ label?: string }>(), {
+  label: "Invoice",
+});
+</script>
+```
+
+Good:
+
+```vue
+<script setup lang="ts">
+const { label = "Invoice" } = defineProps<{
+  label?: string;
+}>();
+</script>
+```
+
+### Derive state with computed
+
+Bad:
+
+```typescript
+const total = ref(0);
+
+watch(lineItems, (items) => {
+  total.value = items.reduce((sum, item) => sum + item.amount, 0);
+});
+```
+
+Good:
+
+```typescript
+const total = computed(() =>
+  lineItems.value.reduce((sum, item) => sum + item.amount, 0),
+);
+```
+
+Reserve `watch` and `watchEffect` for synchronizing external side effects.
+
+### Keep declaration order dependent and scannable
+
+Bad:
+
+```typescript
+const total = computed(() => lineItems.value.length);
+const emit = defineEmits<{ save: [invoice: Invoice] }>();
+const lineItems = ref<LineItem[]>([]);
+```
+
+Good:
+
+```typescript
+const emit = defineEmits<{
+  save: [invoice: Invoice];
+}>();
+
+const lineItems = ref<LineItem[]>([]);
+const total = computed(() => lineItems.value.length);
+```
+
+### Order template attributes consistently
+
+Bad:
+
+```vue
+<InvoiceRow @click="select(invoice)" :invoice="invoice" v-if="invoice.visible" class="row"></InvoiceRow>
+```
+
+Good:
+
+```vue
+<InvoiceRow
+  v-if="invoice.visible"
+  class="row"
+  :invoice="invoice"
+  @click="select(invoice)"
+/>
+```
+
+### Emit changes instead of owning parent state
+
+Bad:
+
+```typescript
+const isSelected = ref(false);
+
+function select(): void {
+  isSelected.value = true;
+}
+```
+
+Good:
+
+```typescript
+const emit = defineEmits<{
+  change: [isSelected: boolean];
+}>();
+
+function select(): void {
+  emit("change", true);
+}
+```
+
+Use this when selection belongs to the parent contract. Truly internal UI state remains local.
+
+### Clean up installed side effects
+
+Bad:
+
+```typescript
+window.addEventListener("resize", updateWidth);
+```
+
+Good:
+
+```typescript
+onMounted(() => window.addEventListener("resize", updateWidth));
+onUnmounted(() => window.removeEventListener("resize", updateWidth));
+```
+
+### Render repeated content from typed data
+
+Bad:
+
+```vue
+<InvoiceBadge label="Draft" />
+<InvoiceBadge label="Issued" />
+```
+
+Good:
+
+```vue
+<InvoiceBadge
+  v-for="status in invoiceStatuses"
+  :key="status.value"
+  :label="status.label"
+/>
+```
