@@ -1,30 +1,29 @@
-# Agnostic Agentic Engineering Context
+# AI Context
 
-`ai-context` installs shared instructions, skills, hooks, and safety settings for coding agents. Install it in a project
-or globally.
+`ai-context` installs shared instructions, skills, hooks, and safety settings for coding agents.
 
-The instructions and skills use open formats: `AGENTS.md` for the instructions, and one `SKILL.md` per skill. They
-install to `AGENTS.md` and `.agents/`, outside any vendor directory, so nothing about them is tied to one agent. Point
-any harness that reads those formats at them. `ai-context` also writes the adapters and safety settings that Claude Code
-and Codex need, which is what `CLAUDE.md`, `.claude/`, and `.codex/` are for.
+It uses open formats:
 
-The installer shows a preview before it changes files. It updates packaged skills to the bundled versions, keeps
-structured settings that it does not manage, and saves a version that you can restore.
+- `AGENTS.md` for shared instructions
+- `.agents/skills/` for canonical skills
+- `.claude/` and `.codex/` for agent-specific integration
 
-Each successful installation records the individual skill files owned by `ai-context` for that target. Later installs
-remove owned files that the package no longer ships, while preserving unrecorded files and non-empty directories. Dry
-runs preview removals, and rollback restores both files and ownership state.
+Install it globally for all projects, or locally within one project.
 
-Interactive plan review uses [Plannotator](https://plannotator.ai). The installer reports when it is unavailable, but
-does not execute a remote installation script automatically.
+## Requirements
 
-## Supported systems
+- macOS, Linux, WSL, or Git Bash
+- Bash 3.2 or newer
+- Python 3.11 or newer
+- `jq`
 
-`ai-context` supports macOS, Linux, WSL, and Git Bash. Native PowerShell is not supported.
+Native PowerShell is not supported. [Task](https://taskfile.dev/docs/installation) and
+[Gum](https://github.com/charmbracelet/gum#installation) are optional.
 
-## Install the command
+Interactive plan review uses [Plannotator](https://plannotator.ai). Install Plannotator with its managed Codex Stop
+hook to enable automatic browser opening and feedback.
 
-Install Bash 3.2 or newer, `jq`, and Python 3.11 or newer. Then clone this repository:
+## Install
 
 ```bash
 git clone https://github.com/Jean-PierreGassin/ai-context.git "$HOME/.local/share/ai-context"
@@ -33,218 +32,103 @@ printf '%s\n' '#!/usr/bin/env bash' 'exec "$HOME/.local/share/ai-context/bin/ai-
 chmod +x "$HOME/.local/bin/ai-context"
 ```
 
-Add the command directory to your shell configuration.
-
-For Zsh on macOS:
+Add `~/.local/bin` to your shell path, then verify the command:
 
 ```bash
-printf '\nexport PATH="$HOME/.local/bin:$PATH"\n' >> "$HOME/.zshrc"
-source "$HOME/.zshrc"
-```
-
-For Bash on Linux, WSL, or Git Bash:
-
-```bash
-printf '\nexport PATH="$HOME/.local/bin:$PATH"\n' >> "$HOME/.bashrc"
-source "$HOME/.bashrc"
-```
-
-Verify the command:
-
-```bash
+export PATH="$HOME/.local/bin:$PATH"
 ai-context --help
 ```
 
-[Task](https://taskfile.dev/docs/installation) and [Gum](https://github.com/charmbracelet/gum#installation) are
-optional. `ai-context` uses them when they are available. It uses its Bash interface when they are not available.
+Add the export to `~/.zshrc` or `~/.bashrc` to make it permanent.
 
-## Install project context
+## Usage
 
-Go to the project and run the installer:
+Install into the current project:
 
 ```bash
-cd /path/to/project
 ai-context install
 ```
 
-The command shows a compact preview and asks for approval. It writes the configuration to the current project after you
-approve it.
-
-To list every path in the preview:
-
-```bash
-ai-context install --dry-run --verbose
-```
-
-## Install global context
-
-Run:
+Install globally:
 
 ```bash
 ai-context install --global
 ```
 
-This command installs shared configuration in your home directory. The preview shows each target area before you approve
-it.
+Preview all affected paths without applying changes:
 
-The global install manages `~/.claude/CLAUDE.md` as an import file. Its complete content is `@~/.agents/AGENTS.md`. If
-the file contains other text, the installer shows a replacement and asks for approval.
+```bash
+ai-context install --dry-run --verbose
+```
 
-## Control an installation
+Common options:
 
-Use these options after `ai-context install`:
-
-| Option             | Result                                                |
+| Option             | Purpose                                               |
 |--------------------|-------------------------------------------------------|
-| `--global`         | Install global configuration                          |
-| `--dry-run`        | Preview changes and stop                              |
-| `--verbose`        | List every path in the preview                        |
-| `--no-interaction` | Apply the preview without a prompt                    |
+| `--global`         | Target global configuration                           |
+| `--dry-run`        | Preview changes without applying them                 |
+| `--verbose`        | List every affected path                              |
+| `--no-interaction` | Apply without prompting                               |
 | `--force`          | Replace changed managed files outside packaged skills |
 | `--replace-config` | Replace complete Claude and Codex configuration files |
 
-By default, the installer merges `.claude/settings.json`, `.codex/config.toml`, and `.codex/hooks.json`. Use
-`--replace-config` only when you want to remove configuration that is not part of `ai-context`.
+## Safety and ownership
 
-Packaged files under `.agents/skills/` and `.claude/skills/` are owned by `ai-context`. Re-running either a project or
-global install updates those files automatically, including non-interactive installs. Other changed managed files still
-require confirmation or `--force`.
+The installer previews changes before applying them and merges structured Claude and Codex configuration by default.
+Existing settings that the package does not manage are preserved unless `--replace-config` is used.
 
-Project hook configuration runs scripts from the project's `.agents/hooks/` directory. Global hook configuration runs
-the installed scripts from `~/.agents/hooks/`, so it also works in projects without a project-level installation.
+Packaged skill files are tracked per installation target. Later installs update current files and remove only stale
+files previously owned by `ai-context`. Unmanaged files and non-empty directories are preserved.
 
-## Check the installation
+Every install and rollback saves the previous state.
 
-Check the current project:
+## Check and restore
+
+Check an installation:
 
 ```bash
 ai-context doctor
-```
-
-Check the global configuration:
-
-```bash
 ai-context doctor --global
 ```
 
-The report checks the required tools, target files, instruction import, configuration syntax, safety settings, and
-rollback history. If it finds a problem, it shows the repair steps and exits with a non-zero status.
-
-## Restore a version
-
-List saved project versions:
+List saved versions:
 
 ```bash
 ai-context history
-```
-
-List saved global versions:
-
-```bash
 ai-context history --global
 ```
 
-Select a version to restore:
+Restore a version:
 
 ```bash
 ai-context rollback
-```
-
-Restore a version by its ID:
-
-```bash
 ai-context rollback SNAPSHOT_ID
 ai-context rollback SNAPSHOT_ID --global
 ```
 
-Each install and rollback saves the previous state. A restore can put old files back and remove files that did not exist
-in the selected version.
-
-## Update ai-context
-
-Pull the latest release from the cloned repository:
+## Update
 
 ```bash
 git -C "$HOME/.local/share/ai-context" pull --ff-only
+ai-context install --global
 ```
 
-Run `ai-context install` or `ai-context install --global` again to preview and apply the update.
+Run a project install separately for projects that use local context.
 
-## Find commands and options
+## Development
 
-Show all CLI commands:
+Canonical skills live in `resources/payload/.agents/skills/`. Claude adapters live in
+`resources/payload/.claude/skills/` and point to the canonical skills.
+
+Behaviour and trigger evals live in `evals/`. See [evals/README.md](evals/README.md) for the schema.
+
+Run the regression suite after changes:
 
 ```bash
-ai-context --help
+task test
 ```
 
-Show options for one command:
-
-```bash
-ai-context install --help
-ai-context rollback --help
-```
-
-From the repository, run `task` or `task list` to show every Task command:
-
-```bash
-task
-task list
-```
-
-Use the named Task commands for project and global operations:
-
-```bash
-task install
-task install:global
-task doctor
-task doctor:global
-task history
-task history:global
-task rollback
-task rollback:global
-```
-
-Show install options without starting an install:
-
-```bash
-task install:help
-```
-
-Task treats `task install help` as two separate tasks. Use `task install:help` for command help. Pass additional options
-after `--`, for example `task install:global -- --dry-run --verbose`.
-
-## Skill layout
-
-`resources/payload/.agents/skills/` holds the skills. Write them there. The files in
-`resources/payload/.claude/skills/` are thin adapters that exist only because Claude Code looks in `.claude/skills/`.
-Each one points at a skill in `.agents` and does not copy its content, so a second harness costs another adapter rather
-than another copy of the skill.
-
-A skill uses the parts of this structure that it needs:
-
-| Path          | Holds                                                                         |
-|---------------|-------------------------------------------------------------------------------|
-| `SKILL.md`    | The trigger, the workflow, the rules that always apply, and links to the rest |
-| `references/` | Rules for one language, framework, or task type                               |
-| `examples/`   | Finished examples of the output                                               |
-| `assets/`     | Templates to fill in                                                          |
-| `scripts/`    | Automated checks                                                              |
-
-A rule that applies every time the skill runs goes in `SKILL.md`. A small skill stays one file. Do not split it to match
-the shape of a larger one.
-
-Run `task test` after changing a skill. It needs [ShellCheck](https://www.shellcheck.net/).
-
-## Evals
-
-`evals/` holds trigger and behaviour test data for these skills. The installer does not copy it into a project.
-[evals/README.md](evals/README.md) describes the schema and how a runner reads it.
-
-`task test` validates the corpus. It does not run the cases against a model.
-
-Running the cases costs real model calls. Run them with the model and reasoning effort you work at. A run against a
-cheaper model, or at a lower effort, measures a setup you do not use and tells you nothing about yours.
+The suite requires [ShellCheck](https://www.shellcheck.net/).
 
 ## License
 
