@@ -9,9 +9,7 @@ when_to_use: Triggers on requests like "write a function", "add a method", "fix 
 
 # Write Code
 
-Code is read far more often than it is written, and the reader is usually deciding whether a change is safe to ship.
-Everything here serves that: the codebase should read as though one person wrote it, and a diff should show only what
-the task asked for.
+Keep code readable, cohesive, and limited to the task.
 
 ## Process
 
@@ -27,6 +25,8 @@ Shape the work before writing it:
 | Several review objectives, migration sequencing, or work that must survive a session boundary  | Use `write-plan` first |
 
 A plan that already exists is the authority on ordering: follow its change stack rather than re-deciding the split.
+Confirm an agreed stack before writing. Assign every edit to its relevant entry. Fold review fixes into that entry's
+commit where rewriting is safe; a genuinely new review objective becomes a new entry.
 
 ## References
 
@@ -65,68 +65,31 @@ demonstrates one. Change the architecture when the user asks for it, or when the
 
 ## One job per unit
 
-Every unit, whether a function, method, class, module, or script, has one reason to change. This is the rule most
-worth holding, because complexity compounds: a unit that does three things has to be understood three ways at once,
-by everyone who touches it afterwards.
+Give each unit one reason to change. Split behaviour-selecting boolean parameters, separate deciding from acting,
+prefer guard clauses, and combine guards with the same outcome. Do not split by line count or until following the path
+becomes harder.
 
-Four tests, in order of how often they catch something:
-
-- **The honest name.** Name the unit for everything it does. If the honest name needs "and", it is two units. A
-  `validateAndSave` is a `validate` and a `save`
-- **The boolean parameter.** A flag that selects behaviour is two units wearing one name: `charge($order, sendReceipt:
-  true)` is `charge` and `sendReceipt`, welded together at a call site that now reads as a puzzle. Split them, and let
-  the caller do both where it wants both. A flag carrying *data* the unit needs is fine, since it changes the result
-  rather than what the unit does
-- **Deciding versus acting.** A unit that works something out and then acts on it is two units. Return the decision and
-  let the caller act, so the deciding half can be tested without the acting half happening
-- **Reasons to change.** Two things that change for different reasons, on different schedules, or at the request of
-  different people, belong apart even when they always run together
-
-Complexity is the symptom to watch for: deep nesting, a long parameter list, a branch that needs a comment to explain
-which case it handles. Take those as a prompt to look for the seam, not to add a comment. Guard clauses flatten
-nesting, and a named predicate turns a condition into something readable.
-
-Splitting has a cost too. Do not split so far that following one path means opening six files, and do not split by
-line count, which is not a reason to change.
+Treat more than three returns, more than four injected dependencies or method parameters, or cyclomatic complexity of
+11 or higher as an extraction signal. Consolidate only where that does not increase nesting or obscure distinct
+outcomes. Stricter project-enforced limits win.
 
 ## Naming
 
-- Every name says what it holds: `pendingInvoices` rather than `result`, `data`, `item`, `rows`, or a single letter
-- Name functions and methods with an active verb for the action, prefix booleans with is/has/can/should, and let a name
-  describe its contents rather than its container (`invoices`, not `invoiceArray`)
-- Search for an existing enum or constant before introducing a named value, and give magic numbers and strings a name of
-  their own
+- Use strict parameter and return types, and named arguments where the language supports them
+- Name values for what they hold, functions with active verbs, and booleans with is/has/can/should
+- Check for an existing enum or constant before naming an unexplained literal
+- Keep methods concise enough to understand directly without fragmenting them into trivial indirection
+- Place new or moved code where its responsibility naturally flows among surrounding units, not merely where the old
+  code happened to sit
 - Write user-facing strings by reading the neighbouring entries and matching their pattern: terse where they are terse,
   dynamic labels first (`:field is required`, not `Enter your :field`), and cross-checked against the config or
   validation the copy describes
 
 ## Comments
 
-- The code carries no explanation of itself. The reasoning goes in the commit message or the PR body, where a reviewer
-  reads it and it cannot rot beside code that moves on without it
-- This holds for rationale, "why we do it this way" notes, and narration of a branch, even where the reasoning is
-  genuinely non-obvious and the temptation strongest. Restructure instead: a value that needs explaining becomes a
-  named constant, a condition that needs explaining becomes a named predicate, a block that needs explaining becomes a
-  named method
-- Banners are the one comment that belongs in a file, naming a section the language gives no structure of its own
-- Machine-read annotations are not comments in this sense. Type and `@throws` docblocks stay, and so does a suppression
-  directive that names the single line it covers and why. So does a TODO marking known, deliberate debt, which tracks
-  work rather than explaining code
-- Remove comments that aren't carrying weight: annotations restating a declared type, blocks narrating a branch, and
-  anything a named argument or well-named method already makes obvious
-
-Config files and flat lists are where a banner earns its place, because they have no structure of their own to group
-by. Nothing in a list of ignore rules, packages, or hosts says where one block ends and the next begins, or why. Label
-each block with a banner, sized to its title, and leave the entries under it uncommented:
-
-```
-########################
-# Third Party/Packages #
-########################
-```
-
-The banner names what the block is, not why each entry is in it. A single entry that needs its own explanation is
-usually a sign the grouping is wrong.
+Express intent through names and structure rather than explanatory comments. Retain machine annotations, `@throws`,
+narrowly scoped suppressions with a reason, TODOs for tracked debt, and section banners where the language provides no
+grouping.
 
 ## Keep the diff to the task
 
@@ -140,4 +103,6 @@ usually a sign the grouping is wrong.
 - Run the project's own gate over what you touched: formatter, linter, static analysis, and the tests covering the
   changed behaviour. Use the project's runner (`task`, `composer`, an `npm` script, `make`) where one exists
 - Re-read the diff against the references and fix the misses
+- Self-review every code change after writing. Choose the review method and any configured automated tooling according
+  to the change
 - Where a check could not run, name it and say why, rather than reporting the change as verified

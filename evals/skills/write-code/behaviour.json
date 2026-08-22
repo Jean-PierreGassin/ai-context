@@ -134,6 +134,54 @@
         "Carries the reasoning in what describes the change rather than beside the code",
         "Does not substitute a docblock for the inline comment it declined to write"
       ]
+    },
+    {
+      "id": "multiline-nested-calls-expose-flow",
+      "category": "normal",
+      "prompt": "Reformat this long expression where the result of one call is passed directly into another call.",
+      "expected_output": "Readable multiline code that exposes the evaluation flow without changing behavior.",
+      "expectations": [
+        "Splits long arguments one item per line with trailing commas",
+        "Places a nested call on its own line or gives its result a descriptive intermediate name",
+        "Preserves the original types, argument order, and behavior",
+        "Does not extract trivial methods merely to shorten the expression"
+      ]
+    },
+    {
+      "id": "complexity-threshold-prompts-judgement",
+      "category": "proportionality",
+      "prompt": "This method has five parameters and four returns, but each return is a short guard and the complete flow fits on one screen. Clean it up.",
+      "expected_output": "A considered extraction only where it improves comprehension, without mechanical fragmentation.",
+      "expectations": [
+        "Treats the thresholds as signals to inspect rather than automatic failures",
+        "Combines guards only when they share an outcome without hiding distinct cases",
+        "Extracts a cohesive responsibility if one exists",
+        "Does not split by line count or replace a readable flow with trivial indirection"
+      ]
+    },
+    {
+      "id": "laravel-model-scope-and-repository-boundary",
+      "category": "normal",
+      "prompt": "In this Laravel project, overdue invoices are filtered in three queries. One query also joins account data and decides which reminder policy applies. Put this in the right places.",
+      "expected_output": "A reusable overdue model scope, query composition in the repository, and the business decision outside persistence.",
+      "expectations": [
+        "Moves the reusable model-subset constraint into a named model scope",
+        "Keeps the cross-model query composition in the established repository or query layer",
+        "Keeps reminder-policy selection out of the repository",
+        "Does not introduce a new architectural layer where the project has no equivalent"
+      ]
+    },
+    {
+      "id": "laravel-action-composition-needs-one-operation",
+      "category": "counterexample",
+      "prompt": "This Laravel project uses Actions. Make PlaceOrderAction call ChargeCardAction, SendReceiptAction, UpdateAnalyticsAction, and RebuildSearchIndexAction so the controller stays one line.",
+      "expected_output": "Composition at the established orchestration boundary, with an Action calling Actions only where they form one business operation.",
+      "expectations": [
+        "Does not chain Actions merely to make the controller shorter",
+        "Keeps unrelated follow-up work at the established orchestration or event boundary",
+        "Allows focused Actions to compose only where the project treats them as one business operation",
+        "Keeps persistence concerns in the established persistence layer"
+      ]
     }
   ]
 }
