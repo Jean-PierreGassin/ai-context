@@ -94,7 +94,8 @@
         "Copies the missing file from the repository root rather than generating a new one",
         "Checks the repository's list of required files against what actually landed",
         "Copies everything else on that list that is missing, not only the file named",
-        "Invents no values for secrets it cannot find"
+        "Invents no values for secrets it cannot find",
+        "Does not display the copied file's contents"
       ]
     }
   ]
