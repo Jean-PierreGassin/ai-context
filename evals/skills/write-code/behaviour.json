@@ -208,6 +208,18 @@
       ]
     },
     {
+      "id": "laravel-data-transfer-follows-project-contracts",
+      "category": "project-precedence",
+      "prompt": "Add a Laravel write endpoint in a project that consistently passes validated arrays into its application layer and does not use DTOs.",
+      "expected_output": "An endpoint using the project's established validated-array contract without introducing a DTO boundary.",
+      "expectations": [
+        "Preserves the application's established data-transfer contract",
+        "Does not add a DTO accessor to the FormRequest",
+        "Does not introduce new payload or collection types solely because Laravel is in scope",
+        "Still respects framework-defined signatures and the project's enforced type checks"
+      ]
+    },
+    {
       "id": "laravel-action-composition-needs-one-operation",
       "category": "counterexample",
       "prompt": "This Laravel project uses Actions. Make PlaceOrderAction call ChargeCardAction, SendReceiptAction, UpdateAnalyticsAction, and RebuildSearchIndexAction so the controller stays one line.",

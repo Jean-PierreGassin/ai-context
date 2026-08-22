@@ -12,7 +12,7 @@ quality tooling, not this framework reference.
 - Write validation rules as one rule per array line, rather than pipe-delimited strings
 - Create framework-owned files with the relevant `php artisan make:` generator, then edit its output. Migration
   timestamps come from generation and determine order
-- Keep framework-defined `array` signatures. Apply DTO guidance where the signature is yours
+- Keep framework-defined `array` signatures
 - Use `config()` at runtime and `env()` only in configuration files
 - Put user-facing text in language files and application values in configuration
 - Use `when()` and `whenNotNull()` for conditional resource fields
@@ -42,15 +42,6 @@ quality tooling, not this framework reference.
   established service or handler layer
 - Keep repositories focused on persistence and query composition. Do not move business decisions into them
 - Keep JavaScript and CSS out of Blade, and HTML out of PHP classes
-
-### Data transfer
-
-- Give a FormRequest a typed DTO accessor when the project owns the consuming signature. Pass that DTO rather than a
-  raw `validated()` array
-- Writes take an explicit payload named for the operation. Do not derive write payloads dynamically with broad
-  `except()` or `only()` calls
-- Reads crossing the query boundary return a DTO where the project uses DTO boundaries; keep raw models and rows behind
-  that boundary
 
 ## Follow the project where it is consistent
 
