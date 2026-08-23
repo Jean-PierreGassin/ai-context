@@ -40,12 +40,14 @@ approved direction. Stop early only for a blocker or a decision that changes req
 boundaries or ordering, scope, or broad side effects.
 
 Stop when the complete entry has a clean implementation diff ready for human review. Wait for explicit approval.
-After approval, run the project gates and commit the entry without another continuation prompt. Start the next
-approved entry automatically after the commit. Do not edit the next entry before this commit.
+After approval, run the project gates and commit the entry without another continuation prompt. Do not edit the next
+entry before this commit.
 
 After the commit, verify the persisted plan and context. They must record the completed state, critical decisions,
-downstream consequences, and exact next action. A change after approval invalidates that approval. This includes
-formatter output and gate fixes. Review the new diff and return it for human review before you run the gates again.
+downstream consequences, the next entry, and its exact first action. Verify that a fresh session can resume without
+repeating investigation or decisions, then stop before starting the next entry. A change after approval invalidates
+that approval. This includes formatter output and gate fixes. Review the new diff and return it for human review before
+you run the gates again.
 
 Fold a correction into an earlier commit when rewriting is safe. Never carry a completed, uncommitted entry into the
 next entry.
