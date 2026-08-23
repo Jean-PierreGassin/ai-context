@@ -86,6 +86,19 @@
       ]
     },
     {
+      "id": "linear-stack-stays-in-one-worktree",
+      "category": "regression",
+      "prompt": "Implement this approved three-entry change stack. Each entry depends on the previous one.",
+      "expected_output": "One worktree for the overall change, switching dependent branches there when needed.",
+      "expectations": [
+        "Uses one worktree for the complete dependent stack",
+        "Allows the stack to use multiple dependent branches in that worktree",
+        "Switches between dependent branches sequentially in the same worktree",
+        "Does not treat independently reviewable entries as independent tracks",
+        "Does not create a worktree for each stack entry"
+      ]
+    },
+    {
       "id": "missing-config-is-copied-not-invented",
       "category": "counterexample",
       "prompt": "The worktree will not boot, its environment file is missing.",

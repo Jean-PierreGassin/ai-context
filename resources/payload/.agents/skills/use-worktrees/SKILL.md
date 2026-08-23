@@ -6,6 +6,8 @@ description: Use when creating, running work inside, reviewing from, or tearing 
 # Use Worktrees
 
 - Use a worktree only to keep the current tree available or isolate work that the user chose to run separately
+- Use one worktree for an ordered change stack. Switch between its dependent branches in that worktree when the stack
+  uses multiple branches. Create separate worktrees only for independent tracks that will run concurrently
 - Use the project's worktree tooling when it exists. This includes setup scripts, task runners, port allocation, seeded
   environment files, devcontainers, and container commands
 - Ask when tooling exists but you cannot find its entry point
