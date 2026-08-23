@@ -17,8 +17,8 @@ Write readable, cohesive code. Keep the change within the task.
    scope
 2. Open the nearest equivalent capability already in the repository and match how it is arranged
 3. For each change-stack entry, write and self-review the change, reconcile discoveries into the persisted plan and
-   affected later entries, obtain human approval, run the project gates, commit the approved restore point, then start
-   the next entry
+   affected later entries, obtain human approval, run the project gates, commit the approved restore point, verify it
+   can restore a fresh session, then stop before the next entry
 4. [Check the completed change](#before-reporting-it-done) before reporting it as done
 
 Shape the work before writing it:
@@ -44,13 +44,12 @@ stopping or asking for permission to continue. Stop early only for a blocker or 
 direction. Otherwise, stop only when the complete entry has a clean implementation diff ready for human review.
 
 Wait for explicit approval of that diff. After approval, use `git-commit` to run the project gates and create its
-preserving commit without another continuation prompt. Begin the next approved entry automatically after that commit.
-Verify after the commit that a fresh session can resume without repeating investigation or decisions. Verify that the
-next plan's `Start here` section names all required skills, files, commands, and its first action. Any post-approval
-change invalidates approval and must go through self-review, plan reconciliation, and human review again. Do not
-continue into another stack entry, or defer the stack's commits until all entries have been implemented. Where an entry
-adjusts an earlier commit and rewriting is safe, fold it into that commit; otherwise create its own commit before
-continuing.
+preserving commit without another continuation prompt. Verify after the commit that a fresh session can resume without
+repeating investigation or decisions. Verify that the next plan's `Start here` section names all required skills,
+files, commands, and its first action, then stop before starting the next entry. Any post-approval change invalidates
+approval and must go through self-review, plan reconciliation, and human review again. Do not continue into another
+stack entry, or defer the stack's commits until all entries have been implemented. Where an entry adjusts an earlier
+commit and rewriting is safe, fold it into that commit; otherwise create its own commit before continuing.
 
 ## References
 

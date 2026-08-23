@@ -70,10 +70,10 @@
       "id": "implemented-stack-persists-restore-state",
       "category": "proportionality",
       "prompt": "Plan this with me now. I will implement it straight after, in this session.",
-      "expected_output": "A contained change can remain in conversation, while an implemented stack persists plans and context for per-commit restoration.",
+      "expected_output": "A contained change can remain in conversation, while an implemented stack persists per-change plans and one stack context for per-commit restoration.",
       "expectations": [
         "Creates no persisted plan files for a contained change that stays inside one session",
-        "Persists plans and context when the work is an implemented change stack, even in one session",
+        "Persists one PLAN.md per stack entry and one stack-level CONTEXT.md when implementing a change stack, even in one session",
         "Explains that each approved stack commit must be resumable after a context reset",
         "Still produces the split and the ordering",
         "Creates the files for any work that will otherwise carry over"
@@ -155,13 +155,16 @@
       "id": "implementation-commits-between-stack-entries",
       "category": "composition",
       "prompt": "The plan is approved. Implement its three-change stack now, reviewing each change before moving on.",
-      "expected_output": "Implementation follows the approved order, obtains human approval for each entry, runs gates, and commits it before starting the next.",
+      "expected_output": "Implementation follows the approved order, obtains human approval for the current entry, runs gates, commits it, verifies the fresh-session restore point, and stops before the next entry.",
       "expectations": [
         "Loads git-commit alongside write-code for implementation",
-        "Self-reviews and adjusts each entry before presenting its diff for human review",
+        "Self-reviews and adjusts the current entry before presenting its diff for human review",
         "Waits for explicit human approval before running the project gates",
-        "Commits each approved entry after its gates pass and before beginning the next one",
+        "Commits the approved entry after its gates pass",
         "Returns to human review if a gate or gate fix changes the approved diff",
+        "Updates the stack context with the commit identifier and exact next action",
+        "Verifies a fresh session can resume without repeating investigation or decisions",
+        "Stops before beginning the next stack entry",
         "Does not carry an uncommitted completed entry into another stack entry",
         "Allows a corrective entry to be folded into an earlier commit when rewriting is safe"
       ]
@@ -174,8 +177,8 @@
       "expectations": [
         "Looks for existing planning docs before creating anything",
         "Continues the existing plan and says what changed, rather than starting another one",
-        "Reads the context file before the plan file when resuming",
-        "Verifies the plan against the repository and reports where the two disagree"
+        "Reads the stack context before the current plan when resuming",
+        "Verifies the persisted state against the repository and reports where they disagree"
       ]
     },
     {
@@ -187,7 +190,7 @@
         "Updates the existing entry two plan rather than creating a parallel plan or workaround",
         "Propagates the consequence into the tests, dependency, and implementation details of entries three and four",
         "Removes superseded assumptions instead of preserving contradictory instructions",
-        "Records the decision and reasoning once so later sessions do not rediscover it",
+        "Records the decision and reasoning once in the stack context so later sessions do not rediscover it",
         "Keeps the revision within the agreed direction because its objectives and stack shape are unchanged"
       ]
     },
@@ -208,15 +211,16 @@
       "id": "commit-is-a-resumable-checkpoint",
       "category": "regression",
       "prompt": "Entry two has been implemented and is ready for human review. Make sure I can clear context immediately after it is approved and committed, then continue entry three without repeating anything.",
-      "expected_output": "Ignored local plans and restore context identify completed work, settled decisions, downstream changes, and the exact next action without entering the commit.",
+      "expected_output": "Ignored local plans and stack context identify completed work, settled decisions, downstream changes, and the exact next action, then the workflow stops at the committed restore point.",
       "expectations": [
-        "Updates the current ignored plan and context before presenting the implementation diff for human review",
+        "Updates the current ignored plan and stack context before presenting the implementation diff for human review",
         "Records critical decisions and removes superseded assumptions",
         "Updates all affected later entries before the commit",
         "Names entry three and its exact first action as the restore point",
-        "Runs gates after approval and commits the reviewed implementation without agent-work files",
-        "Updates the ignored local checkpoint with the commit identifier after the commit",
+        "Runs gates after approval and commits the reviewed implementation without agent-working files",
+        "Updates the ignored stack context with the commit identifier after the commit",
         "Verifies after the commit that a fresh session can resume from the persisted state",
+        "Stops before beginning entry three",
         "Does not create a recursive metadata-only commit to record that the work commit happened"
       ]
     },
@@ -228,7 +232,7 @@
       "expectations": [
         "Places the context-loading section first, immediately after the plan title",
         "Lists every applicable skill and relevant skill reference in load order",
-        "Lists CONTEXT.md, relevant plans, project instructions, source, tests, contracts, and configuration to read in order",
+        "Lists the stack CONTEXT.md, relevant plans, project instructions, source, tests, contracts, and configuration to read in order",
         "Explains briefly why each repository file is relevant instead of inventorying the repository",
         "Names the working directory, useful baseline or discovery commands, and exact validation gates",
         "Ends the bootstrap with the first unchecked implementation action",
@@ -251,12 +255,15 @@
       "id": "persisted-plans-remain-untracked",
       "category": "regression",
       "prompt": "Persist this multi-entry implementation plan in the repository so another session can resume it, then prepare the first code commit.",
-      "expected_output": "Plans stored in an ignored agent-work path and excluded from the implementation commit.",
+      "expected_output": "Plans and stack context stored under an ignored project-local `.ai-context/work` path and excluded from the implementation commit without changing the committed `.gitignore`.",
       "expectations": [
-        "Chooses the repository's ignored agent-work convention or defaults to docs/agent-work",
-        "Verifies the plan path with git check-ignore before writing",
-        "Adds a local or repository ignore rule when the path is not already ignored",
-        "Verifies no PLAN.md, CONTEXT.md, or agent-work path is tracked or staged before committing",
+        "Uses the repository's established equivalent agent-state location when one exists, otherwise defaults to .ai-context/work",
+        "Keeps one stack-level CONTEXT.md and one PLAN.md per ordered change",
+        "Checks .ai-context with git check-ignore before writing persisted state",
+        "Resolves the repository-local exclude with git rev-parse --git-path info/exclude when .ai-context is not ignored",
+        "Adds the exact /.ai-context/ rule to the local exclude only when absent and verifies it is ignored",
+        "Does not modify the committed .gitignore solely for agent-working state",
+        "Verifies no .ai-context, PLAN.md, or CONTEXT.md path is tracked or staged before committing",
         "Keeps the local restore state current without including it in the code commit"
       ]
     }

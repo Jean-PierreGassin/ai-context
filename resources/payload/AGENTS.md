@@ -36,8 +36,10 @@
   for a blocker or a decision that changes the agreed direction. After approval, run the project gates and commit the
   change before editing the next one. Any post-approval change requires renewed human review
 - During a stack, fold implementation and review discoveries into the appropriate plan entry and every affected later
-  entry. Push back on revisions that change the agreed direction or create broad side effects. Include the updated
-  plan and restore context in each approved commit so a fresh session can resume at the exact next action
+  entry. Push back on revisions that change the agreed direction or create broad side effects. Update the local plan
+  and restore context at each approved commit so a fresh session can resume at the exact next action
+- After each approved commit, verify the persisted plan and context can restore a fresh session to the exact next
+  action, then stop before starting the next entry
 - Start every persisted plan with the skills, ordered files, commands, and first action needed to execute it after a
   full context reset without asking the user to provide the context again
 

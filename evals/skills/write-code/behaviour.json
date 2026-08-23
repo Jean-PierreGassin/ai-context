@@ -537,16 +537,18 @@
       "id": "commits-each-reviewed-stack-entry-before-continuing",
       "category": "regression",
       "prompt": "Implement the approved three-entry change stack. Review each entry as you go.",
-      "expected_output": "Each entry is self-reviewed, approved by a human, gated, and committed before implementation begins on the next entry.",
+      "expected_output": "Each entry is self-reviewed, approved by a human, gated, committed, and made resumable before the workflow stops at the stack boundary.",
       "expectations": [
         "Implements only one stack entry at a time",
         "Self-reviews and fixes the current entry before presenting it for human review",
         "Reconciles implementation and review discoveries into the current and affected later plans",
-        "Updates an ignored restore context with settled decisions and the exact next action before review",
+        "Updates an ignored stack context with settled decisions and the exact next action before review",
         "Keeps each affected plan's context bootstrap aligned with the revised skills, files, commands, and next action",
         "Waits for explicit human approval before running the project gates",
-        "Commits the approved entry after its gates pass and before beginning the next entry",
-        "Verifies that the local checkpoint matches the commit and can resume in a fresh session",
+        "Commits the approved entry after its gates pass",
+        "Updates the ignored stack context with the commit identifier",
+        "Verifies that the local checkpoint matches the commit and can resume in a fresh session at the exact next action",
+        "Stops before beginning the next stack entry",
         "Returns for renewed human review if anything changes after approval",
         "Does not defer all commits until the complete stack has been implemented",
         "Folds an adjustment into its earlier commit when rewriting is safe"
@@ -556,12 +558,13 @@
       "id": "stops-only-for-entry-review",
       "category": "regression",
       "prompt": "Implement the approved three-entry stack. Keep me informed as you work, but I only want to respond when an entry is ready for review.",
-      "expected_output": "Informational progress updates while each entry is completed, followed by one review stop immediately before its gates and commit.",
+      "expected_output": "Informational progress updates while the current entry is completed, one review stop before its gates and commit, then a stop at the verified fresh-session boundary.",
       "expectations": [
         "Does not ask for permission to continue during implementation or self-review of an entry",
         "Stops when the complete entry diff is ready for human review",
         "Runs gates and commits immediately after approval without another continuation prompt",
-        "Begins the next approved entry automatically after the commit",
+        "Verifies the persisted state can restore a fresh session to the exact next action",
+        "Stops before starting the next approved entry",
         "Stops early only for a blocker or a decision that changes the agreed direction"
       ]
     },

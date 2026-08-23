@@ -83,8 +83,8 @@ Treat the approved plan as living state, not a transcript of the first guess:
   focus, or rollback as the finding requires
 - Trace the consequence through every later entry. Update affected dependencies, requirements, tests, ordering, and
   rollback before continuing; remove superseded wording rather than appending a contradictory note
-- Record the decision and its reason once in the persisted context. Later entries should rely on that decision rather
-  than asking the next session to discover or debate it again
+- Record the decision and its reason once in the stack context. Later entries should rely on that decision rather than
+  asking the next session to discover or debate it again
 - Leave unrelated findings out of the stack and report them separately
 
 A refinement stays within the agreed direction when it preserves the requirements, architecture, review objectives,
@@ -93,11 +93,11 @@ what would move, which later entries would change, and the smallest compatible a
 approval of the revised plan before implementing the directional change.
 
 During implementation, complete entries in order. Self-review and adjust the current entry while it is uncommitted,
-then reconcile its findings across the ignored persisted plans. Make the local restore point mark what the commit will
-complete, record critical decisions and rejected directions, update every affected later entry, and name the exact
-next action. Present the implementation diff for human review and wait for explicit approval. Run the project
-gates after approval, then commit it before starting the next entry. Verify after the commit that a fresh session can
-resume from the persisted state without repeating investigation or decisions. Any post-approval change invalidates
-approval and returns the entry to self-review, plan reconciliation, and human review before the gates run again. If an
-entry exists to adjust an earlier commit and rewriting is safe, fold it into that commit. Do not postpone commits
-until the full stack has been implemented.
+then reconcile its findings across the ignored persisted plans and stack context. Make the local restore point mark
+what the commit will complete, record critical decisions and rejected directions, update every affected later entry,
+and name the exact next action. Present the implementation diff for human review and wait for explicit approval. Run
+the project gates after approval, then commit it. Update the local restore point with the commit identifier and verify
+that a fresh session can resume at the exact next action without repeating investigation or decisions. Stop before
+starting the next entry. Any post-approval change invalidates approval and returns the entry to self-review, plan
+reconciliation, and human review before the gates run again. If an entry exists to adjust an earlier commit and
+rewriting is safe, fold it into that commit. Do not postpone commits until the full stack has been implemented.
