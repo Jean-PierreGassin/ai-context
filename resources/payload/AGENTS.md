@@ -31,10 +31,10 @@
   worktrees only for independent tracks that run concurrently
 - Branch and worktree names use the tracker's ticket key (`ABC-1234` or `ABC-1234-slug`), otherwise
   `{type}/title-of-changes-summarized` (e.g. `fix/changes-summarized`)
-- After every code change, self-review the diff using the tools and depth the change warrants, fix every finding, and
-  repeat until the review is clean. Present each clean diff for human review and wait for explicit approval, then run
-  the project gates before committing. Any post-approval change requires renewed human review. Fold each review fix
-  into the change it corrects rather than leaving a follow-up change
+- Complete and self-review the current reviewable change, fix every finding, then present its clean diff for human
+  review. Progress updates are informational: do not pause for permission to continue within a change. Stop early only
+  for a blocker or a decision that changes the agreed direction. After approval, run the project gates and commit the
+  change before editing the next one. Any post-approval change requires renewed human review
 - During a stack, fold implementation and review discoveries into the appropriate plan entry and every affected later
   entry. Push back on revisions that change the agreed direction or create broad side effects. Include the updated
   plan and restore context in each approved commit so a fresh session can resume at the exact next action

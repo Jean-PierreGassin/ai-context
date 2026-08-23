@@ -553,6 +553,19 @@
       ]
     },
     {
+      "id": "stops-only-for-entry-review",
+      "category": "regression",
+      "prompt": "Implement the approved three-entry stack. Keep me informed as you work, but I only want to respond when an entry is ready for review.",
+      "expected_output": "Informational progress updates while each entry is completed, followed by one review stop immediately before its gates and commit.",
+      "expectations": [
+        "Does not ask for permission to continue during implementation or self-review of an entry",
+        "Stops when the complete entry diff is ready for human review",
+        "Runs gates and commits immediately after approval without another continuation prompt",
+        "Begins the next approved entry automatically after the commit",
+        "Stops early only for a blocker or a decision that changes the agreed direction"
+      ]
+    },
+    {
       "id": "laravel-action-composition-needs-one-operation",
       "category": "counterexample",
       "prompt": "This Laravel project uses Actions. Make PlaceOrderAction call ChargeCardAction, SendReceiptAction, UpdateAnalyticsAction, and RebuildSearchIndexAction so the controller stays one line.",

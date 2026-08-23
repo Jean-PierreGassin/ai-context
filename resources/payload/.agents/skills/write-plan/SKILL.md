@@ -35,8 +35,13 @@ Implement one approved stack entry at a time. Write it, self-review it, and corr
 Update the current plan and each affected later entry with implementation discoveries. Keep the restore point in the
 ignored agent-work directory.
 
-Present the implementation diff for human review. Wait for explicit approval. After approval, run the project gates
-and commit the entry. Do not start the next entry before this commit.
+Progress updates are informational. Do not stop or ask for permission to continue while an entry remains within the
+approved direction. Stop early only for a blocker or a decision that changes requirements, architecture, stack
+boundaries or ordering, scope, or broad side effects.
+
+Stop when the complete entry has a clean implementation diff ready for human review. Wait for explicit approval.
+After approval, run the project gates and commit the entry without another continuation prompt. Start the next
+approved entry automatically after the commit. Do not edit the next entry before this commit.
 
 After the commit, verify the persisted plan and context. They must record the completed state, critical decisions,
 downstream consequences, and exact next action. A change after approval invalidates that approval. This includes
