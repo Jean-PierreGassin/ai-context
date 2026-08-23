@@ -29,10 +29,11 @@ when_to_use: Triggers on requests like "commit this", "commit these changes", "s
 10. If a gate or its fix changes the staged diff, approval no longer applies: self-review the revised diff, present it
    for human review, and rerun the gates after renewed approval
 11. Use the [template](#template) to structure the commit message, and the [example](#example) for guidance
-12. When `write-code` is executing a change stack, commit the approved entry after its gates pass, verify that its
-   persisted state can restore a fresh session, and only then begin the next one. Do not ask for permission to continue
-   between approval, gates, and the commit, or between that commit and the next approved entry. Where the entry adjusts
-   an earlier commit and rewriting is safe, fold it into that commit; otherwise create its own commit before continuing
+12. When `write-code` is executing a change stack, commit the approved entry after its gates pass. Update the ignored
+   local checkpoint with the commit identifier, verify that it can restore a fresh session to the exact next action,
+   then stop before starting the next entry. Do not ask for permission to continue between approval, gates, and the
+   commit. Where the entry adjusts an earlier commit and rewriting is safe, fold it into that commit; otherwise create
+   its own commit before continuing
 
 ## One commit, one reasoning step
 
