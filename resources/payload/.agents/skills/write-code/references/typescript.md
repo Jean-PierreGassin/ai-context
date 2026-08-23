@@ -1,6 +1,6 @@
 # TypeScript
 
-The central `write-code` rules apply alongside these TypeScript-specific rules.
+Apply the central `write-code` rules and these TypeScript-specific rules.
 
 ## Always apply
 
@@ -21,7 +21,7 @@ The central `write-code` rules apply alongside these TypeScript-specific rules.
 
 ### Types
 
-- Type parameters and returns, plus empty or ambiguous initial values. Let an obvious initialized local infer its type
+- Type parameters, returns, and empty or ambiguous initial values. Let an obvious initialized local infer its type
 - Derive a variant with `Pick`, `Omit`, or `Partial` only when it is intentionally coupled to the source type
 - Type untyped JavaScript at its declaration rather than asserting it at each call site
 - Define a shared alias for a union reused across files
@@ -37,8 +37,8 @@ The central `write-code` rules apply alongside these TypeScript-specific rules.
 ### Variants and dependencies
 
 - Use a discriminated union backed by an `as const` value map when each variant literal needs one shared definition
-- Use an exhaustive `Record` dispatch table when it makes closed-variant handling clearer. A contained exhaustive branch
-  is fine; introduce polymorphism when behavior repeats, implementations multiply, or callers need an extension seam
+- Use an exhaustive `Record` dispatch table when it clarifies closed-variant handling. A contained exhaustive branch is
+  acceptable. Introduce polymorphism when behavior repeats, implementations multiply, or callers need an extension seam
 - Introduce an interface where substitution or a genuine boundary exists. Do not wrap a single concrete dependency
   without such a seam
 - Use a config-driven factory when sibling implementations differ only in data, and a named factory for repeated domain

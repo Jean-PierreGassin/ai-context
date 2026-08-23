@@ -1,18 +1,18 @@
 # Vue
 
-Read this with the TypeScript reference.
+Read this reference with the TypeScript reference.
 
 ## Always apply
 
 - Put `<script setup>` before `<template>`
-- Define props with typed reactive destructuring and defaults on Vue 3.5 or later. Use `withDefaults` when the project's
-  supported Vue version requires it
+- On Vue 3.5 or later, define props with typed reactive destructuring and defaults. Use `withDefaults` when the supported
+  Vue version requires it
 - Use `computed` for derived state, not to rename or pass through a value
 - Use the project's spacing and size scale rather than custom pixel values
 - Self-close components without content and use directive shorthands consistently
 - Order template attributes as directives, id, ref/key, static attributes, bound attributes, then events
-- Order script setup declarations as imports, props, emits, constants, refs, composables, computed values, then handlers,
-  while preserving dependency order
+- Order script setup declarations as imports, props, emits, constants, refs, composables, computed values, and handlers.
+  Preserve dependency order
 - Extract a repeated or markup-heavy item into a child component
 - Clean up listeners, timers, and subscriptions on unmount
 
@@ -75,7 +75,7 @@ const total = computed(() =>
 );
 ```
 
-Reserve `watch` and `watchEffect` for synchronizing external side effects.
+Use `watch` and `watchEffect` only to synchronize external side effects.
 
 ### Keep declaration order dependent and scannable
 

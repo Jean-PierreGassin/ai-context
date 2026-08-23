@@ -1,15 +1,15 @@
 # Go
 
-Use the Google Go Style Guide, Style Decisions, and Effective Go as the Go baseline. Read this after `clean-code.md`.
-Prefer clarity, simplicity, and explicit lifetimes. Let `gofmt` decide mechanical formatting, then use semantic
-structure to make the code read from top to bottom.
+Use the Google Go Style Guide, Style Decisions, and Effective Go as the baseline. Read this after `clean-code.md`. Use
+clear, simple code and explicit lifetimes. Let `gofmt` control mechanical formatting. Use semantic structure for a
+top-to-bottom flow.
 
 ## Always apply
 
 ### Put code in the package that owns the capability
 
-Avoid generic `util`, `common`, `helper`, or `service` packages. Package names are short, lower-case, and do not repeat
-their import path or exported names.
+Do not use generic `util`, `common`, `helper`, or `service` packages. Use short, lower-case package names. Do not repeat
+the import path or exported names.
 
 Bad:
 
@@ -25,8 +25,8 @@ internal/invoice/retry.go package invoice
 internal/invoice/issue.go package invoice
 ```
 
-Split a file around a cohesive capability, not a line count. Keep closely related types and operations together when
-separating them would force readers to jump between trivial files.
+Split a file at a capability boundary, not at a line count. Keep related types and operations together when separation
+would create trivial files.
 
 ### Use Go names in Go context
 
@@ -54,8 +54,8 @@ func (i *invoiceIssuer) InvoiceID() string {
 
 ### Accept interfaces at the consumer boundary
 
-Define a small interface in the package that consumes it when substitution or a real boundary exists. Return the
-concrete type so callers retain its complete API. Do not create an interface merely to wrap one implementation.
+Define a small interface in the consumer package when substitution or a real boundary exists. Return the concrete type
+to retain its complete API. Do not create an interface only to wrap one implementation.
 
 Bad:
 

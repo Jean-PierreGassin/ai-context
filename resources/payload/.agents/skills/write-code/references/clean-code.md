@@ -1,14 +1,14 @@
 # Clean Code
 
-Read this for every code task. It defines settled implementation preferences shared across languages. Apply the
-decision each example teaches through the target language's idioms; do not copy its neutral notation as syntax.
+Read this reference for every code task. It defines shared implementation preferences. Apply each decision through the
+target language's idioms. Do not copy the neutral notation as syntax.
 
 ## Always apply
 
 ### Put code with the capability that owns it
 
-Before adding a file, identify the capability responsible for its behavior. Avoid generic directories that collect
-unrelated work.
+Before you add a file, identify the capability that owns its behavior. Do not use generic directories for unrelated
+work.
 
 Bad:
 
@@ -31,7 +31,7 @@ Follow the repository's established architecture, but choose the specific owning
 
 ### Give each unit one reason to change
 
-Use the honest-name test. If accurately naming a unit requires joining responsibilities with “and”, find the seam.
+Use the honest-name test. If an accurate name joins responsibilities with “and”, find the seam.
 
 Bad:
 
@@ -51,12 +51,11 @@ saveInvoice(invoice):
     database.save(invoice)
 ```
 
-Do not split mechanically. Two statements that form one operation are still one responsibility.
+Do not split code mechanically. Two statements in one operation can have one responsibility.
 
 ### Keep deciding separate from acting
 
-A pure decision can be understood and tested without triggering its consequence. Let an orchestration boundary own
-the action.
+A pure decision can be understood and tested without its consequence. Put the action at an orchestration boundary.
 
 Bad:
 

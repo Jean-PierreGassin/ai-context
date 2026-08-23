@@ -28,8 +28,7 @@ func TestTotalSumsLineItems(t *testing.T) {
 }
 ```
 
-Failure messages state `got` before `want` and include enough context to diagnose the behavior without rerunning under
-a debugger.
+In failure messages, put `got` before `want`. Include enough context to diagnose the behavior without a debugger.
 
 ### Use table tests for one behavior over several cases
 
@@ -65,8 +64,7 @@ func TestRateForTier(t *testing.T) {
 }
 ```
 
-Do not force unrelated branches with different setup and assertions into one table. A table carries its weight when the
-test body is genuinely the same.
+Do not put unrelated branches in one table. Use a table when all cases use the same setup and assertions.
 
 ### Mark helpers and keep them narrow
 
@@ -97,8 +95,7 @@ func newInvoice(t *testing.T) Invoice {
 }
 ```
 
-Accept `testing.TB` only when the helper is intentionally shared with benchmarks. Register cleanup with `t.Cleanup`
-beside setup that needs it.
+Accept `testing.TB` only when benchmarks share the helper. Register `t.Cleanup` next to the related setup.
 
 ### Compare errors by contract
 

@@ -9,12 +9,12 @@ when_to_use: Triggers on requests like "write a function", "add a method", "fix 
 
 # Write Code
 
-Keep code readable, cohesive, and limited to the task.
+Write readable, cohesive code. Keep the change within the task.
 
 ## Process
 
-1. Read `references/clean-code.md`, then the [references](#references) for the languages and frameworks in scope, and
-   nothing else
+1. Read `references/clean-code.md`. Then read only the [references](#references) for the languages and frameworks in
+   scope
 2. Open the nearest equivalent capability already in the repository and match how it is arranged
 3. For each change-stack entry, write and self-review the change, reconcile discoveries into the persisted plan and
    affected later entries, obtain human approval, run the project gates, commit the approved restore point, then start
@@ -28,10 +28,9 @@ Shape the work before writing it:
 | Contained: one review objective, one coherent diff                                             | Implement it directly  |
 | Several review objectives, migration sequencing, or work that must survive a session boundary  | Use `write-plan` first |
 
-A plan that already exists is the authority on ordering: follow its change stack rather than re-deciding the split.
-On a fresh context, execute the plan's `Start here` section before writing. Confirm an agreed stack before writing.
-Assign every edit to its relevant entry. Fold review fixes into that entry's commit where rewriting is safe; a
-genuinely new review objective becomes a new entry.
+An existing plan controls the order. Do not decide the split again. On a fresh context, complete `Start here` before
+you write code. Confirm the stack before writing. Assign each edit to its entry. Fold review fixes into that entry's
+commit when rewriting is safe. Give a new review objective its own entry.
 
 When implementation or review disproves a plan assumption, update it where it belongs and propagate its consequences
 through every affected later entry before continuing. A discovery may refine implementation within the agreed
@@ -63,11 +62,10 @@ reference applies on top of its language reference.
 | Bash       | `references/bash.md`                                 |
 | Go         | `references/go.md`                                   |
 
-Each reference splits its rules in two, and the section a rule sits in is its strength:
+Each reference has two rule levels:
 
-- **Always apply** is an invariant: it holds regardless of what the surrounding code does
-- **Follow the project where it is consistent** is a preference, the default for a greenfield choice, which the project
-  displaces where it consistently does something else
+- **Always apply** is an invariant. Surrounding code does not override it
+- **Follow the project where it is consistent** is a default preference. A consistent project convention overrides it
 
 When no language reference applies, use `references/clean-code.md` through the target language's idioms. Do not load an
 unrelated language reference to manufacture rules, and do not leave a choice arbitrary when the shared reference
@@ -78,7 +76,7 @@ supplies a settled preference.
 - What the project enforces wins: formatters, linters, static analysis, CI, `.editorconfig`, framework and interface
   contracts, and conventions in committed docs. Follow it, and say so in a sentence where it overrides a reference
 - The references are settled preferences rather than observations of this repository. Neighbouring code that predates
-  one does not excuse a new violation, and a correctly applied rule is never worth reverting because the neighbours
+  one does not excuse a new violation, and a correctly applied rule is never worth reverting because the neighbors
   look different
 - When no project, plugin, or applicable reference supplies guidance, this skill's rules and preferences are the
   defaults; apply them rather than treating the absence of loaded guidance as permission to improvise
@@ -86,12 +84,12 @@ supplies a settled preference.
 
 ## Architecture
 
-Follow the architecture used by the nearest equivalent capability: Actions, DDD, service/repository, modular monolith,
-or whatever the project already uses. The references demonstrate one arrangement, and their rules hold in all of them.
+Follow the architecture of the nearest equivalent capability. This can include Actions, DDD, service/repository, or a
+modular monolith. Reference rules apply to each architecture.
 
-Before creating a class or file, inspect how the project organizes the domain and place it with the capability that owns
-its responsibility. If the project offers no usable structure, create the smallest clear domain-specific location for
-it rather than putting it in a generic `utils`, `helpers`, `services`, or `common` area.
+Before you create a class or file, inspect the domain structure. Put the new unit with the capability that owns its
+responsibility. If no usable structure exists, create the smallest clear domain location. Do not use a generic `utils`,
+`helpers`, `services`, or `common` area.
 
 Do not introduce Actions, services, repositories, DDD boundaries, or another architecture merely because a reference
 demonstrates one. Change the architecture when the user asks for it, or when the task is itself architectural.
@@ -106,7 +104,7 @@ demonstrates one. Change the architecture when the user asks for it, or when the
 ## Before reporting it done
 
 - Run the project's own gate over what you touched: formatter, linter, static analysis, and the tests covering the
-  changed behaviour. Use the project's runner (`task`, `composer`, an `npm` script, `make`) where one exists
+  changed behavior. Use the project's runner (`task`, `composer`, an `npm` script, `make`) where one exists
 - Re-read the diff against the references and fix the misses
 - Self-review every code change after writing. Audit placement, package or module cohesion, responsibility, naming,
   dependency direction, control flow, error flow, comments, and tests with tools proportionate to the change

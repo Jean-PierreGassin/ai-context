@@ -1,4 +1,6 @@
-## Structure - three colored panels, in order
+## Structure
+
+Use these three colored panels in this order:
 
 1. Bug Report panel (warning/yellow) - "Bug Report" bold + Summary sentence, numbered Steps to Reproduce, Expected vs
    Actual
@@ -9,16 +11,15 @@
 
 - Title: the observable symptom, not the mechanism. Plain hyphen separator:
   `Contact Export - CSV truncates rows for workspaces with 10k+ contacts`
-- Summary: one sentence, the observable symptom only. No diagnosis here - that belongs in Root Cause
+- Summary: use one sentence for the observable symptom. Put the diagnosis in Root Cause
 - Steps to Reproduce: numbered, the minimal path (least data/actions) that triggers the symptom
 - Expected vs Actual: one line each, stated as observable behavior, not code
-- Root Cause: name the specific function/query/condition responsible, not "there's a bug in X". If the root cause is
-  genuinely unknown at ticket-writing time, say so explicitly and file a `references/investigation.md`-style ticket
-  instead of guessing
+- Root Cause: name the responsible function, query, or condition. Do not write "there is a bug in X". If the cause is
+  unknown, state that fact and create an investigation ticket. Do not guess
 - Fix: same rules as a Task ticket's Task panel (see `references/task.md`) - inline-code class/method/table/column names,
   outcome-focused (what must be true after the fix, not the exact diff). Tests must be pinned to the specific boundary
   that was missed, not generic coverage
-- Dependencies/metadata: link the originating support/incident ticket in Root Cause, since that's where the evidence
+- Dependencies/metadata: link the originating support/incident ticket in Root Cause, because that is where the evidence
   lives. Inherit labels/severity from the incident if one exists
 
 ## Skeleton

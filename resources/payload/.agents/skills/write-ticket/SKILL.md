@@ -6,8 +6,8 @@ description: Use when writing or editing a tracker ticket, or deciding whether s
 
 # Write Ticket
 
-A ticket defines the outcome, correctness rules, and expensive-to-reverse constraints. Implementation sequencing
-belongs in `write-plan`.
+A ticket defines the outcome, correctness rules, and constraints that are expensive to reverse. `write-plan` defines
+implementation order.
 
 ## Process
 
@@ -17,34 +17,32 @@ belongs in `write-plan`.
    has already said there is no ticket. Ask only when the available evidence leaves a consequential ambiguity. Never
    invent a ticket or key
 2. Determine the type: story, bug, task, or investigation
-3. Read the matching reference and follow its panel structure and field rules exactly, without borrowing another
-   type's structure
-4. Apply the [shared principles](#shared-principles) regardless of type, in preference to how existing tickets in the
-   tracker happen to be written
+3. Read the matching reference. Follow its panel structure and field rules exactly. Do not copy another type's structure
+4. Apply the [shared principles](#shared-principles) to every type. Existing tickets do not override these principles
 5. Check the draft against the type's field rules and the shared principles before finishing
 
 ## Shared principles
 
 ### Outcome-focused, not implementation
 
-Include outcomes, correctness rules and edge cases, affected entry points, outcome-based test scenarios, and decisions
-that are expensive to reverse. Exclude algorithms, internal signatures, incidental framework mechanics, exact copy
-unless required, and implementation sequencing.
+Include outcomes, correctness rules, edge cases, affected entry points, outcome-based test scenarios, and expensive
+decisions. Exclude algorithms, internal signatures, incidental framework mechanics, and implementation order. Include
+exact copy only when it is required.
 
-Do not include code, pseudocode, diffs, or instructions written as code. Describe contracts and constraints in plain
-domain language so the ticket remains valid if the implementation changes.
+Do not include code, pseudocode, diffs, or coded instructions. Describe contracts and constraints in domain language.
+The ticket must remain valid when the implementation changes.
 
 ### Don't restate standard practice
 
 Do not restate framework or architecture practice enforced in review. Keep project-specific business rules,
 non-obvious constraints, and missable edge cases.
 
-### Write it so it can be read
+### Make it self-contained
 
-- Use domain-accurate terms, the ones the business actually uses
+- Use the business's domain terms
 - Link related tickets as hyperlinks, not plain text keys
-- Include enough context, current behaviour, desired outcome, constraints, and acceptance criteria for someone outside
-  the original conversation to review the ticket and pick it up without asking the author to reconstruct the task
+- Include the context, current behavior, desired outcome, constraints, and acceptance criteria. A new reader must be
+  able to review and start the work without reconstructing the conversation
 
 ## References
 
@@ -53,6 +51,6 @@ Each reference gives that type's panel structure, field rules, and a compact ske
 | Type          | Read                              | Use it for                                                                     |
 |---------------|-----------------------------------|--------------------------------------------------------------------------------|
 | Story         | `references/story.md`             | A new user-facing capability: the what and why, linking out to its Tasks       |
-| Bug           | `references/bug.md`               | Existing behaviour is wrong, reproducible, and root-cause-driven               |
+| Bug           | `references/bug.md`               | Existing behavior is wrong, reproducible, and root-cause-driven               |
 | Task          | `references/task.md`              | The technical how, one implementation slice, linking back to its story         |
 | Investigation | `references/investigation.md`     | An open question to answer or a decision to make, not a shippable outcome      |

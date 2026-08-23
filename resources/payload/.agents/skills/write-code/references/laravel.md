@@ -1,7 +1,7 @@
 # Laravel
 
-Follow the architecture the project already uses. Actions, services, repositories, and domain layers below name roles,
-not layers to introduce. Read this after the shared and PHP references. Project tooling owns naming conventions.
+Follow the project's architecture. Actions, services, repositories, and domain layers below identify roles. They are
+not required layers. Read this after the shared and PHP references. Project tooling controls naming conventions.
 
 ## Always apply
 
@@ -21,9 +21,9 @@ Good:
 $reference = $request->input('reference');
 ```
 
-Keep framework-defined `array` signatures. At an application entrypoint whose signature is yours, convert validated
-input into a purpose-named DTO. Follow the project's established Result contract for Action output; do not use a DTO
-merely because an operation returns data.
+Keep framework-defined `array` signatures. At an owned application entrypoint, convert validated input into a
+purpose-named DTO. Use the project's Result contract for Action output. Do not use a DTO only because an operation
+returns data.
 
 ### Make validation rules reviewable
 
@@ -66,8 +66,8 @@ Good, outside a configuration file:
 $queue = config('invoices.queue');
 ```
 
-Use `env()` only while defining configuration. Put user-facing text in language files and application values in
-configuration rather than hardcoding them at use sites.
+Use `env()` only in configuration definitions. Put user-facing text in language files. Put application values in
+configuration instead of hardcoding them at use sites.
 
 ### Keep route files declarative
 

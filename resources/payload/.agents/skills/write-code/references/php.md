@@ -1,8 +1,8 @@
 # PHP
 
-Use PER Coding Style 3.0 as the baseline PHP formatting standard unless the project enforces another standard. This
-reference does not repeat rules owned by PER or PSR; it records additional implementation preferences and examples.
-Read it after `clean-code.md`. Each pair isolates one PHP-specific decision; preserve behavior when applying it.
+Use PER Coding Style 3.0 as the PHP formatting baseline unless the project enforces another standard. This reference
+does not repeat PER or PSR rules. It contains additional implementation preferences and examples. Read it after
+`clean-code.md`. Preserve behavior when you apply each PHP-specific decision.
 
 The strict-types, named-argument, input-DTO, and explicit-assignment rules are deliberate project preferences beyond
 PER's formatting standard. Project runtime versions and enforced contracts still take precedence.
@@ -11,8 +11,8 @@ PER's formatting standard. Project runtime versions and enforced contracts still
 
 ### Declare strict types in new files
 
-Do not add strict types incidentally to an existing file. It changes scalar coercion for calls made by that file and
-belongs in a deliberate, tested migration.
+Do not add strict types incidentally to an existing file. This declaration changes scalar coercion for calls from that
+file. Add it only in a deliberate, tested migration.
 
 Bad, in a new file:
 
@@ -34,9 +34,9 @@ namespace App\Invoice;
 
 ### Make signatures and calls readable
 
-Expand long signatures and every multi-argument call. PER governs the resulting indentation, one-item-per-line layout,
-and trailing commas. Order parameters by meaning and importance, with the subject and required collaborators before
-optional configuration. At call sites, use named arguments for signatures you own, including a single argument.
+Expand long signatures and all multi-argument calls. PER controls indentation, one-item-per-line layout, and trailing
+commas. Order parameters by meaning and importance. Put the subject and required collaborators before optional
+configuration. Use named arguments for owned signatures, including calls with one argument.
 
 Bad:
 

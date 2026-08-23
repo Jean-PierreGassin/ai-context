@@ -11,22 +11,21 @@ when_to_use: Triggers on requests like "commit this", "commit these changes", "s
 
 ## Process
 
-1. Split commits by [reasoning step](#one-commit-one-reasoning-step): Run `git status`/`git diff` and group changes by
-   what each is for, not by which files they touch
-2. Find the ticket key: Extract it from the current branch name (e.g. `ABC-1234-fix-timeout` -> `ABC-1234`)
+1. Run `git status` and `git diff`. Group changes by [reasoning step](#one-commit-one-reasoning-step), not by file
+2. Extract the ticket key from the branch name, for example `ABC-1234-fix-timeout` becomes `ABC-1234`
 3. If no ticket is found, judge whether one should exist from the repository workflow, branch conventions, task size,
    tracker context, and what the user has already said. Use the no-ticket format when the work is clearly unticketed.
    Ask only when the evidence is genuinely ambiguous and the answer would change the workflow. Never invent, guess,
    or substitute a ticket key
-4. Look for a `commit-msg` hook (`.git/hooks/commit-msg`), or other message guidance/enforcement
+4. Check for `.git/hooks/commit-msg` and other enforced message rules
 5. Stage one reasoning step at a time
-6. Self-review each staged diff with the tools and depth it warrants. Fix every finding and fold the fix into the
-   reasoning step it corrects, then repeat until the review is clean
+6. Review each staged diff at the necessary depth. Fold each fix into the reasoning step it corrects. Repeat until the
+   review is clean
 7. For a change-stack entry, confirm its ignored local plan and restore context record the completed state, critical
    decisions, consequences applied to later entries, aligned `Start here` bootstraps, and the exact next action. Verify
    that no plan or restore-context path is tracked or staged
-8. Present the exact staged diff for human review and wait for explicit approval to commit it
-9. After approval, run the project's formatter, linter, static analysis, and relevant tests; stop on failure
+8. Present the exact staged diff for human review. Wait for explicit approval
+9. After approval, run the project's formatter, linter, static analysis, and relevant tests. Stop on failure
 10. If a gate or its fix changes the staged diff, approval no longer applies: self-review the revised diff, present it
    for human review, and rerun the gates after renewed approval
 11. Use the [template](#template) to structure the commit message, and the [example](#example) for guidance
@@ -36,27 +35,27 @@ when_to_use: Triggers on requests like "commit this", "commit these changes", "s
 
 ## One commit, one reasoning step
 
-A commit is a step someone can review or revert on its own. Split by what the change is for:
+A reviewer must be able to review or revert each commit independently. Split by purpose:
 
-- A mechanical edit (rename, move, formatting, generated output) is its own commit, never folded into a behavioural one
-- A refactor that changes no behaviour is its own commit, so the diff that does change behaviour stays small
+- A mechanical edit (rename, move, formatting, generated output) is its own commit, never folded into a behavioral one
+- A refactor that changes no behavior is its own commit, so the diff that does change behavior stays small
 - Where a plan defines a change stack, the commits follow it in order
 
 ## Write the intent, not the file list
 
-The subject states the commit's intent, not its files. Avoid generic summaries such as "update files" or "implement
-changes". For a behaviour-preserving commit, state that explicitly in a bullet.
+State the commit's intent, not its files. Do not use generic summaries such as "update files" or "implement changes".
+Identify behavior-preserving work in a bullet.
 
 ## Rules
 
-- Hyphen after the ticket key, no colon. This governs commit subjects you write; PR titles take a colon per the
-  write-pr skill, and where the repo squash-merges, the merged subject deliberately inherits the PR title's colon
+- Put a hyphen after the ticket key. Do not use a colon. PR titles use a colon as defined by `write-pr`. A squash merge
+  keeps the PR title's colon
 - Short description is a concise summary of the whole commit, not the first bullet restated
 - One bullet per distinct change, no trailing periods
-- If no hook/conventions are found, this format is the sane default - don't invent a different one
+- Use this format when no hook or enforced convention exists
 - An enforced convention wins on format. Where it is silent, everything here still applies on top of it: how the
   change is split into commits, what the subject says, and what each bullet carries
-- Do not use the repositories historical message format as guidance, unless it's enforced
+- Do not use historical commit messages as guidance unless the repository enforces their format
 
 ## Template
 

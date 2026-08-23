@@ -1,9 +1,8 @@
 # Persisted Plans
 
-Read this when the work has to survive something: an interruption, a context reset, a handover, or a second session.
-Persistence is the reason these files exist. A contained change that lives and dies inside one conversation does not
-need them. An implemented change stack always does: each approved commit must leave a restore point even when the user
-initially expects to finish in the same session.
+Read this reference when work must survive an interruption, context reset, handover, or second session. A contained
+change in one conversation does not need persisted files. An implemented change stack always needs them. Each approved
+commit must leave a restore point.
 
 ## What gets persisted
 
@@ -36,10 +35,9 @@ generic directions:
 - **Commands:** the working directory, discovery or baseline commands worth repeating, and the exact validation gates
 - **Begin with:** the first unchecked action that can be taken after the context is loaded
 
-Keep this executable and selective. Include information that changes implementation decisions or avoids rediscovery;
-do not inventory the repository or copy material already held by the linked files. An approved plan must not depend on
-the user supplying context already available in these sources. If a genuinely unresolved choice remains, name it and
-its impact explicitly rather than hiding it in the bootstrap.
+Keep this section executable and selective. Include information that changes implementation decisions or prevents
+rediscovery. Do not inventory the repository or copy linked material. Do not ask the user for available context. State
+each unresolved choice and its effect.
 
 Create `CONTEXT.md` when the work must survive an interruption, handover, or later session, and whenever implementing a
 change stack. It is prose, and holds what the plan file deliberately does not:
@@ -72,8 +70,7 @@ directory. Infer the repository's ignored convention rather than assuming one:
 
 ## Before creating anything
 
-Check whether planning docs for this task already exist. A second plan for the same work is worse than no plan: the two
-disagree within a day, and nobody knows which one is current. Continue the existing one, and say what changed.
+Check for an existing plan for the task. Do not create a second plan. Continue the existing plan and state what changed.
 
 ## Resuming
 

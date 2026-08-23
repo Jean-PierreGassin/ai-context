@@ -1,26 +1,25 @@
 # The Change Stack
 
-A change stack is an ordered sequence of small, independently reviewable commits, each with one review objective. Read
-this when the work is more than one such change.
+A change stack is an ordered sequence of small, independently reviewable commits. Each commit has one review objective.
+Read this reference when the work needs more than one commit.
 
 ## Record each change with
 
 - **Purpose** - the one thing this change is for, in a sentence
-- **Kind** - mechanical, structural/refactor, behavioural, contract, user-facing, or cleanup
+- **Kind** - mechanical, structural/refactor, behavioral, contract, user-facing, or cleanup
 - **Depends on** - the earlier changes that must land first, or "nothing"
-- **Reviewer focus** - what an experienced reviewer should actually scrutinise here
+- **Reviewer focus** - what an experienced reviewer should actually scrutinize here
 - **Rollback** - how this is reverted or disabled if it goes wrong, and what it takes with it
 
-Fields that add nothing for a given change can say so briefly. "Rollback: revert the commit" is a complete answer, and
-padding it out helps no one.
+Give a brief value when a field needs no detail. `Rollback: revert the commit` is a complete answer.
 
-A behavioural entry that earns every field:
+A behavioral entry that earns every field:
 
 ```markdown
 ### 3. Add partial refund eligibility rules
 
 - **Purpose** - allow refunds below the full order total when the order has shipped partially
-- **Kind** - behavioural
+- **Kind** - behavioral
 - **Depends on** - 2 (`RefundCalculator` abstraction)
 - **Reviewer focus** - the rounding and the boundary at exactly one shipped item; whether a partially refunded order
   can be refunded twice
@@ -30,29 +29,28 @@ A behavioural entry that earns every field:
 ## Order so risk arrives late and alone
 
 1. Mechanical changes (renames, moves, formatting, generated updates)
-2. Structural refactoring, with no behaviour change
+2. Structural refactoring, with no behavior change
 3. Introduce abstractions
-4. New behaviour
+4. New behavior
 5. User-facing integration
 6. Cleanup and removal
 
-Mechanical before behavioural is the load-bearing part of this order. A rename that lands on its own can be large
-without being risky, because the tests do not change; folded into a behaviour change, it hides the three lines that
-matter inside three hundred that don't.
+Put mechanical work before behavioral work. A separate rename can be large with low risk because tests do not change.
+A rename inside a behavioral change can hide the important lines.
 
 ## Rules that hold across the stack
 
 - A guard lands below the change it guards. A parity or regression capture goes in a lower change than the refactor it
-  protects, so the test is demonstrably not authored against the new behaviour
+  protects, so the test is demonstrably not authored against the new behavior
 - Pull genuinely independent fixes out of the stack entirely. If nothing depends on it, it is its own change off trunk
 - A file touched by several changes is fine in a linear stack. Say which changes share it
-- Where a change is deliberately behaviour-preserving, say so and say how it is proved (usually: the existing suite
+- Where a change is deliberately behavior-preserving, say so and say how it is proved (usually: the existing suite
   passes untouched)
 
 ## Size, as a heuristic
 
-Roughly 10 files and under 1,000 changed lines per change is where review quality tends to hold up. Treat it as a
-signal to look for a seam, not a limit to obey.
+Treat about 10 files and fewer than 1,000 changed lines as review heuristics. Use them to find a seam, not as fixed
+limits.
 
 Exceed it deliberately when splitting further would make review worse:
 
@@ -61,8 +59,7 @@ Exceed it deliberately when splitting further would make review worse:
 - A change whose parts are only meaningful together, where each half would leave the reviewer reconstructing the other
 - A framework-imposed unit, where the files must move as one for anything to run
 
-Say when you are exceeding it and why. An unexplained 2,000 line change reads as an oversight; an explained one reads
-as a decision.
+State when a change exceeds a heuristic. Give the reason.
 
 ## Validate the split before proposing it
 
@@ -75,7 +72,7 @@ as a decision.
 ## Shipping the stack
 
 Use the fewest changes that preserve one review objective each. Never create branches or PRs before the split is
-agreed. `write-pr` governs each change's description, including how it names its neighbours in the stack.
+agreed. `write-pr` governs each change's description, including how it names its neighbors in the stack.
 
 ### Reconcile implementation discoveries
 

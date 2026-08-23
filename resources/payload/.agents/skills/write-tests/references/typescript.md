@@ -1,6 +1,6 @@
 # TypeScript Test Patterns
 
-Use Vitest or Jest according to the repository. The central `write-tests` principles govern coverage and structure.
+Use Vitest or Jest as specified by the repository. The `write-tests` principles control coverage and structure.
 
 ## Parameterized cases
 
@@ -22,8 +22,8 @@ it.each([
 Assert the specific error with `expect(() => act()).toThrow(ExpectedError)`. Control clocks with the runner's fake
 timer API; never make a test wait in real time.
 
-Use `it.skip` or `test.skip` only when the environmental dependency cannot be removed now. Keep the reason and the
-condition for restoring the test beside it.
+Use `it.skip` or `test.skip` only when you cannot remove the environment dependency. Put the reason and restoration
+condition next to the test.
 
 ## Fixtures and boundaries
 

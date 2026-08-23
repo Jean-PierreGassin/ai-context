@@ -1,12 +1,13 @@
-## Structure - three colored panels, in order
+## Structure
+
+Use these three colored panels in this order:
 
 1. User Story panel (note/blue) - "User Story" bold + the user story sentence
 2. Background panel (info) - "Background" bold + context paragraphs
 3. Acceptance Criteria panel (success/green) - "Acceptance Criteria" bold + bullet list
 
-No Task panel - a user story is the what/why (business value, from the end user's perspective); the technical how
-required to build it belongs on linked Task tickets, not folded into the story. The story's third panel is Acceptance
-Criteria: testable, observable conditions that define "done" from the user's perspective, not implementation steps.
+Do not add a Task panel. A user story defines business value from the user's perspective. Put implementation details in
+linked Task tickets. Use Acceptance Criteria for observable completion conditions, not implementation steps.
 
 ## Field rules
 
@@ -25,19 +26,18 @@ Criteria: testable, observable conditions that define "done" from the user's per
 
 ## Story <-> Task linking
 
-A story is the business-value container; the technical breakdown lives in one or more linked Task tickets (see
-`references/task.md`)
+A story contains the business value. Put the technical breakdown in linked Task tickets. See `references/task.md`.
 
 - The story links out to the Task ticket(s) implementing it, via "Implemented by"
 - Each Task ticket links back to the story it implements, via its Description panel
 - When the underlying work is bigger than one Task ticket, split the technical work into thin vertical slices as
-  separate Task tickets - not a horizontal split by layer. Each slice should cut through every layer it touches so it's
-  independently implementable and testable, and later slices state what they're blocked by, both as a real link and as a
+  separate Task tickets - not a horizontal split by layer. Each slice should cut through every layer it touches so it is
+  independently implementable and testable, and later slices state what they are blocked by, both as a real link and as a
   sentence in their Background
-- A Task that is genuine shared groundwork (e.g. schema/model changes multiple later Tasks depend on) is fine as its own
-  ticket even with no independent user-facing value, since its purpose is enabling the Tasks that do
-- Where the work replaces existing behaviour or migrates a schema, API, or contract, the Tasks follow the change stack
-  (extract, abstract, add behaviour, integrate, remove) rather than a user-facing slice per ticket, and each one says
+- A Task that is genuine shared groundwork is valid as its own ticket. An example is a schema/model change that
+  supports multiple later Tasks. It does not need independent user-facing value because it enables those Tasks
+- Where the work replaces existing behavior or migrates a schema, API, or contract, the Tasks follow the change stack
+  (extract, abstract, add behavior, integrate, remove) rather than a user-facing slice per ticket, and each one says
   which it is
 - If the underlying capability is actually multiple distinct pieces of user-facing value, not just implementation
   layers, split into multiple stories instead, each with its own Acceptance Criteria and its own linked Task ticket(s)

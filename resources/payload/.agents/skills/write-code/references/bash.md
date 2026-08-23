@@ -1,11 +1,11 @@
 # Bash
 
-Use the University of Washington CSE 374 Bash Style Guide as the baseline for Bash formatting, quoting, naming, and
-control structures. Its author, student ID, and assignment headers are course requirements, not production-code style,
-so do not reproduce them. The central `write-code` rules apply alongside the shell-specific safety rules below.
+Use the University of Washington CSE 374 Bash Style Guide as the baseline. Apply its formatting, quoting, naming, and
+control-structure rules. Do not copy its course-specific author, student ID, or assignment headers. Also apply the
+central `write-code` rules and the safety rules below.
 
-The `#!/usr/bin/env bash` shebang is a portability preference and differs from guides that pin `/bin/bash`. The
-project's deployment environment and enforced interpreter path win.
+Use `#!/usr/bin/env bash` as the portability preference. The project's deployment environment and enforced interpreter
+path take precedence.
 
 ## Always apply
 
@@ -63,7 +63,7 @@ source_files=("$@")
 cp -- "${source_files[@]}" "$output_dir"
 ```
 
-Build argument lists as arrays. A quoted scalar is one argument, not a substitute for an array.
+Build argument lists as arrays. A quoted scalar supplies one argument and cannot replace an array.
 
 ### Keep command-substitution failures visible
 
