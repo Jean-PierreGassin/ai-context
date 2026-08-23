@@ -30,8 +30,9 @@ when_to_use: Triggers on requests like "commit this", "commit these changes", "s
    for human review, and rerun the gates after renewed approval
 11. Use the [template](#template) to structure the commit message, and the [example](#example) for guidance
 12. When `write-code` is executing a change stack, commit the approved entry after its gates pass, verify that its
-   persisted state can restore a fresh session, and only then begin the next one. Where the entry adjusts an earlier
-   commit and rewriting is safe, fold it into that commit; otherwise create its own commit before continuing
+   persisted state can restore a fresh session, and only then begin the next one. Do not ask for permission to continue
+   between approval, gates, and the commit, or between that commit and the next approved entry. Where the entry adjusts
+   an earlier commit and rewriting is safe, fold it into that commit; otherwise create its own commit before continuing
 
 ## One commit, one reasoning step
 

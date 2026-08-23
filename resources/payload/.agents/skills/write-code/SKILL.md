@@ -39,14 +39,18 @@ adds scope, or creates broad side effects: explain the downstream impact, offer 
 and wait for explicit approval of the revised plan.
 
 Self-review and adjust each stack entry, then update the ignored persisted plan and context with the completed state,
-critical decisions, downstream plan changes, and exact next action. Present the implementation diff for human review
-and wait for explicit approval. After approval, use `git-commit` to run the project gates and create its
-preserving commit before beginning the next entry. Verify after the commit that a fresh session can resume without
-repeating investigation or decisions, and that the next plan's `Start here` section names all required skills, files,
-commands, and its first action. Any post-approval change invalidates approval and must go through self-review, plan
-reconciliation, and human review again. Do not continue into another stack entry, or defer the stack's commits until
-all entries have been implemented. Where an entry adjusts an earlier commit and rewriting is safe, fold it into that
-commit; otherwise create its own commit before continuing.
+critical decisions, downstream plan changes, and exact next action. Send informational progress updates without
+stopping or asking for permission to continue. Stop early only for a blocker or a decision that changes the agreed
+direction. Otherwise, stop only when the complete entry has a clean implementation diff ready for human review.
+
+Wait for explicit approval of that diff. After approval, use `git-commit` to run the project gates and create its
+preserving commit without another continuation prompt. Begin the next approved entry automatically after that commit.
+Verify after the commit that a fresh session can resume without repeating investigation or decisions. Verify that the
+next plan's `Start here` section names all required skills, files, commands, and its first action. Any post-approval
+change invalidates approval and must go through self-review, plan reconciliation, and human review again. Do not
+continue into another stack entry, or defer the stack's commits until all entries have been implemented. Where an entry
+adjusts an earlier commit and rewriting is safe, fold it into that commit; otherwise create its own commit before
+continuing.
 
 ## References
 
