@@ -1,41 +1,42 @@
 # PR Body Template
 
-Fill this in. The repository's own template replaces it where one exists; the `Ticket:` line still goes at the top of
-the template's context section.
+Use this template when the repository has no template. A repository template replaces it. Put the `Ticket:` line at
+the top of the repository template's context section when a ticket exists. Omit the complete line for intentionally
+unticketed work.
 
 ```
 Ticket: [TICKET-KEY](https://tracker.example/browse/TICKET-KEY)
 
 Change Type: Feature | Bugfix | Improvement | Task | Story | Chore | Hotfix
 
-Description: [the overall behavioural or architectural change, why it matters, and the final state it establishes]
+Description: [State the overall behavioral or architectural change. State its purpose and final state.]
 
-- [Most important behaviour]
-- [Next important behaviour]
-- [The prompting bug or issue only where it adds useful supporting context]
+- [Most important behavior]
+- [Next important behavior]
+- [Add the prompting bug or issue only when it gives useful context]
 
-**Review focus:** [where the reviewer's attention is best spent, and what needs none of it]
+**Review focus:** [Identify the risk to review. Identify mechanical work that needs no detailed review.]
 ```
 
-Combined change types (`Bugfix/Improvement`, `Feature/Story`) are fine when the PR genuinely spans both.
+Use a combined change type only when the PR spans both types. Examples are `Bugfix/Improvement` and `Feature/Story`.
 
 ## Review focus
 
-One or two lines, last in the body. It points at the risk and clears the reviewer of the rest:
+Put one or two lines at the end of the body. Identify the risk. Identify work that needs no detailed review.
 
 ```
 **Review focus:** The eligibility boundary, particularly rounding on part-shipped orders. The supporting extraction is
-a pure move with no behaviour change, covered by the existing suite passing unchanged.
+a pure move with no behavior change, covered by the existing suite passing unchanged.
 ```
 
-Where the PR is one change out of a stack, name its neighbours so the reviewer knows the edges:
+For one change in a stack, name the adjacent changes. This information defines the review boundary.
 
 ```
 **Review focus:** The new pricing rules only. They have no callers yet, the earlier flag still defaults to the old
-behaviour, and the later cutover enables them.
+behavior, and the later cutover enables them.
 ```
 
-Where the change needs a way out beyond reverting, say so in the same place:
+If reverting is not sufficient, give the rollback method in the same place.
 
 ```
 **Rollback:** Restore the legacy pricing setting, no deploy and no data migration needed.
@@ -43,9 +44,8 @@ Where the change needs a way out beyond reverting, say so in the same place:
 
 ## Bug bodies
 
-Where a bug PR has both reproduction steps and a what-changed list, lead with the broader behavioural or architectural
-change. Give the supporting reproduction and change details their own bold headers so they are not mistaken for the
-main description:
+If a bug PR has reproduction steps and a change list, start with the broader behavioral or architectural change. Put
+the supporting details under separate bold headings.
 
 ```
 **Reproduction**

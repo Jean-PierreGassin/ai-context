@@ -1,12 +1,13 @@
-## Structure - three colored panels, in order
+## Structure
+
+Use these three colored panels in this order:
 
 1. Question panel (note/blue) - "Question" bold + the specific question(s) to answer
-2. Background panel (info) - "Background" bold + what prompted this and what's already known
+2. Background panel (info) - "Background" bold + what prompted this and what is already known
 3. Approach & Definition of Done panel (success/green) - "Approach & Definition of Done" bold + bullet list
 
-No Task panel with implementation bullets - an investigation produces a decision or answer, not shippable code, so
-there's nothing to hold implementation-shaped bullets. If the outcome is already known and only the "how" is undecided,
-it isn't an investigation
+Do not add a Task panel. An investigation produces a decision or answer, not shippable code. Use a Task ticket when the
+outcome is known and only the implementation is undecided.
 
 ## Field rules
 
@@ -14,7 +15,7 @@ it isn't an investigation
 - Question: one specific, answerable question. Bullet sub-questions if there are several, but keep the set narrow enough
   to close in the time-box - "look into X" is not a question
 - Background: what triggered the need for an answer now (an incident, a scaling concern, a cost review, a stakeholder
-  ask) and what's already known or already ruled out. Link related tickets
+  ask) and what is already known or ruled out. Link related tickets
 - Approach & Definition of Done: bullets naming what to look at, measure, or prototype, plus explicit exit criteria - a
   decision recorded, a recommendation written up, a follow-up story/task file
 - Dependencies/metadata: an investigation typically blocks the story/task that depends on its answer, not the other way

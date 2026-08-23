@@ -75,7 +75,8 @@ snapshot_history() {
 
 install_stub_tools() {
   mkdir -p "$fixture_root/bin"
-  printf '#!/usr/bin/env bash\nexit 0\n' >"$fixture_root/bin/gum"
+  # shellcheck disable=SC2016 # writing a script literal; $1 belongs to the generated stub
+  printf '#!/usr/bin/env bash\ncase "$1" in table|choose) cat >/dev/null ;; esac\n' >"$fixture_root/bin/gum"
   # shellcheck disable=SC2016 # writing a script literal; the expansions belong to the generated script
   printf '#!/usr/bin/env bash\nif [[ -n "${TASK_CAPTURE_PATH:-}" ]]; then printf "%%s\\n" "$*" >"$TASK_CAPTURE_PATH"; fi\n' >"$fixture_root/bin/task"
   chmod +x "$fixture_root/bin/gum"

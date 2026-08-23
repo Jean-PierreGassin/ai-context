@@ -1,6 +1,6 @@
 # PHP Test Patterns
 
-Use PHPUnit or Pest according to the repository. The central `write-tests` principles govern coverage and structure.
+Use PHPUnit or Pest as specified by the repository. The `write-tests` principles control coverage and structure.
 
 ## Parameterized cases
 
@@ -29,8 +29,8 @@ public static function tierDiscounts(): array
 Assert the specific exception. In Pest, attach `throws()` to the test declaration; in PHPUnit, call
 `expectException()` before the act.
 
-Use `markTestSkipped()` only when the environmental dependency cannot be removed now. Include the cause and what
-would make the test safe to restore.
+Use `markTestSkipped()` only when you cannot remove the environment dependency. State the cause and restoration
+condition.
 
 ## Fixtures and boundaries
 

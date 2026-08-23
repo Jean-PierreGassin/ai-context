@@ -5,13 +5,38 @@
       "id": "unsupported-language-uses-documented-defaults",
       "category": "normal",
       "prompt": "Write a small retry-policy module in Rust. This empty project has no local instructions, established conventions, or Rust reference in the loaded skills.",
-      "expected_output": "Idiomatic Rust that follows write-code's shared rules and carries applicable documented preferences across without importing another language's syntax or architecture.",
+      "expected_output": "Idiomatic Rust that loads the shared clean-code reference and applies its decisions without importing another language's syntax or architecture.",
       "expectations": [
-        "Applies write-code's guidance even though no project, plugin, or Rust-specific reference is loaded",
+        "Loads references/clean-code.md even though no Rust-specific reference exists",
         "Uses descriptive names, explicit contracts, cohesive units, and guard-style early exits where Rust supports them idiomatically",
-        "Uses sane defaults inferred from documented preferences rather than making every unspecified choice arbitrary",
+        "Uses the shared good and bad examples to make organization and responsibility decisions",
         "Does not copy PHP, TypeScript, or framework-specific syntax, tooling, or architecture into the Rust module",
         "Does not load unrelated language references solely because the target language lacks one"
+      ]
+    },
+    {
+      "id": "shared-clean-code-reference-always-loads",
+      "category": "composition",
+      "prompt": "Add one endpoint in this established project. A language-specific write-code reference exists for it.",
+      "expected_output": "The shared clean-code reference is loaded before the applicable language reference and both shape the implementation.",
+      "expectations": [
+        "Loads references/clean-code.md before the language reference",
+        "Uses shared guidance for placement, cohesion, responsibility, naming, control flow, and comments",
+        "Uses the language reference only for language-specific decisions",
+        "Does not treat the presence of a language reference as replacing the shared preferences"
+      ]
+    },
+    {
+      "id": "self-review-audits-code-organization",
+      "category": "regression",
+      "prompt": "The implementation is written. Review it before showing me the diff.",
+      "expected_output": "A structured self-review checks organization and readability as well as correctness before human review.",
+      "expectations": [
+        "Audits whether new files belong to the capability that owns them",
+        "Audits package or module cohesion and each unit's responsibility",
+        "Audits names, dependency direction, control flow, error flow, comments, and tests",
+        "Fixes every finding in the current change before presenting it",
+        "Uses review depth proportionate to the implementation rather than applying a wording-only checklist"
       ]
     },
     {
@@ -197,6 +222,18 @@
       ]
     },
     {
+      "id": "shared-layout-does-not-pad-for-alignment",
+      "category": "normal",
+      "prompt": "Clean up these declarations in a language without a dedicated write-code reference. The assignments and object keys have extra spaces so their separators line up vertically.",
+      "expected_output": "Ordinary language spacing without manual alignment padding.",
+      "expectations": [
+        "Removes padding added only to align assignments or keys vertically",
+        "Uses the language formatter or ordinary single spacing for mechanical layout",
+        "Preserves semantic blank lines between unrelated logical phases",
+        "Does not collapse distinct phases into one dense block"
+      ]
+    },
+    {
       "id": "php-parameters-and-conditional-flow",
       "category": "normal",
       "prompt": "Refactor this PHP method: its optional label comes before the required subject, a ternary supplies a default, and a switch selects the delivery mode.",
@@ -206,6 +243,42 @@
         "Places required parameters before optional parameters",
         "Uses null coalescing rather than a ternary for the default",
         "Uses guard clauses for conditional flow and match for value selection"
+      ]
+    },
+    {
+      "id": "php-enables-strict-api-comparison",
+      "category": "normal",
+      "prompt": "Check whether the string 'first' exists in a PHP array of elements, then find an invoice ID in an array of IDs.",
+      "expected_output": "Strict in_array and array_search calls that cannot match values through loose coercion.",
+      "expectations": [
+        "Passes true for the strict argument to in_array",
+        "Passes true for the strict argument to array_search",
+        "Uses named arguments where the PHP signature and project runtime support them",
+        "Does not rely on loose equality or implicit coercion"
+      ]
+    },
+    {
+      "id": "php-domain-data-uses-explicit-types",
+      "category": "normal",
+      "prompt": "Implement a PHP Action we own that accepts nested keyed invoice input and must return success or failure with optional invoice data.",
+      "expected_output": "A purpose-named input DTO and the project's Result pattern for the Action outcome.",
+      "expectations": [
+        "Replaces the keyed input shape with a purpose-named DTO because the signature is owned",
+        "Returns a purpose-named Result that represents success, failure, and optional returned data",
+        "Does not use a DTO merely because the Action returns data",
+        "Does not rewrite a framework-defined array signature that the method must implement"
+      ]
+    },
+    {
+      "id": "php-exception-translation-retains-cause",
+      "category": "regression",
+      "prompt": "Translate a GatewayUnavailable exception into the domain's PaymentFailed exception in PHP.",
+      "expected_output": "A narrow catch and domain exception that retains the infrastructure exception as its previous cause.",
+      "expectations": [
+        "Catches the narrow infrastructure exception rather than Throwable",
+        "Throws the purpose-named domain exception rather than a generic Exception",
+        "Passes the caught exception as previous when constructing the domain exception",
+        "Does not both log and rethrow the same failure at this boundary"
       ]
     },
     {
@@ -257,15 +330,15 @@
       ]
     },
     {
-      "id": "laravel-data-transfer-follows-project-contracts",
+      "id": "laravel-data-transfer-respects-framework-contracts",
       "category": "project-precedence",
-      "prompt": "Add a Laravel write endpoint in a project that consistently passes validated arrays into its application layer and does not use DTOs.",
-      "expected_output": "An endpoint using the project's established validated-array contract without introducing a DTO boundary.",
+      "prompt": "Add a Laravel write endpoint whose framework interface requires an array, then pass its validated input into an application Action whose signature we own.",
+      "expected_output": "The required framework array signature at the edge, converted into a purpose-named DTO for the owned Action input.",
       "expectations": [
-        "Preserves the application's established data-transfer contract",
-        "Does not add a DTO accessor to the FormRequest",
-        "Does not introduce new payload or collection types solely because Laravel is in scope",
-        "Still respects framework-defined signatures and the project's enforced type checks"
+        "Preserves the framework-defined array signature",
+        "Converts validated input into a purpose-named DTO at the owned application entrypoint",
+        "Does not use a DTO as the Action return type merely because it returns data",
+        "Uses the established Result pattern when the Action must represent success or failure with data"
       ]
     },
     {
@@ -293,14 +366,188 @@
       ]
     },
     {
+      "id": "laravel-related-writes-share-transaction-boundary",
+      "category": "regression",
+      "prompt": "Issuing an invoice saves it and records its ledger entry through two repositories. Both writes must succeed or fail together.",
+      "expected_output": "One DB transaction at the established orchestration layer around both repository calls.",
+      "expectations": [
+        "Places one transaction around the complete business operation",
+        "Keeps the transaction in the layer that orchestrates both writes",
+        "Does not put independent partial transactions inside each repository",
+        "Keeps business decisions out of the persistence repositories"
+      ]
+    },
+    {
+      "id": "laravel-resource-uses-conditional-field-apis",
+      "category": "normal",
+      "prompt": "Return a Laravel API resource whose customer relation is optional and whose reference field may be null.",
+      "expected_output": "A JsonResource using whenLoaded for the relation and whenNotNull for the nullable field.",
+      "expectations": [
+        "Uses a JsonResource rather than returning a model or raw response array from the controller",
+        "Uses whenLoaded for the optional customer relation",
+        "Uses whenNotNull for the nullable reference",
+        "Does not mutate the resource array through conditional branches"
+      ]
+    },
+    {
+      "id": "typescript-narrows-instead-of-asserting",
+      "category": "normal",
+      "prompt": "Handle a browser input event in TypeScript and save the target value. The event target is not statically known to be an input.",
+      "expected_output": "An instanceof guard that narrows the event target before its value is used.",
+      "expectations": [
+        "Narrows event.target with instanceof HTMLInputElement",
+        "Returns or otherwise handles the non-input case explicitly",
+        "Does not assert event.target with as HTMLInputElement",
+        "Does not coerce the value defensively after it has been narrowed"
+      ]
+    },
+    {
+      "id": "typescript-variant-dispatch-is-exhaustive",
+      "category": "regression",
+      "prompt": "Map every member of a closed TypeScript invoice-status union to its handler.",
+      "expected_output": "One as-const literal definition and a Record keyed by the derived discriminant union.",
+      "expectations": [
+        "Defines each variant literal once in an as-const value map",
+        "Derives the discriminant union from the value map",
+        "Uses Record keyed by the union so missing handlers are a type error",
+        "Does not duplicate literals across a union, comparisons, and dispatch table"
+      ]
+    },
+    {
+      "id": "vue-derived-state-does-not-use-watch",
+      "category": "normal",
+      "prompt": "In a Vue component, keep an invoice total updated from a reactive list of line items.",
+      "expected_output": "A computed value derived directly from the reactive line items.",
+      "expectations": [
+        "Uses computed for the invoice total",
+        "Does not copy derived state into a ref",
+        "Does not use watch or watchEffect to update other reactive state",
+        "Keeps watch APIs available for external side-effect synchronization"
+      ]
+    },
+    {
+      "id": "configuration-categories-use-section-banners",
+      "category": "normal",
+      "prompt": "Create a new comment-capable configuration file with logging, cache, and queue settings. The repository has no existing banner convention.",
+      "expected_output": "Configuration grouped by category under compact three-line section banners.",
+      "expectations": [
+        "Groups logging, cache, and queue entries into distinct sections",
+        "Uses a three-line hash banner for each category",
+        "Keeps entries belonging to one category together",
+        "Does not apply comment syntax to a format that forbids comments"
+      ]
+    },
+    {
+      "id": "bash-command-substitution-preserves-status",
+      "category": "regression",
+      "prompt": "In a Bash function, assign the output of git rev-parse to a local repository_root and stop if git fails.",
+      "expected_output": "A separate local declaration and assignment whose status remains the command substitution's status.",
+      "expectations": [
+        "Declares repository_root separately from the command substitution",
+        "Assigns the command substitution in a command whose status can fail",
+        "Handles or propagates the git failure",
+        "Does not mask failure with local, readonly, declare, or export"
+      ]
+    },
+    {
+      "id": "bash-filenames-remain-nul-delimited",
+      "category": "normal",
+      "prompt": "Run a Bash function for every file below a directory, including names with spaces and newlines.",
+      "expected_output": "A NUL-delimited find loop using read -r -d with quoted expansions.",
+      "expectations": [
+        "Uses find with -print0",
+        "Reads with IFS= read -r -d ''",
+        "Quotes the filename passed to the function",
+        "Does not parse ls or iterate over command-substitution text"
+      ]
+    },
+    {
+      "id": "bash-follows-language-naming-and-string-tests",
+      "category": "normal",
+      "prompt": "Add a Bash function with a local output directory, an exported cache directory, a force option flag, and a guard for an empty label.",
+      "expected_output": "CSE 374-style Bash names and an explicit -z string test without artificial boolean naming.",
+      "expectations": [
+        "Uses snake_case for the function and local variable",
+        "Uses ALL_CAPS for the exported environment variable",
+        "Allows the option-state variable to be named force",
+        "Checks the empty label with quoted expansion and -z inside double brackets"
+      ]
+    },
+    {
+      "id": "go-semantic-whitespace-keeps-error-guard-attached",
+      "category": "normal",
+      "prompt": "Format a Go function that loads a customer, checks that error, creates an invoice, checks that error, saves it, and returns it.",
+      "expected_output": "Operation and error guards kept together, with one blank line between unrelated phases.",
+      "expectations": [
+        "Keeps each operation directly beside the guard checking its error",
+        "Separates loading, creation, persistence, and final return into semantic paragraphs",
+        "Does not insert a blank line between an operation and its error guard",
+        "Does not add a blank line after every guard mechanically"
+      ]
+    },
+    {
+      "id": "go-interface-belongs-to-consumer",
+      "category": "regression",
+      "prompt": "A Go invoice package can consume either the production Postgres store or a runtime-selected in-memory store. Add the abstraction at their boundary.",
+      "expected_output": "A narrow interface in the consuming invoice package, while constructors return concrete implementations.",
+      "expectations": [
+        "Defines the narrow interface in the consuming package",
+        "Includes only methods the consumer uses",
+        "Keeps the implementation constructor's return type concrete",
+        "Does not create a pointer to an interface or an interface in the provider package"
+      ]
+    },
+    {
+      "id": "go-error-wrapping-is-api-design",
+      "category": "normal",
+      "prompt": "Add context to a Go storage error. Callers may classify the underlying not-found error, but implementation errors at the HTTP boundary must remain hidden.",
+      "expected_output": "Percent-w wrapping where classification is supported and non-wrapping context at the encapsulation boundary.",
+      "expectations": [
+        "Wraps with %w where callers intentionally use errors.Is or errors.As",
+        "Does not expose an implementation error through %w at the HTTP boundary",
+        "Uses lower-case operation-focused error text without trailing punctuation",
+        "Handles each error once rather than logging and returning it"
+      ]
+    },
+    {
+      "id": "go-goroutine-has-owner-and-stop-condition",
+      "category": "regression",
+      "prompt": "Start a long-running Go processor in the background and make shutdown reliable.",
+      "expected_output": "A caller-owned goroutine tied to context cancellation and explicitly awaited.",
+      "expectations": [
+        "Provides a cancellation or completion condition",
+        "Keeps ownership of waiting for the goroutine explicit",
+        "Propagates context into blocking work",
+        "Does not launch fire-and-forget work or use context.Background inside the component"
+      ]
+    },
+    {
+      "id": "go-naming-overrides-generic-shapes",
+      "category": "normal",
+      "prompt": "Implement a Go accessor for an invoice ID, a validity predicate, and a method receiver. Keep the code compatible with gofmt.",
+      "expected_output": "Idiomatic Go names such as InvoiceID, Valid, and a short receiver, with only gofmt-produced alignment.",
+      "expectations": [
+        "Preserves ID as a Go initialism",
+        "Omits the Get prefix from the accessor",
+        "Allows Valid rather than mechanically requiring IsValid",
+        "Uses a short consistent receiver name and does not hand-pad declarations"
+      ]
+    },
+    {
       "id": "commits-each-reviewed-stack-entry-before-continuing",
       "category": "regression",
       "prompt": "Implement the approved three-entry change stack. Review each entry as you go.",
-      "expected_output": "Each entry is reviewed and adjusted while uncommitted, then committed before implementation begins on the next entry.",
+      "expected_output": "Each entry is self-reviewed, approved by a human, gated, and committed before implementation begins on the next entry.",
       "expectations": [
         "Implements only one stack entry at a time",
-        "Reviews and fixes the current entry before committing it",
-        "Commits the clean entry before beginning the next entry",
+        "Self-reviews and fixes the current entry before presenting it for human review",
+        "Reconciles implementation and review discoveries into the current and affected later plans",
+        "Updates an ignored restore context with settled decisions and the exact next action before review",
+        "Keeps each affected plan's context bootstrap aligned with the revised skills, files, commands, and next action",
+        "Waits for explicit human approval before running the project gates",
+        "Commits the approved entry after its gates pass and before beginning the next entry",
+        "Verifies that the local checkpoint matches the commit and can resume in a fresh session",
+        "Returns for renewed human review if anything changes after approval",
         "Does not defer all commits until the complete stack has been implemented",
         "Folds an adjustment into its earlier commit when rewriting is safe"
       ]

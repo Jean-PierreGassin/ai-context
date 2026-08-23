@@ -12,45 +12,43 @@ when_to_use: Triggers on requests like "write a test for this", "add test covera
 
 # Write Tests
 
-A test earns its place by failing when the behaviour breaks. Coverage is measured against the implementation's
-branches, edge cases, and error paths, not against whether the tests you wrote pass.
+A useful test fails when the behavior breaks. Measure coverage against branches, edge cases, and error paths. Passing
+new tests alone does not prove sufficient coverage.
 
-Where production code changes in the same task, compose with `write-code`: it governs the implementation, this governs
-the tests that prove it.
+Load `write-code` when the task changes production code. It governs implementation. This skill governs its tests.
 
 ## Process
 
 1. Read the [reference](#references) for the language in scope
 2. Find the existing test covering the nearest equivalent change and copy its shape
-3. List the branches, edges, and error paths the implementation actually has, then write one test per meaningful
-   outcome
-4. Re-read the tests against the principles below and cut what is not carrying weight
+3. List the implementation's branches, edge cases, and error paths. Write one test for each meaningful outcome
+4. Check the tests against these principles. Remove tests that do not prove useful behavior
 
 ## Principles
 
-- Cover each meaningful branch, edge case, and error path once. Order cases from the primary success path through
-  alternatives and boundaries to failures, following repository convention where it is consistent
-- Assert observable outcomes and business rules, not internal calls, private state, or implementation details. A test
-  that breaks under a behaviour-preserving refactor was testing the wrong thing
+- Cover each meaningful branch, edge case, and error path once. Order cases from success through alternatives and
+  boundaries to failures. Follow repository convention when it is consistent
+- Assert observable outcomes and business rules. Do not assert internal calls, private state, or implementation
+  details. A behavior-preserving refactor must not break the test
 - Test your own code. Language and framework internals, trivial getters and setters, and branches someone else's suite
   already covers are not yours to test
 - Follow the testing pyramid: unit tests first, feature and integration tests for component interactions, end-to-end
   tests for critical user journeys only
-- Be succinct: minimal arrange, one clear act, a focused assert. Mock only what crosses a real boundary, and construct
-  real value objects rather than mocking them
+- Use minimal setup, one clear action, and focused assertions. Mock only real boundaries. Construct real value objects.
+  Do not mock them
 - Parameterize with data providers or table cases rather than writing near-duplicate methods that differ only in input
   and expected value
-- Name the behaviour, not the method: the name should say what must be true, so a failure reads as a statement about
+- Name the behavior, not the method: the name should say what must be true, so a failure reads as a statement about
   the system
-- Keep flaky or environment-dependent tests visible. Fix the dependency, or skip the test with the reason and the
-  condition for restoring it; never delete or comment it out to make the suite pass
+- Keep flaky or environment-dependent tests visible. Fix the dependency or skip the test. Record the reason and the
+  condition for restoration. Do not delete or comment out the test to make the suite pass
 - Load complex fixture data through a named helper. Reject tautological assertions that only prove a stub returned its
   configured value
 
 ## Follow the repository's shape
 
-Never introduce a test style the repository has no precedent for. Where the change cannot be expressed in the existing
-shape, say so and let the existing suite be the gate rather than inventing a mechanism.
+Do not introduce a test style with no repository precedent. If the current shape cannot express the change, say so.
+Use the existing suite as the gate instead of inventing a mechanism.
 
 This governs whether a *new kind* of test is warranted. It does not govern whether to add coverage where a suite
 already exists: add it, in the shape that is already there.
@@ -66,3 +64,4 @@ Read only the language in scope. References contain syntax-specific patterns tha
 |------------|----------------------------|---------------|
 | PHP        | `references/php.md`        | PHPUnit, Pest |
 | TypeScript | `references/typescript.md` | Vitest, Jest  |
+| Go         | `references/go.md`         | testing       |

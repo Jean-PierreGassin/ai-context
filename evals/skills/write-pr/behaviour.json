@@ -2,9 +2,22 @@
   "skill_name": "write-pr",
   "evals": [
     {
+      "id": "pr-uses-asd-ste100-style",
+      "category": "regression",
+      "prompt": "Write this PR title and body in ASD-STE100. Preserve the ticket key, commands, URLs, and repository template labels.",
+      "expected_output": "A concise PR draft that applies ASD-STE100 principles and preserves exact technical terms.",
+      "expectations": [
+        "Uses short active sentences",
+        "Keeps one topic or instruction in each sentence",
+        "Uses consistent terms and avoids ambiguous pronouns and dense noun groups",
+        "Preserves exact ticket keys, commands, URLs, identifiers, and template labels",
+        "Does not claim verified ASD-STE100 compliance without full validation"
+      ]
+    },
+    {
       "id": "complete-feature-pr",
       "category": "normal",
-      "prompt": "Open the PR for this branch. It adds scheduled report exports: a schedule on a saved report, a queued run, and a control on the reports page.",
+      "prompt": "Open the PR for ticket ABC-123 on branch ABC-123-scheduled-report-exports. It adds a schedule on a saved report, a queued run, and a control on the reports page. The ticket URL is https://tracker.example/browse/ABC-123.",
       "expected_output": "A body with the ticket line, change type, a why-and-approach intro, grouped bullets, and a review focus.",
       "expectations": [
         "Puts a linked ticket line at the top of the body",
@@ -20,7 +33,7 @@
       "id": "title-is-concise-outcome-focused-and-scoped",
       "category": "regression",
       "prompt": "Title this PR. It adds retry handling for failed webhooks.",
-      "expected_output": "A ticket-prefixed title such as Add retry handling for failed webhooks, not a generic description of changed code.",
+      "expected_output": "A concise outcome title such as Add retry handling for failed webhooks, prefixed by a ticket only when one exists.",
       "expectations": [
         "Uses a concise title describing the outcome",
         "Keeps the title scoped to the PR's single review objective",
@@ -79,6 +92,18 @@
       ]
     },
     {
+      "id": "intentional-no-ticket-pr-does-not-prompt",
+      "category": "proportionality",
+      "prompt": "Open this PR from improvement/clean-installer-output. It is a personal repository with no tracker or ticket convention.",
+      "expected_output": "An unticketed PR title and body without a ticket prompt or placeholder.",
+      "expectations": [
+        "Judges from explicit repository context that the PR is intentionally unticketed",
+        "Omits a ticket prefix from the title",
+        "Omits a placeholder ticket line from the body",
+        "Does not ask for or invent a ticket key"
+      ]
+    },
+    {
       "id": "no-session-narration",
       "category": "counterexample",
       "prompt": "Write the PR body. I asked you to leave two of the settings out because they are machine-specific, so mention that.",
@@ -94,7 +119,7 @@
     {
       "id": "project-template-wins",
       "category": "project-precedence",
-      "prompt": "Open the PR. The repository has its own pull request template, with its own headings including a Testing one.",
+      "prompt": "Open the PR for ticket ABC-123. The repository has its own pull request template, with its own headings including a Testing one.",
       "expected_output": "The repository's template filled in, with the ticket line inside its context section.",
       "expectations": [
         "Uses the repository template's headings and vocabulary rather than the skill's own",
