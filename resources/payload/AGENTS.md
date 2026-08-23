@@ -27,6 +27,8 @@
   see [write-plan](.agents/skills/write-plan)
 - Before starting work, use a worktree when the task would otherwise block the working tree; see
   [use-worktrees](.agents/skills/use-worktrees)
+- Keep an ordered change stack in one worktree, including when its entries use dependent branches. Use separate
+  worktrees only for independent tracks that run concurrently
 - Branch and worktree names use the tracker's ticket key (`ABC-1234` or `ABC-1234-slug`), otherwise
   `{type}/title-of-changes-summarized` (e.g. `fix/changes-summarized`)
 - After every code change, self-review the diff using the tools and depth the change warrants, fix every finding, and
