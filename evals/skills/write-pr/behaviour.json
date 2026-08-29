@@ -18,26 +18,25 @@
       "id": "complete-feature-pr",
       "category": "normal",
       "prompt": "Open the PR for ticket ABC-123 on branch ABC-123-scheduled-report-exports. It adds a schedule on a saved report, a queued run, and a control on the reports page. The ticket URL is https://tracker.example/browse/ABC-123.",
-      "expected_output": "A body with the ticket line, change type, a why-and-approach intro, grouped bullets, and a review focus.",
+      "expected_output": "A proposed title and main context shown for approval before the repository template is assembled and the PR is opened.",
       "expectations": [
-        "Puts a linked ticket line at the top of the body",
-        "Titles it with the ticket key, a colon, and a concise sentence-case outcome",
-        "Opens with why the feature exists rather than restating the diff",
-        "Groups the bullets by surface, ordered by importance",
-        "Offers or includes a screenshot, because part of the change is visible",
-        "Ends with a review focus naming the part that carries risk",
-        "Uses natural domain language without class, method, column, or file references"
+        "Shows the exact proposed title and main context before opening the PR",
+        "Shows the target branch",
+        "Asks Draft or Ready for review unless the state is already specified",
+        "Waits for explicit approval before opening the PR",
+        "After approval, puts the linked ticket line in the repository template",
+        "Keeps the main context centered on the exact review boundary rather than listing files"
       ]
     },
     {
       "id": "title-is-concise-outcome-focused-and-scoped",
       "category": "regression",
       "prompt": "Title this PR. It adds retry handling for failed webhooks.",
-      "expected_output": "A concise outcome title such as Add retry handling for failed webhooks, prefixed by a ticket only when one exists.",
+      "expected_output": "A concise title describing the exact retry-handling boundary, prefixed by a ticket only when one exists.",
       "expectations": [
-        "Uses a concise title describing the outcome",
+        "Uses a concise title describing the bounded change",
         "Keeps the title scoped to the PR's single review objective",
-        "Uses domain language rather than implementation or file names",
+        "Uses domain language rather than file names",
         "Does not use a generic title such as Changes to webhook code"
       ]
     },
@@ -45,88 +44,89 @@
       "id": "bug-pr-with-reproduction",
       "category": "normal",
       "prompt": "Open the PR for the export truncation fix. The export reused the list view's query, so it inherited the page size.",
-      "expected_output": "A body with numbered reproduction steps under their own header, followed by what changed and a review focus.",
+      "expected_output": "The exact title and main context are proposed first; after approval, reproduction steps and supporting details follow the approved context.",
       "expectations": [
-        "Leads with the overall behavioural or architectural change rather than the truncation symptom",
-        "Uses numbered reproduction steps, under their own header where a what-changed list follows",
+        "Leads the proposal with the bounded export fix rather than debugging chronology",
         "States the established mechanism rather than narrating a guess at it",
-        "Includes a link to the evidence that the defect exists, where one is available",
-        "Says what each change buys, not only that it was made",
-        "Points the review focus at the riskiest part rather than the one-line fix"
+        "Uses numbered reproduction steps after the approved main context where the final template needs them",
+        "Includes a link to evidence where one is available",
+        "Waits for title, context, and review-state approval before opening"
       ]
     },
     {
       "id": "prompting-issue-is-supporting-context",
       "category": "counterexample",
-      "prompt": "Write the PR body. A duplicate webhook incident prompted the work, but the branch introduces durable idempotent webhook processing across every delivery path.",
-      "expected_output": "A body led by the idempotent processing architecture, with the duplicate incident included only as supporting context.",
+      "prompt": "Write the PR body. A duplicate webhook incident prompted the work, but this small PR only adds the idempotency key to the delivery record; later PRs will use it.",
+      "expected_output": "Context centered on adding the idempotency key, with the incident only supporting why that checkpoint exists.",
       "expectations": [
-        "Opens with the overall idempotent processing behavior and architecture",
-        "Describes the durable final state across delivery paths",
-        "Uses the duplicate incident only to support why the change was needed",
-        "Does not frame the PR primarily as a fix for one incident"
+        "Names the exact checkpoint this PR establishes",
+        "Does not claim durable idempotent processing is already complete",
+        "Uses the duplicate incident only as supporting context",
+        "States what later work this checkpoint enables"
       ]
     },
     {
       "id": "stacked-mechanical-pr",
       "category": "normal",
       "prompt": "Open the PR for the extraction. It is a pure move, and it is the first of five changes.",
-      "expected_output": "A body that says what is mechanical, shows how that was established, and names the neighbouring changes.",
+      "expected_output": "A proposal whose title and context describe only the extraction, followed by the approval gate.",
       "expectations": [
-        "States that the diff is a move with no behaviour change",
-        "Backs the claim, rather than only asserting it",
-        "Names what landed before and what depends on it, so the reviewer knows what they are not judging",
-        "Uses the repository or provider's stacked-PR tooling rather than representing the stack only in prose",
-        "Calls out any part that is not a pure move",
-        "Does not ask the reviewer to scrutinise the mechanical part"
+        "States that the diff is a move with no behavior change",
+        "Backs the claim rather than only asserting it",
+        "Names what this extraction enables next when useful",
+        "Uses the repository or provider's stacked-PR base relationships",
+        "Does not ask the reviewer to judge later stack changes in this PR",
+        "Waits for approval before opening"
       ]
     },
     {
       "id": "ticket-link-goes-in-the-body",
       "category": "regression",
       "prompt": "Write the PR body for ABC-123. The title already contains ABC-123, so leave out its tracker link at https://tracker.example/browse/ABC-123.",
-      "expected_output": "A ticket line in the body anyway, with the reason.",
+      "expected_output": "The approved context remains unchanged and the ticket link is still added to the template mechanically.",
       "expectations": [
         "Includes the ticket line at the top of the body, or of the template's context section",
-        "Does not omit the link on the strength of the title carrying the key"
+        "Does not omit the link on the strength of the title carrying the key",
+        "Does not rewrite the approved main context to insert the ticket"
       ]
     },
     {
       "id": "intentional-no-ticket-pr-does-not-prompt",
       "category": "proportionality",
-      "prompt": "Open this PR from improvement/clean-installer-output. It is a personal repository with no tracker or ticket convention.",
-      "expected_output": "An unticketed PR title and body without a ticket prompt or placeholder.",
+      "prompt": "Open this PR from improvement/clean-installer-output. It is a personal repository with no tracker or ticket convention. Open it as a draft.",
+      "expected_output": "An unticketed Draft proposal with title and main context shown for approval, without a ticket prompt or placeholder.",
       "expectations": [
         "Judges from explicit repository context that the PR is intentionally unticketed",
         "Omits a ticket prefix from the title",
         "Omits a placeholder ticket line from the body",
-        "Does not ask for or invent a ticket key"
+        "Uses the already specified Draft state without asking again",
+        "Still waits for approval of the title and main context before opening"
       ]
     },
     {
       "id": "no-session-narration",
       "category": "counterexample",
       "prompt": "Write the PR body. I asked you to leave two of the settings out because they are machine-specific, so mention that.",
-      "expected_output": "A body describing the final state, with the session's decisions left out.",
+      "expected_output": "A body describing the exact resulting state, with the session's decisions left out.",
       "expectations": [
-        "Describes what the change now contains, not what was considered and dropped",
+        "Describes what the bounded change contains, not what was considered and dropped",
         "Omits any deliberately-out-of-scope section",
         "Appends no assistant session link",
         "Says nothing about how the change was arrived at during the session",
-        "Offers to put the omissions in the ticket or a comment if they matter"
+        "Offers to put omissions in the ticket or an approved comment if they matter"
       ]
     },
     {
       "id": "project-template-wins",
       "category": "project-precedence",
       "prompt": "Open the PR for ticket ABC-123. The repository has its own pull request template, with its own headings including a Testing one.",
-      "expected_output": "The repository's template filled in, with the ticket line inside its context section.",
+      "expected_output": "The title and main context are approved first, then the repository template is filled without regenerating the approved context.",
       "expectations": [
-        "Uses the repository template's headings and vocabulary rather than the skill's own",
+        "Uses the repository template's headings and vocabulary rather than the fallback template",
         "Puts the ticket line in the template's context section",
-        "Writes no more than a bare acknowledgement under the forced Testing heading",
-        "Does not append the skill's own sections alongside the repository's",
-        "Does not treat previous PRs in the repository as the format to copy"
+        "Writes no more than a bare acknowledgement under a forced Testing heading",
+        "Does not append the fallback template's sections alongside the repository's",
+        "Preserves the approved main context wording"
       ]
     },
     {
@@ -150,19 +150,19 @@
         "Leaves out suite counts, coverage numbers, and how it was verified locally",
         "Keeps any evidence that the defect exists, such as a link to a failing run",
         "Says why verification does not belong in the body",
-        "Allows the review focus to cite the existing suite where that clears a mechanical section"
+        "Allows the review focus to cite existing coverage where that clears a mechanical section"
       ]
     },
     {
       "id": "raises-a-split-before-opening",
       "category": "composition",
       "prompt": "Open one PR for the branch. It has a rename, a new abstraction, new rules, an API change, and a migration.",
-      "expected_output": "A split offered before opening, and the single PR opened with a risk-pointing review focus if the user still wants one.",
+      "expected_output": "A split is proposed before any PR proposal, and a mixed PR is only prepared if the user keeps that scope.",
       "expectations": [
         "Names the several review objectives the single PR would carry",
-        "Offers a concrete split, deferring the decomposition detail to write-plan",
-        "Opens the single PR if the user confirms, rather than refusing",
-        "Uses the review focus to point at the parts carrying the risk in that case"
+        "Offers a concrete split, deferring decomposition detail to write-plan",
+        "Continues with one PR if the user explicitly keeps that scope",
+        "Still shows the title, main context, target, and Draft/Ready state for approval before opening"
       ]
     },
     {
@@ -175,6 +175,55 @@
         "Puts the rollback with the review focus at the end of the body",
         "Writes no rollback line where reverting the commit is the whole answer",
         "Says what the rollback does and does not take with it"
+      ]
+    },
+    {
+      "id": "title-does-not-broaden-component-migration",
+      "category": "regression",
+      "prompt": "This PR only migrates Platform A's API client to the shared client. Other Platform A call sites remain on the legacy path. Title it.",
+      "expected_output": "Migrate Platform A API client to shared client",
+      "expectations": [
+        "Names the API client as the exact review boundary",
+        "Does not say Platform A requests are migrated generally",
+        "Does not say Platform A is standardized on the shared client",
+        "Keeps the title concise"
+      ]
+    },
+    {
+      "id": "bug-title-names-useful-fix-and-cause",
+      "category": "regression",
+      "prompt": "The project fails to boot because Node.js v2.2.2 is unavailable. The change selects the supported release. Title the PR.",
+      "expected_output": "Fix project boot failures caused by Node.js v2.2.2",
+      "expectations": [
+        "Leads with the useful behavior being restored",
+        "Includes the established cause",
+        "Does not title the PR as removing or updating configuration",
+        "Does not narrate the debugging process"
+      ]
+    },
+    {
+      "id": "approval-gate-precedes-open",
+      "category": "regression",
+      "prompt": "Open a PR for this completed branch. I have not seen the title or body yet and I did not say draft or ready.",
+      "expected_output": "The exact title, main context, and target are shown, and the user is asked Draft or Ready before any PR is opened.",
+      "expectations": [
+        "Shows the exact proposed title",
+        "Shows the exact main context that will be injected into the template",
+        "Shows the target branch",
+        "Asks Draft or Ready for review",
+        "Does not open the PR before explicit approval"
+      ]
+    },
+    {
+      "id": "approved-copy-is-not-regenerated",
+      "category": "regression",
+      "prompt": "I approved the exact title and main context you showed me. Now open the draft PR using the repository template.",
+      "expected_output": "The approved wording is inserted unchanged, with only required template and mechanical fields added around it.",
+      "expectations": [
+        "Uses the approved title wording unchanged",
+        "Uses the approved main context unchanged",
+        "Adds repository-required template fields without paraphrasing the approved context",
+        "Opens the PR as Draft"
       ]
     }
   ]
