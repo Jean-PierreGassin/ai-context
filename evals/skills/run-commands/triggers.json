@@ -1,0 +1,26 @@
+[
+  {
+    "query": "Run the project tests and formatter before I push this branch",
+    "should_trigger": true
+  },
+  {
+    "query": "Create the worktree using whatever setup this project expects",
+    "should_trigger": true
+  },
+  {
+    "query": "Check the production logs for this request and see why it failed",
+    "should_trigger": true
+  },
+  {
+    "query": "Inspect the AWS resources for this service, read-only",
+    "should_trigger": true
+  },
+  {
+    "query": "Explain what a PHP interface is",
+    "should_trigger": false
+  },
+  {
+    "query": "Write a PR title for this completed change",
+    "should_trigger": false
+  }
+]

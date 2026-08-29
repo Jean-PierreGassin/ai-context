@@ -8,10 +8,10 @@ description: Use when creating, running work inside, reviewing from, or tearing 
 - Use a worktree only to keep the current tree available or isolate work that the user chose to run separately
 - Use one worktree for an ordered change stack. Switch between its dependent branches in that worktree when the stack
   uses multiple branches. Create separate worktrees only for independent tracks that will run concurrently
-- Use the project's worktree tooling when it exists. This includes setup scripts, task runners, port allocation, seeded
-  environment files, devcontainers, and container commands
-- Ask when tooling exists but you cannot find its entry point
-- Use the process below when the project has no worktree tooling
+- Load `run-commands` before running worktree or environment commands
+- Use the project's worktree operation when it exists. Let `run-commands` discover the project harness, setup scripts,
+  task runners, port allocation, seeded environment files, devcontainers, container commands, and fallback path
+- Use the process below only when the project has no worktree operation
 
 ## Process
 
@@ -19,7 +19,7 @@ description: Use when creating, running work inside, reviewing from, or tearing 
 2. Give the worktree and branch the same name
 3. Check `.worktreeinclude` or its equivalent against the files in the worktree. Copy missing required files from the
    source checkout. Do not display their contents or invent values
-4. Install dependencies inside the worktree. Use the project command, such as `composer install` or `pnpm install`
+4. Install dependencies inside the worktree through the project's established command path
 
 ## Handing a worktree back for review
 

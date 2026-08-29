@@ -23,6 +23,9 @@
 
 - Skills live in `.agents/skills`; load the matching one before starting the work, not after, including when a plugin
   or project skill is already active, whose own reading list does not replace them
+- Before running project, environment, development, operational, cloud, logging, or diagnostic commands, use
+  [run-commands](.agents/skills/run-commands). Prefer the project's established harness and internal tools over
+  lower-level commands, and prefer existing read-only operational access before asking for more access
 - Split a large change into an ordered stack of independently reviewable changes, each with one review objective;
   see [write-plan](.agents/skills/write-plan)
 - Before starting work, use a worktree when the task would otherwise block the working tree; see
