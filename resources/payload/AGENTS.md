@@ -26,25 +26,28 @@
 - Before running project, environment, development, operational, cloud, logging, or diagnostic commands, use
   [run-commands](.agents/skills/run-commands). Prefer the project's established harness and internal tools over
   lower-level commands, and prefer existing read-only operational access before asking for more access
-- Split a large change into an ordered stack of independently reviewable changes, each with one review objective;
-  see [write-plan](.agents/skills/write-plan)
-- Before starting work, use a worktree when the task would otherwise block the working tree; see
-  [use-worktrees](.agents/skills/use-worktrees)
-- Keep an ordered change stack in one worktree, including when its entries use dependent branches. Use separate
-  worktrees only for independent tracks that run concurrently
+- Split a large change into an ordered stack of very small, coherent, independently shippable and provable changes.
+  Each change has one bounded review objective and leaves the repository in a valid state; see
+  [write-plan](.agents/skills/write-plan)
+- Each stack change records the exact change, why it exists, its ship state, how it is proved, and what later work it
+  sets up. Keep adjacent work together only when separating it would make either part incomplete or misleading
+- Before editing, decide whether implementation belongs in the main checkout or a worktree; see
+  [use-worktrees](.agents/skills/use-worktrees). Persist that decision and reuse it after a context reset
+- Keep an ordered change stack in one worktree when a worktree is chosen, including when its entries use dependent
+  branches. Use separate worktrees only for independent tracks that run concurrently
 - Branch and worktree names use the tracker's ticket key (`ABC-1234` or `ABC-1234-slug`), otherwise
   `{type}/title-of-changes-summarized` (e.g. `fix/changes-summarized`)
-- Complete and self-review the current reviewable change, fix every finding, then present its clean diff for human
-  review. Progress updates are informational: do not pause for permission to continue within a change. Stop early only
-  for a blocker or a decision that changes the agreed direction. After approval, run the project gates and commit the
+- Complete and self-review the current change, fix every finding, then present its clean diff for human review.
+  Progress updates are informational: do not pause for permission to continue within a change. Stop early only for a
+  blocker or a decision that changes the agreed direction. After approval, run the project gates and commit the
   change before editing the next one. Any post-approval change requires renewed human review
 - During a stack, fold implementation and review discoveries into the appropriate plan entry and every affected later
-  entry. Push back on revisions that change the agreed direction or create broad side effects. Update the local plan
-  and restore context at each approved commit so a fresh session can resume at the exact next action
-- After each approved commit, verify the persisted plan and context can restore a fresh session to the exact next
-  action, then stop before starting the next entry
-- Start every persisted plan with the skills, ordered files, commands, and first action needed to execute it after a
-  full context reset without asking the user to provide the context again
+  entry. Push back on revisions that change the agreed direction or create broad side effects. Keep the live restore
+  context current at meaningful state transitions, not only at commits
+- After each approved commit, verify the persisted plan and context can restore a fresh session to the recorded
+  checkout or worktree, execution environment, repository state, and exact next action, then stop before the next entry
+- Start every persisted plan with the skills, ordered files, commands, environment entry point, and first action needed
+  to execute it after a full context reset without asking the user to provide the context again
 
 ## Tickets and PRs
 

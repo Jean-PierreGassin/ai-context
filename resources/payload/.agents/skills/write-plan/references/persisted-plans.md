@@ -1,24 +1,26 @@
 # Persisted Plans
 
 Read this reference when work must survive an interruption, context reset, handover, or second session. A contained
-change in one conversation does not need persisted files. An implemented change stack always needs them. Each approved
-commit must leave a restore point.
+change in one conversation does not need persisted files. An implemented change stack always needs them.
+
+Persist both the approved plan and the live execution state. A fresh session must be able to resume an in-progress
+entry without rediscovering its checkout, environment, branch state, or next action.
 
 ## What gets persisted
 
 | File         | Holds                                                                                       |
 |--------------|---------------------------------------------------------------------------------------------|
-| `PLAN.md`    | One approved change: its objective, stack position, requirements, acceptance criteria, implementation checklist, and validation |
-| `CONTEXT.md` | One stack-level restore point: what a fresh session needs in order to pick the work up       |
+| `PLAN.md`    | One approved change: its ship checkpoint, requirements, checklist, proof, and validation     |
+| `CONTEXT.md` | Stack-level live state: execution location, repository state, decisions, progress, and next action |
 
 Persist the approved Markdown directly as one `PLAN.md` per change, numbered in stack order. Keep one `CONTEXT.md` at
-the stack root. It records shared state and decisions across the stack rather than duplicating them in each change.
+the stack root.
 
 Each `PLAN.md` records:
 
 - Start here: the context-loading bootstrap described below
 - Objective
-- Stack position: purpose, kind, dependencies, reviewer focus, and rollback
+- Stack position: change, purpose, kind, dependencies, ship state, sets up, proof, reviewer focus, and rollback
 - Requirements and acceptance criteria
 - Ordered implementation checklist
 - Validation commands and expected outcomes
@@ -26,46 +28,57 @@ Each `PLAN.md` records:
 ## Start here
 
 The first section of every `PLAN.md`, immediately after its title, tells a fresh session how to load the minimum
-sufficient context and begin without asking the user to repeat anything. Record concrete paths and commands, not
-generic directions:
+sufficient context and begin without asking the user to repeat anything. Record concrete paths and commands:
 
 - **Skills to load:** every applicable skill, in load order, including the specific references needed for this change
-- **Read first:** the stack `CONTEXT.md`, the relevant earlier and current plans, and committed project instructions,
-  in order
-- **Repository context:** the source, tests, contracts, configuration, and nearest equivalent files that establish how
-  this change should be implemented, with a short reason for each
-- **Ticket context:** the ticket key and link, or the settled reason this work has no ticket. A fresh session must not
-  repeat the ticket decision unless repository or user context has materially changed
-- **Commands:** the working directory, discovery or baseline commands worth repeating, and the exact validation gates
+- **Read first:** the stack `CONTEXT.md`, the relevant earlier and current plans, and committed project instructions
+- **Repository context:** source, tests, contracts, configuration, and nearest equivalent files that change decisions
+- **Ticket context:** the settled ticket key and link, or the reason the work has no ticket
+- **Execution environment:** the recorded main checkout or worktree, working directory, and how to re-enter the project
+  harness or managed environment
+- **Commands:** discovery or baseline commands worth repeating and the exact validation gates
 - **Begin with:** the first unchecked action that can be taken after the context is loaded
 
-Keep this section executable and selective. Include information that changes implementation decisions or prevents
-rediscovery. Do not inventory the repository or copy linked material. Do not ask the user for available context. State
-each unresolved choice and its effect.
+Keep this section executable and selective. Do not inventory the repository or copy linked material.
 
-Create `CONTEXT.md` when the work must survive an interruption, handover, or later session, and whenever implementing a
-change stack. It is prose, and holds what the plan files deliberately do not:
+## Live context
 
-- Where the stack actually got to, in a sentence, and what the next action is
-- The latest completed commit for the stack
-- Decisions already made and the reasoning behind them, so they are not relitigated
-- What was tried and rejected, which is the part a fresh session is most likely to waste time rediscovering
-- The files, commands, and environment specifics that took effort to find
-- Anything the user said that constrains the approach
+Create `CONTEXT.md` whenever implementing a change stack or when work must survive a handover. Keep it current during
+implementation, not only after commits.
 
-Together, the plans and context must be sufficient for a fresh session to identify the last completed entry, the
-current repository state, settled decisions, affected downstream work, and the single next action without repeating
-earlier investigation.
+Record enough live execution state to restore the current task directly:
+
+- execution mode: main checkout or worktree
+- working directory and worktree path/name when applicable
+- branch and its immediate target
+- HEAD and the target HEAD last incorporated when known
+- current stack entry and current checklist item
+- expected uncommitted files and why they are dirty
+- project harness or managed environment and how to re-enter it
+- last formatting and validation performed, with outcomes
+- latest completed commit
+- PR number and review state when one exists
+- decisions already made and why
+- approaches tried and rejected when rediscovery would be expensive
+- user constraints that affect the approach
+- the exact next action
+
+Update the context at meaningful state transitions: after choosing an execution location, entering or changing the
+project environment, switching branches, completing a checklist item, making a consequential decision, changing the
+expected dirty set, receiving review state, or establishing a new exact next action.
+
+Do not turn the context into an activity log. Replace stale state. Preserve only the current execution state plus
+critical reasoning that a fresh session should not repeat.
 
 ## Where plans live
 
-Persisted plans are local agent-working state inside the project. Never stage or commit `PLAN.md`, `CONTEXT.md`, or
-their agent-work directory.
+Persisted plans are local Git working state shared by the repository's linked worktrees. Never stage or commit
+`PLAN.md`, `CONTEXT.md`, or their agent-work directory.
 
-Use this structure unless the repository already has an established ignored location for equivalent agent state:
+Resolve the repository's Git common directory through Git and store plans beneath it:
 
 ```text
-.ai-context/work/{type}/{ticket-or-slug}/
+$(git rev-parse --git-common-dir)/ai-context/work/{type}/{ticket-or-slug}/
 ├── CONTEXT.md
 ├── 01-{change-title}/PLAN.md
 ├── 02-{change-title}/PLAN.md
@@ -75,75 +88,64 @@ Use this structure unless the repository already has an established ignored loca
 `{type}` is `features`, `bugs`, `improvements`, or `tasks`. Derive `{ticket-or-slug}` from the branch name's ticket key
 where one exists, otherwise `{YYYY-MM-DD}-{short-description}`.
 
-Before writing:
+Resolve the common directory from the current repository instead of assuming `.git` is a directory. The common state
+is intentionally local and is visible from the main checkout and every linked worktree.
 
-1. Check whether `.ai-context/` is ignored with `git check-ignore`
-2. If it is not ignored, resolve the repository-local exclude file with `git rev-parse --git-path info/exclude`
-3. Add `/.ai-context/` to that file if the exact rule is absent
-4. Verify `.ai-context/` is ignored before creating persisted state
-
-Do not modify the committed `.gitignore` solely for agent-working state. Use the repository-local exclude so the state
-stays inside the project without changing tracked files. Resolve the exclude path through Git because linked worktrees
-may not use `.git/info/exclude` at a literal path.
-
-Before every commit, verify no `.ai-context/`, `PLAN.md`, or `CONTEXT.md` path is tracked or staged. If agent-working
-state is already tracked, keep the local files but remove them from the index before continuing.
+This location is outside the worktree index, so do not add `.gitignore` or local exclude rules for it. Before every
+commit, still verify that no plan or context path has accidentally been created, tracked, or staged inside the worktree.
 
 ## Before creating anything
 
-Check for an existing plan for the task. Do not create a second plan. Continue the existing plan and state what changed.
+Check the Git common work directory for an existing plan for the task. Do not create a second plan. Continue the
+existing plan and state what changed.
 
 ## Resuming
 
-1. Read the stack `CONTEXT.md` first, then the current `PLAN.md`. The context file says where the stack stands; the plan
-   says what this change still needs
-2. Read earlier plans only when `Start here` names them as relevant to the current change
-3. Verify the plan and context against the repository before acting on them. They record what was true when written,
-   and files move
-4. Say what you found if persisted state and the repository disagree, and update the persisted state rather than
-   working around it
+1. Locate the task under the Git common work directory and read `CONTEXT.md` first
+2. Re-enter the recorded main checkout or worktree and project environment. Do not choose a new location when a valid
+   one is already recorded
+3. Verify the recorded branch, immediate target, HEAD, working status, and expected dirty files before editing
+4. Read the current `PLAN.md`; read earlier plans only when `Start here` names them as relevant
+5. If persisted state and the repository disagree, report the difference and update the persisted state rather than
+   silently reconstructing a new workflow
+6. Continue from the recorded exact next action
+
+A fresh session should not need to search the repository to discover where the worktree is, which branch is active,
+which files are intentionally dirty, how to enter the project environment, or what to do next.
 
 ## Keeping it current
 
-- Check items off in real time as they are completed, not in a batch at the end
+- Check items off as they are completed, not in a batch at the end
 - Phases run in order. Mark a phase's items done before moving to the next
-- Where implementation or review reveals that an assumption was wrong, update the requirement, checklist item, or
-  decision where it belongs. Then trace the finding through every later plan and update its dependencies, acceptance
-  criteria, implementation, tests, validation, and rollback where affected
-- Keep each affected plan's `Start here` section aligned with those changes: add newly required skills or files, remove
-  obsolete context, and advance `Begin with` to the next unchecked action
-- Replace stale statements rather than keeping an append-only diary. Preserve only critical reasoning, rejected
-  directions that would otherwise recur, and facts a fresh session cannot cheaply recover
-- Where new work surfaces mid-task, add it to the checklist only when it is required by the agreed objective. Confirm
-  with the user before adding scope they did not ask for
-- Where the new work belongs to a different review objective, it becomes its own change in the stack rather than
-  growing the current one
-- Update the stack `CONTEXT.md` whenever a decision is made or an approach is abandoned. That is the moment the
-  reasoning is cheapest to write down and most expensive to lose
-- Push back before changing requirements, architecture, stack boundaries or ordering, or accepting a revision with
-  broad side effects. Explain the impact on current and later entries, offer the smallest compatible alternative, and
-  wait for explicit user approval before revising the agreed direction
+- Where implementation or review disproves an assumption, update the entry where it belongs, then trace the consequence
+  through every affected later plan
+- Keep affected `Start here` sections aligned with those changes and advance `Begin with` to the next action
+- Replace stale statements instead of keeping an append-only diary
+- Add new work to the current entry only when it is required by the agreed objective. A different review objective is
+  its own checkpoint
+- Push back before changing requirements, architecture, stack boundaries or ordering, or accepting broad side effects
 
 ## Commit checkpoints
 
-For each stack entry, update its local plan, every affected later plan, and the stack context before submitting the
-implementation diff for human review. The local checkpoint records the state the commit will establish:
+Before submitting a stack entry for human review, its plan and context must already record:
 
-- The entry completed and the acceptance criteria it satisfies
-- Critical decisions made during implementation or review, with superseded assumptions removed
-- Consequences already applied to every affected later plan
-- Updated `Start here` sections for every affected plan
-- The exact next entry and first action, or that the stack is complete
+- the ship state the implementation establishes
+- the proof and acceptance criteria it satisfies
+- critical decisions and downstream consequences
+- current execution location and environment
+- expected repository state
+- the exact next action after this entry commits
 
-After human approval, run the gates and commit the reviewed implementation without the ignored agent-working files.
-Then update the stack context with the commit identifier. Verify that the persisted state matches the repository and a
-fresh session can resume at the exact next action without repeating investigation or decisions. Stop before starting
-the next entry. If a gate or correction changes the implementation, update the local checkpoint, invalidate approval,
-and return the implementation diff for human review. Do not create a metadata commit for local restore state.
+After human approval, run the gates and commit the reviewed implementation without the local agent-working files. Then
+record the commit identifier, verify the live context matches the repository, and verify a fresh session can resume at
+the exact next action. Stop before the next entry.
+
+If a gate or correction changes the implementation, update the live state, invalidate approval, and return the new diff
+for human review.
 
 ## Handing over and finishing
 
-- End a planning session by naming the stack context and plan locations, so implementation can start on fresh context
+- End a planning session by naming the stack context and plan locations
+- Keep context current when handing over mid-entry, including expected uncommitted work and the exact next action
 - Stop after each approved stack commit once the fresh-session restore point is verified
-- Do not mark a plan complete until every checklist item is checked and the user has approved the actual output, not
-  just the plan
+- Do not mark a plan complete until every checklist item is checked and the user has approved the actual output
