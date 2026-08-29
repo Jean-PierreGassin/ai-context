@@ -37,8 +37,8 @@ Record the chosen mode, working directory, branch, and worktree path when persis
 
 ### Manual fallback
 
-1. Confirm that the source branch is current
-2. Give the worktree and branch the same name
+1. Bring the branch's immediate target current first
+2. Create the branch from that current target and give the worktree and branch the same name
 3. Check `.worktreeinclude` or its equivalent against the files in the worktree. Copy missing required files from the
    source checkout. Do not display their contents or invent values
 4. Install dependencies inside the worktree through the project's established command path

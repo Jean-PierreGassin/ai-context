@@ -35,6 +35,12 @@
   [use-worktrees](.agents/skills/use-worktrees). Persist that decision and reuse it after a context reset
 - Keep an ordered change stack in one worktree when a worktree is chosen, including when its entries use dependent
   branches. Use separate worktrees only for independent tracks that run concurrently
+- Keep every working branch current with its immediate target before implementation, before presenting it for review,
+  and before pushing meaningful new work. For a stack, update from the root downward so each branch incorporates the
+  branch it actually targets
+- Treat published review history as stable history. Once a PR is ready for review, has review activity, or is an
+  ancestor of a published stack, do not rebase or rewrite its reviewed commits. Add focused follow-up commits and
+  propagate upstream stack changes downward with merges
 - Branch and worktree names use the tracker's ticket key (`ABC-1234` or `ABC-1234-slug`), otherwise
   `{type}/title-of-changes-summarized` (e.g. `fix/changes-summarized`)
 - Complete and self-review the current change, fix every finding, then present its clean diff for human review.

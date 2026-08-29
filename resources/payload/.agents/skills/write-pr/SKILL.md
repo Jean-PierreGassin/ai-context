@@ -15,14 +15,16 @@ diff already lists the files.
 ## Process
 
 1. Check [reviewability](#reviewability). Propose a split when the change has more than one review objective
-2. Write a concise title in sentence case. Use `TICKET-KEY: [Outcome]` when a ticket exists. Use `[Outcome]` for
+2. Confirm the head branch incorporates the current HEAD of its immediate target. For a stack, synchronize root to leaf
+   before presenting or opening the affected PRs
+3. Write a concise title in sentence case. Use `TICKET-KEY: [Outcome]` when a ticket exists. Use `[Outcome]` for
    intentionally unticketed work. Prefer `Add retry handling for failed webhooks` to `Changes to webhook code`. Use the
    branch, repository workflow, tracker context, task scope, and prior user direction to decide. Ask only when the
    evidence is ambiguous. Never invent a ticket key
-3. Pick the Change Type: Feature, Bugfix, Improvement, Task, Story, Chore, or Hotfix. Combine two
+4. Pick the Change Type: Feature, Bugfix, Improvement, Task, Story, Chore, or Hotfix. Combine two
    (`Bugfix/Improvement`, `Feature/Story`) only where the PR genuinely spans both
-4. Write the body from `assets/body-template.md`, or the repository's own template where it has one
-5. Check the draft against [the rules](#rules). Correct each conflict
+5. Write the body from `assets/body-template.md`, or the repository's own template where it has one
+6. Check the draft against [the rules](#rules). Correct each conflict
 
 Commit subjects are not PR titles: they take the `git-commit` skill's `TICKET-KEY - ...` hyphen. Where the repository
 squash-merges, the merged subject deliberately inherits this title's colon.
@@ -32,8 +34,10 @@ squash-merges, the merged subject deliberately inherits this title's colon.
 A PR has one review objective. Separate mechanical work from behavior. Extract useful dependency steps. Isolate risky
 logic. If the user keeps a mixed PR, open it and direct the reviewer to the risky parts.
 
-For dependent changes, use the repository or hosting provider's actual stacked-PR tooling rather than describing an
-unmanaged stack in prose. Name adjacent changes in each PR and restack after review changes where the tool requires it.
+For dependent changes, use the repository or hosting provider's actual stacked-PR support for base relationships and
+adjacent-change visibility. Once a branch is published, ready for review, has review activity, or has published
+descendants, preserve its ancestry. Do not rebase or force-push the stack merely to restack it. Add upstream fixes as
+focused commits and merge updated parents forward through their descendants.
 
 ## Rules
 
