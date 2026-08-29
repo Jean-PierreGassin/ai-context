@@ -24,15 +24,19 @@ when_to_use: Triggers on requests like "commit this", "commit these changes", "s
    decisions, consequences applied to later entries, execution state, aligned `Start here` bootstraps, and the exact
    next action. Verify that no plan or restore-context path is tracked or staged
 9. Present the exact staged diff for human review. Wait for explicit approval
-10. After approval, run the project's formatter, linter, static analysis, and relevant tests. Stop on failure
-11. If a gate or its fix changes the staged diff, approval no longer applies: self-review the revised diff, present it
-    for human review, and rerun the gates after renewed approval
+10. After approval, verify formatting is already clean, then run the project's linter, static analysis, and relevant
+    tests. Stop on failure
+11. If formatting, a gate, or a gate fix changes the staged diff, approval no longer applies: self-review the revised
+    diff, present it for human review, and rerun the gates after renewed approval
 12. Before pushing meaningful new work, confirm the branch still incorporates the current HEAD of its immediate target.
     If the target moved, synchronize first and repeat review or validation affected by the update
 13. Use the [template](#template) to structure the commit message, and the [example](#example) for guidance
 14. When `write-code` is executing a change stack, commit the approved entry after its gates pass. Update the local
     checkpoint with the commit identifier, verify that it can restore a fresh session to the exact next action, then
     stop before starting the next entry. Do not ask for permission to continue between approval, gates, and the commit
+
+The formatter at step 10 is a verification gate, not the first formatting pass. `write-code` must auto-format before
+human review. If the available formatter is mutating, run it and verify that it produces no diff.
 
 ## History safety
 

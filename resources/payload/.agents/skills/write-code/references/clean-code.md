@@ -268,35 +268,9 @@ taxRate = taxRateFor(invoice)
 ### Group configuration by category
 
 In a new or substantially reorganized configuration file that supports comments, separate distinct categories with
-section banners. Follow the repository's existing banner style; when none exists, use a compact three-line banner.
-Keep entries within a section together and do not add a banner around a single undivided category.
-
-Bad:
-
-```text
-LOG_LEVEL=info
-CACHE_DRIVER=redis
-LOG_CHANNEL=stderr
-CACHE_TTL=300
-```
-
-Good:
-
-```text
-#############
-## Logging ##
-#############
-LOG_LEVEL=info
-LOG_CHANNEL=stderr
-
-#############
-## Cache   ##
-#############
-CACHE_DRIVER=redis
-CACHE_TTL=300
-```
-
-For formats that do not support comments, use their native grouping structure rather than inventing invalid syntax.
+section banners only when the user asked for them or project/tooling requirements generate or require them. Follow the
+repository's existing banner style where a required banner must be added. For formats that do not support comments, use
+their native grouping structure.
 
 ### Name for meaning in context
 
@@ -380,33 +354,21 @@ issue(request):
 
 Extract when the created unit has an honest responsibility, a useful contract, or independently meaningful logic.
 
-### Make names and structure carry the explanation
+### Do not add code comments unless explicitly required
 
-Do not narrate ordinary control flow in comments. First rename a value, extract a meaningful predicate, or reorganize
-the code. Retain documentation required by the language or public API, machine directives, focused suppressions with a
-reason, and tracked TODOs. Add an explanatory comment only when the user asks for one or irreducible implementation
-complexity would become harder to understand if extracted. Record business rationale, downstream constraints, and
-other durable context in the project's documentation or decision record instead of embedding it beside the code.
+Do not write comments, docblocks, TODOs, explanatory annotations, section comments, or rationale into code unless:
 
-When a comment is necessary, describe the stable constraint rather than the incident, ticket, current roster, machine
-topology, or temporary count that exposed it. Wrap multiline comments into short paragraphs at the width used by the
-project instead of leaving a long run-on line.
+- the user explicitly asks for that comment or documentation
+- the language, framework, interface, linter, generator, formatter, or another project tool requires it
+- project tooling automatically generates it as part of the requested operation
 
-Bad:
+Do not add a comment merely because the code is complex, because neighboring code uses comments, or because a future
+reader might benefit from narration. Make names and structure carry the explanation instead.
 
-```text
-// Check whether the invoice is overdue.
-if invoice.dueAt < now:
-    // Send a reminder.
-    reminders.send(invoice)
-```
+When tooling requires a comment or annotation, keep only what the requirement needs. Do not expand it with extra
+narration unless the user asks.
 
-Good:
-
-```text
-if invoice.isOverdueAt(now):
-    reminders.send(invoice)
-```
+Existing comments outside the requested change are not an invitation to add more. Leave unrelated comments alone.
 
 ### Match user-facing copy to its contract
 

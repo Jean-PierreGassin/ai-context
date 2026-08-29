@@ -19,9 +19,9 @@ Write readable, cohesive code. Keep the change within the task.
 3. Resolve or restore the execution location with `use-worktrees`, then use `run-commands` for project commands
 4. Before editing, identify the branch's immediate target, bring that target current, and incorporate it into the
    working branch. In a stack, update ancestors first and cascade the updated parent into each child in order
-5. For each change-stack entry, write and self-review the change, reconcile discoveries into the persisted plan and
-   affected later entries, obtain human approval, run the project gates, commit the approved restore point, verify it
-   can restore a fresh session, then stop before the next entry
+5. For each change-stack entry, write the change, auto-format it, self-review it, reconcile discoveries into the
+   persisted plan and affected later entries, obtain human approval, run the project gates, commit the approved restore
+   point, verify it can restore a fresh session, then stop before the next entry
 6. [Check the completed change](#before-reporting-it-done) before reporting it as done
 
 Shape the work before writing it:
@@ -60,6 +60,30 @@ If synchronization produces conflicts or changes the effective implementation, r
 self-review the resulting diff, rerun the relevant validation, update persisted context, and obtain renewed human
 approval where a previously approved review surface changed.
 
+## Format before review
+
+Auto-format changed code before self-review and before the diff is presented for human review.
+
+Use `run-commands` to discover the project's canonical formatting mechanism. Prefer repository-provided tooling,
+configuration, and the active project environment. Do not assume a specific formatter, language server, IDE, or
+command name.
+
+If there is no obvious format command, investigate how the project or development environment provides formatting
+rather than skipping it. If no formatting mechanism exists, state that explicitly.
+
+After any implementation or review fix that changes code:
+
+1. Run the canonical auto-format path over the changed code
+2. Inspect the formatted result
+3. Self-review the resulting diff
+
+Accept canonical formatting even when it expands code over more lines. Do not manually compress correctly formatted
+code to reduce the diff size.
+
+The human-reviewed diff must already be formatted. After human approval, formatting is a verification gate. If a
+formatter changes the diff at that point, approval is invalid and the formatted diff returns to self-review and human
+review.
+
 When implementation or review disproves a plan assumption, update it where it belongs and propagate its consequences
 through every affected later entry before continuing. A discovery may refine implementation within the agreed
 requirements, architecture, review objectives, and stack shape. Push back when a proposed change moves any of those,
@@ -69,15 +93,16 @@ and wait for explicit approval of the revised plan.
 Self-review and adjust each stack entry, then update the persisted plan and context with the current ship state,
 critical decisions, downstream plan changes, execution state, and exact next action. Send informational progress
 updates without stopping or asking for permission to continue. Stop early only for a blocker or a decision that
-changes the agreed direction. Otherwise, stop only when the complete entry has a clean implementation diff ready for
-human review.
+changes the agreed direction. Otherwise, stop only when the complete entry has a clean, formatted implementation diff
+ready for human review.
 
 Wait for explicit approval of that diff. After approval, use `git-commit` to run the project gates and create its
 preserving commit without another continuation prompt. Verify after the commit that a fresh session can resume without
 repeating investigation or decisions. Verify that the next plan's `Start here` section names all required skills,
 files, commands, environment entry point, and its first action, then stop before starting the next entry. Any
-post-approval change invalidates approval and must go through self-review, plan reconciliation, and human review again.
-Do not continue into another stack entry, or defer the stack's commits until all entries have been implemented.
+post-approval change invalidates approval and must go through formatting, self-review, plan reconciliation, and human
+review again. Do not continue into another stack entry, or defer the stack's commits until all entries have been
+implemented.
 
 ## References
 
@@ -136,8 +161,10 @@ demonstrates one. Change the architecture when the user asks for it, or when the
 
 - Confirm the immediate target has not moved since the branch was last synchronized. If it moved, incorporate it and
   repeat the relevant review and validation before pushing or reporting the change ready
-- Run the project's own gate over what you touched: formatter, linter, static analysis, and the tests covering the
-  changed behavior. Use `run-commands` so the project's runner or managed environment wins where one exists
+- Re-run the canonical formatting path. It should produce no material diff because human review already saw formatted
+  code. If it changes code, return to self-review and human review
+- Run the project's linter, static analysis, and the tests covering the changed behavior. Use `run-commands` so the
+  project's runner or managed environment wins where one exists
 - Re-read the diff against the references and fix the misses
 - Self-review every code change after writing. Audit placement, package or module cohesion, responsibility, naming,
   dependency direction, control flow, error flow, comments, and tests with tools proportionate to the change
