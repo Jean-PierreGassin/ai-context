@@ -89,4 +89,6 @@ tasks:
       - python3 ./tests/merge_toml.py
       - ./tests/cli.sh
       - ./tests/evals.sh
+      - bash ./tests/config.sh
+      - bash ./tests/retired-managed-files.sh
       - ./tests/shell.sh
