@@ -1,5 +1,9 @@
 [
   {
+    "query": "Should we do this implementation in the main checkout or create a worktree?",
+    "should_trigger": true
+  },
+  {
     "query": "Set up a worktree for this ticket so I can keep the current branch checked out",
     "should_trigger": true
   },

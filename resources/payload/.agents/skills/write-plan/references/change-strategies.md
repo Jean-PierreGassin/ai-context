@@ -1,111 +1,114 @@
 # Change Strategies
 
 Identify the change shape before you split it. If a task has two shapes, split it at the seam. Use one strategy for
-each part.
+each part. Every resulting checkpoint must satisfy the ship-state and proof rules in `change-stack.md`.
 
 | The change is                     | Decompose as                                                         |
 |-----------------------------------|----------------------------------------------------------------------|
-| A new capability                  | [Thin vertical slices](#thin-vertical-slices), each usable end to end |
-| Replacing existing behavior      | [Branch by abstraction](#branch-by-abstraction)                      |
-| A schema, API, or contract change | [Expand and contract](#expand-and-contract)                          |
-| Primarily refactoring             | [Refactor sequencing](#refactor-sequencing), most automatable change first |
+| A new capability                  | Thin vertical slices, each usable and provable end to end            |
+| Replacing existing behavior       | Branch by abstraction, moving one coherent consumer at a time        |
+| A schema, API, or contract change | Expand and contract in independently deployable checkpoints          |
+| Primarily refactoring             | Mechanical and independently provable changes first                  |
 
 ## Thin vertical slices
 
-For a new capability, each slice includes all required layers. Each slice must be usable by itself. A database-only
-slice cannot be reviewed because nothing exercises it.
+For a new capability, each slice includes the layers required to make that increment usable. Keep the slice as small
+as possible while still leaving a meaningful ship state.
 
-Slice by user-visible increment, not by architectural layer:
+Slice by usable increment, not by architectural layer:
 
-```
-// Bad - horizontal, nothing works until the last one lands
+```text
+Bad
 1  All the tables and models
 2  All the repositories
 3  All the services
 4  All the endpoints and screens
 ```
 
-```
-// Good - each slice ships something a user can do
-1  Create a draft export, visible in the list, nothing to download yet
-2  Generate the file for a draft and make it downloadable
+```text
+Good
+1  Create a draft export and show it in the list
+2  Generate and download a draft export
 3  Schedule an export to repeat
 ```
 
-Use this shape for a new capability. Do not use it for every change. Use another strategy for a replacement or live
-schema migration.
+If one of those slices can itself ship and be proved safely in smaller coherent pieces, split it further.
 
 ## Branch by abstraction
 
 Use it when replacing an implementation, migrating architecture, changing core business logic, or making a risky
 behavior change.
 
-1. Introduce an abstraction over the existing implementation
+1. Establish the smallest compatibility seam around the current implementation
 2. Keep the old implementation working and in use
-3. Add the new implementation behind the same abstraction
-4. Switch consumers over gradually, behind a feature flag where the switch is risky or needs staged rollout
-5. Remove the old implementation and, once it is unused, the flag
+3. Add the new implementation behind that seam where it can be tested independently
+4. Migrate one coherent consumer, platform, integration, or dependency boundary at a time
+5. Within a consumer, move from its lowest useful dependency outward when those steps can ship independently
+6. Prove the current consumer before starting the next independent consumer
+7. Remove legacy paths only after nothing depends on them
 
-Replacing a pricing engine, where both engines must run before the old one goes:
+Example:
 
+```text
+1  Introduce the shared client compatibility boundary. Legacy behavior remains active.
+2  Migrate Platform A API client to the shared client.
+3  Migrate Platform A service A to the migrated API client.
+4  Migrate Platform A service B.
+5  Prove the complete Platform A path and remove its legacy wiring.
+6  Migrate Platform B API client.
+7  Continue Platform B in the same small checkpoints.
+8  Remove the shared legacy client after every consumer has moved.
 ```
-1  Introduce `PricingEngine` with the current implementation behind it. No behavior change.
-2  Move consumers onto `PricingEngine`. No behavior change.
-3  Add `RulesPricingEngine` implementing the same interface, unused, tested in isolation.
-4  Select the implementation with a `pricing.engine` flag, defaulting to the old one.
-5  Roll the flag forward per tenant, then default it to the new engine.
-6  Remove the old implementation and the flag.
-```
 
-Steps 1 and 2 are the mechanical part and can be large without being risky, because the tests do not change. Step 3 is
-where the review effort belongs. Step 4 makes the rollback a config change rather than a deploy.
+Do not write one checkpoint called `Refactor Platform A` when independent internal boundaries can ship and be proved
+separately.
+
+Use a feature flag when a risky switch needs staged rollout. The flag is not a reason to combine unrelated consumers
+in one review.
 
 Do not use this strategy for:
 
-- A change with no existing implementation to replace. Build the thing, and abstract when a second implementation
-  actually arrives
-- An abstraction that exists only to look extensible. If it does not reduce review risk or enable a staged rollout, it
-  is cost with no return
+- a change with no existing implementation to replace; build the capability and abstract when a real second
+  implementation or boundary exists
+- an abstraction that exists only to look extensible; it must reduce review risk or enable staged migration
 
 ## Expand and contract
 
 Use it for database schema, APIs, external contracts, and data migrations.
 
-1. Expand: add the new structure alongside the old, compatible with existing readers and writers
-2. Migrate: move usage and backfill data
-3. Contract: remove the old structure once nothing reads it
+1. Expand: add compatible new structure alongside the old
+2. Migrate: move one reader, writer, client, data group, or other independently provable boundary at a time
+3. Contract: remove the old structure once nothing depends on it
 
-Splitting `users.name` into `users.given_name` and `users.family_name`:
+Example:
 
-```
-Expand    Add `given_name` and `family_name` as nullable. Writes populate all three columns, reads still use `name`.
-Migrate   Backfill the new columns.
-Migrate   Move readers over, one call site at a time. Stop writing `name`.
+```text
+Expand    Add `given_name` and `family_name` as nullable. Existing reads still use `name`.
+Expand    Make writes populate both old and new fields.
+Migrate   Backfill the new fields.
+Migrate   Move one reader group to the new fields.
+Migrate   Continue reader groups independently.
+Migrate   Stop writing `name` after all readers have moved.
 Contract  Drop `name` once nothing reads or writes it.
 ```
 
-Each phase deploys independently. Each phase supports old and new code at the same time. For an API, add the new field,
-move clients, and remove the old field after the deprecation period.
-
-```
-// Bad - a breaking migration disguised as a single step
-- Rename `users.name` to `users.given_name` and add `users.family_name`, updating all call sites
-```
-
-That is one deploy where old application code and the new schema cannot coexist, and rolling back means restoring a
-column that has already been dropped.
+Each checkpoint deploys independently and supports the adjacent old/new states required during rollout.
 
 Plan a breaking migration only where the user explicitly requires one, and say what makes expand and contract
 unworkable.
 
 ## Refactor sequencing
 
-Where the work is primarily refactoring, order by how automatable each step is, largest first:
+Where the work is primarily refactoring, prefer the most mechanical and independently provable checkpoint first:
 
-1. Tool-driven sweeps (a rename, an import rewrite, a formatter run) that a reviewer verifies by re-running the tool
-2. Moves that change no code, only its location
-3. Structural changes a tool cannot make, which need direct review
+1. Tool-driven changes that establish required shape
+2. Pure moves
+3. Small structural seams
+4. Consumer migrations, one coherent boundary at a time
+5. Cleanup after the new structure is fully used
 
-Each step states whether it is behavior-preserving and how that is proved. A structural refactor is not mechanical
-merely because it intends to preserve behavior. Where a step changes behavior, put it in the behavioral part of the
-stack.
+Do not choose a change because it is the largest available mechanical batch. Choose the smallest coherent boundary
+that leaves the repository valid and makes the next step easier to review.
+
+Each checkpoint states whether it is behavior-preserving and how that is proved. A structural refactor is not
+mechanical merely because it intends to preserve behavior.

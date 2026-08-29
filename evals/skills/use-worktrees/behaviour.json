@@ -14,15 +14,38 @@
       ]
     },
     {
-      "id": "asks-when-the-entry-point-is-unclear",
+      "id": "discovers-before-asking-for-tooling-entry",
       "category": "normal",
       "prompt": "Set up a worktree. There is a container definition, a task runner with a dozen tasks, and a makefile.",
-      "expected_output": "A question about which entry point to use, rather than a guess.",
+      "expected_output": "The available project command surfaces are inspected before asking the user which one to use.",
       "expectations": [
-        "Recognises the environment is tooled but the entry point is not findable",
-        "Asks which path to take rather than picking one silently",
-        "Names what it found, so the question is answerable in one reply",
-        "Does not start creating a worktree the tooling would create differently"
+        "Loads run-commands and inspects committed instructions or help/list output",
+        "Does not guess a worktree command",
+        "Uses the discovered project operation when one is available",
+        "Asks only if the project tooling remains genuinely ambiguous after discovery"
+      ]
+    },
+    {
+      "id": "decides-location-before-editing",
+      "category": "normal",
+      "prompt": "Start implementing this approved change. The main checkout is free and no other track is running.",
+      "expected_output": "The execution location is decided before editing, with the main checkout used when isolation buys nothing.",
+      "expectations": [
+        "Makes the main-checkout versus worktree decision before code changes",
+        "Uses the available main checkout for a task that needs no isolation",
+        "Does not create a worktree merely because the task has a plan"
+      ]
+    },
+    {
+      "id": "resumes-recorded-execution-location",
+      "category": "regression",
+      "prompt": "Continue the current stack after a context reset. CONTEXT.md records a worktree path, branch, HEAD, and expected dirty files.",
+      "expected_output": "The recorded worktree is re-entered and verified instead of choosing a new location.",
+      "expectations": [
+        "Does not repeat the main-checkout versus worktree decision",
+        "Re-enters the recorded worktree",
+        "Verifies branch, HEAD, and working state before editing",
+        "Preserves the expected dirty work when it matches the recorded context"
       ]
     },
     {
@@ -89,13 +112,13 @@
       "id": "linear-stack-stays-in-one-worktree",
       "category": "regression",
       "prompt": "Implement this approved three-entry change stack. Each entry depends on the previous one.",
-      "expected_output": "One worktree for the overall change, switching dependent branches there when needed.",
+      "expected_output": "One execution location for the overall change, using one worktree if isolation is needed.",
       "expectations": [
-        "Uses one worktree for the complete dependent stack",
+        "Does not create one worktree per stack entry",
+        "Uses one worktree for the complete dependent stack when a worktree is chosen",
         "Allows the stack to use multiple dependent branches in that worktree",
         "Switches between dependent branches sequentially in the same worktree",
-        "Does not treat independently reviewable entries as independent tracks",
-        "Does not create a worktree for each stack entry"
+        "Does not treat independently reviewable entries as independent concurrent tracks"
       ]
     },
     {
