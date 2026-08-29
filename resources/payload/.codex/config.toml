@@ -1,28 +1,5 @@
 approval_policy = "on-request"
 approvals_reviewer = "auto_review"
-default_permissions = "project-edit"
-
-[permissions.project-edit]
-description = "Project editing, Git commits, and full network access while denying secret files."
-extends = ":workspace"
-
-[permissions.project-edit.filesystem.":workspace_roots"]
-".git" = "write"
-"**/.env" = "deny"
-"**/.env.*" = "deny"
-"**/auth.json" = "deny"
-"**/storage/oauth-*.key" = "deny"
-"**/storage/*.key" = "deny"
-"**/*secrets*" = "deny"
-"**/*credential*" = "deny"
-"**/*credentials*" = "deny"
-
-[permissions.project-edit.network]
-enabled = true
-allow_local_binding = true
-
-[permissions.project-edit.network.domains]
-"*" = "allow"
 
 [tui]
 notifications = false

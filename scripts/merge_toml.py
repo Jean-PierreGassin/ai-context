@@ -10,6 +10,30 @@ from collections import defaultdict
 from typing import Any
 
 
+LEGACY_PROJECT_EDIT_PROFILE: dict[str, Any] = {
+    "description": "Project editing, Git commits, and full network access while denying secret files.",
+    "extends": ":workspace",
+    "filesystem": {
+        ":workspace_roots": {
+            ".git": "write",
+            "**/.env": "deny",
+            "**/.env.*": "deny",
+            "**/auth.json": "deny",
+            "**/storage/oauth-*.key": "deny",
+            "**/storage/*.key": "deny",
+            "**/*secrets*": "deny",
+            "**/*credential*": "deny",
+            "**/*credentials*": "deny",
+        }
+    },
+    "network": {
+        "enabled": True,
+        "allow_local_binding": True,
+        "domains": {"*": "allow"},
+    },
+}
+
+
 def flatten_tables(value: dict[str, Any], path: tuple[str, ...] = ()) -> dict[tuple[str, ...], dict[str, Any]]:
     tables: dict[tuple[str, ...], dict[str, Any]] = defaultdict(dict)
     for key, child in value.items():
@@ -54,8 +78,43 @@ def format_key(key: str) -> str:
     return json.dumps(key) if re.search(r"[^A-Za-z0-9_-]", key) else key
 
 
+def is_legacy_project_edit_header(line: str) -> bool:
+    match = re.match(r"^\s*\[([^\[].*)\]\s*(?:#.*)?$", line)
+    if not match:
+        return False
+    path = match.group(1).strip()
+    return path == "permissions.project-edit" or path.startswith("permissions.project-edit.")
+
+
+def remove_legacy_project_permissions(existing_text: str, existing: dict[str, Any]) -> tuple[str, dict[str, Any]]:
+    permissions = existing.get("permissions")
+    if not isinstance(permissions, dict) or permissions.get("project-edit") != LEGACY_PROJECT_EDIT_PROFILE:
+        return existing_text, existing
+
+    output: list[str] = []
+    skipping_profile = False
+    for line in existing_text.splitlines():
+        if skipping_profile:
+            if re.match(r"^\s*\[([^\[].*)\]\s*(?:#.*)?$", line) and not is_legacy_project_edit_header(line):
+                skipping_profile = False
+            else:
+                continue
+
+        if is_legacy_project_edit_header(line):
+            skipping_profile = True
+            continue
+        if re.match(r'^\s*default_permissions\s*=\s*["\']project-edit["\']\s*(?:#.*)?$', line):
+            continue
+        output.append(line)
+
+    cleaned_text = "\n".join(output).rstrip() + "\n"
+    cleaned = tomllib.loads(cleaned_text) if cleaned_text.strip() else {}
+    return cleaned_text, cleaned
+
+
 def merge(existing_text: str, desired: dict[str, Any]) -> tuple[str, bool]:
     existing = tomllib.loads(existing_text) if existing_text.strip() else {}
+    existing_text, existing = remove_legacy_project_permissions(existing_text, existing)
     missing: dict[tuple[str, ...], dict[str, Any]] = {}
     for path, values in flatten_tables(desired).items():
         current = lookup(existing, path)

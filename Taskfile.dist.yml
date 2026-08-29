@@ -86,6 +86,7 @@ tasks:
     desc: Run the regression suite
     cmds:
       - ./tests/install.sh
+      - python3 ./tests/merge_toml.py
       - ./tests/cli.sh
       - ./tests/evals.sh
       - ./tests/shell.sh
