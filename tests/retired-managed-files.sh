@@ -8,6 +8,7 @@ temporary_root="$(mktemp -d "${TMPDIR:-/tmp}/ai-context-retired-test.XXXXXX")"
 readonly temporary_root
 trap 'rm -rf "$temporary_root"' EXIT
 
+# shellcheck disable=SC2034 # consumed by the sourced retirement helper
 is_dry_run=false
 changed_count=0
 skipped_count=0
@@ -25,7 +26,7 @@ record_failure() {
   failure_count=$((failure_count + 1))
 }
 
-# shellcheck source=../scripts/lib/retired.sh
+# shellcheck disable=SC1091 # source path is resolved from the repository root at runtime
 source "$repository_root/scripts/lib/retired.sh"
 
 manifest="$temporary_root/retired.txt"

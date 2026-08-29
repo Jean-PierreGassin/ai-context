@@ -8,6 +8,7 @@ temporary_root="$(mktemp -d "${TMPDIR:-/tmp}/ai-context-config-test.XXXXXX")"
 readonly temporary_root
 trap 'rm -rf "$temporary_root"' EXIT
 
+# shellcheck disable=SC2034 # consumed by the sourced configuration helper
 is_dry_run=false
 
 reject_unsafe_target() {
@@ -31,7 +32,7 @@ match_file_mode() {
   :
 }
 
-# shellcheck source=../scripts/lib/config.sh
+# shellcheck disable=SC1091 # source path is resolved from the repository root at runtime
 source "$repository_root/scripts/lib/config.sh"
 
 desired="$temporary_root/desired.json"

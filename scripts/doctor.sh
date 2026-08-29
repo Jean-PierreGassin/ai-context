@@ -134,13 +134,13 @@ if [[ "$installation_state" == installed ]]; then
     jq -e '(.permissions.deny // []) | index("Read(auth.json)") != null' \
       "$claude_settings" >/dev/null 2>&1 || safety_errors+='.claude/settings.json deny rules, '
     python3 -c \
-      'import pathlib, sys, tomllib; data=tomllib.loads(pathlib.Path(sys.argv[1]).read_text()); assert "project-edit" in data.get("permissions", {})' \
-      "$codex_settings" >/dev/null 2>&1 || safety_errors+='.codex/config.toml permissions, '
+      'import pathlib, sys, tomllib; data=tomllib.loads(pathlib.Path(sys.argv[1]).read_text()); assert data.get("approvals_reviewer") == "auto_review"' \
+      "$codex_settings" >/dev/null 2>&1 || safety_errors+='.codex/config.toml auto-review setting, '
     if [[ -n "$safety_errors" ]]; then
       add_result 'Safety settings' 'FAIL' "Missing: ${safety_errors%, }"
       failures=$((failures + 1))
     else
-      add_result 'Safety settings' 'PASS' 'Claude deny rules and Codex permissions'
+      add_result 'Safety settings' 'PASS' 'Claude deny rules and Codex auto-review'
     fi
   fi
 else
