@@ -40,6 +40,9 @@ merge_json_file() {
             else [.[] | select((managed_hook_scripts - $incoming) == managed_hook_scripts)] + [$entry] end);
       . as [$existing, $desired]
       | combine($existing; $desired)
+      | if $existing.outputStyle == "efficient" and $desired.outputStyle == "Concise" then
+          .outputStyle = $desired.outputStyle
+        else . end
       | if ($desired.hooks | type) == "object" then
           .hooks = reduce ($desired.hooks | keys_unsorted[]) as $event (($existing.hooks // {});
             .[$event] = merge_hook_event((($existing.hooks // {})[$event] // []);

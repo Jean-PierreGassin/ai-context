@@ -23,6 +23,7 @@ temporary_root=
 
 readonly payload_root="$repository_root/resources/payload"
 readonly legacy_ownership="$repository_root/resources/previous-owned-skill-paths.txt"
+readonly retired_managed_files="$repository_root/resources/retired-managed-files.txt"
 target_root="$(resolve_target_root "$scope" "$caller_dir")"
 readonly target_root
 
@@ -202,7 +203,11 @@ install_structured_configuration() {
 }
 
 run_install() {
+  local retired_display_prefix=
+  if [[ "$scope" == global ]]; then retired_display_prefix="$home_display/"; fi
+
   remove_stale_owned_skills
+  remove_retired_managed_files "$retired_managed_files" "$target_root" "$retired_display_prefix"
   if [[ "$scope" == global ]]; then
     install_global
   else
@@ -227,14 +232,18 @@ plan_installation() {
 }
 
 save_pre_install_version() {
-  local snapshot_id snapshot_state snapshot_restore snapshot_remove saved_version_message
+  local snapshot_id snapshot_state snapshot_restore snapshot_remove saved_version_message snapshot_payload_root
 
   state_root="$(resolve_state_root)"
   readonly state_root
+  snapshot_payload_root="$temporary_root/snapshot-payload"
+  build_snapshot_payload "$payload_root" "$retired_managed_files" "$snapshot_payload_root"
+  if [[ "$failure_count" -gt 0 ]]; then return 1; fi
+
   snapshot_id="$(python3 "$repository_root/scripts/state.py" snapshot \
     --scope "$scope" \
     --target "$target_root" \
-    --payload "$payload_root" \
+    --payload "$snapshot_payload_root" \
     --state-root "$state_root" \
     --legacy-ownership "$legacy_ownership")"
   snapshot_state="$(python3 "$repository_root/scripts/state.py" history \

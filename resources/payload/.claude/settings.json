@@ -77,7 +77,7 @@
     "pr": "",
     "sessionUrl": false
   },
-  "outputStyle": "efficient",
+  "outputStyle": "Concise",
   "preferredNotifChannel": "notifications_disabled",
   "remoteControlAtStartup": true,
   "inputNeededNotifEnabled": true,

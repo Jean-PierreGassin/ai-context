@@ -1,0 +1,3 @@
+# Git blob SHA<TAB>path for managed files removed from the payload.
+# Matching files are removed on install; changed files are preserved.
+d7b75a56e573b730354ab1d87c176b349f151540	.claude/output-styles/efficient.md

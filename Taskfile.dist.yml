@@ -88,4 +88,6 @@ tasks:
       - ./tests/install.sh
       - ./tests/cli.sh
       - ./tests/evals.sh
+      - bash ./tests/config.sh
+      - bash ./tests/retired-managed-files.sh
       - ./tests/shell.sh
