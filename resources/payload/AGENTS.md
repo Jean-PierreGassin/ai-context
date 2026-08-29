@@ -60,6 +60,9 @@
 ## Tickets and PRs
 
 - Assign the ticket to me and move it to In Progress before writing any code; prefer the tracker CLI where one exists
+- Before opening a PR, show me the exact proposed title, the main context that will be injected into the repository
+  template, and the target branch. Wait for my approval or requested wording changes, and confirm Draft or Ready for
+  review unless I already specified the state
 - Move the ticket to In Review and link the PR the moment the PR is marked ready for review; nothing automates this
 - Never post a comment on a PR or ticket without explicit approval for that specific comment; offer the text and wait.
   Opening or editing my own PRs, transitioning tickets, and pushing to feature branches stay in bounds
