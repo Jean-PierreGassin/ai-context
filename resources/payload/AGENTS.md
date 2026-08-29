@@ -41,6 +41,8 @@
 - Treat published review history as stable history. Once a PR is ready for review, has review activity, or is an
   ancestor of a published stack, do not rebase or rewrite its reviewed commits. Add focused follow-up commits and
   propagate upstream stack changes downward with merges
+- Auto-format changed code through the project's available canonical formatting path before self-review and human
+  review. The reviewed diff should already be formatted; a post-approval formatter must not silently change it
 - Branch and worktree names use the tracker's ticket key (`ABC-1234` or `ABC-1234-slug`), otherwise
   `{type}/title-of-changes-summarized` (e.g. `fix/changes-summarized`)
 - Complete and self-review the current change, fix every finding, then present its clean diff for human review.
