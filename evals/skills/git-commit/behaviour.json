@@ -133,12 +133,12 @@
         "Confirms affected plans begin with current skills, files, commands, and next actions",
         "Runs the project gates after approval",
         "Commits the approved entry after its gates pass",
-        "Updates the ignored stack context with the commit identifier",
+        "Updates the stack context with the commit identifier",
         "Verifies that a fresh session can resume at the exact next action",
         "Stops before beginning the next stack entry",
         "Preserves the stack's planned ordering",
         "Does not leave the completed entry uncommitted while implementing another entry",
-        "Folds the entry into an earlier commit only when it adjusts that commit and rewriting is safe"
+        "Rewrites an earlier commit only when the history-safety check establishes that it is not a review surface"
       ]
     },
     {
@@ -152,7 +152,44 @@
         "Fixes every finding and repeats the review until it is clean",
         "Waits for explicit human approval, then runs the project gates before committing",
         "Requires renewed approval if anything changes after human review",
-        "Folds each review fix into the reasoning step it corrects rather than creating a follow-up commit"
+        "Keeps review fixes in the same reasoning step while that work is still uncommitted"
+      ]
+    },
+    {
+      "id": "ready-pr-fix-is-append-only",
+      "category": "regression",
+      "prompt": "A PR is ready for review. I found a small correction to the last commit. Fix it and update the branch.",
+      "expected_output": "The reviewed commit is preserved and the correction lands as a focused follow-up commit.",
+      "expectations": [
+        "Checks the PR state before deciding how to commit the correction",
+        "Does not amend, fixup, rebase, or force-push the reviewed commit",
+        "Creates a focused follow-up commit",
+        "Keeps the review history anchored to the original commit identities"
+      ]
+    },
+    {
+      "id": "reviewed-draft-is-append-only",
+      "category": "regression",
+      "prompt": "The PR is still a draft, but a reviewer has already left inline comments. Fold this fix into the original commit.",
+      "expected_output": "The review activity makes the history append-only even though the PR is still draft.",
+      "expectations": [
+        "Detects existing review activity",
+        "Refuses to rewrite the reviewed commit",
+        "Uses a focused follow-up commit instead",
+        "Does not treat draft status alone as permission to rewrite"
+      ]
+    },
+    {
+      "id": "published-stack-cascades-with-merges",
+      "category": "composition",
+      "prompt": "PR A targets main and PR B targets A. Both are published. Main moved and A needs a follow-up fix. Bring the stack current without losing review history.",
+      "expected_output": "Main is incorporated into A, A's follow-up is preserved, and the updated A history is merged into B.",
+      "expectations": [
+        "Synchronizes the stack from root to leaf",
+        "Does not rebase A or B",
+        "Preserves the published commit identities",
+        "Merges the updated parent branch into its child",
+        "Requires review and validation again if conflict resolution changes the implementation"
       ]
     }
   ]

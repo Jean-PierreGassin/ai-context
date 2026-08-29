@@ -51,21 +51,23 @@ Record enough live execution state to restore the current task directly:
 - execution mode: main checkout or worktree
 - working directory and worktree path/name when applicable
 - branch and its immediate target
+- stack parent and published child branches when applicable
 - HEAD and the target HEAD last incorporated when known
 - current stack entry and current checklist item
 - expected uncommitted files and why they are dirty
 - project harness or managed environment and how to re-enter it
 - last formatting and validation performed, with outcomes
 - latest completed commit
-- PR number and review state when one exists
+- PR number, draft/ready state, and whether review activity exists
+- history policy: rewrite allowed before a review surface exists, otherwise append-only
 - decisions already made and why
 - approaches tried and rejected when rediscovery would be expensive
 - user constraints that affect the approach
 - the exact next action
 
 Update the context at meaningful state transitions: after choosing an execution location, entering or changing the
-project environment, switching branches, completing a checklist item, making a consequential decision, changing the
-expected dirty set, receiving review state, or establishing a new exact next action.
+project environment, switching branches, synchronizing the target, completing a checklist item, making a consequential
+decision, changing the expected dirty set, receiving review state, or establishing a new exact next action.
 
 Do not turn the context into an activity log. Replace stale state. Preserve only the current execution state plus
 critical reasoning that a fresh session should not repeat.
@@ -104,14 +106,15 @@ existing plan and state what changed.
 1. Locate the task under the Git common work directory and read `CONTEXT.md` first
 2. Re-enter the recorded main checkout or worktree and project environment. Do not choose a new location when a valid
    one is already recorded
-3. Verify the recorded branch, immediate target, HEAD, working status, and expected dirty files before editing
+3. Verify the recorded branch, immediate target, HEAD, target sync point, working status, and expected dirty files
 4. Read the current `PLAN.md`; read earlier plans only when `Start here` names them as relevant
 5. If persisted state and the repository disagree, report the difference and update the persisted state rather than
    silently reconstructing a new workflow
 6. Continue from the recorded exact next action
 
 A fresh session should not need to search the repository to discover where the worktree is, which branch is active,
-which files are intentionally dirty, how to enter the project environment, or what to do next.
+which target it follows, which files are intentionally dirty, how to enter the project environment, what review state
+exists, or what to do next.
 
 ## Keeping it current
 
@@ -133,6 +136,7 @@ Before submitting a stack entry for human review, its plan and context must alre
 - the proof and acceptance criteria it satisfies
 - critical decisions and downstream consequences
 - current execution location and environment
+- branch target, synchronization state, PR/review state, and history policy
 - expected repository state
 - the exact next action after this entry commits
 
@@ -140,8 +144,8 @@ After human approval, run the gates and commit the reviewed implementation witho
 record the commit identifier, verify the live context matches the repository, and verify a fresh session can resume at
 the exact next action. Stop before the next entry.
 
-If a gate or correction changes the implementation, update the live state, invalidate approval, and return the new diff
-for human review.
+If a gate, target synchronization, conflict resolution, or correction changes the implementation, update the live
+state, invalidate approval, and return the new diff for human review.
 
 ## Handing over and finishing
 

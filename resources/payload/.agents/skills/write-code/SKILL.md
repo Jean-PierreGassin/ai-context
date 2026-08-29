@@ -16,10 +16,13 @@ Write readable, cohesive code. Keep the change within the task.
 1. Read `references/clean-code.md`. Then read only the [references](#references) for the languages and frameworks in
    scope
 2. Open the nearest equivalent capability already in the repository and match how it is arranged
-3. For each change-stack entry, write and self-review the change, reconcile discoveries into the persisted plan and
+3. Resolve or restore the execution location with `use-worktrees`, then use `run-commands` for project commands
+4. Before editing, identify the branch's immediate target, bring that target current, and incorporate it into the
+   working branch. In a stack, update ancestors first and cascade the updated parent into each child in order
+5. For each change-stack entry, write and self-review the change, reconcile discoveries into the persisted plan and
    affected later entries, obtain human approval, run the project gates, commit the approved restore point, verify it
    can restore a fresh session, then stop before the next entry
-4. [Check the completed change](#before-reporting-it-done) before reporting it as done
+6. [Check the completed change](#before-reporting-it-done) before reporting it as done
 
 Shape the work before writing it:
 
@@ -29,8 +32,33 @@ Shape the work before writing it:
 | Several review objectives, migration sequencing, or work that must survive a session boundary  | Use `write-plan` first |
 
 An existing plan controls the order. Do not decide the split again. On a fresh context, complete `Start here` before
-you write code. Confirm the stack before writing. Assign each edit to its entry. Fold review fixes into that entry's
-commit when rewriting is safe. Give a new review objective its own entry.
+you write code. Confirm the stack before writing. Assign each edit to its entry.
+
+Before changing an earlier committed entry, determine whether its branch has a PR, whether the PR is draft or ready,
+whether review activity exists, and whether published descendants depend on that history. Do not plan to amend,
+fixup, squash, or rebase a commit that is already a review surface. Make the correction as a focused follow-up commit
+and propagate it through descendants when required.
+
+## Keep the target current
+
+The working branch must incorporate its immediate target:
+
+- before implementation begins
+- before the change is presented for human review
+- before meaningful new work is pushed
+
+For a normal feature branch, the immediate target is usually the repository's trunk branch. For a stacked branch, the
+immediate target is the preceding branch in the stack, not trunk directly.
+
+When a stack needs updating, synchronize it root to leaf. Update trunk, incorporate trunk into the first branch,
+validate it, then incorporate that updated branch into its child and continue downward.
+
+Do not rewrite published stack ancestry to make it look linear. Once a branch is ready for review, has review activity,
+or has published descendants, preserve its commit identities and use merges to carry target changes forward.
+
+If synchronization produces conflicts or changes the effective implementation, resolve them as implementation work,
+self-review the resulting diff, rerun the relevant validation, update persisted context, and obtain renewed human
+approval where a previously approved review surface changed.
 
 When implementation or review disproves a plan assumption, update it where it belongs and propagate its consequences
 through every affected later entry before continuing. A discovery may refine implementation within the agreed
@@ -38,18 +66,18 @@ requirements, architecture, review objectives, and stack shape. Push back when a
 adds scope, or creates broad side effects: explain the downstream impact, offer the smallest compatible alternative,
 and wait for explicit approval of the revised plan.
 
-Self-review and adjust each stack entry, then update the ignored persisted plan and context with the completed state,
-critical decisions, downstream plan changes, and exact next action. Send informational progress updates without
-stopping or asking for permission to continue. Stop early only for a blocker or a decision that changes the agreed
-direction. Otherwise, stop only when the complete entry has a clean implementation diff ready for human review.
+Self-review and adjust each stack entry, then update the persisted plan and context with the current ship state,
+critical decisions, downstream plan changes, execution state, and exact next action. Send informational progress
+updates without stopping or asking for permission to continue. Stop early only for a blocker or a decision that
+changes the agreed direction. Otherwise, stop only when the complete entry has a clean implementation diff ready for
+human review.
 
 Wait for explicit approval of that diff. After approval, use `git-commit` to run the project gates and create its
 preserving commit without another continuation prompt. Verify after the commit that a fresh session can resume without
 repeating investigation or decisions. Verify that the next plan's `Start here` section names all required skills,
-files, commands, and its first action, then stop before starting the next entry. Any post-approval change invalidates
-approval and must go through self-review, plan reconciliation, and human review again. Do not continue into another
-stack entry, or defer the stack's commits until all entries have been implemented. Where an entry adjusts an earlier
-commit and rewriting is safe, fold it into that commit; otherwise create its own commit before continuing.
+files, commands, environment entry point, and its first action, then stop before starting the next entry. Any
+post-approval change invalidates approval and must go through self-review, plan reconciliation, and human review again.
+Do not continue into another stack entry, or defer the stack's commits until all entries have been implemented.
 
 ## References
 
@@ -106,8 +134,10 @@ demonstrates one. Change the architecture when the user asks for it, or when the
 
 ## Before reporting it done
 
+- Confirm the immediate target has not moved since the branch was last synchronized. If it moved, incorporate it and
+  repeat the relevant review and validation before pushing or reporting the change ready
 - Run the project's own gate over what you touched: formatter, linter, static analysis, and the tests covering the
-  changed behavior. Use the project's runner (`task`, `composer`, an `npm` script, `make`) where one exists
+  changed behavior. Use `run-commands` so the project's runner or managed environment wins where one exists
 - Re-read the diff against the references and fix the misses
 - Self-review every code change after writing. Audit placement, package or module cohesion, responsibility, naming,
   dependency direction, control flow, error flow, comments, and tests with tools proportionate to the change
