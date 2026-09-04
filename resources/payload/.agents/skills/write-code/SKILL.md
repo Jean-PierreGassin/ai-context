@@ -1,10 +1,7 @@
 ---
 name: write-code
-description: Use when writing, editing, refactoring, or reviewing code in any language or framework, including a
-  single function, a bug fix, a script, or a small change to an existing file.
-when_to_use: Triggers on requests like "write a function", "add a method", "fix this bug", "refactor this", "clean
-  this up", or "write a script". Applies on top of any standards a plugin or project skill has already supplied, and
-  is still required when one is active.
+description: Write, edit, refactor, or review code in any language or framework.
+when_to_use: Use for implementation, bug fixes, refactors, scripts, or code review. Do not use for explanation, planning, tests-only work, PR prose, or tracker tickets.
 ---
 
 # Write Code
@@ -17,11 +14,9 @@ Write readable, cohesive code. Keep the change within the task.
    scope
 2. Open the nearest equivalent capability already in the repository and match how it is arranged
 3. Resolve or restore the execution location with `use-worktrees`, then use `run-commands` for project commands
-4. Before editing, identify the branch's immediate target, bring that target current, and incorporate it into the
-   working branch. In a stack, update ancestors first and cascade the updated parent into each child in order
-5. For each change-stack entry, write the change, auto-format it, self-review it, reconcile discoveries into the
-   persisted plan and affected later entries, obtain human approval, run the project gates, commit the approved restore
-   point, verify it can restore a fresh session, then stop before the next entry
+4. Bring the branch current with its immediate target, updating a stack from root to leaf
+5. For a stack, implement, format, self-review, reconcile the plan, obtain approval, run gates, commit, verify the
+   restore point, and stop before the next entry
 6. [Check the completed change](#before-reporting-it-done) before reporting it as done
 
 Shape the work before writing it:
@@ -31,13 +26,10 @@ Shape the work before writing it:
 | Contained: one review objective, one coherent diff                                             | Implement it directly  |
 | Several review objectives, migration sequencing, or work that must survive a session boundary  | Use `write-plan` first |
 
-An existing plan controls the order. Do not decide the split again. On a fresh context, complete `Start here` before
-you write code. Confirm the stack before writing. Assign each edit to its entry.
+Follow an existing plan. On fresh context, complete `Start here` and assign each edit to its stack entry.
 
-Before changing an earlier committed entry, determine whether its branch has a PR, whether the PR is draft or ready,
-whether review activity exists, and whether published descendants depend on that history. Do not plan to amend,
-fixup, squash, or rebase a commit that is already a review surface. Make the correction as a focused follow-up commit
-and propagate it through descendants when required.
+Before changing committed work, establish its review and stack state. Preserve reviewed or published history with a
+focused follow-up commit and merge it through descendants.
 
 ## Keep the target current
 
@@ -47,29 +39,20 @@ The working branch must incorporate its immediate target:
 - before the change is presented for human review
 - before meaningful new work is pushed
 
-For a normal feature branch, the immediate target is usually the repository's trunk branch. For a stacked branch, the
-immediate target is the preceding branch in the stack, not trunk directly.
+For a feature branch, the target is usually trunk. For a stacked branch, it is the preceding branch. Update stacks
+from root to leaf and validate affected work.
 
-When a stack needs updating, synchronize it root to leaf. Update trunk, incorporate trunk into the first branch,
-validate it, then incorporate that updated branch into its child and continue downward.
+Preserve commit identities after review begins or descendants are published. Use merges to carry changes forward.
 
-Do not rewrite published stack ancestry to make it look linear. Once a branch is ready for review, has review activity,
-or has published descendants, preserve its commit identities and use merges to carry target changes forward.
-
-If synchronization produces conflicts or changes the effective implementation, resolve them as implementation work,
-self-review the resulting diff, rerun the relevant validation, update persisted context, and obtain renewed human
-approval where a previously approved review surface changed.
+Treat conflict resolution as implementation work. Review, validate, update context, and renew approval when needed.
 
 ## Format before review
 
 Auto-format changed code before self-review and before the diff is presented for human review.
 
-Use `run-commands` to discover the project's canonical formatting mechanism. Prefer repository-provided tooling,
-configuration, and the active project environment. Do not assume a specific formatter, language server, IDE, or
-command name.
+Use `run-commands` to discover the canonical formatter. Do not assume a tool or command.
 
-If there is no obvious format command, investigate how the project or development environment provides formatting
-rather than skipping it. If no formatting mechanism exists, state that explicitly.
+If no formatter is obvious, investigate. State when none exists.
 
 After any implementation or review fix that changes code:
 
@@ -77,32 +60,18 @@ After any implementation or review fix that changes code:
 2. Inspect the formatted result
 3. Self-review the resulting diff
 
-Accept canonical formatting even when it expands code over more lines. Do not manually compress correctly formatted
-code to reduce the diff size.
+Accept canonical output; do not compress it to reduce the diff.
 
-The human-reviewed diff must already be formatted. After human approval, formatting is a verification gate. If a
-formatter changes the diff at that point, approval is invalid and the formatted diff returns to self-review and human
-review.
+After approval, formatting is a verification gate. Any change invalidates approval.
 
-When implementation or review disproves a plan assumption, update it where it belongs and propagate its consequences
-through every affected later entry before continuing. A discovery may refine implementation within the agreed
-requirements, architecture, review objectives, and stack shape. Push back when a proposed change moves any of those,
-adds scope, or creates broad side effects: explain the downstream impact, offer the smallest compatible alternative,
-and wait for explicit approval of the revised plan.
+Update disproved plan assumptions and affected later entries. Stop for approval when a discovery changes requirements,
+architecture, stack shape, scope, or broad side effects.
 
-Self-review and adjust each stack entry, then update the persisted plan and context with the current ship state,
-critical decisions, downstream plan changes, execution state, and exact next action. Send informational progress
-updates without stopping or asking for permission to continue. Stop early only for a blocker or a decision that
-changes the agreed direction. Otherwise, stop only when the complete entry has a clean, formatted implementation diff
+Keep the plan and restore context current. Continue within the agreed direction until the complete, formatted diff is
 ready for human review.
 
-Wait for explicit approval of that diff. After approval, use `git-commit` to run the project gates and create its
-preserving commit without another continuation prompt. Verify after the commit that a fresh session can resume without
-repeating investigation or decisions. Verify that the next plan's `Start here` section names all required skills,
-files, commands, environment entry point, and its first action, then stop before starting the next entry. Any
-post-approval change invalidates approval and must go through formatting, self-review, plan reconciliation, and human
-review again. Do not continue into another stack entry, or defer the stack's commits until all entries have been
-implemented.
+After approval, use `git-commit` to run gates and commit without another prompt. Verify restoration, then stop before
+the next entry. Any post-approval change requires renewed review. Do not defer all stack commits until the end.
 
 ## References
 
@@ -118,10 +87,7 @@ reference applies on top of its language reference.
 | Bash       | `references/bash.md`                                 |
 | Go         | `references/go.md`                                   |
 
-Each reference has two rule levels:
-
-- **Always apply** is an invariant. Surrounding code does not override it
-- **Follow the project where it is consistent** is a default preference. A consistent project convention overrides it
+`Always apply` rules are invariants. `Follow the project where it is consistent` rules yield to consistent precedent.
 
 When no language reference applies, use `references/clean-code.md` through the target language's idioms. Do not load an
 unrelated language reference to manufacture rules, and do not leave a choice arbitrary when the shared reference
@@ -131,11 +97,8 @@ supplies a settled preference.
 
 - What the project enforces wins: formatters, linters, static analysis, CI, `.editorconfig`, framework and interface
   contracts, and conventions in committed docs. Follow it, and say so in a sentence where it overrides a reference
-- The references are settled preferences rather than observations of this repository. Neighbouring code that predates
-  one does not excuse a new violation, and a correctly applied rule is never worth reverting because the neighbors
-  look different
-- When no project, plugin, or applicable reference supplies guidance, this skill's rules and preferences are the
-  defaults; apply them rather than treating the absence of loaded guidance as permission to improvise
+- References are settled preferences, not observations of neighboring code
+- Apply this skill's defaults where no higher-precedence guidance exists
 - Where a deviation is deliberate, say so with the reason rather than shipping it silently
 
 ## Architecture

@@ -1,7 +1,7 @@
 ---
 name: write-plan
-description: Use when planning a change that spans several steps, deciding how to break work into small independently shippable checkpoints, sequencing a migration or replacement, or resuming multi-step work across a session boundary.
-when_to_use: Triggers on requests like "plan this out", "how should we approach this", "work out how to break this up", "this is a big change", "sequence this migration", or "pick up where we left off". Applies on top of any standards a plugin or project skill has already supplied, and is still required when one is active.
+description: Plan, split, sequence, or resume multi-step implementation work.
+when_to_use: Use for implementation plans, reviewable change stacks, migrations, replacements, or work spanning sessions. Do not use for a contained fix, investigation, estimate, PR prose, ticket, or status report.
 ---
 
 # Write Plan
@@ -15,39 +15,28 @@ Define the smallest coherent ship states that collectively reach the agreed fina
 2. Name the shape of the work and [route](#route-by-shape) to what you need
 3. Load the skills that shape the plan's content: `write-code` for implementation quality, `write-tests` for coverage,
    and `git-commit` for commit boundaries
-4. Gather context by investigating the areas the change touches. Decide whether the work has a ticket from the branch,
-   tracker context, repository workflow, task scope, and what the user has already said. Ask only when the evidence is
-   genuinely ambiguous and the answer changes planning or delivery
+4. Investigate affected areas and settle ticket context from available evidence. Ask only when ambiguity changes delivery
 5. Define the intended final state, then split the path to it into the smallest coherent checkpoints that can ship and
    be proved independently. Use [the change stack](references/change-stack.md) when more than one checkpoint is needed
-6. Draft the split and its options. Get user confirmation before you detail each change. Persist any stack that will be
-   implemented or must survive a session boundary, with its context-loading bootstrap first
-7. Return concise Markdown. The Plannotator host integration intercepts the response and opens the review surface. Do
-   not launch it with a shell command. Ask only questions that can change the split, order, or approach
-8. Incorporate the user's Plannotator feedback and resubmit until they approve the plan. If the integration does not
-   open, continue the review in conversation. Report the observed integration failure. Package setup reports a missing
-   dependency, so do not download or install it from this skill
+6. Draft the split and options. Get confirmation before detailing each change. Persist stacks that will be implemented
+   or span sessions
+7. Return concise Markdown for Plannotator; do not launch it from the shell. Ask only consequential questions
+8. Incorporate feedback until approval. If Plannotator fails, report it and continue in conversation; do not install it
 9. Stop after planning by default. Name each persisted plan location so implementation can start with fresh context.
    Continue with implementation only when the user requested both tasks
 
 Before implementation starts, resolve the execution location with `use-worktrees`. If persisted context already records
 main checkout or worktree state, restore it instead of deciding again.
 
-Implement one approved stack entry at a time. Write it, self-review it, and correct it until the review is clean.
-Update the current plan and each affected later entry with implementation discoveries. Keep live restore context current
-throughout the entry.
+Implement one approved entry at a time. Keep its plan, affected later entries, and restore context current.
 
-Progress updates are informational. Do not stop or ask for permission to continue while an entry remains within the
-approved direction. Stop early only for a blocker or a decision that changes requirements, architecture, stack
-boundaries or ordering, scope, or broad side effects.
+Continue within the approved direction. Stop only for a blocker or a material change to direction or scope.
 
 Stop when the complete entry has a clean implementation diff ready for human review. Wait for explicit approval.
 After approval, run the project gates and commit the entry without another continuation prompt. Do not edit the next
 entry before this commit.
 
-After the commit, verify the persisted plan and context. They must record the completed ship state, proof, critical
-decisions, downstream consequences, execution location, and the next entry's exact first action. Verify that a fresh
-session can resume without repeating investigation or decisions, then stop before the next entry.
+After commit, verify the plan and context can restore the execution state and exact next action, then stop.
 
 A change after approval invalidates that approval. This includes formatter output and gate fixes. Review the new diff
 and return it for human review before you run the gates again.
@@ -65,11 +54,9 @@ A task can have more than one shape. Split it at the seam. Apply the correct sha
 
 ## Principles
 
-- **Use ASD-STE100 style.** Apply ASD-STE100 writing principles to plan output and persisted plan prose. Use short,
-  active sentences. Put one instruction or topic in each sentence. Use one consistent term for each concept. Remove
-  ambiguous pronouns, unnecessary synonyms, and dense noun groups. Keep exact commands, paths, identifiers, code,
-  template labels, and project terms unchanged. Do not claim verified ASD-STE100 compliance unless an approved checker
-  or qualified reviewer verifies the complete standard and controlled dictionary
+- **Write plainly.** Use short, active sentences, one term per concept, and one topic per sentence. Preserve exact
+  commands, paths, identifiers, labels, and project terms. Do not claim verified ASD-STE100 compliance without a
+  qualified review
 - **Prefer small proof boundaries.** Split whenever a smaller change can leave the repository valid, be reviewed on its
   own, and prove part of the work before the next change begins
 - **Keep atomic ship states together.** Combine adjacent work only when separating it would leave either part invalid,
@@ -83,10 +70,8 @@ A task can have more than one shape. Split it at the seam. Apply the correct sha
 - **Confirm before creating.** Never create branches or PRs before the user has agreed the split
 - **Settle ticket context once.** Record the ticket key and link, or the reason the work is proceeding without one, so
   later entries and fresh sessions do not ask again. Never invent a key
-- **Protect the agreed direction.** Fold discoveries that refine the agreed work into the plan. Stop and push back
-  when a proposed revision changes requirements, architecture, stack boundaries or ordering, adds a review objective,
-  or creates broad side effects. Explain the consequences and offer the smallest compatible alternative; revise the
-  direction only after explicit user approval
+- **Protect the agreed direction.** Reconcile refinements, but obtain approval for changes to requirements,
+  architecture, stack shape, review objectives, scope, or broad side effects
 
 ## Compose with other skills
 

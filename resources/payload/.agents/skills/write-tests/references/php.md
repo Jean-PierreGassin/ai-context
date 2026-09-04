@@ -1,6 +1,6 @@
 # PHP Test Patterns
 
-Use PHPUnit or Pest as specified by the repository. The `write-tests` principles control coverage and structure.
+Use the repository's PHPUnit or Pest setup. `write-tests` controls coverage and structure.
 
 ## Parameterized cases
 

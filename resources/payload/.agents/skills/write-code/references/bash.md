@@ -1,8 +1,7 @@
 # Bash
 
-Use the University of Washington CSE 374 Bash Style Guide as the baseline. Apply its formatting, quoting, naming, and
-control-structure rules. Do not copy its course-specific author, student ID, or assignment headers. Also apply the
-central `write-code` rules and the safety rules below.
+Use the University of Washington CSE 374 Bash Style Guide, excluding course headers. Also apply `write-code` and the
+safety rules below.
 
 Use `#!/usr/bin/env bash` as the portability preference. The project's deployment environment and enforced interpreter
 path take precedence.
@@ -41,8 +40,6 @@ path take precedence.
   sensitive
 
 ## Examples
-
-Each example has the strength of its corresponding rule above.
 
 ### Quote expansions and preserve argument boundaries
 

@@ -1,6 +1,6 @@
 ---
 name: use-worktrees
-description: Use when deciding whether implementation should run in the main checkout or a worktree, and when creating, entering, reviewing from, or tearing down a git worktree.
+description: Choose, create, enter, review, or remove Git worktrees.
 ---
 
 # Use Worktrees
@@ -18,27 +18,22 @@ Use a worktree when:
 - the user explicitly wants isolation
 - project-managed resources or a long-running stack benefit from an isolated checkout
 
-Do not create a worktree only because a task has several commits. An ordered dependent stack uses one execution
-location and, when a worktree is chosen, one worktree for the complete stack.
+Several commits alone do not require a worktree. Keep an ordered stack in one execution location.
 
-When persisted context already records the execution location, do not decide again. Re-enter that checkout or worktree
-and verify its branch, HEAD, and working state before continuing.
-
-Record the chosen mode, working directory, branch, and worktree path when persisted context exists.
+Restore a recorded execution location and verify its branch, HEAD, and working state. Record any new choice in the
+persisted context.
 
 ## Create or enter a worktree
 
 - Load `run-commands` before running worktree or environment commands
-- Use one worktree for an ordered change stack. Switch between its dependent branches there when the stack uses
-  multiple branches. Create separate worktrees only for independent tracks that will run concurrently
-- Use the project's worktree operation when it exists. Let `run-commands` discover the project harness, setup scripts,
-  task runners, port allocation, seeded environment files, devcontainers, container commands, and fallback path
+- Use one worktree for an ordered stack and separate worktrees only for concurrent independent tracks
+- Use the project's worktree operation, including its setup and resource allocation
 - Use the process below only when the project has no worktree operation
 
 ### Manual fallback
 
 1. Bring the branch's immediate target current first
-2. Create the branch from that current target and give the worktree and branch the same name
+2. Create the branch from that target; give the worktree and branch the same name
 3. Check `.worktreeinclude` or its equivalent against the files in the worktree. Copy missing required files from the
    source checkout. Do not display their contents or invent values
 4. Install dependencies inside the worktree through the project's established command path

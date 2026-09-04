@@ -1,7 +1,6 @@
 ---
 name: write-ticket
-description: Use when writing or editing a tracker ticket, or deciding whether substantial work needs one. Do not
-  interrupt exploratory, incidental, or personal side work solely to request a ticket.
+description: Write or edit tracker tickets, or decide whether substantial work needs one. Do not interrupt exploratory, incidental, or personal work solely to request a ticket.
 ---
 
 # Write Ticket
@@ -11,11 +10,8 @@ implementation order.
 
 ## Process
 
-1. Decide whether the work warrants a ticket from its scope and the repository's actual workflow. Look for an existing
-   ticket when substantial, shippable, assigned, or multi-session work is normally tracked. Proceed without prompting
-   when the work is clearly unticketed, including exploratory, incidental, or personal work and cases where the user
-   has already said there is no ticket. Ask only when the available evidence leaves a consequential ambiguity. Never
-   invent a ticket or key
+1. Use the repository workflow and task scope to find or justify a ticket. Proceed when clearly unticketed, ask only
+   when ambiguity changes delivery, and never invent a ticket or key
 2. Determine the type: story, bug, task, or investigation
 3. Read the matching reference. Follow its panel structure and field rules exactly. Do not copy another type's structure
 4. Apply the [shared principles](#shared-principles) to every type. Existing tickets do not override these principles
@@ -25,9 +21,8 @@ implementation order.
 
 ### Outcome-focused, not implementation
 
-Include outcomes, correctness rules, edge cases, affected entry points, outcome-based test scenarios, and expensive
-decisions. Exclude algorithms, internal signatures, incidental framework mechanics, and implementation order. Include
-exact copy only when it is required.
+Include outcomes, correctness rules, edge cases, affected entry points, test scenarios, and costly decisions. Exclude
+algorithms, internal signatures, incidental framework mechanics, and implementation order.
 
 Do not include code, pseudocode, diffs, or coded instructions. Describe contracts and constraints in domain language.
 The ticket must remain valid when the implementation changes.
@@ -41,8 +36,7 @@ non-obvious constraints, and missable edge cases.
 
 - Use the business's domain terms
 - Link related tickets as hyperlinks, not plain text keys
-- Include the context, current behavior, desired outcome, constraints, and acceptance criteria. A new reader must be
-  able to review and start the work without reconstructing the conversation
+- Include enough context, behavior, constraints, and acceptance criteria to start without reconstructing the conversation
 
 ## References
 

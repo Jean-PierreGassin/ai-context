@@ -281,7 +281,7 @@ test_global_install() {
   ! grep -Fq '# Personal' "$global_root/.claude/CLAUDE.md" ||
     fail 'global install kept the personal CLAUDE.md content'
   [[ -f "$global_root/.agents/AGENTS.md" ]]
-  grep -Fq "Skills live in \`~/.agents/skills\`" "$global_root/.agents/AGENTS.md"
+  grep -Fq "Load each matching skill from \`~/.agents/skills\`" "$global_root/.agents/AGENTS.md"
   ! grep -Fq "(.agents/skills/" "$global_root/.agents/AGENTS.md" ||
     fail 'global install left a project-relative skills path in the instructions'
   [[ -f "$global_root/.codex/AGENTS.md" ]]

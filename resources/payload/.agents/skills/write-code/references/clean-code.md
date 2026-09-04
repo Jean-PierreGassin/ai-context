@@ -1,7 +1,6 @@
 # Clean Code
 
-Read this reference for every code task. It defines shared implementation preferences. Apply each decision through the
-target language's idioms. Do not copy the neutral notation as syntax.
+Read this for every code task. Apply its neutral examples through the target language's idioms.
 
 ## Always apply
 
@@ -233,9 +232,11 @@ Good:
 
 ```text
 customer = customers.find(request.customerId)
+
 if customer.missing: return customerNotFound
 
 invoice = createInvoice(customer, request.lines)
+
 if invoice.invalid: return invalidInvoice
 
 store.save(invoice)
@@ -356,19 +357,13 @@ Extract when the created unit has an honest responsibility, a useful contract, o
 
 ### Do not add code comments unless explicitly required
 
-Do not write comments, docblocks, TODOs, explanatory annotations, section comments, or rationale into code unless:
+Add comments, docblocks, TODOs, annotations, or rationale only when:
 
 - the user explicitly asks for that comment or documentation
 - the language, framework, interface, linter, generator, formatter, or another project tool requires it
 - project tooling automatically generates it as part of the requested operation
 
-Do not add a comment merely because the code is complex, because neighboring code uses comments, or because a future
-reader might benefit from narration. Make names and structure carry the explanation instead.
-
-When tooling requires a comment or annotation, keep only what the requirement needs. Do not expand it with extra
-narration unless the user asks.
-
-Existing comments outside the requested change are not an invitation to add more. Leave unrelated comments alone.
+Use names and structure instead of narration. Keep required comments minimal and leave unrelated comments alone.
 
 ### Match user-facing copy to its contract
 
@@ -383,5 +378,4 @@ with the behavior it represents.
 - Prefer existing domain types, constants, enums, and test builders over parallel representations
 - Use the project's formatter, static analysis, linter, and test runner as the executable definition of mechanical style
 
-Project precedent does not override the always-apply rules unless it is enforced by tooling, a framework or interface
-contract, or committed project documentation.
+Only enforced tooling, framework or interface contracts, or committed documentation override `Always apply` rules.

@@ -1,8 +1,7 @@
 # PR Body Template
 
-Use this template when the repository has no template. A repository template replaces it. Put the `Ticket:` line at
-the top of the repository template's context section when a ticket exists. Omit the complete line for intentionally
-unticketed work.
+Use this only when the repository has no template. Put `Ticket:` at the top of its context section when applicable;
+omit the line for intentionally unticketed work.
 
 The main context is written and approved before this template is assembled. Insert that approved text under
 `Description` without regenerating or broadening it.

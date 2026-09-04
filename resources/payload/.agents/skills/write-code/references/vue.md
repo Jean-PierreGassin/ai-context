@@ -31,8 +31,6 @@ Read this reference with the TypeScript reference.
 
 ## Examples
 
-Each example has the strength of its corresponding rule above.
-
 ### Destructure typed props with defaults
 
 Bad on Vue 3.5 or later:

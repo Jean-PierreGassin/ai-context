@@ -1,10 +1,9 @@
 # Persisted Plans
 
-Read this reference when work must survive an interruption, context reset, handover, or second session. A contained
-change in one conversation does not need persisted files. An implemented change stack always needs them.
+Read this when work must survive an interruption or another session. A contained change does not need persisted files;
+an implemented change stack does.
 
-Persist both the approved plan and the live execution state. A fresh session must be able to resume an in-progress
-entry without rediscovering its checkout, environment, branch state, or next action.
+Persist the approved plan and live state so a fresh session can resume directly.
 
 ## What gets persisted
 
@@ -39,7 +38,7 @@ sufficient context and begin without asking the user to repeat anything. Record 
 - **Commands:** discovery or baseline commands worth repeating and the exact validation gates
 - **Begin with:** the first unchecked action that can be taken after the context is loaded
 
-Keep this section executable and selective. Do not inventory the repository or copy linked material.
+Keep this section executable and selective; do not copy linked material or inventory the repository.
 
 ## Live context
 
@@ -69,8 +68,7 @@ Update the context at meaningful state transitions: after choosing an execution 
 project environment, switching branches, synchronizing the target, completing a checklist item, making a consequential
 decision, changing the expected dirty set, receiving review state, or establishing a new exact next action.
 
-Do not turn the context into an activity log. Replace stale state. Preserve only the current execution state plus
-critical reasoning that a fresh session should not repeat.
+Replace stale state instead of keeping an activity log.
 
 ## Where plans live
 

@@ -1,7 +1,6 @@
 # Change Strategies
 
-Identify the change shape before you split it. If a task has two shapes, split it at the seam. Use one strategy for
-each part. Every resulting checkpoint must satisfy the ship-state and proof rules in `change-stack.md`.
+Choose a strategy for each change shape. Every checkpoint must satisfy `change-stack.md`.
 
 | The change is                     | Decompose as                                                         |
 |-----------------------------------|----------------------------------------------------------------------|
@@ -12,8 +11,7 @@ each part. Every resulting checkpoint must satisfy the ship-state and proof rule
 
 ## Thin vertical slices
 
-For a new capability, each slice includes the layers required to make that increment usable. Keep the slice as small
-as possible while still leaving a meaningful ship state.
+Each slice includes the layers required for one small, usable increment.
 
 Slice by usable increment, not by architectural layer:
 
@@ -60,8 +58,7 @@ Example:
 8  Remove the shared legacy client after every consumer has moved.
 ```
 
-Do not write one checkpoint called `Refactor Platform A` when independent internal boundaries can ship and be proved
-separately.
+Split independent internal boundaries instead of using a broad `Refactor Platform A` checkpoint.
 
 Use a feature flag when a risky switch needs staged rollout. The flag is not a reason to combine unrelated consumers
 in one review.

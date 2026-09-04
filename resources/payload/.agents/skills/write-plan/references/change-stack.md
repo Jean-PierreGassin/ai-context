@@ -1,7 +1,6 @@
 # The Change Stack
 
-A change stack is an ordered sequence of very small, coherent ship states. Each entry is independently valid,
-independently provable, and has one bounded review objective.
+A change stack is an ordered sequence of small, independently valid and provable ship states with one review objective each.
 
 Read this reference when the work needs more than one checkpoint.
 
@@ -17,8 +16,7 @@ Read this reference when the work needs more than one checkpoint.
 - **Reviewer focus** - what an experienced reviewer should actually scrutinize here
 - **Rollback** - how this is reverted or disabled if it goes wrong, and what it takes with it
 
-Give a brief value when a field needs no detail. `Rollback: revert the commit` and `Sets up: nothing` are complete
-answers.
+Use brief values such as `Rollback: revert the commit` when accurate.
 
 Example:
 
@@ -47,8 +45,7 @@ Prefer this order when the dependencies allow it:
 5. User-facing integration
 6. Cleanup and removal after all consumers have moved
 
-Do not make an early setup change larger merely because it is mechanical. A mechanical sweep can remain one change
-when it is one obvious, repeatable operation, but split independent structural steps when each can be proved alone.
+Keep a repeatable mechanical sweep together, but split independently provable structural steps.
 
 ## Rules that hold across the stack
 
@@ -62,7 +59,7 @@ when it is one obvious, repeatable operation, but split independent structural s
 
 ## Keep reviews small
 
-There is no target line or file count that makes a change reviewable.
+No line or file count defines reviewability.
 
 Look for another seam when:
 
@@ -74,8 +71,7 @@ Look for another seam when:
 
 Keep work together when splitting would leave either checkpoint invalid, misleading, or impossible to prove.
 
-Mechanical generated or tool-driven output can be larger when it is genuinely one repeatable operation and separating
-it would only create arbitrary batches.
+Generated output may be larger when it is one repeatable operation that cannot be split meaningfully.
 
 ## Validate the split before proposing it
 
@@ -90,9 +86,7 @@ it would only create arbitrary batches.
 
 ## Shipping the stack
 
-Use as many checkpoints as needed to keep every review small, coherent, shippable, and independently provable. Never
-create branches or PRs before the split is agreed. `write-pr` governs each change's description, including its exact
-review boundary and how it relates to adjacent changes.
+Never create branches or PRs before the split is agreed. `write-pr` governs each change's review boundary.
 
 ### Reconcile implementation discoveries
 

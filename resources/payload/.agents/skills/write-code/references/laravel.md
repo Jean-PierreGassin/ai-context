@@ -1,7 +1,7 @@
 # Laravel
 
-Follow the project's architecture. Actions, services, repositories, and domain layers below identify roles. They are
-not required layers. Read this after the shared and PHP references. Project tooling controls naming conventions.
+Read this after the shared and PHP references. Follow project architecture and naming. Mentioned layers describe roles,
+not requirements.
 
 ## Always apply
 
@@ -267,8 +267,7 @@ public function toArray(Request $request): array
 }
 ```
 
-Use `JsonResource` for API output. Put repeated response formatting in a shared base resource. Use a JSON:API envelope
-base only when the API actually follows that specification.
+Use `JsonResource` for API output and share repeated formatting. Use a JSON:API envelope only for that specification.
 
 ### Use framework helpers where they express intent
 

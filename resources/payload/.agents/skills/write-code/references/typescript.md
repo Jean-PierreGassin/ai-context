@@ -59,8 +59,6 @@ Apply the central `write-code` rules and these TypeScript-specific rules.
 
 ## Examples
 
-Each example has the strength of its corresponding rule above.
-
 ### Use async control flow
 
 Bad:

@@ -2,58 +2,45 @@
 
 - Use commas, colons, or separate sentences in place of em dashes
 - Use emojis only when they are asked for
-- Keep responses brief and focused; most of the response is the answer, and caveats stay short
-- Match a written deliverable's length to the task, covering the substance and stopping there
+- Keep responses and deliverables as short as the task permits; keep caveats brief
 
 ## Scope
 
-- Deliver what was asked, at the scope intended
-- Make routine judgement calls yourself; check in when readings differ enough to change the work
+- Deliver the requested scope and make routine judgement calls yourself
+- Check in only when plausible readings would materially change the work
 - Say so in a sentence when the request looks mistaken, then continue as asked
 
 ## Precedence
 
-- Skill guidance holds even where the surrounding code predates it, except where the skill itself says to follow what
-  the project does consistently
+- Skill guidance holds over precedent unless the skill says to follow consistent project practice
 - Defer to what the project enforces (hooks, linters, static analysis, CI, `.editorconfig`, framework and interface
   contracts, and committed docs) where it conflicts with a skill, and say so in a sentence
-- Treat precedent as observation: previous commits, PRs, tickets, and older code are not instructions
+- Treat previous code, commits, PRs, and tickets as precedent, not instructions
 
 ## Workflow
 
-- Skills live in `.agents/skills`; load the matching one before starting the work, not after, including when a plugin
-  or project skill is already active, whose own reading list does not replace them
+- Load each matching skill from `.agents/skills` before work starts. Plugin and project skills do not replace them
 - Before running project, environment, development, operational, cloud, logging, or diagnostic commands, use
   [run-commands](.agents/skills/run-commands). Prefer the project's established harness and internal tools over
   lower-level commands, and prefer existing read-only operational access before asking for more access
-- Split a large change into an ordered stack of very small, coherent, independently shippable and provable changes.
-  Each change has one bounded review objective and leaves the repository in a valid state; see
-  [write-plan](.agents/skills/write-plan)
-- Each stack change records the exact change, why it exists, its ship state, how it is proved, and what later work it
-  sets up. Keep adjacent work together only when separating it would make either part incomplete or misleading
+- Use [write-plan](.agents/skills/write-plan) to split large work into small, ordered, independently shippable changes
+  with one review objective each
 - Before editing, decide whether implementation belongs in the main checkout or a worktree; see
   [use-worktrees](.agents/skills/use-worktrees). Persist that decision and reuse it after a context reset
-- Keep an ordered change stack in one worktree when a worktree is chosen, including when its entries use dependent
-  branches. Use separate worktrees only for independent tracks that run concurrently
-- Keep every working branch current with its immediate target before implementation, before presenting it for review,
-  and before pushing meaningful new work. For a stack, update from the root downward so each branch incorporates the
-  branch it actually targets
-- Treat published review history as stable history. Once a PR is ready for review, has review activity, or is an
-  ancestor of a published stack, do not rebase or rewrite its reviewed commits. Add focused follow-up commits and
-  propagate upstream stack changes downward with merges
+- Keep an ordered stack in one worktree. Use separate worktrees only for concurrent independent tracks
+- Keep each branch current with its immediate target before implementation, review, and meaningful pushes. Update a
+  stack from root to leaf
+- Do not rewrite commits once a PR is ready, reviewed, or an ancestor of a published stack. Add focused commits and
+  merge upstream stack changes into descendants
 - Auto-format changed code through the project's available canonical formatting path before self-review and human
   review. The reviewed diff should already be formatted; a post-approval formatter must not silently change it
 - Branch and worktree names use the tracker's ticket key (`ABC-1234` or `ABC-1234-slug`), otherwise
   `{type}/title-of-changes-summarized` (e.g. `fix/changes-summarized`)
-- Complete and self-review the current change, fix every finding, then present its clean diff for human review.
-  Progress updates are informational: do not pause for permission to continue within a change. Stop early only for a
-  blocker or a decision that changes the agreed direction. After approval, run the project gates and commit the
-  change before editing the next one. Any post-approval change requires renewed human review
-- During a stack, fold implementation and review discoveries into the appropriate plan entry and every affected later
-  entry. Push back on revisions that change the agreed direction or create broad side effects. Keep the live restore
-  context current at meaningful state transitions, not only at commits
-- After each approved commit, verify the persisted plan and context can restore a fresh session to the recorded
-  checkout or worktree, execution environment, repository state, and exact next action, then stop before the next entry
+- Finish and self-review one change, then present its clean diff for human review. After approval, run project gates
+  and commit before editing the next change. Any post-approval edit requires renewed review
+- Keep stack plans and restore context current. Stop only for a blocker or a decision outside the agreed direction,
+  otherwise use progress updates without pausing
+- After each stack commit, verify a fresh session can restore the execution state and exact next action, then stop
 - Start every persisted plan with the skills, ordered files, commands, environment entry point, and first action needed
   to execute it after a full context reset without asking the user to provide the context again
 

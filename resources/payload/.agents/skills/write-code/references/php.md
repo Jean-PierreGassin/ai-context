@@ -1,11 +1,7 @@
 # PHP
 
-Use PER Coding Style 3.0 as the PHP formatting baseline unless the project enforces another standard. This reference
-does not repeat PER or PSR rules. It contains additional implementation preferences and examples. Read it after
-`clean-code.md`. Preserve behavior when you apply each PHP-specific decision.
-
-The strict-types, named-argument, input-DTO, and explicit-assignment rules are deliberate project preferences beyond
-PER's formatting standard. Project runtime versions and enforced contracts still take precedence.
+Read this after `clean-code.md`. Use PER Coding Style 3.0 unless the project enforces another standard. These rules add
+deliberate preferences for strict types, named arguments, input DTOs, and explicit assignment.
 
 ## Always apply
 
@@ -110,8 +106,7 @@ final class InvoiceIssuer
 }
 ```
 
-Promotion removes assignment ceremony. Whether the property is `readonly` follows consistent project usage unless a
-contract requires immutability.
+Follow project usage for `readonly` unless a contract requires it.
 
 ### Interpolate strings
 
@@ -160,9 +155,8 @@ function issueInvoice(IssueInvoiceData $input): IssueInvoiceResult
 }
 ```
 
-Do not introduce a Result wrapper for a function whose natural contract is already a value, collection, stream, or
-`void`. Framework-defined array signatures remain arrays. PHPDoc carries information the signature cannot, such as
-`@throws` and genuinely unavoidable generic detail; it does not restate declarations.
+Keep natural value, collection, stream, `void`, and framework array contracts. Use PHPDoc only for information the
+signature cannot carry, such as `@throws` or unavoidable generic detail.
 
 ### Use enums and constants for named values
 
@@ -286,6 +280,7 @@ Bad:
 
 ```php
 $invoiceIds = [];
+
 foreach ($invoices as $invoice) {
     if ($invoice->isOverdue()) {
         $invoiceIds[] = $invoice->id;
@@ -389,21 +384,8 @@ Good:
 ```php
 $total = $invoice->total();
 $discountRate = $customer->discountRate();
+
 if ($discountRate > 0) {
     $total = $total->discountedBy($discountRate);
 }
 ```
-
-### Prefer composition at real seams
-
-Prefer a trait to base inheritance for reusable cross-cutting behavior. Make `final` deliberate, normally for a leaf
-type that must not be extended. Introduce a contract where substitution or a genuine boundary exists, not merely for a
-single concrete dependency.
-
-## Follow the project where it is consistent
-
-- Type class constants
-- Mark promoted properties `readonly` when they are never reassigned
-- Inject collaborators rather than constructing them inside methods
-- Avoid pass-by-reference parameters; keep mutation at the call site
-- Use Carbon for application date and time work where the project uses it

@@ -1,45 +1,32 @@
 ---
 name: write-pr
-description: Use whenever opening, drafting, creating, or editing a pull request or pr, including writing or revising
-  its title, body, or review focus.
-when_to_use: Triggers on requests like "open a PR", "raise a pull request", "write the PR description", or "update the
-  PR body". Applies on top of any standards a plugin or project skill has already supplied, and is still required when
-  one is active.
+description: Draft, open, or edit a pull request, including its title, body, and review focus.
+when_to_use: Use for PR authoring or creation. Do not use for commit messages, code review, history edits, tickets, or planning a PR split.
 ---
 
 # Write PR Description
 
-A PR should make its exact review boundary obvious. The title names the bounded change. The main context explains why
-that specific change exists, the state it establishes, and what it enables next when it is part of a stack.
+A PR title names one review boundary. Its context explains why it exists and the state it establishes.
 
 ## Process
 
 1. Check [reviewability](#reviewability). Propose a split when the change has more than one bounded review objective
-2. Confirm the head branch incorporates the current HEAD of its immediate target. For a stack, synchronize root to leaf
-   before presenting or opening the affected PRs
+2. Bring the head branch current with its immediate target, synchronizing a stack from root to leaf
 3. Draft the exact title using [title wording](#title-wording)
 4. Draft the [main context](#main-context) independently of repository template boilerplate
 5. Determine the target branch and whether the user has already specified Draft or Ready for review
-6. Show the user the exact proposed title, main context, target branch, and requested review state. If the state is not
-   settled, ask whether to open Draft or Ready for review
-7. Wait for explicit approval. If the user changes the wording, revise the proposal and show it again. Do not open the
-   PR until the title, main context, and review state are approved
-8. After approval, fill the repository's PR template, or `assets/body-template.md` when none exists. Insert the approved
-   main context without regenerating or broadening it. Add required ticket, change type, template, review-focus, and
-   other mechanical fields around it
+6. Show the exact title, context, target, and Draft or Ready state; ask for any missing state
+7. Obtain explicit approval of the title, context, target, and state before opening the PR
+8. Fill the repository template, or `assets/body-template.md`. Preserve the approved context and add required fields
 9. Open the PR against the approved target in the approved Draft or Ready state. Assign it to the author
-10. Persist the PR number and review state when the work has persisted context. Ready for review makes the published
-    history append-only. Review activity on a draft does the same
+10. Persist the PR number and review state. Ready status or review activity makes history append-only
 
 Commit subjects are not PR titles: they take the `git-commit` skill's `TICKET-KEY - ...` hyphen. Where the repository
 squash-merges, the merged subject deliberately inherits the PR title.
 
 ## Title wording
 
-The title is the exact review boundary, not the larger initiative that this PR contributes toward.
-
-Name the smallest meaningful unit changed and what this PR does to it. Prefer concise, simple wording when it remains
-unambiguous.
+Name the smallest meaningful unit changed and what the PR does to it. Do not name the larger initiative.
 
 Do not broaden one component, call site, client, consumer, or migration step into a subsystem-wide outcome.
 
@@ -55,9 +42,6 @@ Good:
 ```text
 Migrate Platform A API client to shared client
 ```
-
-The good title says which bounded component moves. It does not imply that every Platform A request or call site has
-migrated.
 
 For a bug fix, name the useful behavior being restored and include an established cause when that makes the title more
 specific.
@@ -75,8 +59,7 @@ Good:
 Fix project boot failures caused by Node.js v2.2.2
 ```
 
-Use implementation wording when the implementation boundary itself is the thing under review. Do not manufacture a
-broader product outcome to make the title sound more important.
+Use implementation wording when that is the review boundary. Do not manufacture a broader product outcome.
 
 Avoid generic titles such as `Update files`, `Refactor code`, `Changes to webhooks`, or wording that narrates what the
 agent happened to remove or edit rather than what the bounded change means.
@@ -87,7 +70,7 @@ When repository or ticket conventions require a prefix, apply it without changin
 
 Write the human explanation before fitting it into the repository template.
 
-It answers, in this order where useful:
+Answer, where useful:
 
 1. Why does this exact review unit need to exist?
 2. What exact state does it establish?
@@ -104,8 +87,7 @@ This change migrates only that API client to the shared client. Other Platform A
 This allows the next Platform A consumer to migrate without also changing its transport dependency.
 ```
 
-Do not claim that the larger migration is complete when this PR only establishes one checkpoint. Keep implementation
-history, debugging narration, and session narration out of the context.
+Do not overstate completion or include implementation, debugging, or session history.
 
 The approved main context is a human checkpoint. Once approved, do not silently regenerate it while assembling the PR
 template. Only apply formatting or placement required by the repository template.
@@ -116,18 +98,14 @@ A PR has one bounded review objective. Separate mechanical work from behavior. E
 risky logic. If the user keeps a mixed PR, open it only after the normal proposal approval and direct the reviewer to
 the risky parts.
 
-For dependent changes, use the repository or hosting provider's actual stacked-PR support for base relationships and
-adjacent-change visibility. Once a branch is published, ready for review, has review activity, or has published
-descendants, preserve its ancestry. Do not rebase or force-push the stack merely to restack it. Add upstream fixes as
-focused commits and merge updated parents forward through their descendants.
+Use actual stacked-PR base relationships. Preserve ancestry after publication or review, using focused commits and
+merges instead of rebases or force-pushes.
 
 ## Rules
 
 ### Structure
 
-- Follow the repository's PR template and any enforced checks. It wins over `assets/body-template.md`, and previous
-  PRs in the repository are not the standard. A template sets which sections exist rather than how to write them, so
-  the content, review focus, and voice rules below still apply inside whatever structure it imposes
+- Follow repository templates and enforced checks. They replace `assets/body-template.md`; these content rules still apply
 - When a ticket exists, link it as a `Ticket: [KEY](url)` line at the top of the body, or of the template's context
   section where one exists. Do not add a placeholder ticket line to intentionally unticketed work
 - Pick the repository-required change type when one exists. Combine types only where the PR genuinely spans them
@@ -155,16 +133,15 @@ focused commits and merge updated parents forward through their descendants.
 
 ### Leave out
 
-- Anything about tests or verification: no evidence sections, suite counts, coverage numbers, or how it was verified
-  locally. Where the template forces a Testing heading, `Manually verified.` is the ceiling. The review focus may cite
-  existing coverage only to clear a mechanical section
+- Test or verification evidence, suite counts, and coverage numbers. If a template requires Testing, use at most
+  `Manually verified.`; review focus may cite coverage only to clear mechanical work
 - Generic impact, risk, prerequisite, and deliberately-out-of-scope sections. Put concrete review risk in `Review
   focus`. Put deployment steps, launch blockers, and defects in other files in the ticket or an approved comment
 - Session narration, debugging chronology, tooling narration, or assistant-session links
 
 ### Voice
 
-Use the author's direct voice. Apply ASD-STE100 writing principles to the title and body:
+Use the author's direct voice and plain technical prose:
 
 - Use short, active sentences
 - Put one topic or instruction in each sentence
@@ -172,7 +149,6 @@ Use the author's direct voice. Apply ASD-STE100 writing principles to the title 
 - Remove ambiguous pronouns, unnecessary synonyms, and dense noun groups
 - Keep exact ticket keys, commands, identifiers, code, URLs, template labels, and project terms unchanged
 
-State uncertainty precisely. Omit throat-clearing. Do not claim verified ASD-STE100 compliance unless an approved
-checker or qualified reviewer verifies the complete standard and controlled dictionary.
+State uncertainty precisely and omit throat-clearing. Do not claim verified ASD-STE100 compliance without qualified review.
 
 Repository-enforced templates and workflow win on format. The rules above govern content where the project is silent.

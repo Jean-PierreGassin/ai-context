@@ -1,6 +1,6 @@
 # Go Tests
 
-Read this with the shared test principles and the Go code reference.
+Read this with the shared test principles and Go code reference.
 
 ## Always apply
 

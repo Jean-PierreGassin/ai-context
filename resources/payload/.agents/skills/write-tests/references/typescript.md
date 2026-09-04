@@ -1,6 +1,6 @@
 # TypeScript Test Patterns
 
-Use Vitest or Jest as specified by the repository. The `write-tests` principles control coverage and structure.
+Use the repository's Vitest or Jest setup. `write-tests` controls coverage and structure.
 
 ## Parameterized cases
 

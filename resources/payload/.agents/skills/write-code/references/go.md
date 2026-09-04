@@ -1,8 +1,7 @@
 # Go
 
-Use the Google Go Style Guide, Style Decisions, and Effective Go as the baseline. Read this after `clean-code.md`. Use
-clear, simple code and explicit lifetimes. Let `gofmt` control mechanical formatting. Use semantic structure for a
-top-to-bottom flow.
+Read this after `clean-code.md`. Use the Google Go Style Guide, Style Decisions, and Effective Go as the baseline; let
+`gofmt` control mechanics.
 
 ## Always apply
 
@@ -89,8 +88,8 @@ func newIssuer(store store) *issuer {
 }
 ```
 
-The implementation package returns its concrete `*Store`. Prefer standard interface names such as `Reader` and
-`Writer` when the method has the standard meaning and signature. Pass interfaces as values, not pointers to interfaces.
+Return concrete implementations. Use standard interface names where their method and signature match. Never use
+pointers to interfaces.
 
 ### Use constructors only when they establish something
 
@@ -163,8 +162,7 @@ if request.SendReceipt {
 return invoice, nil
 ```
 
-Do not add a blank line between every guard mechanically. Whitespace marks changes of concern: preconditions,
-loading, transformation, persistence, and return. `gofmt` does not make this semantic decision for you.
+Use whitespace for changes of concern, such as loading, transformation, persistence, and return.
 
 ### Keep the successful path visible
 
@@ -224,8 +222,7 @@ if err := store.Save(ctx, invoice); err != nil {
 }
 ```
 
-Use a sentinel or custom error type only when callers need programmatic classification. Do not panic for an ordinary
-runtime failure that a caller can handle.
+Use classified errors only when callers need them. Do not panic for recoverable runtime failures.
 
 ### Pass context first and do not store it
 
