@@ -1,9 +1,17 @@
 # PHP
 
-Read this after `clean-code.md`. Use PER Coding Style 3.0 unless the project enforces another standard. These rules add
-deliberate preferences for strict types, named arguments, input DTOs, and explicit assignment.
+Read this after `clean-code.md`. Use the project's enforced PHP standard first. These rules add deliberate preferences for
+strict types, named arguments, input DTOs, Actions, and explicit assignment.
 
 ## Always apply
+
+### Use Actions for application and business use cases
+
+Prefer one meaningful use case per Action class. An Action accepts a purpose-named input DTO and returns an `ActionResult`
+when it reports success or failure. `ActionResult` may expose action-specific result methods when needed.
+
+Keep the Action focused on the use case and its orchestration. Do not introduce repositories as the default application
+architecture.
 
 ### Declare strict types in new files
 
@@ -32,7 +40,8 @@ namespace App\Invoice;
 
 Expand long signatures and all multi-argument calls. PER controls indentation, one-item-per-line layout, and trailing
 commas. Order parameters by meaning and importance. Put the subject and required collaborators before optional
-configuration. Use named arguments for owned signatures, including calls with one argument.
+configuration. Use named arguments for owned signatures, including calls with one argument, unless the target framework
+or project convention uses a different native calling style.
 
 Bad:
 
@@ -61,6 +70,9 @@ $output = render(
 
 Third-party and inherited signatures may make positional arguments safer. Name a third-party argument when its name is
 what makes a bare literal clear, such as `json_decode($body, associative: true)`.
+
+Framework-specific references may define more specific native calling or formatting conventions; follow those where they
+apply.
 
 ### Import class names
 
@@ -125,12 +137,17 @@ $owner = "Owned by {$invoice->customer->name}";
 
 Use braces only where a property or method chain needs them.
 
-### Use DTOs at owned input boundaries
+### Use DTOs at meaningful data boundaries
 
-Type parameters and returns. Structured data entering an operation through a signature you own belongs in a
-purpose-named DTO, including nested input shapes. A DTO is not the default return type. Return the operation's actual
-contract. For an Action that must report success, failure, and returned data, use the project's established Result
-pattern.
+Use DTOs to pass structured data across a meaningful boundary. They usually originate at an application entry point, or
+represent a structured result that would otherwise be an unwieldy array or similar shape.
+
+A DTO is not the default return type merely because data crosses a class or layer boundary. Prefer the operation's natural
+contract, such as a model, collection, scalar, enum, value object, stream, `void`, or framework-defined array. Do not add a
+DTO solely to wrap an otherwise natural return value.
+
+For Actions, use a purpose-named input DTO when structured input is needed and return the project's `ActionResult` when the
+Action reports success or failure.
 
 Bad:
 
@@ -145,18 +162,20 @@ function issueInvoice(array $input): array
 Good:
 
 ```php
-function issueInvoice(IssueInvoiceData $input): IssueInvoiceResult
+function issueInvoice(IssueInvoiceData $input): ActionResult
 {
-    return IssueInvoiceResult::success(
-        invoice: Invoice::issue(
-            customer: $input->customer,
-        ),
+    $invoice = Invoice::issue(
+        customer: $input->customer,
+    );
+
+    return ActionResult::success(
+        invoice: $invoice,
     );
 }
 ```
 
-Keep natural value, collection, stream, `void`, and framework array contracts. Use PHPDoc only for information the
-signature cannot carry, such as `@throws` or unavoidable generic detail.
+When a non-Action operation would otherwise return a large or loosely structured array, a purpose-named DTO can make that
+contract explicit. Do not impose DTO returns on repositories, services, query classes, or other arbitrary layers.
 
 ### Use enums and constants for named values
 

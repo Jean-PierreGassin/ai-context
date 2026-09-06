@@ -1,7 +1,6 @@
 ---
 name: git-commit
-description: Stage, split, or commit changes, write commit messages, and safely rewrite Git history.
-when_to_use: Use for staging, commits, commit messages, and any rebase or history rewrite that creates commits.
+description: Stage, split, or commit changes and safely manage Git history. Use for commits, commit messages, and history rewrites.
 ---
 
-Read `.agents/skills/git-commit/SKILL.md` now and follow it, with any references it directs you to.
+Read `.agents/skills/git-commit/SKILL.md` and follow it, including the references it directs you to.
