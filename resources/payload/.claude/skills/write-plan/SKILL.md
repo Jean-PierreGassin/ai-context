@@ -1,7 +1,6 @@
 ---
 name: write-plan
-description: Plan, split, sequence, or resume multi-step implementation work.
-when_to_use: Use for implementation plans, reviewable change stacks, migrations, replacements, or work spanning sessions. Do not use for a contained fix, investigation, estimate, PR prose, ticket, or status report.
+description: Plan, split, sequence, or resume multi-step implementation work. Use for migrations, replacements, stacked changes, or work spanning sessions.
 ---
 
-Read `.agents/skills/write-plan/SKILL.md` now and follow it, with any references it directs you to.
+Read `.agents/skills/write-plan/SKILL.md` and follow it, including the references it directs you to.

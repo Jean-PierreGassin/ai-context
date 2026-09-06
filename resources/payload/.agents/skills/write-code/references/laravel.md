@@ -5,6 +5,31 @@ not requirements.
 
 ## Always apply
 
+### Use Actions for business use cases
+
+Where application behaviour is owned by an Action, keep it as the use-case boundary. Pass structured input in a
+purpose-named DTO and return `ActionResult` when the Action reports success or failure.
+
+Bad:
+
+```php
+Route::post('/invoices', function (Request $request) {
+    $invoice = new Invoice();
+    $invoice->customer_id = $request->integer('customer_id');
+    $invoice->save();
+
+    return response()->json($invoice);
+});
+```
+
+Good:
+
+```php
+Route::post('/invoices', StoreInvoiceController::class);
+```
+
+Keep controllers thin and routes declarative. Keep the Action focused on the use case and its orchestration.
+
 ### Read request input explicitly
 
 `Request::get()` falls through to Symfony's parameter behavior and may return route data rather than request input.
@@ -21,9 +46,8 @@ Good:
 $reference = $request->input('reference');
 ```
 
-Keep framework-defined `array` signatures. At an owned application entrypoint, convert validated input into a
-purpose-named DTO. Use the project's Result contract for Action output. Do not use a DTO only because an operation
-returns data.
+Keep framework-defined `array` signatures. At an owned application entrypoint, convert validated structured input into
+a purpose-named DTO. Do not use a DTO merely because an operation returns data.
 
 ### Make validation rules reviewable
 
@@ -69,34 +93,20 @@ $queue = config('invoices.queue');
 Use `env()` only in configuration definitions. Put user-facing text in language files. Put application values in
 configuration instead of hardcoding them at use sites.
 
-### Keep route files declarative
+### Follow Laravel's native config files
 
-Bad:
+Use Laravel's native configuration structure, key ordering, and formatting patterns. Do not impose generic PHP layout
+patterns or invented category structures on framework-owned config files.
 
-```php
-Route::post(
-    uri: '/invoices',
-    action: function (Request $request) {
-        $invoice = new Invoice();
-        $invoice->customer_id = $request->integer('customer_id');
-        $invoice->save();
+### Follow Laravel's native route formatting
 
-        return response()->json($invoice);
-    },
-);
-```
+Keep route files declarative and follow Laravel's native formatting conventions. Simple route declarations should normally
+remain on one line. Expand more complex route definitions only when the additional structure improves readability.
 
-Good:
+Route declarations are framework-owned syntax, so this native route formatting takes precedence over generic PHP call-layout
+preferences. Do not force named arguments or multiline formatting onto simple route declarations.
 
-```php
-Route::post(
-    uri: '/invoices',
-    action: StoreInvoiceController::class,
-);
-```
-
-The handler validates, orchestrates, and delegates. Persistence and business rules remain in the layer the project
-already designates for them.
+Business logic belongs in the established application or Action boundary, not in route definitions.
 
 ### Make related writes atomic
 
@@ -118,7 +128,7 @@ DB::transaction(function () use ($invoice, $invoiceStore, $ledger): void {
 });
 ```
 
-Do not put separate partial transactions inside each repository when the operation must succeed or fail as one unit.
+The transaction should cover the complete operation when it must succeed or fail as one unit.
 
 ### Load relationships before iteration
 
@@ -149,9 +159,6 @@ Never execute queries from Blade templates.
 ### Set persisted attributes explicitly
 
 Validated input can still contain fields that do not belong to the write operation.
-
-This is intentionally stricter than Laravel's guarded or fillable mass-assignment workflow: make the operation's
-persistence contract visible even when mass assignment could be configured safely.
 
 Bad:
 
@@ -211,8 +218,8 @@ public function scopeOverdue(Builder $query): void
 }
 ```
 
-Keep one-off orchestration, cross-model joins, and policy decisions in the repository or query layer the project
-designates. A scope describes a reusable subset of one model; it does not become a general business service.
+Keep one-model reusable query subsets in scopes. Keep cross-model orchestration and business policy in the Action or
+other project-defined boundary.
 
 ### Chunk large datasets
 
@@ -277,10 +284,9 @@ default preference; follow the established boundary.
 
 ### Keep framework responsibilities separate
 
-- Use a single-purpose Action where Actions are already the project's business unit
-- Do not chain Actions merely to hide orchestration. Coordinate several independent operations in the established
-  service or handler layer
-- Keep repositories focused on persistence and query composition, not business policy
+- Use a single-purpose Action where Actions are the project's business unit
+- Do not chain Actions merely to hide orchestration. Coordinate independent operations in the established orchestration layer
+- Keep persistence and query composition in the model or other project-defined persistence boundary
 - Prefer framework collections when a transformation remains clear; keep a loop for early exit, complex mutation,
   memory sensitivity, or clearer control flow
 - Cast dates to Carbon-compatible values and format only at the display boundary

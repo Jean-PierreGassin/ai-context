@@ -1,7 +1,6 @@
 ---
 name: run-commands
-description: Run project, environment, infrastructure, cloud, logging, or diagnostic commands through the correct interface.
-when_to_use: Use whenever choosing or executing project or operational commands, including tests, formatting, worktrees, services, databases, logs, and cloud inspection.
+description: Run project and operational commands through the correct interface. Use for tests, formatting, services, databases, logs, cloud, and diagnostics.
 ---
 
-Read `.agents/skills/run-commands/SKILL.md` now and follow it.
+Read `.agents/skills/run-commands/SKILL.md` and follow it.

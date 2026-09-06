@@ -275,8 +275,8 @@ their native grouping structure.
 
 ### Name for meaning in context
 
-Use names that make the value or action clear at its scope. Avoid generic placeholders such as `data`, `result`,
-`item`, `value`, `handler`, or `manager` when the domain supplies a precise name. Do not repeat context already carried
+Use names that make the value or action clear at its scope. Avoid generic placeholders such as `data`, `result`, `item`,
+`value`, `handler`, or `manager` when the domain supplies a precise name. Do not repeat context already carried
 by a package, module, receiver, or type.
 
 - Name functions and methods with an active verb that describes their action
@@ -378,4 +378,5 @@ with the behavior it represents.
 - Prefer existing domain types, constants, enums, and test builders over parallel representations
 - Use the project's formatter, static analysis, linter, and test runner as the executable definition of mechanical style
 
-Only enforced tooling, framework or interface contracts, or committed documentation override `Always apply` rules.
+These are shared defaults. Higher-precedence work or plugin skills, enforced tooling, framework or interface contracts,
+and committed project documentation override them where applicable.
