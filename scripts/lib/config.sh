@@ -30,7 +30,7 @@ merge_json_file() {
         [(.hooks // [])[]? | (.command // "") | scan("[A-Za-z0-9_.-]+[.]sh")] | unique;
       def managed_hook_scripts:
         [(.hooks // [])[]? | (.command // "")
-         | scan("[.](?:claude|agents)/hooks/[A-Za-z0-9_.-]+[.]sh")
+         | scan("[.](?:claude|codex|agents)/hooks/[A-Za-z0-9_.-]+[.]sh")
          | sub(".*/"; "")] | unique;
       def merge_hook_event($existing; $desired):
         reduce $desired[] as $entry ($existing;

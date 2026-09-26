@@ -257,6 +257,7 @@ test_global_install() {
   printf '# Personal\n' >"$global_root/.claude/CLAUDE.md"
   printf '{"enabledPlugins":{"personal@example":true},"hooks":{"Stop":[{"matcher":"","hooks":[{"type":"command","command":"~/.claude/hooks/play-sound.sh"}]},{"matcher":"mine","hooks":[{"type":"command","command":"~/mine/play-sound.sh"}]}],"PreToolUse":[{"matcher":"Bash","hooks":[{"type":"command","command":"~/mine/audit.sh"}]}]}}\n' >"$global_root/.claude/settings.json"
   printf '[marketplaces.personal]\nsource = "local"\n' >"$global_root/.codex/config.toml"
+  printf '{"hooks":{"PreToolUse":[{"matcher":"^(apply_patch|Edit|Write)$","hooks":[{"type":"command","command":"bash ~/.codex/hooks/migration-generator.sh","timeout":10}]}],"Stop":[{"hooks":[{"type":"command","command":"bash ~/.codex/hooks/play-sound.sh","timeout":10}]},{"hooks":[{"type":"command","command":"~/.local/bin/plannotator","timeout":345600}]}]}}\n' >"$global_root/.codex/hooks.json"
 
   scope=global
   HOME="$global_root"
@@ -270,7 +271,7 @@ test_global_install() {
   run_install
   cmp -s "$payload_root/.agents/skills/write-code/SKILL.md" \
     "$global_root/.agents/skills/write-code/SKILL.md"
-  grep -Fq "Read \`~/.agents/skills/write-code/SKILL.md\` now and follow it" \
+  grep -Fq "Read \`~/.agents/skills/write-code/SKILL.md\` and follow it" \
     "$global_root/.claude/skills/write-code/SKILL.md"
   force_install=true
   run_install
@@ -291,7 +292,7 @@ test_global_install() {
   cmp -s "$payload_root/.agents/skills/write-plan/references/change-stack.md" \
     "$global_root/.agents/skills/write-plan/references/change-stack.md"
 
-  grep -Fq "Read \`~/.agents/skills/write-plan/SKILL.md\` now and follow it" \
+  grep -Fq "Read \`~/.agents/skills/write-plan/SKILL.md\` and follow it" \
     "$global_root/.claude/skills/write-plan/SKILL.md"
   ! grep -Fq "Read \`.agents/skills/" "$global_root/.claude/skills/write-plan/SKILL.md" ||
     fail 'global install left a project-relative skill pointer'
@@ -307,6 +308,10 @@ test_global_install() {
     "$global_root/.claude/settings.json"
   assert_toml 'data["marketplaces"]["personal"]["source"] == "local"' "$global_root/.codex/config.toml"
   jq -e '[.hooks[][]?.hooks[].command | select(contains("$HOME/.agents/hooks/"))] | length == 2' \
+    "$global_root/.codex/hooks.json" >/dev/null
+  jq -e '[.hooks[][]?.hooks[].command | select(contains(".codex/hooks/"))] | length == 0' \
+    "$global_root/.codex/hooks.json" >/dev/null
+  jq -e '[.hooks[][]?.hooks[].command | select(contains("plannotator"))] | length == 1' \
     "$global_root/.codex/hooks.json" >/dev/null
   jq -e '[.hooks[][]?.hooks[].command | select(contains("$(git rev-parse --show-toplevel)/.agents/hooks/"))] | length == 0' \
     "$global_root/.codex/hooks.json" >/dev/null
