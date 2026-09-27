@@ -10,7 +10,7 @@ Write readable, cohesive code and keep the change within scope.
 ## Process
 
 1. Read `references/clean-code.md`, then only the language and framework references in scope
-2. Inspect the nearest equivalent capability for integration and local conventions; apply shared architecture defaults unless the project explicitly enforces another pattern
+2. Inspect project standards, formatter and linter configuration, and the nearest equivalent capability. Follow project conventions, using shared and language-specific preferences to fill gaps
 3. Resolve the execution location before editing and use the project's command interface for project commands
 4. Use a plan for multi-step work, migrations, replacements, or work spanning sessions
 5. Implement the smallest coherent change, keeping it independently deployable and safe to release without dependent changes

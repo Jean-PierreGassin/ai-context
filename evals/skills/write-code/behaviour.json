@@ -246,6 +246,42 @@
       ]
     },
     {
+      "id": "php-per-then-project-format",
+      "category": "project-precedence",
+      "prompt": "Write a PHP method in a project with a configured formatter. Follow the PHP coding standard while writing, then format the completed code to match the project.",
+      "expected_output": "PHP written to PER, then formatted with the project's configured formatter and conventions.",
+      "expectations": [
+        "Uses PER as the writing baseline for PHP",
+        "Runs the project's configured formatter after writing the implementation",
+        "Accepts formatter output and enforced project conventions for final mechanical layout"
+      ]
+    },
+    {
+      "id": "php-loop-inputs-and-compact-calls",
+      "category": "normal",
+      "prompt": "Clean up PHP code that constructs a query chain inside a foreach expression, splits an arrow from its method name across lines, and wraps a short one-argument require expression onto several lines.",
+      "expected_output": "A precomputed loop iterable, readable method calls, and short expressions kept compact.",
+      "expectations": [
+        "Defines the foreach iterable before entering the loop",
+        "Does not split a receiver from its ->method() call",
+        "Keeps short calls and require expressions on one line when they fit",
+        "Uses the project formatter for other mechanical line breaks"
+      ]
+    },
+    {
+      "id": "php-complex-conditions-and-input-state",
+      "category": "normal",
+      "prompt": "Refactor PHP logic with a nested ternary, a long condition combining type assertions and property comparisons, and a method receiving many related traversal-state arguments.",
+      "expected_output": "Straightforward branching, named validation steps, and a purpose-named DTO for the cohesive input state.",
+      "expectations": [
+        "Removes nested ternary control flow in favor of guards, early returns, or match for closed value selection",
+        "Reworks the long compound assertion into clear named checks or a focused matcher",
+        "Groups many related structured input values in a purpose-named DTO",
+        "Keeps unrelated values and dependencies explicit rather than bundling everything together",
+        "Gives extracted methods one clear responsibility"
+      ]
+    },
+    {
       "id": "php-enables-strict-api-comparison",
       "category": "normal",
       "prompt": "Check whether the string 'first' exists in a PHP array of elements, then find an invoice ID in an array of IDs.",

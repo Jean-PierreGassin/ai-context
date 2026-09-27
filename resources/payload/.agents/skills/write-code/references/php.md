@@ -1,8 +1,5 @@
 # PHP
 
-Read this after `clean-code.md`. Use the project's enforced PHP standard first. These rules add deliberate preferences for
-strict types, named arguments, input DTOs, Actions, and explicit assignment.
-
 ## Always apply
 
 ### Use Actions for application and business use cases
@@ -38,10 +35,7 @@ namespace App\Invoice;
 
 ### Make signatures and calls readable
 
-Expand long signatures and all multi-argument calls. PER controls indentation, one-item-per-line layout, and trailing
-commas. Order parameters by meaning and importance. Put the subject and required collaborators before optional
-configuration. Use named arguments for owned signatures, including calls with one argument, unless the target framework
-or project convention uses a different native calling style.
+Follow project PHP standards. Use PER where they leave gaps, then run the project formatter.
 
 Bad:
 
@@ -66,13 +60,40 @@ $output = render(
     template: 'invoice',
     rows: $rows,
 );
+
+$invoice = $invoiceStore->find(invoiceId: $invoiceId);
 ```
 
-Third-party and inherited signatures may make positional arguments safer. Name a third-party argument when its name is
-what makes a bare literal clear, such as `json_decode($body, associative: true)`.
+For third-party and inherited calls, use named arguments when they clarify literal values.
 
-Framework-specific references may define more specific native calling or formatting conventions; follow those where they
-apply.
+Bad:
+
+```php
+json_decode($body, true);
+```
+
+Good:
+
+```php
+json_decode($body, associative: true);
+```
+
+Follow framework-native calling and formatting conventions.
+
+Bad:
+
+```php
+require dirname(
+    __DIR__,
+    2,
+).'/vendor/autoload.php';
+```
+
+Good:
+
+```php
+require dirname(__DIR__, 2) . '/vendor/autoload.php';
+```
 
 ### Import class names
 
@@ -139,12 +160,7 @@ Use braces only where a property or method chain needs them.
 
 ### Use DTOs at meaningful data boundaries
 
-Use DTOs to pass structured data across a meaningful boundary. They usually originate at an application entry point, or
-represent a structured result that would otherwise be an unwieldy array or similar shape.
-
-A DTO is not the default return type merely because data crosses a class or layer boundary. Prefer the operation's natural
-contract, such as a model, collection, scalar, enum, value object, stream, `void`, or framework-defined array. Do not add a
-DTO solely to wrap an otherwise natural return value.
+Use DTOs for cohesive structured input at meaningful boundaries.
 
 For Actions, use a purpose-named input DTO when structured input is needed and return the project's `ActionResult` when the
 Action reports success or failure.
@@ -174,8 +190,27 @@ function issueInvoice(IssueInvoiceData $input): ActionResult
 }
 ```
 
-When a non-Action operation would otherwise return a large or loosely structured array, a purpose-named DTO can make that
-contract explicit. Do not impose DTO returns on repositories, services, query classes, or other arbitrary layers.
+Do not use a DTO to wrap a natural return value or to shorten a list of unrelated parameters.
+
+Bad:
+
+```php
+function find(
+    array $body,
+    ?array $context,
+    array $visited,
+    array $path,
+    array &$queryPaths,
+    array &$unresolved,
+    bool $conditional,
+): ?Result {}
+```
+
+Good:
+
+```php
+function find(TraversalContext $traversalContext): ?Result {}
+```
 
 ### Use enums and constants for named values
 
@@ -272,13 +307,17 @@ required. A contained exhaustive `match` is clearer for a closed variant.
 
 ### Avoid ternary control flow
 
-Use `??` for a default and `match` for selection. Use guards or an ordinary conditional when different work happens.
+Use `??` for defaults and `match` for value selection. Replace nested ternaries with guard clauses or a focused method.
 
 Bad:
 
 ```php
 $label = $requestedLabel ? $requestedLabel : 'Invoice';
-$result = $invoice->isPayable() ? $gateway->charge($invoice) : PaymentResult::declined();
+$result = $invoice->isPayable()
+    ? ($invoice->hasDiscount()
+        ? $gateway->chargeDiscounted($invoice)
+        : $gateway->charge($invoice))
+    : PaymentResult::declined();
 ```
 
 Good:
@@ -290,7 +329,73 @@ if (! $invoice->isPayable()) {
     return PaymentResult::declined();
 }
 
+if ($invoice->hasDiscount()) {
+    return $gateway->chargeDiscounted($invoice);
+}
+
 return $gateway->charge($invoice);
+```
+
+### Keep loop inputs and chains readable
+
+Resolve the iterable before the loop. Keep `->method()` with its receiver.
+
+Bad:
+
+```php
+foreach ($this->finder
+    ->find(criteria: $criteria) as $invoice) {
+    $this->process(invoice: $invoice);
+}
+```
+
+Good:
+
+```php
+$invoices = $this->finder->find(criteria: $criteria);
+
+foreach ($invoices as $invoice) {
+    $this->process(invoice: $invoice);
+}
+```
+
+### Keep type and shape checks understandable
+
+Use `match` for closed type selection. Break compound assertions into guards or focused predicates.
+
+Bad:
+
+```php
+if (! $initialization instanceof Expr\Assign
+    || ! $initialization->var instanceof Expr\Variable
+    || ! is_string($initialization->var->name)
+    || ! $condition instanceof Expr\BinaryOp\Smaller
+    || ! $condition->left instanceof Expr\Variable
+    || $condition->left->name !== $initialization->var->name
+    || ! $condition->right instanceof Node\Scalar\LNumber
+    || ! $increment instanceof Expr\PostInc
+    || ! $increment->var instanceof Expr\Variable
+    || $increment->var->name !== $initialization->var->name) {
+    return null;
+}
+```
+
+Good:
+
+```php
+$variableName = $this->initializationVariableName($initialization);
+
+if ($variableName === null) {
+    return null;
+}
+
+if (! $this->conditionUsesVariable($condition, $variableName)) {
+    return null;
+}
+
+if (! $this->incrementUsesVariable($increment, $variableName)) {
+    return null;
+}
 ```
 
 ### Use collection pipelines when they clarify a transformation

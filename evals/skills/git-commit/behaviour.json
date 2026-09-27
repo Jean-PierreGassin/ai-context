@@ -97,6 +97,17 @@
       ]
     },
     {
+      "id": "commit-subject-separated-from-change-list",
+      "category": "normal",
+      "prompt": "Write a commit message for a change with a short summary and two distinct implementation details.",
+      "expected_output": "A concise subject, a blank line, then one bullet per distinct detail.",
+      "expectations": [
+        "Places a blank line between the subject and the first change bullet",
+        "Uses one bullet for each distinct change",
+        "Summarizes the whole commit in the subject without repeating the first bullet"
+      ]
+    },
+    {
       "id": "runs-the-gate-before-committing",
       "category": "normal",
       "prompt": "Commit everything, I am about to push.",

@@ -74,6 +74,7 @@ State the commit's intent, not its files. Do not use generic summaries such as "
 
 ```text
 {Short description}
+
 - Short detail of the first change
 - Short detail of the second change
 ```
@@ -84,6 +85,7 @@ With a ticket key:
 
 ```text
 ABC-4521 - Fix sync fetch of rosters when trashed
+
 - Exclude soft-deleted rosters from the sync query
 - Add regression test for the trashed-roster case
 ```
@@ -92,6 +94,7 @@ Without a ticket:
 
 ```text
 Fix sync fetch of rosters when trashed
+
 - Exclude soft-deleted rosters from the sync query
 - Add regression test for the trashed-roster case
 ```
