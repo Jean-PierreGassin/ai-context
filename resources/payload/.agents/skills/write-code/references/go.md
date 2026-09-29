@@ -117,16 +117,15 @@ count.increment()
 
 When a constructor is required, return the concrete type and validate required dependencies there.
 
-### Keep an operation with its error guard
+### Separate an operation from its error guard
 
-An operation and the guard that checks its result are one logical paragraph. Add one blank line before the next
-unrelated guard or phase. Keep related precondition guards together when they express the same concern.
+Put one blank line between an operation and the `if` that checks its result, and before each following phase. Keep
+related precondition guards together when they express the same concern.
 
 Bad:
 
 ```go
 customer, err := customers.Find(ctx, request.CustomerID)
-
 if err != nil {
 	return Invoice{}, err
 }
@@ -144,11 +143,13 @@ Good:
 
 ```go
 customer, err := customers.Find(ctx, request.CustomerID)
+
 if err != nil {
 	return Invoice{}, fmt.Errorf("find customer: %w", err)
 }
 
 invoice, err := NewInvoice(customer, request.Lines)
+
 if err != nil {
 	return Invoice{}, fmt.Errorf("create invoice: %w", err)
 }
@@ -189,6 +190,7 @@ if !request.Valid() {
 }
 
 invoice, err := issue(ctx, request)
+
 if err != nil {
 	return Invoice{}, err
 }

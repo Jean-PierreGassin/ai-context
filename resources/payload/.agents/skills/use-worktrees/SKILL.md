@@ -19,7 +19,7 @@ Restore recorded execution state and verify its branch, HEAD, and working state 
 
 ## Create or enter
 
-- Prefer the project's worktree operation when one exists
+- Prefer the project's worktree operation when one exists, and accept its location and naming
 - Otherwise create the branch from its immediate target and give the worktree and branch the same name
 - Check the project's documented worktree include mechanism, such as `.worktreeinclude` or an equivalent file, for required files without exposing their contents
 - Install dependencies through the project's established command path
