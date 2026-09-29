@@ -510,15 +510,15 @@
       ]
     },
     {
-      "id": "go-semantic-whitespace-keeps-error-guard-attached",
+      "id": "go-semantic-whitespace-separates-error-guard",
       "category": "normal",
       "prompt": "Format a Go function that loads a customer, checks that error, creates an invoice, checks that error, saves it, and returns it.",
-      "expected_output": "Operation and error guards kept together, with one blank line between unrelated phases.",
+      "expected_output": "One blank line between each operation and its error guard, and between unrelated phases.",
       "expectations": [
-        "Keeps each operation directly beside the guard checking its error",
+        "Puts one blank line between each operation and the guard checking its error",
         "Separates loading, creation, persistence, and final return into semantic paragraphs",
-        "Does not insert a blank line between an operation and its error guard",
-        "Does not add a blank line after every guard mechanically"
+        "Does not attach an error guard directly to the operation it checks",
+        "Does not insert blank lines between every statement"
       ]
     },
     {

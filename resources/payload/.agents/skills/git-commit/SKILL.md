@@ -67,6 +67,7 @@ State the commit's intent, not its files. Do not use generic summaries such as "
 - Follow enforced repository and task conventions before the default format below
 - Summarize the whole commit in the subject; do not repeat the first bullet
 - One bullet per distinct change, no trailing periods
+- Leave one blank line between the subject and the bullets; without it git folds every bullet into the subject line
 - Use the default format when no enforced convention exists
 - Do not use historical commit messages as guidance unless the repository enforces their format
 

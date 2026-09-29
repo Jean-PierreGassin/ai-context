@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-unset CDPATH
+unset CDPATH FORCE_COLOR
+export NO_COLOR=1
 repository_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly repository_root
 fixture_root="$(mktemp -d "${TMPDIR:-/tmp}/ai-context-cli.XXXXXX")"

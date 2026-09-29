@@ -214,7 +214,8 @@ Keep a short nested expression inline when its order and intent remain immediate
 ### Use whitespace as semantic grouping
 
 Read a function as paragraphs. Keep statements serving one operation together, then use one blank line before the next
-logical phase. Keep a produced value beside the guard that verifies it. Do not insert a blank line after every statement
+logical phase. Always put one blank line between a statement and a following `if`, loop, `switch`, `match` or `try`
+block, even when the block guards the value just produced. Do not insert a blank line after every statement
 or compress validation, transformation, persistence, and return into one block.
 
 Bad:
