@@ -24,7 +24,8 @@
 - Use `write-plan` for multi-step work, migrations, replacements, or work that spans sessions
 - Before editing, use `use-worktrees` to choose or restore the execution location
 - Before project or operational commands, use `run-commands`
-- Keep an ordered stack in one worktree. Use separate worktrees only for concurrent independent tracks
+- Split work into small independent changes that each target trunk. Merge one, then branch the next from the updated trunk. Never open stacked PRs: squash merges force the layers above to rebase and dismiss their reviews
+- Use separate worktrees only for concurrent independent tracks
 - Keep each branch current with its immediate target before implementation, review, and meaningful pushes
 - Preserve reviewed or published history. Do not rewrite it
 - Run the project's canonical formatting and validation gates before human review when they may change the diff

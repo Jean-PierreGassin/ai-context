@@ -29,8 +29,8 @@ prevents scope being overstated. Do not include implementation history or debugg
 
 ## Review focus
 
-State where reviewers should focus and identify mechanical or behaviour-preserving work. Mention adjacent stack changes
-when they clarify the boundary.
+State where reviewers should focus and identify mechanical or behaviour-preserving work. Mention earlier or later changes in
+the sequence when they clarify the boundary.
 
 ## Rules
 
