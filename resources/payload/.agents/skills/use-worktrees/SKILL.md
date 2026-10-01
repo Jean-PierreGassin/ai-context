@@ -11,9 +11,9 @@ Resolve the execution location before editing.
 
 Use the main checkout when no concurrent or long-lived work needs isolation.
 
-Use a worktree when the current checkout must remain available, work is concurrent, isolation is requested, or a project-managed stack benefits from it.
+Use a worktree when the current checkout must remain available, work is concurrent, or isolation is requested.
 
-Several commits alone do not require a worktree. Keep an ordered stack in one execution location.
+Several commits alone do not require a worktree. Keep a sequence of changes in one execution location, branching each from trunk once the previous one merges.
 
 Restore recorded execution state and verify its branch, HEAD, and working state before continuing.
 

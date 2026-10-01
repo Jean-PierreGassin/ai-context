@@ -37,6 +37,7 @@
         "Records purpose, kind, dependencies, reviewer focus, and rollback for each entry",
         "Puts mechanical and structural changes ahead of behavioural and user-facing ones",
         "Assigns every anticipated file to exactly one change",
+        "Ships each change as its own PR off trunk, opening a dependent change only after its prerequisite merges",
         "Confirms the split with the user before detailing each change"
       ]
     },

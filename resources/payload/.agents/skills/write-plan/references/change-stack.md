@@ -88,6 +88,10 @@ Generated output may be larger when it is one repeatable operation that cannot b
 
 Never create branches or PRs before the split is agreed. `write-pr` governs each change's review boundary.
 
+Ship the stack as a sequence, not as stacked PRs. Every PR targets trunk. Open a change that depends on an earlier one
+only after that one has merged, branching it from the updated trunk. Changes with no dependency on each other can be
+open at the same time, each off trunk. Squash merges make stacked PRs rebase and lose their reviews.
+
 ### Reconcile implementation discoveries
 
 Treat the approved plan as living state, not a transcript of the first guess:

@@ -66,16 +66,16 @@
       ]
     },
     {
-      "id": "stacked-mechanical-pr",
+      "id": "first-of-a-sequence-mechanical-pr",
       "category": "normal",
       "prompt": "Open the PR for the extraction. It is a pure move, and it is the first of five changes.",
-      "expected_output": "A proposal whose title and context describe only the extraction, followed by the approval gate.",
+      "expected_output": "A proposal whose title and context describe only the extraction, targeting trunk, followed by the approval gate.",
       "expectations": [
         "States that the diff is a move with no behavior change",
         "Backs the claim rather than only asserting it",
         "Names what this extraction enables next when useful",
-        "Uses the repository or provider's stacked-PR base relationships",
-        "Does not ask the reviewer to judge later stack changes in this PR",
+        "Targets trunk rather than stacking on another PR's branch",
+        "Does not ask the reviewer to judge later changes in this PR",
         "Waits for approval before opening"
       ]
     },

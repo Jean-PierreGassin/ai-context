@@ -13,7 +13,7 @@ Change Type: Feature | Bugfix | Improvement | Task | Story | Chore | Hotfix
 
 Description:
 [Approved main context: why this exact review unit exists, the state it establishes, what remains unchanged when that
-matters to the boundary, and what it enables next when stacked.]
+matters to the boundary, and what it enables next in a sequence.]
 
 **Review focus:** [Identify the risk to review. Identify mechanical work that needs no detailed review.]
 ```
@@ -33,7 +33,7 @@ While investigating...
 
 Prefer direct context about the bounded change itself.
 
-For a stacked checkpoint, make the scope explicit when the larger migration continues afterward:
+For one checkpoint in a sequence, make the scope explicit when the larger migration continues afterward:
 
 ```text
 Platform A's API client still depends directly on the legacy client.
@@ -52,7 +52,7 @@ Put one or two lines at the end of the body. Identify the risk. Identify work th
 a pure move with no behavior change, covered by the existing suite passing unchanged.
 ```
 
-For one change in a stack, name the adjacent changes when that helps define the review boundary.
+For one change in a sequence, name the earlier or later changes when that helps define the review boundary.
 
 ```text
 **Review focus:** The new pricing rules only. They have no callers yet, the earlier flag still defaults to the old
