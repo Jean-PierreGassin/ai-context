@@ -54,7 +54,7 @@ For Laravel configuration, use Laravel's native config file structure and format
 - Keep methods to at most 3 returns
 - Prefer guard clauses and early returns
 - Do not nest `if` statements
-- Format method chains longer than 2 calls one operation per line
+- Keep language-specific whitespace and method-chain rules in the matching language reference
 - Use the project's coding style in tests and code
 
 Project-enforced formatters, linters, static analysis, CI, framework contracts, and committed docs override these defaults. Work-specific or plugin skills override these defaults when they apply.

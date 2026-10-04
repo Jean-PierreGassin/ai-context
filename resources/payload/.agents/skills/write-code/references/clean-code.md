@@ -192,7 +192,7 @@ Combine guards only when they express the same concern and have the same outcome
 ### Expose nested evaluation
 
 When one call feeds another, format the inner call as its own visible block. Name intermediate results when nesting
-still hides evaluation order or meaning. Apply the same rule to multiline fluent chains, with one operation per line.
+still hides evaluation order or meaning. For multiline fluent chains, follow the target language's layout reference.
 
 Bad:
 

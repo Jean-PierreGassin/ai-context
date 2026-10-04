@@ -95,6 +95,89 @@ Good:
 require dirname(__DIR__, 2) . '/vendor/autoload.php';
 ```
 
+### Format method chains
+
+For PHP chains longer than two calls, keep the receiver and first call on the initial line. Put each later call on
+its own indented line. Keep shorter chains inline when easy to scan.
+
+Bad:
+
+```php
+return $invoiceStore->forCustomer($customerId)->find($invoiceId)->issue();
+```
+
+Good:
+
+```php
+return $invoiceStore->forCustomer($customerId)
+    ->find($invoiceId)
+    ->issue();
+```
+
+When a call is passed as an argument, put the call on its own indented lines. Keep a chained receiver with its first
+call, then indent later calls one level further.
+
+Bad:
+
+```php
+return Redirect::away($chatGpt->callbackRedirect($request->query
+    ->all()));
+```
+
+Good:
+
+```php
+return Redirect::away(
+    $chatGpt->callbackRedirect(
+        $request->query
+            ->all()
+    )
+);
+```
+
+### Name intermediate values
+
+Do not nest several transformations or hide compound checks in wrapped expressions. Name each meaningful result before
+using it.
+
+Bad:
+
+```php
+$challenge = rtrim(
+    strtr(
+        base64_encode(hash('sha256', $verifier, true)),
+        '+/',
+        '-_',
+    ),
+    '=',
+);
+
+if (! is_string($accessToken)
+    || ! is_string($refreshToken)
+    || ! is_numeric($expiresIn)) {
+    return null;
+}
+```
+
+Good:
+
+```php
+$verifierHash = hash('sha256', $verifier, true);
+$encodedHash = base64_encode($verifierHash);
+$urlSafeHash = strtr($encodedHash, '+/', '-_');
+$challenge = rtrim($urlSafeHash, '=');
+
+$hasAccessToken = is_string($accessToken);
+$hasRefreshToken = is_string($refreshToken);
+$hasExpiry = is_numeric($expiresIn);
+
+if (! $hasAccessToken || ! $hasRefreshToken || ! $hasExpiry) {
+    return null;
+}
+```
+
+Apply the same rule to boolean expressions: calculate meaningful checks first, then combine their names in the condition.
+
 ### Import class names
 
 Bad:

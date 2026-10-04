@@ -7,6 +7,10 @@ Apply the central `write-code` rules and these TypeScript-specific rules.
 ### Layout and flow
 
 - Split multi-element values, multi-argument calls, and long signatures one item per line with trailing commas
+- Keep consecutive declarations or assignments for the same operation together, without blank lines. Use a blank line
+  when it separates distinct phases
+- Keep short tuple destructuring and property or method chains inline. Wrap long calls at the argument list; PHP's
+  one-method-per-line chain layout does not apply to JavaScript or TypeScript
 - Group properties by role and methods as public entry points, public support, then private helpers
 - Keep related declarations together, with short declarations before expanded ones
 - Order parameters by injected services, scalar configuration, then collections or complex values. Within a tier, order
@@ -73,6 +77,93 @@ Good:
 const invoice = await invoiceStore.find(invoiceId);
 
 return gateway.charge(invoice);
+```
+
+### Keep related updates and short expressions compact
+
+Bad:
+
+```typescript
+error.value = "";
+
+working.value = true;
+```
+
+Good:
+
+```typescript
+error.value = "";
+working.value = true;
+```
+
+Bad:
+
+```typescript
+window.history
+  .replaceState(
+    window.history.state,
+    "",
+    url,
+  );
+```
+
+Good:
+
+```typescript
+window.history.replaceState(
+  window.history.state,
+  "",
+  url,
+);
+```
+
+Bad:
+
+```typescript
+const operationalEvidence = computed(() =>
+  Object.entries(evidence)
+    .map(([
+      field,
+      quote,
+    ]) => ({
+      field,
+      quote,
+    })),
+);
+```
+
+Good:
+
+```typescript
+const operationalEvidence = computed(() =>
+  Object.entries(evidence).map(([field, quote]) => ({ field, quote })),
+);
+```
+
+Bad:
+
+```typescript
+const operationalEvidence = computed(() =>
+  Object.entries(evidence).map(([field, quote]) => ({
+    field: normalizeField(field),
+    quote: quote.trim(),
+    sourceLine: lineForQuote(quote),
+  })),
+);
+```
+
+Good:
+
+```typescript
+const operationalEvidence = computed(() =>
+  Object.entries(evidence).map(([field, quote]) => {
+    return {
+      field: normalizeField(field),
+      quote: quote.trim(),
+      sourceLine: lineForQuote(quote),
+    };
+  }),
+);
 ```
 
 ### Type contracts, not obvious locals
