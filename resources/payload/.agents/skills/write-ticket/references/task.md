@@ -16,8 +16,8 @@ implements part of a story, link that story in Background.
   story. Link the parent story/epic if this task implements a slice of one
 - Background: why this technical approach was chosen (an ask, a gap, a cost/reliability concern, an architectural
   constraint). Link related tickets as hyperlinks
-- Task: a concise account of the work: top-level bullets name the class/job/component being touched, sub-bullets state
-  specific behaviors and constraints. Outcome-focused. Inline-code names
+- Task: a concise account of the work: top-level bullets name the area of behavior being changed, sub-bullets state
+  specific behaviors and constraints. Outcome-focused. No class, method, file or column names
 - Dependencies/metadata: unlike a story, a task is rarely split further - if it grows a natural sub-slice, it is probably
   a story. Wire Blocks/blocked-by only if genuinely gated by other work; inherit labels from the parent
 
@@ -36,7 +36,7 @@ implements part of a story, link that story in Background.
 >
 > **Task**
 >
-> * `[Component]`
+> * [Area of behavior]
 >   * [required behavior or constraint]
 > * Tests
 >   * [observable scenario]
