@@ -68,6 +68,28 @@
         "Does not invent a plausible task name",
         "Falls back only after establishing that the harness has no suitable operation"
       ]
+    },
+    {
+      "id": "runs-one-verifiable-command-per-call",
+      "category": "regression",
+      "prompt": "Format the project, check it still passes its gates, and show what changed. Commands here go through a permission check that rejects anything it cannot verify.",
+      "expected_output": "Each step runs as its own plain command from the working checkout instead of one chained invocation.",
+      "expectations": [
+        "Runs each step as a separate plain command",
+        "Does not combine steps with separators, loops, or inline scripts",
+        "Runs from the current execution location rather than targeting another checkout"
+      ]
+    },
+    {
+      "id": "waits-for-background-completion",
+      "category": "normal",
+      "prompt": "Start the long integration suite in the background and tell me the result when it finishes.",
+      "expected_output": "The suite runs in the background and the result is reported from its completion notification rather than repeated polling.",
+      "expectations": [
+        "Starts the suite as background work",
+        "Waits for the completion notification instead of sleeping and re-reading output",
+        "Reports the outcome from the finished run"
+      ]
     }
   ]
 }
