@@ -10,7 +10,8 @@
         "Asks which tool to use, offering the tools installed on the machine",
         "Saves the choice so the next request does not ask again",
         "Opens the diff in the chosen tool",
-        "Does not print the diff in the conversation"
+        "Does not print the diff in the conversation",
+        "Ends with a single line stating the tool and the range compared"
       ]
     },
     {
@@ -33,7 +34,7 @@
       "expectations": [
         "Replaces the saved preference with the new tool",
         "Opens a diff the tool can display, even though it cannot compare whole directories",
-        "Says the new choice is remembered"
+        "Replies with a single line that notes the preference was saved"
       ]
     },
     {
@@ -44,7 +45,7 @@
       "expectations": [
         "Finds the current install of the same tool rather than asking for a new choice",
         "Updates the saved preference",
-        "Tells the user the saved path changed"
+        "Replies with a single line, without explaining the path change"
       ]
     },
     {

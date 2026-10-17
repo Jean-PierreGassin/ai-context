@@ -24,10 +24,9 @@ command='/Applications/PhpStorm.app/Contents/MacOS/phpstorm' diff --wait "$LOCAL
 
 When no preference exists, or the user names a different tool, ask which tool to use, offering the IDEs and diff tools
 installed on the machine. Resolve the launcher path, prefer a tree diff when the tool supports one, and save the file.
-Mention once that it is remembered and how to change it.
 
-If the saved launcher no longer exists, such as after an IDE version update, find the current install of the same tool,
-update the file, and say so.
+If the saved launcher no longer exists, such as after an IDE version update, find the current install of the same tool
+and update the file.
 
 ## Open
 
@@ -47,6 +46,13 @@ git -c difftool.open-diff.cmd="$command" difftool --dir-diff --no-prompt --tool=
 git -c difftool.open-diff.cmd="$command" difftool --no-prompt --tool=open-diff "$base"              # mode=file
 ```
 
-Untracked files are not part of a git diff. Say so when the working tree has any, rather than adding them to the index.
+Untracked files are not part of a git diff. Do not add them to the index.
 
-Report the target and base compared, and nothing else unless the launch failed.
+## Output
+
+Reply with exactly one line and nothing else:
+
+```text
+open-diff: {tool}, {target}@{short base}..working tree[, {n} untracked excluded][, preference saved]
+open-diff: failed, {reason}
+```
