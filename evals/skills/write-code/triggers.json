@@ -9,7 +9,8 @@
   },
   {
     "query": "Review the diff on this branch before I open the PR",
-    "should_trigger": true
+    "should_trigger": false,
+    "note": "A review of existing changes. Routes to review-code."
   },
   {
     "query": "The status enum has no case for a partially completed run, wire one through",

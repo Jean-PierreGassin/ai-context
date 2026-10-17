@@ -1,6 +1,6 @@
 ---
 name: write-code
-description: Write, edit, refactor, or review application code. Use for implementation, bug fixes, refactors, or code review; not for tests-only work, planning, PR prose, or tickets.
+description: Write, edit, or refactor application code. Use for implementation, bug fixes, or refactors; not for code review, tests-only work, planning, PR prose, or tickets.
 ---
 
 # Write Code
@@ -14,7 +14,7 @@ Write readable, cohesive code and keep the change within scope.
 3. Resolve the execution location before editing and use the project's command interface for project commands
 4. Use a plan for multi-step work, migrations, replacements, or work spanning sessions
 5. Implement the smallest coherent change, keeping it independently deployable and safe to release without dependent changes
-6. Run formatting and other gates before requesting human approval because they may change the diff; then present the resulting diff for approval
+6. Run formatting and the tests covering the change, since they may change the diff. Then have an independent reviewer check the change at low effort, giving it only the overall goal and the diff range. Fix confirmed findings, then present the resulting diff for approval
 7. Keep the diff focused and preserve reviewed or published history
 
 ## References

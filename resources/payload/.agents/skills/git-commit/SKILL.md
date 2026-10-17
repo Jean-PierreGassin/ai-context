@@ -14,7 +14,7 @@ description: Stage, split, or commit changes and safely manage Git history. Use 
 5. Stage one reasoning step at a time
 6. Review each staged diff. Fold fixes into unpublished work, but use focused follow-up commits after review begins
 7. For a stack entry, update its plan and restore context, then verify those local files are not tracked or staged
-8. Run formatting, lint, static analysis, and relevant tests through the project's canonical path before presenting the exact staged diff for human review
+8. Run formatting and relevant tests through the project's canonical path before presenting the exact staged diff for human review
 9. Present the resulting diff and wait for explicit approval
 10. If a gate changes the diff, repeat self-review and validation before approval
 11. Before pushing meaningful new work, confirm the branch still incorporates the current HEAD of its immediate target. If the target moved, synchronize first and repeat review or validation affected by the update

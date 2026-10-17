@@ -1,0 +1,63 @@
+{
+  "skill_name": "review-code",
+  "evals": [
+    {
+      "id": "judges-against-goal-not-plan",
+      "category": "normal",
+      "prompt": "Review this change. Goal: add an optional percentage discount to the cart total. Diff range: the branch against main.",
+      "expected_output": "Findings ranked by severity, each tied to a line and a concrete failure, including anything the diff changes outside the stated goal.",
+      "expectations": [
+        "Reads the diff itself rather than asking for an explanation of the change",
+        "Flags behaviour changes that the goal does not call for",
+        "Gives each finding a file, line, and concrete failing input",
+        "Applies the write-code standards and the language reference in scope",
+        "Does not edit any files"
+      ]
+    },
+    {
+      "id": "low-effort-stays-high-confidence",
+      "category": "proportionality",
+      "prompt": "Review the uncommitted change at low effort. Goal: rename the export status column.",
+      "expected_output": "Only confirmed findings, or an explicit no findings.",
+      "expectations": [
+        "Reports only findings verified against the code",
+        "Leaves out speculative or stylistic findings that are not confirmed defects or standard violations",
+        "Says no findings plainly when nothing survives verification"
+      ]
+    },
+    {
+      "id": "high-effort-covers-the-branch",
+      "category": "normal",
+      "prompt": "Review the branch at high effort before the PR goes up. Goal: move report generation onto a queue.",
+      "expected_output": "A review of the whole branch that includes cross-file and cross-commit interactions, test gaps, and release safety.",
+      "expectations": [
+        "Reviews the full branch diff against its target rather than the latest commit",
+        "Checks interactions between changes in different files or commits",
+        "Identifies changed behaviour with no test covering it",
+        "Considers whether the change is safe to release on its own",
+        "Marks each finding as confirmed or plausible"
+      ]
+    },
+    {
+      "id": "uses-ide-diagnostics-when-available",
+      "category": "regression",
+      "prompt": "Review the change on this branch. An IDE integration that reports file problems is connected.",
+      "expected_output": "The reviewer checks the IDE's reported problems on the changed files and includes the confirmed ones.",
+      "expectations": [
+        "Queries the IDE integration for problems on each changed file",
+        "Verifies reported problems against the code before including them",
+        "Does not report IDE problems in files the diff does not touch"
+      ]
+    },
+    {
+      "id": "project-conventions-override-defaults",
+      "category": "project-precedence",
+      "prompt": "Review the change. The project's linter enforces nested conditionals in this module, which the write-code defaults discourage.",
+      "expected_output": "The reviewer follows the enforced project convention and does not flag it.",
+      "expectations": [
+        "Does not report code that follows an enforced project convention as a violation",
+        "Still applies write-code defaults where the project enforces nothing"
+      ]
+    }
+  ]
+}
