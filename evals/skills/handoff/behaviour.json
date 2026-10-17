@@ -1,0 +1,50 @@
+{
+  "skill_name": "handoff",
+  "evals": [
+    {
+      "id": "outputs-only-the-prompt",
+      "category": "normal",
+      "prompt": "Hand this off. The first two plan entries are merged and the third is half done in a worktree.",
+      "expected_output": "One fenced prompt followed by a one-line clipboard offer, with nothing else around it.",
+      "expectations": [
+        "Writes no preamble or closing summary around the prompt",
+        "Ends with a single line offering to copy the prompt to the clipboard",
+        "Cites the persisted plan and context files by path instead of restating them",
+        "Lists the remaining work as discrete pieces and marks where to start",
+        "States the branch, HEAD, and working tree state as verified facts"
+      ]
+    },
+    {
+      "id": "no-hedging-or-narrative",
+      "category": "regression",
+      "prompt": "We went back and forth on the caching approach before settling on one. Write the handoff.",
+      "expected_output": "The settled decision and its reason, without the history of the discussion.",
+      "expectations": [
+        "Records the chosen approach and why in one line",
+        "Records a rejected approach only when it warns the receiver off retrying it",
+        "Contains no hedging, filler, or account of how the session went"
+      ]
+    },
+    {
+      "id": "small-task-stays-small",
+      "category": "proportionality",
+      "prompt": "Hand off the one remaining test fix. There is no plan file.",
+      "expected_output": "A short prompt with only the sections that carry information.",
+      "expectations": [
+        "Drops template sections that have nothing true to say",
+        "Does not invent plan or context references that do not exist",
+        "Defines the single remaining piece and how to verify it"
+      ]
+    },
+    {
+      "id": "copies-only-on-approval",
+      "category": "normal",
+      "prompt": "Yes, copy it.",
+      "expected_output": "The exact prompt content placed on the clipboard with the platform's command.",
+      "expectations": [
+        "Uses the clipboard command for the current platform",
+        "Copies the prompt content exactly, without the fence or the offer line"
+      ]
+    }
+  ]
+}
