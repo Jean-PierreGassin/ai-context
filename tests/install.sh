@@ -63,6 +63,10 @@ file_mode() {
   python3 -c 'import os, stat, sys; print(oct(stat.S_IMODE(os.stat(sys.argv[1]).st_mode)))' "$1"
 }
 
+file_inode() {
+  python3 -c 'import os, sys; print(os.stat(sys.argv[1]).st_ino)' "$1"
+}
+
 file_hash() {
   shasum -a 256 "$1" | awk '{print $1}'
 }
@@ -277,6 +281,13 @@ test_global_install() {
   run_install
   run_install
   force_install=false
+
+  local reference_path reference_inode
+  reference_path="$global_root/.agents/skills/write-code/references/bash.md"
+  reference_inode="$(file_inode "$reference_path")"
+  LC_ALL=en_US.UTF-8 run_install >/dev/null
+  [[ "$(file_inode "$reference_path")" == "$reference_inode" ]] ||
+    fail 'global reinstall replaced a current skill file under a non-C collation'
 
   [[ "$(cat "$global_root/.claude/CLAUDE.md")" == '@~/.agents/AGENTS.md' ]]
   ! grep -Fq '# Personal' "$global_root/.claude/CLAUDE.md" ||
