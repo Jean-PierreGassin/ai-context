@@ -11,13 +11,15 @@ Keep each PR within one bounded review objective. Make each change standalone an
 
 1. Check reviewability and propose a split when there is more than one bounded objective
 2. Bring the head branch current with its immediate target
-3. With all changes committed, run the full validation gates, including the complete test suite, lint, and static analysis. Then have an independent reviewer check the branch diff against its target at high effort, giving it only the overall goal. Fix failures and confirmed findings as follow-up changes, then rerun the gates before drafting
-4. Draft the exact title and main context
-5. Determine the target and Draft/Ready state
-6. Show the title, context, target, and state and obtain approval before opening the PR unless already specified
-7. Fill the repository template without silently changing approved context
-8. Open the PR in the approved state and assign it to the author
-9. Preserve review history and keep the body current as the PR changes
+3. With all changes committed, run the full validation gates, including the complete test suite, lint, and static analysis
+4. Have an independent reviewer check the branch diff against its target at high effort, giving it only the overall goal
+5. Fix failures and confirmed findings as follow-up changes, and rerun the gates before drafting
+6. Draft the exact title and main context
+7. Determine the target and Draft/Ready state
+8. Show the title, context, target, and state and obtain approval before opening the PR unless already specified
+9. Fill the repository template without silently changing approved context
+10. Open the PR in the approved state and assign it to the author
+11. Preserve review history and keep the body current as the PR changes
 
 ## Title
 

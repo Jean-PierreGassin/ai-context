@@ -14,8 +14,10 @@ Write readable, cohesive code and keep the change within scope.
 3. Resolve the execution location before editing and use the project's command interface for project commands
 4. Use a plan for multi-step work, migrations, replacements, or work spanning sessions
 5. Implement the smallest coherent change, keeping it independently deployable and safe to release without dependent changes
-6. Run formatting and the tests covering the change, since they may change the diff. Then have an independent reviewer check the change at low effort, giving it only the overall goal and the diff range. Fix confirmed findings, then present the resulting diff for approval
-7. Keep the diff focused and preserve reviewed or published history
+6. Run formatting, lint, and static analysis on the changed files, and the tests covering the change, since they may change the diff
+7. Have an independent reviewer check the change at low effort, giving it only the overall goal and the diff range
+8. Fix confirmed findings, rerun the gates if the diff changed, and present the resulting diff for approval
+9. Keep the diff focused and preserve reviewed or published history
 
 ## References
 
