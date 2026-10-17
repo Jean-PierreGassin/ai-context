@@ -75,7 +75,8 @@ Common options:
 ## Safety and ownership
 
 The installer previews changes before applying them and merges structured Claude and Codex configuration by default.
-Existing settings that the package does not manage are preserved unless `--replace-config` is used.
+Settings the package manages take the package's values, including complete lists such as permission rules. Settings
+the package does not manage, and hooks it does not own, are preserved unless `--replace-config` is used.
 
 Packaged skill files are tracked per installation target. Later installs update current files and remove only stale
 files previously owned by `ai-context`. Unmanaged files and non-empty directories are preserved.

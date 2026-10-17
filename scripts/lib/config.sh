@@ -19,13 +19,6 @@ merge_json_file() {
   fi
   if [[ -f "$target_path" ]]; then
     jq -s '
-      def combine($existing; $desired):
-        if ($existing | type) == "object" and ($desired | type) == "object" then
-          reduce ($desired | keys_unsorted[]) as $key ($existing;
-            .[$key] = if has($key) then combine(.[$key]; $desired[$key]) else $desired[$key] end)
-        elif ($existing | type) == "array" and ($desired | type) == "array" then
-          reduce $desired[] as $value ($existing; if index($value) == null then . + [$value] else . end)
-        else $existing end;
       def hook_scripts:
         [(.hooks // [])[]? | (.command // "") | scan("[A-Za-z0-9_.-]+[.]sh")] | unique;
       def managed_hook_scripts:
@@ -39,10 +32,7 @@ merge_json_file() {
               (if index($entry) == null then . + [$entry] else . end)
             else [.[] | select((managed_hook_scripts - $incoming) == managed_hook_scripts)] + [$entry] end);
       . as [$existing, $desired]
-      | combine($existing; $desired)
-      | if $existing.outputStyle == "efficient" and $desired.outputStyle == "Concise" then
-          .outputStyle = $desired.outputStyle
-        else . end
+      | $existing * $desired
       | if ($desired.hooks | type) == "object" then
           .hooks = reduce ($desired.hooks | keys_unsorted[]) as $event (($existing.hooks // {});
             .[$event] = merge_hook_event((($existing.hooks // {})[$event] // []);

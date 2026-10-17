@@ -37,15 +37,12 @@ source "$repository_root/scripts/lib/config.sh"
 
 desired="$temporary_root/desired.json"
 target="$temporary_root/settings.json"
-printf '{"outputStyle":"Concise","newSetting":true}\n' >"$desired"
+printf '{"outputStyle":"Concise","newSetting":true,"permissions":{"ask":[],"deny":["Read(.env)"]}}\n' >"$desired"
 
-printf '{"outputStyle":"efficient","custom":"keep"}\n' >"$target"
+printf '{"outputStyle":"Learning","custom":"keep","permissions":{"ask":["Bash(git push:*)"],"deny":["Read(private.txt)"],"additionalDirectories":["~/notes"]}}\n' >"$target"
 merge_json_file "$desired" "$target" '.claude/settings.json'
 jq -e '.outputStyle == "Concise" and .custom == "keep" and .newSetting == true' "$target" >/dev/null
-
-printf '{"outputStyle":"Learning","custom":"keep"}\n' >"$target"
-merge_json_file "$desired" "$target" '.claude/settings.json'
-jq -e '.outputStyle == "Learning" and .custom == "keep" and .newSetting == true' "$target" >/dev/null
+jq -e '.permissions == {"ask":[],"deny":["Read(.env)"],"additionalDirectories":["~/notes"]}' "$target" >/dev/null
 
 rm "$target"
 merge_json_file "$desired" "$target" '.claude/settings.json'
