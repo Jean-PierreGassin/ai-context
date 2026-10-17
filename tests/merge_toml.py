@@ -49,7 +49,7 @@ def test_legacy_profile_is_removed() -> None:
     data = tomllib.loads(merged)
 
     assert conflicts is False
-    assert data["approval_policy"] == "never"
+    assert data["approval_policy"] == "on-request"
     assert data["approvals_reviewer"] == "auto_review"
     assert "default_permissions" not in data
     assert "project-edit" not in data.get("permissions", {})
@@ -67,9 +67,31 @@ def test_customized_profile_is_preserved() -> None:
     assert data["approvals_reviewer"] == "auto_review"
 
 
+def test_managed_values_are_updated() -> None:
+    existing = '''model = "personal" # chosen locally
+approval_policy = "on-request"
+
+[tui]
+notifications = true
+status_line = [
+  "model",
+]
+'''
+    desired = tomllib.loads('approval_policy = "never"\n\n[tui]\nnotifications = false\nstatus_line = ["git-branch"]\n')
+    merged, conflicts = merge(existing, desired)
+    data = tomllib.loads(merged)
+
+    assert conflicts is True
+    assert data["model"] == "personal"
+    assert data["approval_policy"] == "never"
+    assert data["tui"]["notifications"] is False
+    assert data["tui"]["status_line"] == ["model"]
+
+
 def main() -> None:
     test_legacy_profile_is_removed()
     test_customized_profile_is_preserved()
+    test_managed_values_are_updated()
 
 
 if __name__ == "__main__":

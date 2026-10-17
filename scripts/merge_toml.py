@@ -112,17 +112,39 @@ def remove_legacy_project_permissions(existing_text: str, existing: dict[str, An
     return cleaned_text, cleaned
 
 
+def replace_value_line(lines: list[str], start: int, end: int, key: str, value: Any) -> bool:
+    for index in range(start, end):
+        match = re.match(r"^\s*([^=#]+?)\s*=", lines[index])
+        if not match or match.group(1).strip().strip('"') != key:
+            continue
+
+        try:
+            tomllib.loads(lines[index])
+        except tomllib.TOMLDecodeError:
+            return False
+
+        lines[index] = f"{format_key(key)} = {format_value(value)}"
+        return True
+
+    return False
+
+
 def merge(existing_text: str, desired: dict[str, Any]) -> tuple[str, bool]:
     existing = tomllib.loads(existing_text) if existing_text.strip() else {}
     existing_text, existing = remove_legacy_project_permissions(existing_text, existing)
     missing: dict[tuple[str, ...], dict[str, Any]] = {}
+    changed: dict[tuple[str, ...], dict[str, Any]] = {}
     for path, values in flatten_tables(desired).items():
         current = lookup(existing, path)
         absent = {key: value for key, value in values.items() if current is None or key not in current}
         if absent:
             missing[path] = absent
 
-    if not missing:
+        outdated = {key: value for key, value in values.items() if current and key in current and current[key] != value}
+        if outdated:
+            changed[path] = outdated
+
+    if not missing and not changed:
         return existing_text, False
 
     lines = existing_text.splitlines()
@@ -132,10 +154,21 @@ def merge(existing_text: str, desired: dict[str, Any]) -> tuple[str, bool]:
         if match:
             headers[tuple(part.strip().strip('"') for part in match.group(1).split("."))] = index
 
-    insertions: dict[int, list[str]] = defaultdict(list)
-    append_sections: list[str] = []
     first_header = min(headers.values(), default=len(lines))
     skipped_paths: list[tuple[str, ...]] = []
+    for path, values in changed.items():
+        if path and path not in headers:
+            skipped_paths.extend((*path, key) for key in values)
+            continue
+
+        start = headers[path] + 1 if path else 0
+        end = min((index for index in headers.values() if index >= start), default=len(lines))
+        for key, value in values.items():
+            if not replace_value_line(lines, start, end, key, value):
+                skipped_paths.append((*path, key))
+
+    insertions: dict[int, list[str]] = defaultdict(list)
+    append_sections: list[str] = []
     for path, values in missing.items():
         rendered = [f"{format_key(key)} = {format_value(value)}" for key, value in values.items()]
         if not path:
