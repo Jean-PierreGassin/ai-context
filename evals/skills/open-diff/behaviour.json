@@ -1,0 +1,61 @@
+{
+  "skill_name": "open-diff",
+  "evals": [
+    {
+      "id": "asks-and-remembers-on-first-use",
+      "category": "normal",
+      "prompt": "Show me the changes. No diff tool has been chosen before.",
+      "expected_output": "The user picks a tool, the choice is saved, and the diff opens in it.",
+      "expectations": [
+        "Asks which tool to use, offering the tools installed on the machine",
+        "Saves the choice so the next request does not ask again",
+        "Opens the diff in the chosen tool",
+        "Does not print the diff in the conversation"
+      ]
+    },
+    {
+      "id": "uses-saved-preference",
+      "category": "normal",
+      "prompt": "Show me the diff. A preferred tool was saved last week.",
+      "expected_output": "The diff opens in the saved tool without a question.",
+      "expectations": [
+        "Uses the saved tool without asking",
+        "Compares against the branch's target, fetched first so it is current",
+        "Includes uncommitted edits in the comparison",
+        "Leaves the session usable while the diff window is open"
+      ]
+    },
+    {
+      "id": "replaces-preference-on-request",
+      "category": "normal",
+      "prompt": "Open the changes in VS Code instead, and keep using it from now on.",
+      "expected_output": "The saved preference is replaced and the diff opens in VS Code.",
+      "expectations": [
+        "Replaces the saved preference with the new tool",
+        "Opens a diff the tool can display, even though it cannot compare whole directories",
+        "Says the new choice is remembered"
+      ]
+    },
+    {
+      "id": "recovers-from-moved-launcher",
+      "category": "regression",
+      "prompt": "Show me the changes. The IDE updated overnight and the saved launcher path is gone.",
+      "expected_output": "The current install of the same tool is found, saved, and used.",
+      "expectations": [
+        "Finds the current install of the same tool rather than asking for a new choice",
+        "Updates the saved preference",
+        "Tells the user the saved path changed"
+      ]
+    },
+    {
+      "id": "compares-against-pr-base",
+      "category": "counterexample",
+      "prompt": "Show me the changes. The branch has an open PR targeting a release branch, not the default branch.",
+      "expected_output": "The diff is against the PR's base branch.",
+      "expectations": [
+        "Uses the PR's base branch as the comparison target",
+        "Does not compare against the default branch"
+      ]
+    }
+  ]
+}
