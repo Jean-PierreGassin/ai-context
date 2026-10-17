@@ -20,7 +20,7 @@
 
 ## Workflow
 
-- Load each matching skill from `.agents/skills` before work starts. Adapters such as `.claude/skills` point to the same source of truth
+- Load each matching skill from `.agents/skills` before work starts. Agent-specific copies such as `.claude/skills` come from the same source
 - Use `write-plan` for multi-step work, migrations, replacements, or work that spans sessions
 - Before editing, use `use-worktrees` to choose or restore the execution location
 - Before project or operational commands, use `run-commands`

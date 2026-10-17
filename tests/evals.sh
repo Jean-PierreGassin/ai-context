@@ -12,7 +12,6 @@ trap 'rm -rf "$fixture_root"' EXIT
 readonly validator="$repository_root/scripts/validate_evals.py"
 readonly write_code_evals="$repository_root/evals/skills/write-code"
 readonly write_code_skill="$repository_root/resources/payload/.agents/skills/write-code/SKILL.md"
-readonly write_code_adapter="$repository_root/resources/payload/.claude/skills/write-code/SKILL.md"
 
 error() {
   printf '%s\n' "$*" >&2
@@ -87,11 +86,11 @@ assert_skill_resources_checked() {
 
 See \`references/absent.md\`"
 
-  assert_rejects 'an adapter description that drifted from the canonical skill' "$write_code_adapter" \
-    "$(sed 's|^description: .*|description: Something else entirely.|' "$write_code_adapter")"
+  assert_rejects 'a skill name that does not match its directory' "$write_code_skill" \
+    "$(sed 's|^name: .*|name: something-else|' "$write_code_skill")"
 
-  assert_rejects 'an adapter pointing at a skill that does not exist' "$write_code_adapter" \
-    "$(sed 's|\.agents/skills/write-code/SKILL\.md|.agents/skills/absent/SKILL.md|' "$write_code_adapter")"
+  assert_rejects 'a skill without a description' "$write_code_skill" \
+    "$(sed '/^description: /d' "$write_code_skill")"
 }
 
 main() {
