@@ -1,0 +1,33 @@
+[
+  {
+    "query": "/handoff",
+    "should_trigger": true
+  },
+  {
+    "query": "I'm out of context. Write me something I can paste into a fresh session to carry on.",
+    "should_trigger": true
+  },
+  {
+    "query": "Someone else is picking this up tomorrow. Give them what they need to continue.",
+    "should_trigger": true
+  },
+  {
+    "query": "Hand this over to another agent so it can finish the remaining pieces",
+    "should_trigger": true
+  },
+  {
+    "query": "Split this migration into reviewable PRs and persist the plan",
+    "should_trigger": false,
+    "note": "Creating a plan, not handing over work in progress. Routes to write-plan."
+  },
+  {
+    "query": "Write the PR description for this branch",
+    "should_trigger": false,
+    "note": "A reviewer-facing deliverable. Routes to write-pr."
+  },
+  {
+    "query": "Summarise what we changed today",
+    "should_trigger": false,
+    "note": "A recap for the user, not an actionable prompt for a successor."
+  }
+]
