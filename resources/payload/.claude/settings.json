@@ -17,9 +17,7 @@
       "Read(*credentials*)",
       "Read(**/*credentials*)",
       "Edit(.env)",
-      "Edit(.env.*)",
       "Edit(**/.env)",
-      "Edit(**/.env.*)",
       "Edit(auth.json)",
       "Edit(**/auth.json)",
       "Edit(storage/*.key)",
@@ -30,10 +28,7 @@
       "Edit(**/*credential*)"
     ],
     "defaultMode": "auto",
-    "ask": [
-      "Bash(aws:*)",
-      "Bash(git push:*)"
-    ]
+    "ask": []
   },
   "model": "opus",
   "disableClaudeAiConnectors": true,
