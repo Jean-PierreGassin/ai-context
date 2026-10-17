@@ -8,7 +8,6 @@ import sys
 
 REPOSITORY_ROOT = pathlib.Path(__file__).resolve().parent.parent
 SKILLS_ROOT = REPOSITORY_ROOT / "resources" / "payload" / ".agents" / "skills"
-ADAPTERS_ROOT = REPOSITORY_ROOT / "resources" / "payload" / ".claude" / "skills"
 EVALS_ROOT = REPOSITORY_ROOT / "evals" / "skills"
 
 CATEGORIES = frozenset(
@@ -26,7 +25,6 @@ SUPPORTING_PATH = re.compile(
     rf"(?:{'|'.join(SUPPORTING_DIRECTORIES)})/[A-Za-z0-9][A-Za-z0-9._/-]*\.[A-Za-z0-9]+"
 )
 FRONTMATTER = re.compile(r"\A---\n(.*?)\n---\n", re.DOTALL)
-ADAPTER_TARGET = re.compile(r"`\.agents/skills/([A-Za-z0-9._-]+)/SKILL\.md`")
 
 failures: list[str] = []
 
@@ -80,33 +78,12 @@ def check_supporting_paths(skill: str) -> None:
                 fail(document, f"references a missing path, {reference}")
 
 
-def check_adapter_redirect(adapter: pathlib.Path, skill: str) -> None:
-    target = ADAPTER_TARGET.search(adapter.read_text())
-    if target is None:
-        fail(adapter, "does not redirect to a canonical .agents skill")
-    elif not (SKILLS_ROOT / target.group(1) / "SKILL.md").is_file():
-        fail(adapter, f"redirects to a skill that does not exist, {target.group(1)}")
-    elif target.group(1) != skill:
-        fail(adapter, f"redirects to {target.group(1)} rather than {skill}")
-
-
-def check_adapter_frontmatter(adapter: pathlib.Path, skill: str) -> None:
-    canonical = SKILLS_ROOT / skill / "SKILL.md"
-    for field in ("name", "description"):
-        adapter_value = frontmatter_field(adapter, field)
-        canonical_value = frontmatter_field(canonical, field)
-        if adapter_value is not None and canonical_value is not None and adapter_value != canonical_value:
-            fail(adapter, f"{field} does not match the canonical skill")
-
-
-def check_adapter(skill: str) -> None:
-    adapter = ADAPTERS_ROOT / skill / "SKILL.md"
-    if not adapter.is_file():
-        fail(f"resources/payload/.claude/skills/{skill}/SKILL.md", "Claude adapter is missing")
-        return
-
-    check_adapter_redirect(adapter, skill)
-    check_adapter_frontmatter(adapter, skill)
+def check_frontmatter(skill: str) -> None:
+    skill_file = SKILLS_ROOT / skill / "SKILL.md"
+    name = frontmatter_field(skill_file, "name")
+    if name is not None and name != skill:
+        fail(skill_file, f"name {name} does not match its directory")
+    frontmatter_field(skill_file, "description")
 
 
 def check_triggers(skill: str) -> None:
@@ -223,7 +200,7 @@ def main() -> int:
     check_no_orphan_eval_directories(skills)
     for skill in skills:
         check_supporting_paths(skill)
-        check_adapter(skill)
+        check_frontmatter(skill)
         check_triggers(skill)
         check_behaviour(skill)
 

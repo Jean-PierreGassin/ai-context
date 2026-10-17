@@ -27,14 +27,17 @@ readonly retired_managed_files="$repository_root/resources/retired-managed-files
 target_root="$(resolve_target_root "$scope" "$caller_dir")"
 readonly target_root
 
+# Claude Code reads skills from its own root, so every canonical skill path is also installed under .claude/skills.
 desired_skill_paths() {
-  find "$payload_root/.agents/skills" "$payload_root/.claude/skills" -type f -print \
+  find "$payload_root/.agents/skills" -type f -print \
     | sed "s|^$payload_root/||" \
+    | sed -e 'p' -e 's|^\.agents/|.claude/|' \
     | sort
   if [[ "$scope" == project ]]; then
-    find "$payload_root/.agents/skills" "$payload_root/.claude/skills" -mindepth 1 -maxdepth 1 -type d -print \
+    find "$payload_root/.agents/skills" -mindepth 1 -maxdepth 1 -type d -print \
       | sed "s|^$payload_root/||" \
       | sed 's|$|/.gitignore|' \
+      | sed -e 'p' -e 's|^\.agents/|.claude/|' \
       | sort
   fi
 }
@@ -95,29 +98,43 @@ remove_stale_owned_skills() {
   rm -f "$previous_paths" "$desired_paths"
 }
 
+install_claude_skills() {
+  local display_prefix="$1" source_path
+  while IFS= read -r -d '' source_path; do
+    local relative_path="${source_path#"$payload_root/.agents/skills/"}"
+    copy_managed_skill_file \
+      "$source_path" \
+      "$target_root/.claude/skills/$relative_path" \
+      "${display_prefix}.claude/skills/$relative_path"
+  done < <(find "$payload_root/.agents/skills" -type f -print0 | sort -z)
+}
+
 install_project() {
   while IFS= read -r -d '' source_path; do
     local relative_path="${source_path#"$payload_root/"}"
     case "$relative_path" in
       CLAUDE.md|.claude/settings.json|.codex/config.toml|.codex/hooks.json) continue ;;
-      .agents/skills/*|.claude/skills/*)
+      .agents/skills/*)
         copy_managed_skill_file "$source_path" "$target_root/$relative_path" "$relative_path"
         continue
         ;;
     esac
     copy_managed_file "$source_path" "$target_root/$relative_path" "$relative_path"
   done < <(find "$payload_root" -type f -print0 | sort -z)
+  install_claude_skills ''
 
   ensure_import "$target_root/CLAUDE.md" '@AGENTS.md' 'CLAUDE.md'
   install_structured_configuration "$payload_root/.claude/settings.json" ''
 
-  local skill_directory skill_ignore
+  local skill_directory skill_ignore skill_root
   skill_ignore="$temporary_root/ignore"
   printf '# Installed and owned by ai-context. Ignores this file too.\n*\n' >"$skill_ignore"
-  for skill_directory in "$payload_root/.agents/skills"/* "$payload_root/.claude/skills"/*; do
+  for skill_directory in "$payload_root/.agents/skills"/*; do
     [[ -d "$skill_directory" ]] || continue
-    local relative_skill="${skill_directory#"$payload_root/"}"
-    copy_managed_file "$skill_ignore" "$target_root/$relative_skill/.gitignore" "$relative_skill/.gitignore"
+    for skill_root in .agents/skills .claude/skills; do
+      local relative_skill="$skill_root/${skill_directory##*/}"
+      copy_managed_file "$skill_ignore" "$target_root/$relative_skill/.gitignore" "$relative_skill/.gitignore"
+    done
   done
   rm -f "$skill_ignore"
 }
@@ -148,24 +165,12 @@ install_global() {
     esac
   done < <(find "$payload_root/.agents" -type f -print0 | sort -z)
 
-  local global_skill_adapter
-  global_skill_adapter="$temporary_root/adapter"
   while IFS= read -r -d '' source_path; do
     local relative_path="${source_path#"$payload_root/.claude/"}"
-    case "$relative_path" in
-      settings.json) continue ;;
-      skills/*/SKILL.md)
-        absolutise_agents_paths "$source_path" "$global_skill_adapter"
-        copy_managed_skill_file \
-          "$global_skill_adapter" \
-          "$target_root/.claude/$relative_path" \
-          "$home_display/.claude/$relative_path"
-        continue
-        ;;
-    esac
+    if [[ "$relative_path" == settings.json ]]; then continue; fi
     copy_managed_file "$source_path" "$target_root/.claude/$relative_path" "$home_display/.claude/$relative_path"
   done < <(find "$payload_root/.claude" -type f -print0 | sort -z)
-  rm -f "$global_skill_adapter"
+  install_claude_skills "$home_display/"
 
   local global_claude_instructions
   global_claude_instructions="$temporary_root/instructions"

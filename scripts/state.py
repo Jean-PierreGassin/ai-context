@@ -14,12 +14,23 @@ import sys
 from typing import Any
 
 
-OWNED_SKILL_ROOTS = (pathlib.Path(".agents/skills"), pathlib.Path(".claude/skills"))
+CANONICAL_SKILL_ROOT = pathlib.Path(".agents/skills")
+CLAUDE_SKILL_ROOT = pathlib.Path(".claude/skills")
+OWNED_SKILL_ROOTS = (CANONICAL_SKILL_ROOT, CLAUDE_SKILL_ROOT)
 OWNERSHIP_SCHEMA_VERSION = 1
 
 
+def list_payload_files(payload_root: pathlib.Path) -> dict[pathlib.Path, pathlib.Path]:
+    """Map each installed path to its payload source. Claude receives a copy of every canonical skill file."""
+    files = {path.relative_to(payload_root): path for path in payload_root.rglob("*") if path.is_file()}
+    for relative_path, source_path in list(files.items()):
+        if relative_path.is_relative_to(CANONICAL_SKILL_ROOT):
+            files[CLAUDE_SKILL_ROOT / relative_path.relative_to(CANONICAL_SKILL_ROOT)] = source_path
+    return files
+
+
 def list_managed_paths(payload_root: pathlib.Path, scope: str) -> list[pathlib.Path]:
-    payload_paths = sorted(path.relative_to(payload_root) for path in payload_root.rglob("*") if path.is_file())
+    payload_paths = sorted(list_payload_files(payload_root))
     if scope == "project":
         managed_paths = set(payload_paths)
         for path in payload_paths:
@@ -45,9 +56,9 @@ def list_managed_paths(payload_root: pathlib.Path, scope: str) -> list[pathlib.P
 
 def calculate_payload_version(payload_root: pathlib.Path) -> str:
     digest = hashlib.sha256()
-    for path in sorted(path for path in payload_root.rglob("*") if path.is_file()):
-        digest.update(str(path.relative_to(payload_root)).encode())
-        digest.update(path.read_bytes())
+    for relative_path, source_path in sorted(list_payload_files(payload_root).items()):
+        digest.update(str(relative_path).encode())
+        digest.update(source_path.read_bytes())
     return digest.hexdigest()[:12]
 
 
@@ -124,10 +135,9 @@ def write_ownership(
 
 def desired_skill_paths(payload_root: pathlib.Path, scope: str) -> list[pathlib.Path]:
     paths = {
-        path.relative_to(payload_root)
-        for root in OWNED_SKILL_ROOTS
-        for path in (payload_root / root).rglob("*")
-        if path.is_file()
+        path
+        for path in list_payload_files(payload_root)
+        if any(path.is_relative_to(root) for root in OWNED_SKILL_ROOTS)
     }
     if scope == "project":
         paths.update(path.parent / ".gitignore" for path in list(paths) if path.name == "SKILL.md")

@@ -99,12 +99,14 @@ create_project_fixture() {
 }
 
 assert_every_skill_resource_installed() {
-  local payload_skill_file installed_skill_file
+  local payload_skill_file relative_skill_file skill_root
   while IFS= read -r -d '' payload_skill_file; do
-    installed_skill_file="${payload_skill_file#"$payload_root/"}"
-    [[ -f "$project_root/$installed_skill_file" ]] ||
-      fail "skill resource missing from the installed payload: $installed_skill_file"
-  done < <(find "$payload_root/.agents/skills" "$payload_root/.claude/skills" -type f -print0)
+    relative_skill_file="${payload_skill_file#"$payload_root/.agents/skills/"}"
+    for skill_root in .agents/skills .claude/skills; do
+      cmp -s "$payload_skill_file" "$project_root/$skill_root/$relative_skill_file" ||
+        fail "skill resource missing from the installed payload: $skill_root/$relative_skill_file"
+    done
+  done < <(find "$payload_root/.agents/skills" -type f -print0)
 }
 
 test_project_install() {
@@ -112,7 +114,7 @@ test_project_install() {
   caller_dir="$project_root"
   run_install
   printf 'outdated project skill\n' >"$project_root/.agents/skills/write-code/SKILL.md"
-  printf 'outdated project adapter\n' >"$project_root/.claude/skills/write-code/SKILL.md"
+  printf 'outdated project Claude skill\n' >"$project_root/.claude/skills/write-code/SKILL.md"
   run_install
   [[ "$(file_mode "$state_root")" == 0o700 ]]
 
@@ -125,7 +127,7 @@ test_project_install() {
     "$project_root/.agents/skills/write-code/references/php.md"
   cmp -s "$payload_root/.agents/skills/write-pr/assets/body-template.md" \
     "$project_root/.agents/skills/write-pr/assets/body-template.md"
-  cmp -s "$payload_root/.claude/skills/write-code/SKILL.md" \
+  cmp -s "$payload_root/.agents/skills/write-code/SKILL.md" \
     "$project_root/.claude/skills/write-code/SKILL.md"
   assert_every_skill_resource_installed
 
@@ -271,11 +273,11 @@ test_global_install() {
   [[ -f "$global_root/.agents/skills/write-plan/assets/notes.md" ]]
   grep -Fxq '# Personal' "$global_root/.claude/CLAUDE.md"
   printf 'outdated global skill\n' >"$global_root/.agents/skills/write-code/SKILL.md"
-  printf 'outdated global adapter\n' >"$global_root/.claude/skills/write-code/SKILL.md"
+  printf 'outdated global Claude skill\n' >"$global_root/.claude/skills/write-code/SKILL.md"
   run_install
   cmp -s "$payload_root/.agents/skills/write-code/SKILL.md" \
     "$global_root/.agents/skills/write-code/SKILL.md"
-  grep -Fq "Read \`~/.agents/skills/write-code/SKILL.md\` and follow it" \
+  cmp -s "$payload_root/.agents/skills/write-code/SKILL.md" \
     "$global_root/.claude/skills/write-code/SKILL.md"
   force_install=true
   run_install
@@ -303,10 +305,9 @@ test_global_install() {
   cmp -s "$payload_root/.agents/skills/write-plan/references/change-stack.md" \
     "$global_root/.agents/skills/write-plan/references/change-stack.md"
 
-  grep -Fq "Read \`~/.agents/skills/write-plan/SKILL.md\` and follow it" \
-    "$global_root/.claude/skills/write-plan/SKILL.md"
-  ! grep -Fq "Read \`.agents/skills/" "$global_root/.claude/skills/write-plan/SKILL.md" ||
-    fail 'global install left a project-relative skill pointer'
+  cmp -s "$payload_root/.agents/skills/write-plan/references/change-stack.md" \
+    "$global_root/.claude/skills/write-plan/references/change-stack.md" ||
+    fail 'global install left a Claude skill without its references'
 
   assert_jq '.enabledPlugins["personal@example"] == true' "$global_root/.claude/settings.json"
   assert_jq '[.hooks.Stop[].hooks[].command | select(test("[.]agents/hooks/play-sound[.]sh"))] | length == 1' \

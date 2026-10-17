@@ -118,8 +118,8 @@ Run a project install separately for projects that use local context.
 
 ## Development
 
-Canonical skills live in `resources/payload/.agents/skills/`. Claude adapters live in
-`resources/payload/.claude/skills/` and point to the canonical skills.
+Canonical skills live in `resources/payload/.agents/skills/`. The installer copies each one into `.claude/skills/` as
+well, so Claude Code loads the full skill without a redirect.
 
 Behaviour and trigger evals live in `evals/`. See [evals/README.md](evals/README.md) for the schema.
 
