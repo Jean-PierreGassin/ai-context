@@ -28,7 +28,9 @@
 - Use separate worktrees only for concurrent independent tracks
 - Keep each branch current with its immediate target before implementation, review, and meaningful pushes
 - Preserve reviewed or published history. Do not rewrite it
-- Run the project's canonical formatting and validation gates before human review when they may change the diff
+- Run formatting, lint, static analysis, and change-scoped tests before human review, and the full validation gates before opening a PR
+- For reviews, use `review-code` in a fresh subagent with no inherited context, giving it only the overall goal and the diff range. Set the subagent's own effort to the review's effort where the harness supports it
+- Prefer language server or IDE integrations over text search for definitions, references, symbols, and diagnostics when they are available
 - Finish each change as a clean, reviewable diff. After approval, commit the approved diff without introducing new changes
 - Keep each change independently deployable and safe to release without dependent changes
 

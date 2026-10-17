@@ -1,0 +1,33 @@
+[
+  {
+    "query": "/review-code",
+    "should_trigger": true
+  },
+  {
+    "query": "Review the diff on this branch before I open the PR",
+    "should_trigger": true
+  },
+  {
+    "query": "Review this change at low effort. Goal: let users cancel a scheduled export. Diff range: the uncommitted working tree",
+    "should_trigger": true
+  },
+  {
+    "query": "Someone opened a PR against the billing module, check it over for problems",
+    "should_trigger": true
+  },
+  {
+    "query": "Add an endpoint that lets someone cancel a scheduled export before it runs",
+    "should_trigger": false,
+    "note": "Writing code. Routes to write-code."
+  },
+  {
+    "query": "Write the PR description for this branch",
+    "should_trigger": false,
+    "note": "PR prose, not a code review. Routes to write-pr."
+  },
+  {
+    "query": "Walk me through what the import pipeline does",
+    "should_trigger": false,
+    "note": "An explanation of existing code, not a review of a diff."
+  }
+]
