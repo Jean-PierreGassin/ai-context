@@ -14,12 +14,13 @@ Read the saved tool from `${XDG_CONFIG_HOME:-$HOME/.config}/ai-context/open-diff
 
 ```text
 mode=dir
-command='/Applications/PhpStorm.app/Contents/MacOS/phpstorm' diff --wait
+command='/Applications/PhpStorm.app/Contents/MacOS/phpstorm' diff --wait "$LOCAL" "$REMOTE"
 ```
 
-- `command` is a shell command that git appends two paths to. It must block until the diff window closes
+- `command` is a shell command that receives the two paths as `$LOCAL` and `$REMOTE`. It must block until the diff
+  window closes
 - `mode=dir` passes two directories for one tree diff; `mode=file` opens one diff per changed file, for tools such as
-  VS Code (`code --wait --diff`) that cannot compare directories
+  VS Code (`code --wait --diff "$LOCAL" "$REMOTE"`) that cannot compare directories
 
 When no preference exists, or the user names a different tool, ask which tool to use, offering the IDEs and diff tools
 installed on the machine. Resolve the launcher path, prefer a tree diff when the tool supports one, and save the file.
@@ -37,10 +38,13 @@ update the file, and say so.
    in the tool
 4. Launch in the background so the session stays usable. Git removes its temporary copies once the window closes
 
+Pass the command as a one-off tool. `--extcmd` cannot take arguments in directory mode, and git config is left
+untouched.
+
 ```bash
 base="$(git merge-base origin/{target} HEAD)"
-git difftool --dir-diff --no-prompt --extcmd="$command" "$base"   # mode=dir
-git difftool --no-prompt --extcmd="$command" "$base"              # mode=file
+git -c difftool.open-diff.cmd="$command" difftool --dir-diff --no-prompt --tool=open-diff "$base"   # mode=dir
+git -c difftool.open-diff.cmd="$command" difftool --no-prompt --tool=open-diff "$base"              # mode=file
 ```
 
 Untracked files are not part of a git diff. Say so when the working tree has any, rather than adding them to the index.
