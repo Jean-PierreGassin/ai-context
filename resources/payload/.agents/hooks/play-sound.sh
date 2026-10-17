@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Cross-platform completion sound for agent hooks.
 # Plays the first working backend for the current OS, then falls back to the
-# terminal bell. Always exits 0 so a missing audio backend never blocks a hook.
+# terminal bell. Playback runs detached and the script always exits 0, so the
+# hook returns immediately and a missing audio backend never blocks it.
 
 set -u
 
@@ -63,17 +64,25 @@ play_windows() {
     return 1
 }
 
-case "$(uname -s 2>/dev/null)" in
-    Darwin) play_macos ;;
-    Linux)
-        if grep -qi microsoft /proc/version 2>/dev/null; then
-            play_windows || play_linux
-        else
-            play_linux
-        fi
-        ;;
-    MINGW* | MSYS* | CYGWIN*) play_windows ;;
-    *) false ;;
-esac || printf '\a' >&2
+ring_terminal_bell() {
+    { printf '\a' >/dev/tty; } 2>/dev/null
+}
+
+play_sound() {
+    case "$(uname -s 2>/dev/null)" in
+        Darwin) play_macos ;;
+        Linux)
+            if grep -qi microsoft /proc/version 2>/dev/null; then
+                play_windows || play_linux
+            else
+                play_linux
+            fi
+            ;;
+        MINGW* | MSYS* | CYGWIN*) play_windows ;;
+        *) false ;;
+    esac || ring_terminal_bell
+}
+
+play_sound </dev/null >/dev/null 2>&1 &
 
 exit 0
