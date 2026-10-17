@@ -1,0 +1,32 @@
+[
+  {
+    "query": "Show me the changes",
+    "should_trigger": true
+  },
+  {
+    "query": "Open the diff so I can look through it",
+    "should_trigger": true
+  },
+  {
+    "query": "I want to review this branch in my IDE before you commit",
+    "should_trigger": true
+  },
+  {
+    "query": "Use Meld for diffs from now on and open this branch in it",
+    "should_trigger": true
+  },
+  {
+    "query": "Review the diff on this branch and tell me what is wrong with it",
+    "should_trigger": false,
+    "note": "The agent reviews the code itself; nothing is opened for the user."
+  },
+  {
+    "query": "Commit these changes",
+    "should_trigger": false
+  },
+  {
+    "query": "Open the config file in my editor",
+    "should_trigger": false,
+    "note": "Opens a file, not a comparison."
+  }
+]
