@@ -78,5 +78,5 @@
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": false,
   "autoConnectIde": true,
-  "effortLevel": "xhigh"
+  "effortLevel": "medium"
 }
