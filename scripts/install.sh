@@ -67,11 +67,11 @@ remove_stale_owned_skills() {
   desired_paths="$temporary_root/desired"
   if ! python3 "$repository_root/scripts/state.py" ownership \
     --scope "$scope" --target "$target_root" --payload "$payload_root" \
-    --state-root "$(resolve_state_root)" --legacy-ownership "$legacy_ownership" >"$previous_paths"; then
+    --state-root "$(resolve_state_root)" --legacy-ownership "$legacy_ownership" | LC_ALL=C sort >"$previous_paths"; then
     rm -f "$previous_paths" "$desired_paths"
     return 1
   fi
-  desired_skill_paths | sort >"$desired_paths"
+  desired_skill_paths | LC_ALL=C sort >"$desired_paths"
 
   while IFS= read -r stale_path; do
     [[ -n "$stale_path" ]] || continue
@@ -91,7 +91,7 @@ remove_stale_owned_skills() {
       .claude/skills/*) skill_root='.claude/skills' ;;
     esac
     remove_empty_skill_parents "$(dirname "$target_path")" "$skill_root"
-  done < <(comm -23 "$previous_paths" "$desired_paths")
+  done < <(LC_ALL=C comm -23 "$previous_paths" "$desired_paths")
   rm -f "$previous_paths" "$desired_paths"
 }
 
