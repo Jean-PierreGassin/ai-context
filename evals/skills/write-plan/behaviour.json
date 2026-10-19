@@ -256,15 +256,13 @@
       "id": "persisted-plans-remain-untracked",
       "category": "regression",
       "prompt": "Persist this multi-entry implementation plan in the repository so another session can resume it, then prepare the first code commit.",
-      "expected_output": "Plans and stack context stored under an ignored project-local `.ai-context/work` path and excluded from the implementation commit without changing the committed `.gitignore`.",
+      "expected_output": "Plans and stack context stored under `$(git rev-parse --git-common-dir)/agents/work`, outside the worktree index, and excluded from the implementation commit without changing `.gitignore` or local excludes.",
       "expectations": [
-        "Uses the repository's established equivalent agent-state location when one exists, otherwise defaults to .ai-context/work",
+        "Resolves the Git common directory through git rev-parse --git-common-dir instead of assuming .git is a directory",
+        "Stores plans under agents/work/{type}/{ticket-or-slug} beneath the Git common directory",
         "Keeps one stack-level CONTEXT.md and one PLAN.md per ordered change",
-        "Checks .ai-context with git check-ignore before writing persisted state",
-        "Resolves the repository-local exclude with git rev-parse --git-path info/exclude when .ai-context is not ignored",
-        "Adds the exact /.ai-context/ rule to the local exclude only when absent and verifies it is ignored",
-        "Does not modify the committed .gitignore solely for agent-working state",
-        "Verifies no .ai-context, PLAN.md, or CONTEXT.md path is tracked or staged before committing",
+        "Does not add .gitignore or local exclude rules for the plan location",
+        "Verifies no PLAN.md or CONTEXT.md path is tracked or staged inside the worktree before committing",
         "Keeps the local restore state current without including it in the code commit"
       ]
     }

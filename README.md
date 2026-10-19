@@ -121,6 +121,9 @@ Run a project install separately for projects that use local context.
 Canonical skills live in `resources/payload/.agents/skills/`. The installer copies each one into `.claude/skills/` as
 well, so Claude Code loads the full skill without a redirect.
 
+Keep skills generic across platforms and shells. A skill that saves a per-user setting stores it in
+`${XDG_CONFIG_HOME:-$HOME/.config}/agents/{skill}`, one file per skill.
+
 Behaviour and trigger evals live in `evals/`. See [evals/README.md](evals/README.md) for the schema.
 
 Run the regression suite after changes:

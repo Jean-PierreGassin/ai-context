@@ -78,7 +78,7 @@ Persisted plans are local Git working state shared by the repository's linked wo
 Resolve the repository's Git common directory through Git and store plans beneath it:
 
 ```text
-$(git rev-parse --git-common-dir)/ai-context/work/{type}/{ticket-or-slug}/
+$(git rev-parse --git-common-dir)/agents/work/{type}/{ticket-or-slug}/
 ├── CONTEXT.md
 ├── 01-{change-title}/PLAN.md
 ├── 02-{change-title}/PLAN.md
