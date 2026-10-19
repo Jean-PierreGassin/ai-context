@@ -10,20 +10,24 @@ unless asked.
 
 ## Preference
 
-Read the saved tool from `${XDG_CONFIG_HOME:-$HOME/.config}/ai-context/open-diff`:
+Each user keeps their own preference in `${XDG_CONFIG_HOME:-$HOME/.config}/agents/open-diff`, the shared folder for
+skill settings, for example:
 
 ```text
 mode=dir
-command='/Applications/PhpStorm.app/Contents/MacOS/phpstorm' diff --wait "$LOCAL" "$REMOTE"
+command='/path/to/phpstorm' diff --wait "$LOCAL" "$REMOTE"
 ```
 
-- `command` is a shell command that receives the two paths as `$LOCAL` and `$REMOTE`. It must block until the diff
-  window closes
-- `mode=dir` passes two directories for one tree diff; `mode=file` opens one diff per changed file, for tools such as
-  VS Code (`code --wait --diff "$LOCAL" "$REMOTE"`) that cannot compare directories
+- `command` is a POSIX `sh` command, whatever the user's login shell, that receives the two paths as `$LOCAL` and
+  `$REMOTE`. It must block until the diff window closes
+- `mode=dir` passes two directories for one tree diff, for tools such as JetBrains IDEs (`{ide} diff --wait`);
+  `mode=file` opens one diff per changed file, for tools such as VS Code (`code --wait --diff`) that cannot compare
+  directories
 
 When no preference exists, or the user names a different tool, ask which tool to use, offering the IDEs and diff tools
-installed on the machine. Resolve the launcher path, prefer a tree diff when the tool supports one, and save the file.
+installed on the machine. Look on `PATH` and in the platform's usual install locations, such as `/Applications` on
+macOS, or JetBrains Toolbox scripts, `/snap/bin` and Flatpak exports on Linux. Resolve the launcher to an absolute path,
+prefer a tree diff when the tool supports one, and save the file, creating its directory if needed.
 
 If the saved launcher no longer exists, such as after an IDE version update, find the current install of the same tool
 and update the file.
@@ -35,10 +39,11 @@ and update the file.
 2. Fetch the target so the comparison is current
 3. Compare the merge base of the target and `HEAD` with the working tree, so uncommitted edits appear and stay editable
    in the tool
-4. Launch in the background so the session stays usable. Git removes its temporary copies once the window closes
+4. Launch in the background so the session stays usable. Git removes its temporary copies once the window closes. The
+   tool needs a graphical session, so report failure over SSH or on a headless machine
 
-Pass the command as a one-off tool. `--extcmd` cannot take arguments in directory mode, and git config is left
-untouched.
+Pass the command as a one-off tool through `-c`, which leaves git config untouched. Do not use `--extcmd`: in directory
+mode git runs it as a bare program name, so a launcher with arguments fails.
 
 ```bash
 base="$(git merge-base origin/{target} HEAD)"
