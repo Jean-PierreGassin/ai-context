@@ -27,6 +27,19 @@
       ]
     },
     {
+      "id": "opens-repo-mode-tool",
+      "category": "normal",
+      "prompt": "Show me the changes. The saved tool is Plannotator, which reads the repository itself.",
+      "expected_output": "Plannotator review opens against the target's merge base, and its decision is followed up.",
+      "expectations": [
+        "Runs the saved command from the repository root with the target as the compare ref, without git difftool",
+        "Includes uncommitted edits in the comparison",
+        "Leaves the session usable while the review is open",
+        "Addresses annotations as the user's review feedback once the review ends",
+        "Does not treat an approved review as approval to commit, push, or open a PR"
+      ]
+    },
+    {
       "id": "replaces-preference-on-request",
       "category": "normal",
       "prompt": "Open the changes in VS Code instead, and keep using it from now on.",
