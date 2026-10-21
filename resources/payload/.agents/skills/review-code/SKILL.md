@@ -28,6 +28,10 @@ When asked to review without these, take the goal from the request or ticket and
 
 Project-enforced conventions override the `write-code` defaults.
 
+## Standards Pass
+
+At `high`, whoever starts the review also starts a second independent reviewer in parallel, giving it only the goal and the diff range. It checks only whether the diff meets the standards: the `write-code` references in scope, the project's agent docs and committed conventions, any user preferences available to it, and how the nearest equivalent code does the same thing. Each of its findings cites the rule and where it is written, in place of a failure case. Merge its findings into the report under their own heading.
+
 ## Report
 
 - List findings most severe first, each with file, line, the defect, and a concrete failure case
