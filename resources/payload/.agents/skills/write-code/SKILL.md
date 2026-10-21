@@ -5,7 +5,7 @@ description: Write, edit, or refactor application code. Use for implementation, 
 
 # Write Code
 
-Write readable, cohesive code and keep the change within scope.
+Write readable, cohesive code and keep the change within scope. You orchestrate: independent writers implement and report back to you.
 
 ## Process
 
@@ -13,11 +13,12 @@ Write readable, cohesive code and keep the change within scope.
 2. Inspect project standards, formatter and linter configuration, and the nearest equivalent capability. Follow project conventions, using shared and language-specific preferences to fill gaps
 3. Resolve the execution location before editing and use the project's command interface for project commands
 4. Use a plan for multi-step work, migrations, replacements, or work spanning sessions
-5. Implement the smallest coherent change, keeping it independently deployable and safe to release without dependent changes
-6. Run formatting, lint, and static analysis on the changed files, and the tests covering the change, since they may change the diff
-7. Have an independent reviewer check the change at low effort, giving it only the overall goal and the diff range
-8. Fix confirmed findings, rerun the gates if the diff changed, and present the resulting diff for approval
-9. Keep the diff focused and preserve reviewed or published history
+5. Split the smallest coherent change into pieces that do not touch the same files, keeping it independently deployable and safe to release without dependent changes
+6. Give each piece to an independent writer, in parallel, with its goal, scope, execution location, and the references and conventions to follow. Each writer implements its piece, runs formatting, lint, static analysis, and the covering tests on its files, and reports back what it changed, what it ran, and anything unresolved
+7. Integrate the reports, check the pieces fit together, and rerun the gates on the combined diff
+8. Start the `review-code` reviewers yourself, in parallel, at `high` for a branch going up for a PR and `low` otherwise, giving each only the overall goal and the diff range
+9. Send confirmed findings back to writers to fix, rerun the gates if the diff changed, and present the resulting diff for approval
+10. Keep the diff focused and preserve reviewed or published history
 
 ## References
 
