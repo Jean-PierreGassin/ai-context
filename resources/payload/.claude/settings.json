@@ -2,7 +2,9 @@
   "includeCoAuthoredBy": false,
   "includeGitInstructions": true,
   "permissions": {
-    "allow": [],
+    "allow": [
+      "EnterWorktree"
+    ],
     "deny": [
       "Read(auth.json)",
       "Read(**/auth.json)",
