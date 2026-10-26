@@ -23,18 +23,22 @@ When asked to review without these, take the goal from the request or ticket and
 4. Check the change delivers the goal and nothing outside it
 5. Check organization: capability ownership, cohesion, names, dependency direction, control flow, and error flow
 6. At `high`, also check interactions across files and commits, missing tests for changed behaviour, and release safety
-7. Where an IDE or language server integration is available, check the problems it reports on the changed files
-8. Verify each finding against the code before reporting it
+7. At `high`, also check the diff against the written standards: the `write-code` references in scope, the project's agent docs and committed conventions, any user preferences available, and how the nearest equivalent code does the same thing
+8. Where an IDE or language server integration is available, check the problems it reports on the changed files
+9. Verify each finding against the code before reporting it
 
 Project-enforced conventions override the `write-code` defaults.
 
-## Standards Pass
+## Reviewer
 
-At `high`, whoever starts the review also starts a second independent reviewer in parallel, giving it only the goal and the diff range. It checks only whether the diff meets the standards: the `write-code` references in scope, the project's agent docs and committed conventions, any user preferences available to it, and how the nearest equivalent code does the same thing. Each of its findings cites the rule and where it is written, in place of a failure case. Merge its findings into the report under their own heading.
+Run the review in one fresh agent with no inherited context, giving it only the goal, the diff range, and the effort. Do not split the review across several agents.
+
+Use a dedicated review agent, never a general-purpose one, sized to the effort: a fast mid-tier model at `low`, and the strongest available model with high reasoning effort at `high`. In Claude Code, use the `code-reviewer` agent and override its model to `opus` and its effort to `high` for a `high` review.
 
 ## Report
 
 - List findings most severe first, each with file, line, the defect, and a concrete failure case
+- Standards findings cite the rule and where it is written in place of a failure case
 - Mark each finding as confirmed or plausible
 - At `low`, report only confirmed findings
 - Do not edit files; report "no findings" when nothing survives verification
