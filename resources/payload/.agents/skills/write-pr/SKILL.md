@@ -12,7 +12,7 @@ Keep each PR within one bounded review objective. Make each change standalone an
 1. Check reviewability and propose a split when there is more than one bounded objective
 2. Bring the head branch current with its immediate target
 3. With all changes committed, run the full validation gates, including the complete test suite, lint, and static analysis
-4. Have an independent reviewer check the branch diff against its target at high effort, giving it only the overall goal
+4. Start one `review-code` reviewer at `high` on the branch diff against its target, giving it only the overall goal and the diff range
 5. Fix failures and confirmed findings as follow-up changes, and rerun the gates before drafting
 6. Draft the exact title and main context
 7. Determine the target and Draft/Ready state
