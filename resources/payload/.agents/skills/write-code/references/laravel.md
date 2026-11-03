@@ -8,7 +8,9 @@ not requirements.
 ### Use Actions for business use cases
 
 Where application behaviour is owned by an Action, keep it as the use-case boundary. Pass structured input in a
-purpose-named DTO and return `ActionResult` when the Action reports success or failure.
+purpose-named DTO and return `ActionResult` when the Action reports success or failure. Anything re-usable as an action,
+such as recording an event, is an Action in its owning domain's own `Actions` folder, named for its single focus and
+never placed among services, so callers never repeat it. An Action takes at most one DTO and returns a result.
 
 Bad:
 
@@ -171,7 +173,8 @@ Good:
 ```php
 $invoice = new Invoice();
 $invoice->customer_id = $request->integer('customer_id');
-$invoice->reference = $request->string('reference')->toString();
+$invoice->reference = $request->string('reference')
+    ->toString();
 $invoice->save();
 ```
 
@@ -199,17 +202,15 @@ $invoices = Invoice::query()
 Good:
 
 ```php
-$invoices = Invoice::query()
-    ->overdue()
+$invoices = Invoice::query()->overdue()
     ->get();
 
 public function scopeOverdue(Builder $query): void
 {
-    $query
-        ->where(
-            'status',
-            InvoiceStatus::Issued,
-        )
+    $query->where(
+        'status',
+        InvoiceStatus::Issued,
+    )
         ->where(
             'due_at',
             '<',
@@ -232,8 +233,7 @@ Invoice::query()->get()->each($sendReminder);
 Good:
 
 ```php
-Invoice::query()
-    ->orderBy('id')
+Invoice::query()->orderBy('id')
     ->chunkById(
         count: 500,
         callback: fn (Collection $invoices) => $invoices->each($sendReminder),
@@ -278,9 +278,9 @@ Use `JsonResource` for API output and share repeated formatting. Use a JSON:API 
 
 ### Use framework helpers where they express intent
 
-Use `data_get()` for clear nested access, `partition()` to split a collection into two groups, and `resolve()` only for
-a genuinely runtime-selected dependency. Prefer constructor injection for declared collaborators. Facades are not a
-default preference; follow the established boundary.
+Use `data_get()` for clear nested access, `partition()` to split a collection into two groups, and `resolve()` or
+`app()` only for a genuinely runtime-selected dependency. Use constructor or method injection for collaborators instead
+of container calls. Facades are not a default preference; follow the established boundary.
 
 ### Keep framework responsibilities separate
 

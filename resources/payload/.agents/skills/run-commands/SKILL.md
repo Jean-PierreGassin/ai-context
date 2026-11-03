@@ -20,6 +20,7 @@ Use the project's own interface before lower-level tools.
 - Run one plain command per invocation so permission and isolation checks can verify it. Do not chain, loop, or embed commands in scripts to save a call
 - Run commands from the intended execution location rather than pointing them at another checkout
 - Use the quiet or machine-readable mode the project documents for a command when one exists
+- Run full validation gates only when a PR is getting ready, in the background while other work continues. Static analysis and lint belong on the commit hook, never bypassed; tests do not belong there
 - Wait for completion notifications from background work instead of polling with sleeps, and stop only work that is still running
 
 ## Safety

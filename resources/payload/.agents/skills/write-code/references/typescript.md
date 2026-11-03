@@ -17,6 +17,7 @@ Apply the central `write-code` rules and these TypeScript-specific rules.
   by centrality, type, then optionality
 - Group imports as external packages, internal aliases, then relative imports
 - Avoid nested or long ternaries. A simple single-line ternary is fine
+- Brace every `if`, including one-line guards
 - Prefer readable array pipelines for clear transformations. Keep a loop when it better preserves short-circuiting,
   ordering, memory use, or intent
 - Use `async`/`await` instead of promise chains, and extract repeated multi-step asynchronous operations

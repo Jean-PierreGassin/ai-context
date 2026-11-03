@@ -37,6 +37,11 @@ namespace App\Invoice;
 
 Follow project PHP standards. Use PER where they leave gaps, then run the project formatter.
 
+- Name boolean arguments and arguments that share a type
+- Once a call names an argument and takes more than one, put each argument on its own line
+- Once a signature passes 120 characters, put each parameter on its own line
+- Start a multi-line array's contents on the line after its opening bracket
+
 Bad:
 
 ```php
@@ -69,13 +74,17 @@ For third-party and inherited calls, use named arguments when they clarify liter
 Bad:
 
 ```php
-json_decode($body, true);
+hash('sha256', $verifier, true);
 ```
 
 Good:
 
 ```php
-json_decode($body, associative: true);
+hash(
+    algo: 'sha256',
+    data: $verifier,
+    binary: true,
+);
 ```
 
 Follow framework-native calling and formatting conventions.
@@ -97,42 +106,39 @@ require dirname(__DIR__, 2) . '/vendor/autoload.php';
 
 ### Format method chains
 
-For PHP chains longer than two calls, keep the receiver and first call on the initial line. Put each later call on
-its own indented line. Keep shorter chains inline when easy to scan.
+Keep the receiver and its first link on one line, and start every later link on its own line, even for two calls.
+Property links count. A receiver with one link stays inline. Hoist a chain out of a condition rather than splitting it
+there.
 
 Bad:
 
 ```php
-return $invoiceStore->forCustomer($customerId)->find($invoiceId)->issue();
+return $invoiceStore->forCustomer($customerId)->find($invoiceId);
 ```
 
 Good:
 
 ```php
 return $invoiceStore->forCustomer($customerId)
-    ->find($invoiceId)
-    ->issue();
+    ->find($invoiceId);
 ```
 
-When a call is passed as an argument, put the call on its own indented lines. Keep a chained receiver with its first
-call, then indent later calls one level further.
+Do not nest a call in an argument list that sits on one line. Hoist it into a named variable.
 
 Bad:
 
 ```php
-return Redirect::away($chatGpt->callbackRedirect($request->query
-    ->all()));
+return Redirect::away($chatGpt->callbackRedirect($request->query->all()), status: 302);
 ```
 
 Good:
 
 ```php
-return Redirect::away(
-    $chatGpt->callbackRedirect(
-        $request->query
-            ->all()
-    )
-);
+$query = $request->query
+    ->all();
+$callbackUrl = $chatGpt->callbackRedirect($query);
+
+return Redirect::away($callbackUrl);
 ```
 
 ### Name intermediate values
@@ -162,7 +168,12 @@ if (! is_string($accessToken)
 Good:
 
 ```php
-$verifierHash = hash('sha256', $verifier, true);
+$verifierHash = hash(
+    algo: 'sha256',
+    data: $verifier,
+    binary: true,
+);
+
 $encodedHash = base64_encode($verifierHash);
 $urlSafeHash = strtr($encodedHash, '+/', '-_');
 $challenge = rtrim($urlSafeHash, '=');
@@ -176,7 +187,12 @@ if (! $hasAccessToken || ! $hasRefreshToken || ! $hasExpiry) {
 }
 ```
 
-Apply the same rule to boolean expressions: calculate meaningful checks first, then combine their names in the condition.
+Name a check when the name explains a call or computation. Write a compound condition of plain comparisons directly in
+the `if`, not as an assigned boolean such as `$isStartable = $a === X && $b !== Y;`.
+
+### Use framework helpers
+
+Do not add custom global helper functions. Use the framework's helpers, or inject a class.
 
 ### Import class names
 
@@ -200,7 +216,7 @@ function issue(InvoiceStore $store): Invoice {}
 Bad:
 
 ```php
-final class InvoiceIssuer
+class InvoiceIssuer
 {
     private InvoiceStore $store;
 
@@ -214,7 +230,7 @@ final class InvoiceIssuer
 Good:
 
 ```php
-final class InvoiceIssuer
+class InvoiceIssuer
 {
     public function __construct(
         private InvoiceStore $store,
@@ -222,7 +238,7 @@ final class InvoiceIssuer
 }
 ```
 
-Follow project usage for `readonly` unless a contract requires it.
+Do not use `final` or `readonly` on classes or properties unless a contract requires it.
 
 ### Interpolate strings
 
@@ -292,12 +308,13 @@ function find(
 Good:
 
 ```php
-function find(TraversalContext $traversalContext): ?Result {}
+function find(TraversalContext $traversalContext): Result {}
 ```
 
-### Use enums and constants for named values
+### Use enums for named values
 
-Search for an existing domain representation before adding another.
+Search for an existing domain representation before adding another. Use an enum when the value belongs to a set.
+Otherwise assign it to a named local variable rather than adding a constant or leaving a bare literal.
 
 Bad:
 
@@ -313,12 +330,12 @@ if ($invoice->status === 'overdue') {
 Good:
 
 ```php
-private const REMINDER_DELAY_DAYS = 7;
+$reminderDelayDays = 7;
 
 if ($invoice->status === InvoiceStatus::Overdue) {
     scheduleReminder(
         invoice: $invoice,
-        delayDays: self::REMINDER_DELAY_DAYS,
+        delayDays: $reminderDelayDays,
     );
 }
 ```
@@ -354,6 +371,7 @@ $position = array_search(
     haystack: $invoiceIds,
     strict: true,
 );
+
 if ($position === false) {
     throw InvoiceNotFound::withId(invoiceId: $invoiceId);
 }
@@ -388,9 +406,10 @@ $label = match ($status) {
 Introduce polymorphic dispatch when type branching repeats, implementations multiply, or a real extension seam is
 required. A contained exhaustive `match` is clearer for a closed variant.
 
-### Avoid ternary control flow
+### Do not use ternaries
 
-Use `??` for defaults and `match` for value selection. Replace nested ternaries with guard clauses or a focused method.
+Use `??` for defaults, `match` (including `match (true)`) for value selection, and guard clauses for control flow. This
+includes the short `?:` form.
 
 Bad:
 
@@ -498,19 +517,34 @@ foreach ($invoices as $invoice) {
 Good:
 
 ```php
-$invoiceIds = array_values(
-    array_map(
-        fn (Invoice $invoice): InvoiceId => $invoice->id,
-        array_filter(
-            $invoices,
-            fn (Invoice $invoice): bool => $invoice->isOverdue(),
-        ),
-    ),
-);
+$overdueInvoices = array_filter($invoices, fn (Invoice $invoice): bool => $invoice->isOverdue());
+$invoiceIds = array_map(fn (Invoice $invoice): InvoiceId => $invoice->id, $overdueInvoices);
 ```
 
 Keep a loop when it better preserves short-circuiting, keys, ordering, memory use, or intent. Do not force a pipeline
 that is harder to scan.
+
+Do not merge inside a loop. Collect the pieces and merge once after it.
+
+Bad:
+
+```php
+foreach ($batches as $batch) {
+    $responses = array_merge($responses, $this->send($batch));
+}
+```
+
+Good:
+
+```php
+$responsesByBatch = [];
+
+foreach ($batches as $batch) {
+    $responsesByBatch[] = $this->send($batch);
+}
+
+return array_merge(...$responsesByBatch);
+```
 
 ### Keep exception boundaries explicit
 
@@ -570,7 +604,7 @@ Use `JSON_THROW_ON_ERROR` for encoding too.
 ### Keep declarations and layout semantic
 
 - Group properties by role
-- Order methods as public entry points, public support, then private helpers
+- Order methods as the constructor, public methods, then private helpers
 - Put short declarations before expanded declarations within one group
 - Extract repeated multi-step operations into one shared helper
 - Group DTOs, collections, services, and other roles into their own namespaces
