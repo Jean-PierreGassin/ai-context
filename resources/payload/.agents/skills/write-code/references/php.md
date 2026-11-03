@@ -314,7 +314,8 @@ function find(TraversalContext $traversalContext): Result {}
 ### Use enums for named values
 
 Search for an existing domain representation before adding another. Use an enum when the value belongs to a set.
-Otherwise assign it to a named local variable rather than adding a constant or leaving a bare literal.
+Otherwise assign it to a named local variable rather than adding a constant or leaving a bare literal. Keep a
+constant for a value shared across methods or a long list.
 
 Bad:
 

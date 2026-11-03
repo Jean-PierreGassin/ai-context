@@ -312,8 +312,9 @@ Short conventional names remain clear in a genuinely small scope where the langu
 
 Search for an existing domain constant, enum, or equivalent before introducing another representation. When no
 existing representation fits, use an enum when the value belongs to a set, and otherwise assign it to a named local
-variable. Do not add a constant for a value a local variable can name, but a fixed identifier that defines a variant,
-such as a provider's API key variable, belongs in a constant or contract method.
+variable. Do not add a constant for a value a local variable can name, and never inline it as a bare literal. Keep a
+constant for a value shared across methods, a long list, or a fixed identifier that defines a variant, such as a
+provider's API key variable, which may also be a contract method.
 Ordinary structural values, such as an empty collection or a loop increment, are not magic literals.
 
 Bad:

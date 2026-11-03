@@ -10,7 +10,8 @@ not requirements.
 Where application behaviour is owned by an Action, keep it as the use-case boundary. Pass structured input in a
 purpose-named DTO and return `ActionResult` when the Action reports success or failure. Anything re-usable as an action,
 such as recording an event, is an Action in its owning domain's own `Actions` folder, named for its single focus and
-never placed among services, so callers never repeat it. An Action takes at most one DTO and returns a result.
+never placed among services, so callers never repeat it. An Action takes at most one DTO, injects at most two other
+Actions, and returns a result.
 
 Bad:
 
