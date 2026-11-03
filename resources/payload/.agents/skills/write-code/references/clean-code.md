@@ -215,8 +215,10 @@ Keep a short nested expression inline when its order and intent remain immediate
 
 Read a function as paragraphs. Keep statements serving one operation together, then use one blank line before the next
 logical phase. Always put one blank line between a statement and a following `if`, loop, `switch`, `match` or `try`
-block, even when the block guards the value just produced. Do not insert a blank line after every statement
-or compress validation, transformation, persistence, and return into one block.
+block, even when the block guards the value just produced. Do not insert a blank line after every statement or compress
+validation, transformation, persistence, and return into one block. Keep short one-line assignments of a step together
+with no blank line between them, and give property assignments their own group with blank lines around it, apart from
+local variables.
 
 Bad:
 
@@ -276,9 +278,9 @@ their native grouping structure.
 
 ### Name for meaning in context
 
-Use names that make the value or action clear at its scope. Avoid generic placeholders such as `data`, `result`, `item`,
-`value`, `handler`, or `manager` when the domain supplies a precise name. Do not repeat context already carried
-by a package, module, receiver, or type.
+Name things for what they are where they sit, not where they came from. Use names that make the value or action clear at
+its scope. Avoid generic placeholders such as `data`, `result`, `item`, `value`, `handler`, or `manager` when the domain
+supplies a precise name. Do not repeat context already carried by a package, module, receiver, or type.
 
 - Name functions and methods with an active verb that describes their action
 - Prefix booleans with `is`, `has`, `can`, or `should`
@@ -286,6 +288,7 @@ by a package, module, receiver, or type.
 - Name related collections by their meaning or contrast, such as `acceptedInvoices` and `rejectedInvoices`, not by an
   index or numeric suffix
 - Do not suffix a name with its generic container type, such as `Array`, `List`, or `Data`
+- Name the unit of a quantity, such as `timeoutSeconds`
 
 Bad:
 
@@ -308,7 +311,9 @@ Short conventional names remain clear in a genuinely small scope where the langu
 ### Give unexplained literals a name
 
 Search for an existing domain constant, enum, or equivalent before introducing another representation. When no
-existing representation fits, name a business-significant number or string instead of repeating or leaving it inline.
+existing representation fits, use an enum when the value belongs to a set, and otherwise assign it to a named local
+variable. Do not add a constant for a value a local variable can name, but a fixed identifier that defines a variant,
+such as a provider's API key variable, belongs in a constant or contract method.
 Ordinary structural values, such as an empty collection or a loop increment, are not magic literals.
 
 Bad:
@@ -326,6 +331,23 @@ reminderDelayDays = 7
 if invoice.status == overdueStatus:
     scheduleReminder(invoice, reminderDelayDays)
 ```
+
+### Keep units small and focused
+
+Where the project sets no limits:
+
+- At most 40 lines, 4 parameters, and 3 returns per function
+- At most 5 constructor dependencies
+- No control block nested in another. Extract the inner one; a guard that exits may stay
+- One return type for new functions, with no nullable or union result. Use a result object or enum instead
+
+Find the seam by responsibility. Moving a long function or dependency list unchanged into a new unit does not shorten
+it, and neither does a trivial wrapper.
+
+### Do not forward calls
+
+Remove a method that only passes its call to a collaborator unchanged, unless a contract requires it. Call the
+collaborator directly.
 
 ### Extract cohesive responsibilities, not line counts
 
@@ -356,6 +378,20 @@ issue(request):
 
 Extract when the created unit has an honest responsibility, a useful contract, or independently meaningful logic.
 
+### Make variants conform to one shape
+
+Give variants of one concept (harnesses, adapters, providers, sources) a shared contract with the same base methods, and
+let each add extra functionality. Adding a variant should mean filling in that shape. This applies throughout a
+codebase, including when only one variant exists so far.
+
+Where variants share behaviour, prefer one abstract base with defaults, so each variant overrides only what differs.
+Keep an interface for a real seam, such as a driver or a real and fake pair.
+
+### Pass typed objects
+
+Keep typed objects moving inside the application. Serialize to arrays or JSON only where data leaves it: storage,
+queues, HTTP, or another process.
+
 ### Do not add code comments unless explicitly required
 
 Add comments, docblocks, TODOs, annotations, or rationale only when:
@@ -363,14 +399,15 @@ Add comments, docblocks, TODOs, annotations, or rationale only when:
 - the user explicitly asks for that comment or documentation
 - the language, framework, interface, linter, generator, formatter, or another project tool requires it
 - project tooling automatically generates it as part of the requested operation
+- it explains a concept that cannot be inferred from reading the code
 
-Use names and structure instead of narration. Keep required comments minimal and leave unrelated comments alone.
+Use names and structure instead of narration. Keep required comments minimal.
 
 ### Match user-facing copy to its contract
 
 Read neighboring messages and follow their established voice and structure. Keep terse groups terse, put dynamic
 labels where the surrounding pattern puts them, and verify that copy describing configuration or validation agrees
-with the behavior it represents.
+with the behavior it represents. Write copy the way a person would say it, in short common words.
 
 ## Follow the project where it is consistent
 

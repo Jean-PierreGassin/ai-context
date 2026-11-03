@@ -11,7 +11,10 @@ descriptive key when the runner displays it.
 #[DataProvider('tierDiscounts')]
 public function test_discount_rate_matches_tier(string $tier, float $expectedRate): void
 {
-    $this->assertSame($expectedRate, (new Customer(tier: $tier))->discountRate());
+    $customer = new Customer(tier: $tier);
+    $discountRate = $customer->discountRate();
+
+    $this->assertSame($expectedRate, $discountRate);
 }
 
 public static function tierDiscounts(): array

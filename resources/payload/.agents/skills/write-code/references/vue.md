@@ -7,7 +7,8 @@ Read this reference with the TypeScript reference.
 - Put `<script setup>` before `<template>`
 - On Vue 3.5 or later, define props with typed reactive destructuring and defaults. Use `withDefaults` when the supported
   Vue version requires it
-- Use `computed` for derived state, not to rename or pass through a value
+- Use `computed` for derived state the template or a caller reads, not to rename or pass through a value. A check read
+  once is a plain function, and a value feeding only one other `computed` is inlined
 - Use the project's spacing and size scale rather than custom pixel values
 - Self-close components without content and use directive shorthands consistently
 - Order template attributes as directives, id, ref/key, static attributes, bound attributes, then events

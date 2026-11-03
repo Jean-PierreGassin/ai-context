@@ -18,10 +18,14 @@ Write tests that prove meaningful behaviour and follow the project's existing te
 ## Principles
 
 - Assert observable behaviour and business rules, not implementation details
-- Test code owned by the change, not framework internals or trivial accessors
+- Test only behaviour the change adds, not framework internals, trivial accessors, or untouched behaviour
+- Prove each new test fails without the change
 - Mock real boundaries only; use real value objects
-- Prefer data providers or table cases for equivalent scenarios
-- Name tests for the behaviour they prove
+- Never reconstruct a class or its dependencies by hand: resolve the subject from the container and mock collaborators
+- Keep tests short: move long input to fixtures and equivalent scenarios to data providers or table cases
+- Name each test in one short plain-English clause stating its outcome in the product's words
+- Put helpers and datasets after the last test; setup hooks stay at the top
+- Anchor a frozen clock to the present; never to a literal date
 - Keep tests consistent with the project's coding style
 - Do not hide or remove failing tests; state an environment dependency or reason when a test cannot run
 

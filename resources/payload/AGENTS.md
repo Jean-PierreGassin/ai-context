@@ -32,6 +32,7 @@
 - Do the work in the main session. Delegate only reviews: use `review-code` in one fresh subagent with no inherited context, giving it only the overall goal and the diff range
 - Run reviewers as a dedicated review agent, never a general-purpose one, with a model and reasoning effort sized to the review's effort
 - Prefer language server or IDE integrations over text search for definitions, references, symbols, and diagnostics when they are available
+- Use a headless browser (for example Playwright) for visual checks and browser work. Use a visible browser such as Claude in Chrome only when I ask for it
 - Finish each change as a clean, reviewable diff. After approval, commit the approved diff without introducing new changes
 - Keep each change independently deployable and safe to release without dependent changes
 
