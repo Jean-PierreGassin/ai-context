@@ -238,7 +238,7 @@ class InvoiceIssuer
 }
 ```
 
-Do not use `final` or `readonly` on classes or properties unless a contract requires it.
+Do not use `final` unless a contract requires it. `readonly` is fine.
 
 ### Interpolate strings
 
