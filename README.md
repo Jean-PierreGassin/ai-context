@@ -90,8 +90,8 @@ than at review. It runs nothing until `${XDG_CONFIG_HOME:-$HOME/.config}/agents/
 
 ```text
 env . "$HOME/.config/my-env.sh"
-edit * *.php ./vendor/bin/pint --test $FILES
-turn my-app *.php ./vendor/bin/phpstan analyse --no-progress $FILES
+edit * *.py ruff check $FILES
+turn my-app src/*.ts npx eslint $FILES
 ```
 
 Each check line is `<phase> <repository> <path glob> <command>`:
