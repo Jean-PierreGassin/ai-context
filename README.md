@@ -83,6 +83,30 @@ files previously owned by `ai-context`. Unmanaged files and non-empty directorie
 
 Every install and rollback saves the previous state.
 
+## Change checks
+
+The `verify-changes` hook runs your checks on the files an agent changes, so problems surface while it works rather
+than at review. It runs nothing until `${XDG_CONFIG_HOME:-$HOME/.config}/agents/verify-changes` exists:
+
+```text
+env . "$HOME/.config/my-env.sh"
+edit * *.py ruff check $FILES
+turn my-app src/*.ts npx eslint $FILES
+```
+
+Each check line is `<phase> <repository> <path glob> <command>`:
+
+- `edit` runs after every edit or write, on that file. Keep these to checks that take about a second
+- `turn` runs once when the agent finishes a turn, on every file it changed since the last clean run
+- `<repository>` matches the origin repository's name, `*` for any; `<path glob>` matches the path from the
+  repository root
+- `$FILES` expands to the matching files, quoted. Commands run from the repository root at low priority, one at a
+  time per repository, and a command that is not installed is skipped
+- `env` is an optional command run before each check, for example to load the project's toolchain
+
+A failed check is reported back to the agent. A turn check that still fails after one fix attempt is shown to you and
+no longer blocks. State is kept per session, so parallel sessions and worktrees never share results.
+
 ## Check and restore
 
 Check an installation:

@@ -615,6 +615,37 @@
         "Allows focused Actions to compose only where the project treats them as one business operation",
         "Keeps persistence concerns in the established persistence layer"
       ]
+    },
+    {
+      "id": "fixes-hook-feedback-before-next-edit",
+      "category": "normal",
+      "prompt": "While adding a refund reason field, the edit hook reports a formatter failure and a static analysis error on the file just changed.",
+      "expected_output": "Both are fixed before the next file is edited.",
+      "expectations": [
+        "Fixes the reported failures on that file before editing another file",
+        "Explains in one line any reported rule it decides does not apply"
+      ]
+    },
+    {
+      "id": "uses-open-ide-without-taking-focus",
+      "category": "proportionality",
+      "prompt": "Add a helper for formatting order totals. The IDE already has this checkout open, and the user is working in another window.",
+      "expected_output": "Existing helpers are searched through the IDE and the new file checked there, without opening anything.",
+      "expectations": [
+        "Searches for an existing helper through the IDE before adding one",
+        "Checks the changed file's problems through the IDE",
+        "Opens no project, window, or file in the IDE and does not bring it to the front"
+      ]
+    },
+    {
+      "id": "skips-ide-when-not-open",
+      "category": "counterexample",
+      "prompt": "Fix the off-by-one in the pagination helper. No IDE has this checkout open.",
+      "expected_output": "The fix is made and checked with the project's command-line gates only.",
+      "expectations": [
+        "Does not open the checkout in an IDE",
+        "Runs the project's formatting, lint, static analysis, and covering tests from the command line"
+      ]
     }
   ]
 }
