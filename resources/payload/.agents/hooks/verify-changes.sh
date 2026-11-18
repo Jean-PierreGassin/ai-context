@@ -3,11 +3,14 @@ python3 -I -c '
 import concurrent.futures, fnmatch, hashlib, json, os, pathlib, shlex, subprocess, sys
 
 phase = sys.argv[1]
-event = json.load(sys.stdin)
+event = {} if phase == "handoff" else json.load(sys.stdin)
 home = pathlib.Path.home()
 config = pathlib.Path(os.environ.get("XDG_CONFIG_HOME", home / ".config")) / "agents" / "verify-changes"
 
 if not config.is_file():
+    if phase == "handoff":
+        print("No checks configured in " + str(config))
+
     sys.exit(0)
 
 state_dir = pathlib.Path(os.environ.get("XDG_STATE_HOME", home / ".local" / "state")) / "agents" / "verify-changes"
@@ -22,7 +25,7 @@ for line in config.read_text().splitlines():
 
     if parts[:1] == ["env"]:
         environment = line.split(None, 1)[1] if len(parts) > 1 else ""
-    elif len(parts) == 4 and parts[0] in ("edit", "turn"):
+    elif len(parts) == 4 and parts[0] in ("edit", "turn", "handoff"):
         rules.append(parts)
 
 
@@ -98,6 +101,32 @@ def save_state(state):
     state_dir.mkdir(parents=True, exist_ok=True)
     state_file.write_text(json.dumps(state))
 
+
+def changed_since_base(root):
+    base_ref = git(root, "symbolic-ref", "--short", "refs/remotes/origin/HEAD") or "origin/main"
+    base = git(root, "merge-base", base_ref, "HEAD")
+    tracked = git(root, "diff", "--name-only", "--diff-filter=d", base).splitlines() if base else []
+    untracked = git(root, "ls-files", "--others", "--exclude-standard").splitlines()
+
+    return sorted(set(tracked + untracked))
+
+
+if phase == "handoff":
+    root = git(os.getcwd(), "rev-parse", "--show-toplevel")
+
+    if not root:
+        print("Not inside a git repository")
+        sys.exit(1)
+
+    files = changed_since_base(root)
+    failures = check("handoff", {root: files}) if files else []
+
+    if failures:
+        print("Handoff checks failed:\n\n" + "\n\n".join(failures))
+        sys.exit(1)
+
+    print("Handoff checks passed on " + str(len(files)) + " changed file(s)")
+    sys.exit(0)
 
 if phase == "edit":
     path = event.get("tool_input", {}).get("file_path", "")

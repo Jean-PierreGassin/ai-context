@@ -16,7 +16,7 @@ Write readable, cohesive code and keep the change within scope.
 5. Implement the smallest coherent change yourself, keeping it independently deployable and safe to release without dependent changes. Do not hand parts of it to other agents
 6. Run formatting, lint, and static analysis on the changed files, and the tests covering the change, since they may change the diff
 7. Start one `review-code` reviewer, at `high` for a branch going up for a PR and `low` otherwise, giving it only the overall goal, the diff range and the paths of any user preference files the user's instructions list
-8. Fix confirmed findings, rerun the gates if the diff changed, and present the resulting diff for approval
+8. Fix confirmed findings, rerun the gates if the diff changed, and present the resulting diff for approval with its evidence
 9. Keep the diff focused and preserve reviewed or published history
 
 ## Verify while writing
@@ -32,6 +32,19 @@ Check each change as it is made instead of only at the end, without slowing the 
   before changing code. Remove every breakpoint you set before moving on
 - Run checks only in the current checkout, so parallel sessions in other worktrees never share or block each other's
   runs
+
+## Before handing back
+
+- Run `sh <agents>/hooks/verify-changes.sh handoff` from the repository root, where `<agents>` is the project's
+  `.agents/` when it has one and `~/.agents/` otherwise. It runs the user's slower, whole-change checks once against
+  every file changed since the branch left trunk. Fix what it reports
+- Prove each new or changed test guards the change: copy each changed non-test file aside, overwrite it with its
+  trunk version (`git show <merge-base>:<path>`), run the tests and confirm they fail, then restore the copies and
+  confirm they pass. A test that passes against trunk proves nothing: fix it or say why. Never use `git stash` or
+  `git checkout` for this, since they can lose uncommitted work
+- Exercise the change end to end the way it will really run, on realistic data, and keep the command and its output
+- End the handoff with an **Evidence** section: each command run, and the lines of output that show the result.
+  Never say it works, passes, or is safe without that evidence
 
 ## References
 

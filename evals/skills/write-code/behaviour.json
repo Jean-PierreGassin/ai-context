@@ -646,6 +646,28 @@
         "Does not open the checkout in an IDE",
         "Runs the project's formatting, lint, static analysis, and covering tests from the command line"
       ]
+    },
+    {
+      "id": "proves-tests-fail-without-the-change",
+      "category": "normal",
+      "prompt": "The new discount cap is implemented with two new tests, and the work has not been committed yet. Get it ready to hand back.",
+      "expected_output": "Both tests are shown failing against trunk's code and passing with the change, with no work lost.",
+      "expectations": [
+        "Runs the new tests against trunk's version of the changed code and shows them failing",
+        "Restores the change and shows the tests passing",
+        "Does not use git stash or git checkout on uncommitted files"
+      ]
+    },
+    {
+      "id": "hands-back-with-evidence",
+      "category": "normal",
+      "prompt": "The export fix is done and the edit checks are clean. Hand it back.",
+      "expected_output": "The handoff checks run, then a report ending in an Evidence section.",
+      "expectations": [
+        "Runs the handoff checks before reporting",
+        "Ends with an Evidence section listing each command and the output that shows its result",
+        "Makes no claim that it works without output to support it"
+      ]
     }
   ]
 }

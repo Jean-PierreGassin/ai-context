@@ -92,12 +92,15 @@ than at review. It runs nothing until `${XDG_CONFIG_HOME:-$HOME/.config}/agents/
 env . "$HOME/.config/my-env.sh"
 edit * *.py ruff check $FILES
 turn my-app src/*.ts npx eslint $FILES
+handoff my-app * npx tsc --noEmit
 ```
 
 Each check line is `<phase> <repository> <path glob> <command>`:
 
 - `edit` runs after every edit or write, on that file. Keep these to checks that take about a second
 - `turn` runs once when the agent finishes a turn, on every file it changed since the last clean run
+- `handoff` runs when the agent calls `verify-changes.sh handoff` before handing work back, on every file changed
+  since the branch left trunk. Put slow, whole-change checks here, such as the full static analysis run CI does
 - `<repository>` matches the origin repository's name, `*` for any; `<path glob>` matches the path from the
   repository root
 - `$FILES` expands to the matching files, quoted. Commands run from the repository root at low priority, one at a

@@ -67,8 +67,18 @@ edit * README.md printf 'marker=%s' "$VERIFY_MARKER"; false
 EOF
 expect 'the env line is applied to checks' 'marker=loaded from env' "$(run_hook edit '{"session_id":"env","tool_input":{"file_path":"'"$project"'/README.md"}}')"
 
+cat >"$XDG_CONFIG_HOME/agents/verify-changes" <<'EOF'
+handoff * src/*.txt ! grep -l broken $FILES
+EOF
+printf 'broken\n' >"$project/src/bad.txt"
+expect 'a failing handoff reports the file' 'Handoff checks failed.*bad.txt' "$(cd "$project" && sh "$hook" handoff || true)"
+expect 'a failing handoff exits non-zero' '^1$' "$(cd "$project" && sh "$hook" handoff >/dev/null; printf '%s' "$?")"
+printf 'fixed\n' >"$project/src/bad.txt"
+expect 'a passing handoff says so' 'Handoff checks passed' "$(cd "$project" && sh "$hook" handoff)"
+
 rm "$XDG_CONFIG_HOME/agents/verify-changes"
 expect 'no settings file is silent' '^$' "$(run_hook edit "$(edit_event "$project/src/bad.txt")")"
+expect 'a handoff without settings says so' 'No checks configured' "$(cd "$project" && sh "$hook" handoff)"
 
 if ((failures > 0)); then
   exit 1
