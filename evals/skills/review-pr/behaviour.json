@@ -36,16 +36,6 @@
       ]
     },
     {
-      "id": "removes-worktree-when-done",
-      "category": "normal",
-      "prompt": "I'm done looking at PR 482 in the IDE, clean it up.",
-      "expected_output": "The review worktree is removed with the saved remove command.",
-      "expectations": [
-        "Removes the review worktree with the saved remove command",
-        "Touches no other worktree or the main clone"
-      ]
-    },
-    {
       "id": "asks-for-missing-settings",
       "category": "normal",
       "prompt": "Which PRs are waiting on my review? Nothing has been configured yet.",
@@ -54,6 +44,50 @@
         "Asks which organisation to search",
         "Saves the answer so the next run does not ask",
         "Lists the open PRs requesting the user's review and asks which to take"
+      ]
+    },
+    {
+      "id": "marks-findings-and-starts-walkthrough",
+      "category": "normal",
+      "prompt": "Review PR 482. It has a saved worktree command, the IDE is saved with a command that opens a file at a line, and the review finds three issues.",
+      "expected_output": "Three labelled markers in the IDE and the editor opened at the first finding.",
+      "expectations": [
+        "Places one marker per finding, labelled with the report's number and a one-line defect",
+        "Uses a marker that changes no file and cannot pause or alter a running program",
+        "Opens the first finding's file at its line in the IDE",
+        "Waits for the user before moving to another finding"
+      ]
+    },
+    {
+      "id": "navigates-on-request",
+      "category": "normal",
+      "prompt": "The walkthrough of PR 482 is on finding 1 of 3. The user says: next",
+      "expected_output": "The editor jumps to finding 2 and its details are restated.",
+      "expectations": [
+        "Opens finding 2's file at its line in the IDE",
+        "Restates finding 2's defect, consequence, and fix in chat"
+      ]
+    },
+    {
+      "id": "drops-dismissed-finding",
+      "category": "counterexample",
+      "prompt": "The walkthrough of PR 482 is on finding 2. The user says it is not an issue.",
+      "expected_output": "The finding's marker is removed and it is not raised again.",
+      "expectations": [
+        "Removes that finding's marker",
+        "Does not argue the finding again"
+      ]
+    },
+    {
+      "id": "cleans-up-on-done",
+      "category": "normal",
+      "prompt": "The user finished the PR 482 walkthrough and says done. They also have two breakpoints of their own in that project.",
+      "expected_output": "Only the review's markers and worktree are removed.",
+      "expectations": [
+        "Removes only the markers the review placed",
+        "Leaves the user's own breakpoints in place",
+        "Removes the review worktree with the saved remove command",
+        "Touches no other worktree or the main clone"
       ]
     }
   ]
