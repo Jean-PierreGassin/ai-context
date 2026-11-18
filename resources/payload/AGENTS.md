@@ -24,17 +24,24 @@
 - Use `write-plan` for multi-step work, migrations, replacements, or work that spans sessions
 - Before editing, use `use-worktrees` to choose or restore the execution location
 - Before project or operational commands, use `run-commands`
-- Split work into small independent changes that each target trunk. Merge one, then branch the next from the updated trunk. Never open stacked PRs: squash merges force the layers above to rebase and dismiss their reviews
+- Split work into small independent changes that each target trunk. Merge one, then branch the next from the updated trunk. Stack at most one level: a foundation PR off trunk ships first and ticket PRs target it; never deeper, since squash merges force the layers above to rebase and dismiss their reviews
 - Use separate worktrees only for concurrent independent tracks
 - Keep each branch current with its immediate target before implementation, review, and meaningful pushes
 - Preserve reviewed or published history. Do not rewrite it
-- Run formatting, lint, static analysis, and change-scoped tests before human review, and the full validation gates before opening a PR
-- Do the work in the main session. Delegate only reviews: use `review-code` in one fresh subagent with no inherited context, giving it only the overall goal and the diff range
+- Run formatting, lint, static analysis, and change-scoped tests before human review and before opening a PR. CI runs the full test suite; run it locally only when asked
+- Do the work in the main session. Delegate only reviews: use `review-code` in one fresh subagent with no inherited context, giving it only the overall goal, the diff range and the paths of any user preference files the user's instructions list
 - Run reviewers as a dedicated review agent, never a general-purpose one, with a model and reasoning effort sized to the review's effort
 - Prefer language server or IDE integrations over text search for definitions, references, symbols, and diagnostics when they are available
 - Use a headless browser (for example Playwright) for visual checks and browser work. Use a visible browser such as Claude in Chrome only when I ask for it
 - Finish each change as a clean, reviewable diff. After approval, commit the approved diff without introducing new changes
 - Keep each change independently deployable and safe to release without dependent changes
+
+## Shared host
+
+- Other agent sessions usually run on the same machine. Before heavy work such as full test suites, static analysis, builds, or containers, list peer sessions and running processes or containers, and coordinate with peers through messages so the host stays responsive
+- Run one full suite or analysis per project at a time across all sessions, with capped workers. Hold a host-wide lock such as a fixed container name, and wait on it with a monitor rather than starting a second run
+- Iterate with change-scoped checks. CI runs the full test suite; run it locally only when asked
+- Clean up your own containers and processes when they finish or you abandon them. Tell a peer when its runs look stale or wasteful instead of stopping its work yourself
 
 ## Tickets and PRs
 

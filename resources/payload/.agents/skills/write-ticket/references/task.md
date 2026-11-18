@@ -2,8 +2,8 @@
 
 Use these three colored panels in this order:
 
-1. Description panel (note/blue) - "Description" bold + a direct technical statement of what is being built or changed
-2. Background panel (info) - "Background" bold + context paragraphs
+1. Description panel (info, blue) - "Description" bold + a direct technical statement of what is being built or changed
+2. Background panel (note, purple) - "Background" bold + context paragraphs
 3. Task panel (success/green) - "Task" bold + bullet list with sub-points
 
 Do not add a User Story panel. A Task defines technical work. The parent story defines business value. If the Task

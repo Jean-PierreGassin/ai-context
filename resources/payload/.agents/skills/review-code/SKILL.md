@@ -5,7 +5,7 @@ description: Review a code diff independently against its goal and project stand
 
 # Review Code
 
-Judge the diff on its own merits. Work from the goal and the diff only, not from any plan or reasoning behind it.
+Judge the diff on its own merits. Work from the goal, the diff and any user preference files you are given, not from any plan or reasoning behind it.
 
 ## Input
 
@@ -31,7 +31,7 @@ Project-enforced conventions override the `write-code` defaults.
 
 ## Reviewer
 
-Run the review in one fresh agent with no inherited context, giving it only the goal, the diff range, and the effort. Do not split the review across several agents.
+Run the review in one fresh agent with no inherited context, giving it only the goal, the diff range, the effort, and the paths of any user preference files the user's instructions list. Do not split the review across several agents.
 
 Use a dedicated review agent, never a general-purpose one, sized to the effort: a fast mid-tier model at `low`, and the strongest available model with high reasoning effort at `high`. In Claude Code, use the `code-reviewer` agent and override its model to `opus` and its effort to `high` for a `high` review.
 
