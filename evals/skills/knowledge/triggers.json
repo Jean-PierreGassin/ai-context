@@ -1,0 +1,24 @@
+[
+  {
+    "query": "What did we decide about retrying failed payouts?",
+    "should_trigger": true
+  },
+  {
+    "query": "Was skipping the cache here deliberate, or an oversight?",
+    "should_trigger": true
+  },
+  {
+    "query": "What came out of last week's billing sync?",
+    "should_trigger": true
+  },
+  {
+    "query": "Why is the export job timing out in production?",
+    "should_trigger": false,
+    "note": "A live defect to investigate, not a past decision to look up."
+  },
+  {
+    "query": "Write up a plan for moving the queue to a new driver",
+    "should_trigger": false,
+    "note": "Planning routes to write-plan."
+  }
+]
