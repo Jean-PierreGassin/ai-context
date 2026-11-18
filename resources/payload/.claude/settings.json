@@ -45,6 +45,16 @@
             "if": "Write(**/database/migrations/**)"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/.agents/hooks/block-no-verify.sh\"",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "Stop": [

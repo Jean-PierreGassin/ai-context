@@ -15,7 +15,7 @@ Write readable, cohesive code and keep the change within scope.
 4. Use a plan for multi-step work, migrations, replacements, or work spanning sessions
 5. Implement the smallest coherent change yourself, keeping it independently deployable and safe to release without dependent changes. Do not hand parts of it to other agents
 6. Run formatting, lint, and static analysis on the changed files, and the tests covering the change, since they may change the diff
-7. Start one `review-code` reviewer, at `high` for a branch going up for a PR and `low` otherwise, giving it only the overall goal and the diff range
+7. Start one `review-code` reviewer, at `high` for a branch going up for a PR and `low` otherwise, giving it only the overall goal, the diff range and the paths of any user preference files the user's instructions list
 8. Fix confirmed findings, rerun the gates if the diff changed, and present the resulting diff for approval
 9. Keep the diff focused and preserve reviewed or published history
 
