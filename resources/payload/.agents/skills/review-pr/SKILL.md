@@ -6,7 +6,7 @@ argument-hint: "[pr-url|owner/repo#n|pr-number]"
 
 # Review a pull request
 
-**resolve → gather → load standards → find → validate → report**
+**resolve → gather → load standards → find → validate → report → walk through**
 
 ## Hard rules
 
@@ -36,6 +36,7 @@ variables named below.
 | `standards_fallback`    | Directory with a bundled copy, used when the clone is missing or the fetch fails          |
 | `ide_open`              | Command opening `$WORKTREE` in the IDE                                                    |
 | `ide_pr_actions`        | Space-separated IDE action ids, run in order, that show the checked-out branch's PR       |
+| `ide_goto`              | Command opening `$FILE` at `$LINE` in the running IDE                                     |
 | `worktree_add.<repo>`   | Command creating a worktree on `$BRANCH` for the clone named `<repo>` (`$CLONE` is its path) |
 | `worktree_remove.<repo>`| Command removing the worktree at `$WORKTREE` on `$BRANCH`                                 |
 
@@ -238,7 +239,27 @@ Add one line only when a linked source could not be read, or when the PR no long
 
 If nothing survives, say "No findings".
 
-When a review worktree was opened, end with one line naming its path. Leave it in place for the user's own review.
-When the user says they are done with it, run `worktree_remove.<repo>` with `WORKTREE` and `BRANCH` set.
+When a review worktree was opened, end with one line naming its path and, when there are findings, one line saying
+the walkthrough has started at finding 1.
 
-The run ends at the report.
+---
+
+## 7. Walk through in the IDE
+
+Run this step only when a review worktree is open in the IDE and at least one finding was reported.
+
+1. Mark every finding through the IDE's MCP with a line marker that changes no file and no runtime behaviour, such as
+   a disabled, non-suspending breakpoint, labelled `Review #<n>: <one-line defect>` with the report's numbering. Record
+   each marker's id. If the MCP has no such marker, skip marking and keep the rest of this step.
+2. Open finding 1 with `ide_goto`, `FILE` set to its absolute path in the worktree and `LINE` to its line.
+3. Wait for the user. On each request, open the finding with `ide_goto` and restate its defect, consequence, and fix in
+   chat:
+   * **next** or **back**: the adjacent finding
+   * **a number**: that finding
+   * **more**: the trace behind the current finding, with `file:line` for each step, opening the next file in the
+     trace when it helps
+   * **not an issue**: remove that finding's marker and drop it from the list. Do not argue it again
+4. On **done**, remove only the markers recorded in step 1, then run `worktree_remove.<repo>` with `WORKTREE` and
+   `BRANCH` set. Remove nothing else, including the user's own breakpoints.
+
+Never edit, stage, or commit in the worktree during the walkthrough, and never post anything to GitHub.
