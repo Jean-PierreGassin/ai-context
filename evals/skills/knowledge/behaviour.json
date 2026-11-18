@@ -1,0 +1,37 @@
+{
+  "skill_name": "knowledge",
+  "evals": [
+    {
+      "id": "latest-decision-wins",
+      "category": "normal",
+      "prompt": "What did we decide about soft-deleting customer records? A meeting note proposed it in March and a merged PR in May replaced it with archiving.",
+      "expected_output": "Archiving as the decision, with the March proposal marked superseded.",
+      "expectations": [
+        "States the latest decided point as the answer",
+        "Marks the earlier proposal as superseded and names what replaced it",
+        "Cites a source for every claim"
+      ]
+    },
+    {
+      "id": "writes-nothing-unasked",
+      "category": "counterexample",
+      "prompt": "Was the nightly sync's batch size chosen on purpose? Only a Slack thread mentions it.",
+      "expected_output": "The answer from the thread, with a one-line offer to record it.",
+      "expectations": [
+        "Edits and creates no vault note",
+        "Offers in one line to record the finding",
+        "Posts nothing to Slack"
+      ]
+    },
+    {
+      "id": "reports-unavailable-source",
+      "category": "normal",
+      "prompt": "What did we agree about API versioning? The notes vault is not mounted.",
+      "expected_output": "An answer from the other sources with the missing vault named as a gap.",
+      "expectations": [
+        "Continues with the remaining sources",
+        "Names the unavailable vault under gaps"
+      ]
+    }
+  ]
+}

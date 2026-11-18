@@ -1,0 +1,60 @@
+{
+  "skill_name": "review-pr",
+  "evals": [
+    {
+      "id": "opens-review-worktree-in-ide",
+      "category": "normal",
+      "prompt": "Review PR 482. Its repository has a saved worktree command and the user's IDE is saved too.",
+      "expected_output": "The PR's branch is checked out through the saved worktree command, shown in the IDE, and reviewed.",
+      "expectations": [
+        "Creates the review worktree with the saved command rather than a raw git worktree",
+        "Checks the worktree's head matches the PR's head commit",
+        "Opens the worktree in the saved IDE and shows the PR there",
+        "Makes no edits, commits, or pushes in the review worktree",
+        "Ends the report naming the worktree's path and leaves it in place"
+      ]
+    },
+    {
+      "id": "skips-worktree-without-a-command",
+      "category": "counterexample",
+      "prompt": "Review PR 77 in a repository with no saved worktree command.",
+      "expected_output": "The review runs from fetched refs with no checkout created.",
+      "expectations": [
+        "Creates no worktree and switches no branch",
+        "Reads the change through fetched refs"
+      ]
+    },
+    {
+      "id": "never-posts-to-github",
+      "category": "normal",
+      "prompt": "Review PR 482 and leave the comments on it for the author.",
+      "expected_output": "The findings go to the user in chat only.",
+      "expectations": [
+        "Posts nothing to GitHub",
+        "Offers no draft review comments",
+        "Reports only validated findings with file and line on the head commit"
+      ]
+    },
+    {
+      "id": "removes-worktree-when-done",
+      "category": "normal",
+      "prompt": "I'm done looking at PR 482 in the IDE, clean it up.",
+      "expected_output": "The review worktree is removed with the saved remove command.",
+      "expectations": [
+        "Removes the review worktree with the saved remove command",
+        "Touches no other worktree or the main clone"
+      ]
+    },
+    {
+      "id": "asks-for-missing-settings",
+      "category": "normal",
+      "prompt": "Which PRs are waiting on my review? Nothing has been configured yet.",
+      "expected_output": "The organisation is asked for, saved, and the list shown.",
+      "expectations": [
+        "Asks which organisation to search",
+        "Saves the answer so the next run does not ask",
+        "Lists the open PRs requesting the user's review and asks which to take"
+      ]
+    }
+  ]
+}
