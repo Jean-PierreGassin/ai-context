@@ -19,6 +19,20 @@ Write readable, cohesive code and keep the change within scope.
 8. Fix confirmed findings, rerun the gates if the diff changed, and present the resulting diff for approval
 9. Keep the diff focused and preserve reviewed or published history
 
+## Verify while writing
+
+Check each change as it is made instead of only at the end, without slowing the work or interrupting the user.
+
+- Treat feedback from the `verify-changes` hook as a failed check on the change just made: fix it before the next
+  edit, or say in one line why the rule does not apply
+- When the IDE's MCP already has the current checkout open as a project, use its file-problems check on each file
+  after editing it, and its symbol and caller tools to find existing helpers before adding one. Never open a project,
+  window, or file in the IDE, and never bring it to the front: the user may be working in it
+- When a test fails in a way the code does not explain, debug it through that project's debugger tools, if open,
+  before changing code. Remove every breakpoint you set before moving on
+- Run checks only in the current checkout, so parallel sessions in other worktrees never share or block each other's
+  runs
+
 ## References
 
 Always read `references/clean-code.md`. Then read only the references that match the work.
