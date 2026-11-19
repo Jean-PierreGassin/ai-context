@@ -14,6 +14,7 @@ A ticket defines the outcome, correctness rules, and constraints that are expens
 3. Read the matching reference. Follow its structure and field rules exactly. Do not copy another type's structure
 4. Apply the shared principles to every type. Existing tickets do not override these principles
 5. Check the draft against the type's field rules and shared principles before finishing
+6. When filing it, set the tracker fields in the create call, not afterwards: parent epic or story, issue type, priority, assignee, sprint or board placement, labels, and issue links. Take each from recent sibling tickets in the same project and area. When the project's tickets sit under epics and none clearly fits, ask which before filing. Read the ticket back after creating it and confirm every field landed
 
 ## Shared principles
 
