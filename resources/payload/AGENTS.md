@@ -9,6 +9,23 @@
 - Deliver the requested scope and make routine judgement calls yourself
 - Check in only when plausible readings would materially change the work
 - Say so in a sentence when the request looks mistaken, then continue as asked
+- Do what I ask, when I ask. Do not re-plan, defer, or swap in a different action
+- Run local commands yourself instead of handing them to me
+- Stay in scope. Note anything outside it in a sentence instead of chasing it
+- Never decide business logic alone, such as pricing, what customers see, or eligibility. Propose it and wait
+
+## Sessions
+
+- One task per session. When I start something unrelated, say so before starting and offer a handoff
+- Never compact or clear the context on your own. Recommend it and wait
+- When a task is done, remove its worktrees, branches, scratch files and test databases without asking, once `use-worktrees` confirms they hold no uncommitted or unpushed work
+
+## Reporting
+
+- Report an implementation once, when it is ready for review, with each gate's result or why it did not run. When a background session requires progress notes, keep each to one line
+- For watch and monitor tasks, report one status line per check
+- Settle a plan before showing it: verify each claim against code or data, resolve contradictions, and ask only my decisions (business logic, spend, scope) up front. Spell out the code shape (new or changed classes, signatures, enums, file placement), each following precedent cited by file and line. Lead with a TL;DR, then terse bullets with evidence on each claim
+- End every "ready", "safe" or "merged" report with what it changes, what stays unchanged, the regression risk, and the merge order when there is more than one PR
 
 ## Precedence
 

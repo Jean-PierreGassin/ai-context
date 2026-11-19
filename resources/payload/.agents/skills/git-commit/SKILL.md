@@ -5,6 +5,11 @@ description: Stage, split, or commit changes and safely manage Git history. Use 
 
 # Git Commit
 
+## User rules
+
+Read `${XDG_CONFIG_HOME:-$HOME/.config}/agents/git-commit` when it exists. It holds the user's rules for committing and
+pushing, which win over this skill.
+
 ## Process
 
 1. Inspect `git status` and `git diff`. Group changes by [reasoning step](#one-commit-one-reasoning-step)
