@@ -15,7 +15,7 @@ stack and know nothing about this task.
 3. Locate the plan, context, ticket, and reference files already in use and cite them by exact path or link
 4. Split the remaining work into the pieces already defined, or into independently completable pieces when none exist
 5. Fill the [template](#template), dropping any section that has nothing true to say
-6. Output only the prompt in one fenced `markdown` block, then the [clipboard offer](#clipboard)
+6. Save and copy the prompt as described in [Output](#output)
 
 ## Rules
 
@@ -27,7 +27,7 @@ stack and know nothing about this task.
 - Use exact paths, commands, branch names, ticket keys, and symbol names
 - Mark anything unverified as unverified; never present a guess as state
 - Mark the first piece to start with
-- Write no preamble, summary, or commentary outside the block
+- Write no preamble, summary, or commentary inside the prompt
 
 ## Template
 
@@ -59,8 +59,12 @@ stack and know nothing about this task.
 `{command}`
 ```
 
-## Clipboard
+## Output
 
-After the block, ask in one line whether to copy the prompt to the clipboard. On approval, copy exactly the block's
-contents with the platform command: `pbcopy` on macOS, `wl-copy` or `xclip -selection clipboard` on Linux, and
-`clip.exe` on WSL or Windows.
+Generate the prompt once. Never repeat it in the reply or in a command.
+
+1. Write the prompt with the file-writing tool to `${TMPDIR:-/tmp}/handoff/{repository}-{branch}.md`, overwriting any
+   earlier handoff at that path
+2. Copy the file without asking, by redirecting it into the platform command: `pbcopy < {file}` on macOS,
+   `wl-copy < {file}` or `xclip -selection clipboard < {file}` on Linux, and `clip.exe < {file}` on WSL or Windows
+3. Reply in one line with the file path and whether the copy succeeded

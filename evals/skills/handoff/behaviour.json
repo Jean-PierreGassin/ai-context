@@ -5,10 +5,10 @@
       "id": "outputs-only-the-prompt",
       "category": "normal",
       "prompt": "Hand this off. The first two plan entries are merged and the third is half done in a worktree.",
-      "expected_output": "One fenced prompt followed by a one-line clipboard offer, with nothing else around it.",
+      "expected_output": "The prompt saved to a handoff file and copied, followed by a one-line reply naming the file.",
       "expectations": [
-        "Writes no preamble or closing summary around the prompt",
-        "Ends with a single line offering to copy the prompt to the clipboard",
+        "Writes no preamble or closing summary inside the prompt",
+        "Replies in a single line with the file path and whether the copy succeeded",
         "Cites the persisted plan and context files by path instead of restating them",
         "Lists the remaining work as discrete pieces and marks where to start",
         "States the branch, HEAD, and working tree state as verified facts"
@@ -37,13 +37,15 @@
       ]
     },
     {
-      "id": "copies-only-on-approval",
-      "category": "normal",
-      "prompt": "Yes, copy it.",
-      "expected_output": "The exact prompt content placed on the clipboard with the platform's command.",
+      "id": "copies-the-saved-file",
+      "category": "regression",
+      "prompt": "Write the handoff for this branch.",
+      "expected_output": "The prompt written once to the handoff file, then copied from that file without asking.",
       "expectations": [
-        "Uses the clipboard command for the current platform",
-        "Copies the prompt content exactly, without the fence or the offer line"
+        "Writes the prompt to the handoff file under the temporary directory before copying",
+        "Copies by redirecting the file into the platform's clipboard command",
+        "Does not ask whether to copy",
+        "Does not repeat the prompt in the reply or in the copy command"
       ]
     }
   ]
