@@ -44,8 +44,10 @@ Pick the model and effort for the work, and pass them as `--model` and `--effort
 ## Rules
 
 - One session per worktree, named after the worktree's slug or ticket key
-- Never call `EnterWorktree` in the orchestrator for a dispatched worktree, and never edit inside a worktree a
-  dispatched session owns
+- Never call `EnterWorktree` in the orchestrator for a project-made worktree, and never edit inside a worktree a
+  dispatched session owns. `EnterWorktree` on a path outside `.claude/worktrees/` asks the user every time
+- When the harness asks a session in the shared checkout to isolate before editing, and the project makes its own
+  worktrees, dispatch into one instead of entering it
 - Launching from inside the worktree is what isolates the session. Never launch it from the shared checkout and let
   it move later
 - Read state from `claude agents --json --all`. `claude logs` prints raw terminal output
