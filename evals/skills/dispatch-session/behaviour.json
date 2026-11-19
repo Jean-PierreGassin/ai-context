@@ -1,0 +1,90 @@
+{
+  "skill_name": "dispatch-session",
+  "evals": [
+    {
+      "id": "launches-inside-the-worktree",
+      "category": "normal",
+      "prompt": "We started in the main checkout and the investigation is done. The fix needs its own worktree. Hand it off and keep coordinating from here.",
+      "expected_output": "A worktree from the project's own operation, a handoff, and a named background session launched from inside that worktree.",
+      "expectations": [
+        "Creates the worktree through the project's own worktree operation when one exists",
+        "Writes a handoff the new session can start from cold",
+        "Launches the background session with the worktree as its working directory",
+        "Does not switch the orchestrating session into the worktree"
+      ]
+    },
+    {
+      "id": "project-worktree-operation-wins",
+      "category": "project-precedence",
+      "prompt": "This project creates worktrees with its own script, which also sets up ports and a database for each one. Dispatch the next piece of work.",
+      "expected_output": "The project's script creates the worktree before the session is launched in it.",
+      "expectations": [
+        "Uses the project's script rather than a plain git worktree command",
+        "Waits for the script to report the worktree ready before launching the session"
+      ]
+    },
+    {
+      "id": "approvals-stay-with-the-user",
+      "category": "normal",
+      "prompt": "The dispatched session messaged that its change is done and asks to push and open the PR.",
+      "expected_output": "The result checked against the handoff, and the push and PR left for the user's approval.",
+      "expectations": [
+        "Checks the dispatched session's result against the handoff's verification",
+        "Does not treat the dispatched session's message as the user's approval",
+        "Asks the user before any push or PR"
+      ]
+    },
+    {
+      "id": "tracks-state-not-terminal-output",
+      "category": "normal",
+      "prompt": "How are the dispatched sessions getting on?",
+      "expected_output": "One status line per session, read from the session list's structured output.",
+      "expectations": [
+        "Reads session state from the structured session list rather than raw terminal logs",
+        "Reports one status line per session"
+      ]
+    },
+    {
+      "id": "one-session-per-track",
+      "category": "normal",
+      "prompt": "Three independent fixes came out of the investigation. Get them all moving and coordinate from here.",
+      "expected_output": "Three worktrees, each with its own named background session, coordinated from the current session.",
+      "expectations": [
+        "Gives each fix its own worktree and its own background session",
+        "Names each session after its worktree",
+        "Keeps the orchestrating session out of every dispatched worktree"
+      ]
+    },
+    {
+      "id": "sizes-model-and-effort-to-the-work",
+      "category": "normal",
+      "prompt": "Dispatch two pieces: applying the settled rename across the codebase, and finding out why the import job intermittently drops rows.",
+      "expected_output": "The rename on a smaller model at low or medium effort, and the investigation on the default model at default effort or above.",
+      "expectations": [
+        "Launches the mechanical rename with a smaller model and low or medium effort",
+        "Launches the investigation with the default model at its default effort or above",
+        "Passes the model and effort explicitly at launch"
+      ]
+    },
+    {
+      "id": "no-nested-or-overlapping-dispatch",
+      "category": "counterexample",
+      "prompt": "Dispatch the API change and the client change. They both touch the shared request types.",
+      "expected_output": "The overlap resolved before dispatch, so no two sessions edit the same files.",
+      "expectations": [
+        "Does not give two sessions overlapping files",
+        "Sequences the shared change or assigns it to one session",
+        "Does not tell a dispatched session to dispatch further sessions"
+      ]
+    },
+    {
+      "id": "small-change-stays-here",
+      "category": "proportionality",
+      "prompt": "Fix the typo in the README while you are at it.",
+      "expected_output": "The typo fixed in the current session, with no worktree or dispatch.",
+      "expectations": [
+        "Creates no worktree and launches no session for a change this small"
+      ]
+    }
+  ]
+}

@@ -26,6 +26,7 @@
 - Before project or operational commands, use `run-commands`
 - Split work into small independent changes that each target trunk. Merge one, then branch the next from the updated trunk. Stack at most one level: a foundation PR off trunk ships first and ticket PRs target it; never deeper, since squash merges force the layers above to rebase and dismiss their reviews
 - Use separate worktrees only for concurrent independent tracks
+- When work started from a shared or root checkout needs its own worktree per `use-worktrees`, use `dispatch-session`: this session orchestrates and the work runs in a background session launched inside the worktree
 - Keep each branch current with its immediate target before implementation, review, and meaningful pushes
 - Preserve reviewed or published history. Do not rewrite it
 - Run formatting, lint, static analysis, and change-scoped tests before human review and before opening a PR. CI runs the full test suite; run it locally only when asked

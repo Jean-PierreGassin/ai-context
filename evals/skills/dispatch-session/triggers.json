@@ -1,0 +1,29 @@
+[
+  {
+    "query": "This needs its own worktree. Set one up and get a background session working on it while we carry on here",
+    "should_trigger": true
+  },
+  {
+    "query": "Spin off the second ticket into a separate session in its own checkout and keep an eye on it",
+    "should_trigger": true
+  },
+  {
+    "query": "Coordinate these three independent fixes from here, one session each",
+    "should_trigger": true
+  },
+  {
+    "query": "Create a worktree for this branch",
+    "should_trigger": false,
+    "note": "Only the checkout is wanted, with no session to hand work to. Routes to use-worktrees."
+  },
+  {
+    "query": "Write me something I can paste into a fresh session to carry on",
+    "should_trigger": false,
+    "note": "The user starts the next session themselves. Routes to handoff."
+  },
+  {
+    "query": "Get an independent review of this diff",
+    "should_trigger": false,
+    "note": "A review subagent returns findings to this session. Routes to review-code."
+  }
+]
