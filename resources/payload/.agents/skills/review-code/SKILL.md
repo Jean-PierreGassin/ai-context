@@ -23,7 +23,7 @@ When asked to review without these, take the goal from the request or ticket and
 4. Check the change delivers the goal and nothing outside it
 5. Check organization: capability ownership, cohesion, names, dependency direction, control flow, and error flow
 6. At `high`, also check interactions across files and commits, missing tests for changed behaviour, and release safety
-7. At `high`, also check the diff against the written standards: the `write-code` references in scope, the project's agent docs and committed conventions, any user preferences available, and how the nearest equivalent code does the same thing
+7. At `high`, also check the diff against the written standards: the `write-code` references in scope, the project's agent docs and committed conventions, any user preferences available, including `${XDG_CONFIG_HOME:-$HOME/.config}/agents/write-code` and the files it lists, and how the nearest equivalent code does the same thing
 8. Where an IDE or language server integration is available, check the problems it reports on the changed files
 9. Verify each finding against the code before reporting it
 

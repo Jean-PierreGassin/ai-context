@@ -7,6 +7,12 @@ description: Write, edit, or refactor application code. Use for implementation, 
 
 Write readable, cohesive code and keep the change within scope.
 
+## User rules
+
+Read `${XDG_CONFIG_HOME:-$HOME/.config}/agents/write-code` when it exists. It holds the user's rules for designing,
+writing and verifying code, which win over this skill. A line holding only an absolute path names another rules file to
+read.
+
 ## Process
 
 1. Read `references/clean-code.md`, then only the language and framework references in scope

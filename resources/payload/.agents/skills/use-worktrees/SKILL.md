@@ -7,6 +7,11 @@ description: Choose, create, enter, review, or remove Git worktrees. Use when ex
 
 Resolve the execution location before editing.
 
+## User rules
+
+Read `${XDG_CONFIG_HOME:-$HOME/.config}/agents/use-worktrees` when it exists. It maps each repository to its worktree
+operation, in prose or a table, and wins over this skill.
+
 ## Choose
 
 Use the main checkout when no concurrent or long-lived work needs isolation.

@@ -7,6 +7,11 @@ description: Draft, open, or edit pull requests. Use for PR titles, bodies, revi
 
 Keep each PR within one bounded review objective. Make each change standalone and safe to release without dependent changes.
 
+## User rules
+
+Read `${XDG_CONFIG_HOME:-$HOME/.config}/agents/write-pr` when it exists. It holds the user's rules for PRs and review
+feedback, which win over this skill.
+
 ## Process
 
 1. Check reviewability and propose a split when there is more than one bounded objective
