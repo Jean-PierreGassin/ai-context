@@ -53,6 +53,23 @@
             "type": "command",
             "command": "sh \"$CLAUDE_PROJECT_DIR/.agents/hooks/block-no-verify.sh\"",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/.agents/hooks/commit-gate.sh\" check",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/.agents/hooks/commit-gate.sh\" record",
+            "timeout": 5
           }
         ]
       }
@@ -82,6 +99,16 @@
             "type": "command",
             "command": "sh \"$CLAUDE_PROJECT_DIR/.agents/hooks/verify-changes.sh\" edit",
             "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Skill|Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/.agents/hooks/commit-gate.sh\" record",
+            "timeout": 5
           }
         ]
       }

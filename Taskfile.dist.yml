@@ -92,4 +92,5 @@ tasks:
       - bash ./tests/config.sh
       - bash ./tests/retired-managed-files.sh
       - bash ./tests/verify-changes.sh
+      - bash ./tests/commit-gate.sh
       - ./tests/shell.sh

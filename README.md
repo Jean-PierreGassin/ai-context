@@ -110,6 +110,33 @@ Each check line is `<phase> <repository> <path glob> <command>`:
 A failed check is reported back to the agent. A turn check that still fails after one fix attempt is shown to you and
 no longer blocks. State is kept per session, so parallel sessions and worktrees never share results.
 
+## Commit gates
+
+The `commit-gate` hook refuses a `git commit` until the session has run the gates you require for that repository
+since the agent last edited a file in it. It runs nothing until `${XDG_CONFIG_HOME:-$HOME/.config}/agents/commit-gate` exists:
+
+```text
+my-app review Agent ^code-reviewer$
+my-app lint Bash \bnpm\s+run\s+lint\b
+my-app data Skill ^db:query$
+```
+
+Each line is `<repository> <gate> <source> <pattern>`:
+
+- `<repository>` matches the origin repository's name, `*` for any
+- `<source>` is where the gate is seen: `Bash` matches the command, `Skill` the skill name, and `Agent` the type of a
+  subagent when it finishes, so a review counts only once it is done
+- `<pattern>` is a regular expression. Lines that share a gate name are alternatives
+
+A gate counts for the repositories its line names, and only in the session that ran it, until the agent edits or
+writes another file in that repository. One gated change can go out as several commits. A gate run in another
+session, for example before a handoff, has to run again. Files changed through Bash are not seen as edits. Bash
+patterns skip quoted arguments, so searching for a gate's command does not count as running it, while a quoted
+command or assignment, such as `"$HOME/bin/lint.sh"` or `LINT="…/lint.sh"`, still counts. A Bash gate counts once
+its command completes, so a command that hides its own exit status counts even when the tool it ran failed. A commit
+whose repository cannot be worked out, such as `git -C $DIR commit` with `DIR` unset, is refused while any gate is
+configured.
+
 ## Check and restore
 
 Check an installation:
