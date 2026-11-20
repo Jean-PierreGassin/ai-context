@@ -210,6 +210,12 @@ Each line is `<repository> <gate> <source> <pattern>`:
   subagent when it finishes, so a review counts only once it is done
 - `<pattern>` is a regular expression. Lines that share a gate name are alternatives
 
+A line `<repository> <gate> skip whitespace` drops that gate from a commit whose changes against `HEAD`, staged and
+unstaged, only move whitespace in files that already exist, such as splitting a call over several lines. Any other
+change, a new, deleted, binary or submodule file, a mode change, or `--amend` keeps the gate. Other gates still apply.
+Whitespace inside strings and indentation also count as whitespace, so waive gates only where indentation carries no
+meaning.
+
 A gate counts only in the session that ran it, until the agent's next Edit or Write in that repository. Your own
 changes and shell commands never make it run again. A `Bash` gate counts for the repository it runs in, including
 after a `cd`; an `Agent` or `Skill` gate counts for every repository the session has worked in. A gate does not count
