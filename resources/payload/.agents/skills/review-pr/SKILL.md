@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: "Reviews someone else's pull request for the user's internal use, by number or URL, usually as a requested reviewer, or lists the PRs awaiting the user's review. Opens a fast local HTML report showing the change as a plain-language journey from the users' side, with what the user would flag pinned to each step and a drill-down to the exact lines in the diff: critical defects reproduced against base and head, behaviour changes the ticket does not cover, and structural problems such as misplaced code, misleading names, N+1 queries, and needless complexity. Drafts the review and line comments in the user's voice, and posts them only when the user says to. Not for the user's own diff or branch."
+description: "Reviews someone else's pull request for the user's internal use, by number or URL, usually as a requested reviewer, or lists the PRs awaiting the user's review. Reports only findings that survive the author's own reasons, codebase precedent and an independent refutation: critical defects reproduced against base and head, behaviour changes that conflict with the ticket, and structural problems such as misplaced code, misleading names, N+1 queries, and needless complexity. Opens them in a local review-report page with a merge verdict, why the change exists, and each issue's code beside its comment. Drafts the review and line comments in the user's voice, and posts them only when the user says to. Not for the user's own diff or branch."
 argument-hint: "[pr-url|owner/repo#n|pr-number]"
 ---
 
