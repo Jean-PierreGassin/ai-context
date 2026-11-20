@@ -1,0 +1,20 @@
+[
+  {
+    "query": "Build the review report page for these verified findings",
+    "should_trigger": true
+  },
+  {
+    "query": "Turn my self-review findings into the HTML report",
+    "should_trigger": true
+  },
+  {
+    "query": "Review PR 482 for me",
+    "should_trigger": false,
+    "note": "Reviewing someone else's PR routes to review-pr, which loads this skill itself."
+  },
+  {
+    "query": "Review my branch before I open the PR",
+    "should_trigger": false,
+    "note": "Reviewing the user's own diff routes to review-code."
+  }
+]
