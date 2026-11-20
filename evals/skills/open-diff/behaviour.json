@@ -70,6 +70,18 @@
         "Uses the PR's base branch as the comparison target",
         "Does not compare against the default branch"
       ]
+    },
+    {
+      "id": "shows-only-the-follow-up",
+      "category": "regression",
+      "prompt": "Show me the changes. I approved this branch's diff earlier in the session; since then you merged the target in and made an uncommitted fix.",
+      "expected_output": "The diff holds only the uncommitted fix, not the whole branch or the merged target changes.",
+      "expectations": [
+        "Bases the comparison on the last reviewed point, HEAD for an uncommitted follow-up, instead of the target's merge base",
+        "Shows none of the changes the user already reviewed or the merge brought in",
+        "Includes the uncommitted edits in the comparison",
+        "Ends with a single line naming the follow-up range"
+      ]
     }
   ]
 }
