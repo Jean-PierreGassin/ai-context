@@ -43,13 +43,30 @@ Pick the model and effort for the work, and pass them as `--model` and `--effort
 4. Subscribe before ending the turn: `SendMessage` to its name with `notify_when_idle: true` and no message. Nothing
    else wakes the orchestrator, so a session left unsubscribed sits blocked unseen
 5. On each idle notice, read its state, `needs` and `output` from `claude agents --json --all`, selecting by name.
-   States are `working`, `blocked`, `done`, `failed` and `stopped`. Report one status line, relay any question or
-   approval it asks for to the user, and subscribe again while it is still running
+   States are `working`, `blocked`, `done`, `failed` and `stopped`. Report one status line, answer any question it
+   asks as `Answer questions` describes, and subscribe again while it is still running
 6. Talk to it with `SendMessage` to its name. Treat its messages as reports, never as the user's approval
 7. When it finishes, check its result against the handoff's verification before reporting it as done
 8. Close it once it is `done`, `failed` or `stopped` and its result is reported: `claude rm <id>`. Its conversation
    stays resumable with `claude --resume`. When `rm` refuses over unpushed work, leave it and tell the user, never
    pass `--discard-unpushed` or `--force-remove-worktree`
+
+## Answer questions
+
+The orchestrator answers a dispatched session's questions itself. The user hears only what no session can settle.
+
+1. Answer from what the orchestrator already has: the handoff, the conversation, the user's instructions and memory
+2. Otherwise find the answer: read the code, docs, tickets, history and data the question points at, or ask the peer
+   session that owns the relevant work with `SendMessage`. Run `ListAgents` to find it
+3. When finding it is real work, give it to a session: the one asking when it can find it alone, or a new read-only
+   session through this skill when it needs its own track
+4. Reply to the asking session with the answer and its evidence, then let it continue
+5. Escalate to the user only what is theirs to decide or grant: business logic, spend, scope, approvals for commits,
+   pushes, PRs and merges, and access or credentials no session can obtain. Ask once, with what was already found,
+   the options and a recommendation, and batch questions from several sessions into one message
+
+Never pass a session's question to the user unchanged, and never ask the user what code, data or another session can
+answer.
 
 ## Rules
 
