@@ -97,6 +97,7 @@ tasks:
       - bash ./tests/block-shell-edits.sh
       - bash ./tests/ask-first.sh
       - bash ./tests/weakening.sh
+      - bash ./tests/php-style-check.sh
       - bash ./tests/completion.sh
       - python3 ./tests/claims.py
       - ./tests/shell.sh

@@ -119,6 +119,17 @@ Only the Edit and Write tools count as the agent's changes. Files changed only b
 branch switch or pull are never checked. `block-shell-edits` keeps agents on the edit tools. Each hook exits before
 starting Python while its config file is absent.
 
+### PHP style check
+
+`~/.agents/checks/php-style-check.py` is a ready-made `edit` check for PHP. It judges only the lines in
+`$ADDED_LINES`: chains with more than one link on a line, `new` nested in arguments, lines over 120 characters,
+control blocks without a blank line above, broken calls with several arguments on a line, comment prose, and
+functions with more than three returns. Text inside strings and heredocs gets only the line length rule:
+
+```text
+edit my-app *.php python3 -I "$HOME/.agents/checks/php-style-check.py" $FILES
+```
+
 ### Weakened verification
 
 The same hook points out changes that make the work easier to pass rather than more correct. It reads
