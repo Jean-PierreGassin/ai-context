@@ -133,7 +133,7 @@ test_project_install() {
 
   assert_jq '.enabledPlugins["custom@example"] == true' "$project_root/.claude/settings.json"
   assert_jq '.permissions.deny | index("Read(private.txt)") == null' "$project_root/.claude/settings.json"
-  assert_jq '.permissions.deny | index("Read(auth.json)") != null' "$project_root/.claude/settings.json"
+  assert_jq '.permissions.deny | index("Edit(.env)") != null' "$project_root/.claude/settings.json"
   assert_toml 'data["model"] == "custom"' "$project_root/.codex/config.toml"
   assert_toml 'data["marketplaces"]["team"]["source"] == "private"' "$project_root/.codex/config.toml"
   assert_toml 'data["approval_policy"] == "never"' "$project_root/.codex/config.toml"
