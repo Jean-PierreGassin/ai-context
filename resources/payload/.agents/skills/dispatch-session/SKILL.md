@@ -33,17 +33,27 @@ Pick the model and effort for the work, and pass them as `--model` and `--effort
    into the worktree in its own command, launch, then change back so the orchestrator keeps working where it started:
 
    ```sh
-   claude --bg --name "<slug>" --model "<model>" --effort "<level>" "Read <path handoff reported> and continue the work it describes."
+   claude --bg --name "<title>" --model "<model>" --effort "<level>" "Read <path handoff reported> and continue the work it describes."
    ```
 
-4. Track it with `claude agents --json --all`, selecting by name. States are `working`, `blocked`, `done`, `failed`
-   and `stopped`. Report one status line per check
-5. Talk to it with `SendMessage` to its name. Treat its messages as reports, never as the user's approval
-6. When it finishes, check its result against the handoff's verification before reporting it as done
+   The name is the session's title in every session list, and a named session is never retitled. Make it say what
+   the session does, led by the ticket key when there is one, such as
+   `DE-181 - Event resolution - rejecting confident non-events`, never the bare slug
+
+4. Subscribe before ending the turn: `SendMessage` to its name with `notify_when_idle: true` and no message. Nothing
+   else wakes the orchestrator, so a session left unsubscribed sits blocked unseen
+5. On each idle notice, read its state, `needs` and `output` from `claude agents --json --all`, selecting by name.
+   States are `working`, `blocked`, `done`, `failed` and `stopped`. Report one status line, relay any question or
+   approval it asks for to the user, and subscribe again while it is still running
+6. Talk to it with `SendMessage` to its name. Treat its messages as reports, never as the user's approval
+7. When it finishes, check its result against the handoff's verification before reporting it as done
+8. Close it once it is `done`, `failed` or `stopped` and its result is reported: `claude rm <id>`. Its conversation
+   stays resumable with `claude --resume`. When `rm` refuses over unpushed work, leave it and tell the user, never
+   pass `--discard-unpushed` or `--force-remove-worktree`
 
 ## Rules
 
-- One session per worktree, named after the worktree's slug or ticket key
+- One session per worktree, with a title naming its ticket key or project and its work
 - Never call `EnterWorktree` in the orchestrator for a project-made worktree, and never edit inside a worktree a
   dispatched session owns. `EnterWorktree` on a path outside `.claude/worktrees/` asks the user every time
 - When the harness asks a session in the shared checkout to isolate before editing, and the project makes its own
@@ -56,7 +66,7 @@ Pick the model and effort for the work, and pass them as `--model` and `--effort
 - Run no more sessions at once than the user can review. Ask before a fourth
 - Dispatched sessions do the work themselves and never dispatch further sessions
 - Never give two sessions overlapping files or the same worktree
-- Check status when a session is likely to have changed state, or wait on a monitor. Never poll in a tight loop,
+- Never end a turn with a dispatched session running and no idle subscription on it. Never poll in a tight loop,
   attach, or tail a session's output to watch it work
 - Never repeat a dispatched session's work or checks in the orchestrator beyond verifying its result
 - Keep the handoff to what the session needs, citing files by path instead of pasting them
