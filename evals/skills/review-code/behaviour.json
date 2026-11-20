@@ -58,6 +58,33 @@
         "Does not report code that follows an enforced project convention as a violation",
         "Still applies write-code defaults where the project enforces nothing"
       ]
+    },
+    {
+      "id": "high-effort-builds-the-self-review-report",
+      "category": "composition",
+      "prompt": "I'm done with the partial-bundles change, still uncommitted. Review it at high effort. Goal: count locked tickets in the bundle check.",
+      "expected_output": "The reviewer returns findings, then the caller verifies them and builds the review-report page in self mode with what to fix.",
+      "expectations": [
+        "Keeps the reviewer agent read-only and builds the report in the calling session",
+        "Takes the head from the review-report snapshot script without committing or staging",
+        "Keeps a finding as Critical only with saved runs on the target branch and on the change",
+        "Drops plausible findings it cannot confirm",
+        "Loads review-report with mode self and writes each flag's comment as what to fix"
+      ]
+    },
+    {
+      "id": "self-corrects-defects-but-not-scope",
+      "category": "composition",
+      "prompt": "Review my change at high effort and fix what you can. The report shows one Critical, one Check the scope, and one Code quality flag.",
+      "expected_output": "The caller fixes the Critical and Code quality flags from the report's Markdown, re-reviews, leaves the scope flag for the user, and audits only the last build.",
+      "expectations": [
+        "Reads the report's Markdown companion and its screenshots before fixing",
+        "Fixes the Critical and Code quality flags and runs change-scoped checks",
+        "Does not change behaviour to resolve the Check the scope flag and lists it for the user",
+        "Re-reviews the new diff with a fresh reviewer and stops after at most two fix rounds",
+        "Builds drafts between rounds and audits only the final build",
+        "Commits nothing and shows the diff for approval"
+      ]
     }
   ]
 }
