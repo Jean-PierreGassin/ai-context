@@ -35,6 +35,29 @@
       ]
     },
     {
+      "id": "answers-session-questions-itself",
+      "category": "normal",
+      "prompt": "The dispatched session went idle asking which config file the importer reads its batch size from, and whether the other session's schema change has landed yet.",
+      "expected_output": "Both questions answered by the orchestrator, from the code and from the other session, without asking the user.",
+      "expectations": [
+        "Finds the config answer from the code or a session rather than asking the user",
+        "Asks the peer session about its schema change rather than the user",
+        "Replies to the asking session with the answers and lets it continue",
+        "Does not relay either question to the user"
+      ]
+    },
+    {
+      "id": "escalates-only-the-users-decisions",
+      "category": "counterexample",
+      "prompt": "The dispatched session asks whether sellers in the new market should pay the same fee as everywhere else.",
+      "expected_output": "The fee question raised with the user once, with the evidence found and a recommendation, since pricing is the user's decision.",
+      "expectations": [
+        "Gathers the existing fee rules before asking",
+        "Asks the user rather than deciding the fee",
+        "Gives the options and a recommendation in one question"
+      ]
+    },
+    {
       "id": "tracks-state-not-terminal-output",
       "category": "normal",
       "prompt": "How are the dispatched sessions getting on?",
