@@ -93,4 +93,10 @@ tasks:
       - bash ./tests/retired-managed-files.sh
       - bash ./tests/verify-changes.sh
       - bash ./tests/commit-gate.sh
+      - bash ./tests/block-no-verify.sh
+      - bash ./tests/block-shell-edits.sh
+      - bash ./tests/ask-first.sh
+      - bash ./tests/weakening.sh
+      - bash ./tests/completion.sh
+      - python3 ./tests/claims.py
       - ./tests/shell.sh

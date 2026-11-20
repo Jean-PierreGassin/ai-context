@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2016 # test commands hold literal $variables
 set -euo pipefail
 
 unset CDPATH
@@ -46,7 +47,7 @@ check() {
 }
 
 record() {
-  printf '%s' "$1" | sh "$hook" record
+  printf '%s' "$1" | (cd "$project" && sh "$hook" record)
 }
 
 expect 'a commit without gates is denied' '"deny".*data, review, scan' "$(check test "$project" 'git commit -m change')"
@@ -71,9 +72,21 @@ expect 'pushd picks the repository' '"deny".*my-app' "$(check test "$other" "pus
 expect 'a commit after a comment line is checked' '"deny"' "$(check test "$project" 'echo a # note\ngit commit -m change')"
 expect 'a git command that only starts with commit is silent' '^$' "$(check test "$project" 'git commit-graph write')"
 expect 'a commit line inside a heredoc is silent' '^$' "$(check test "$project" "cat > notes.sh <<'EOF'\\ngit commit -m wip\\nEOF")"
+expect 'a read after an unknown cd is silent' '^$' "$(check test "$project" 'cd \"$UNSET_REPO\" && git show --stat HEAD # last commit')"
+expect 'a log grep for commit in an unknown directory is silent' '^$' "$(check test "$project" 'git -C \"$d\" log --grep=commit')"
+expect 'a commit inside an unterminated quote never runs and is silent' '^$' "$(check test "$project" "echo 'unclosed && git commit -m change")"
+expect 'a commit split over a continuation line is checked' '"deny"' "$(check test "$project" 'git -C . \\\n commit -m change')"
+expect 'a commit after a subshell cd is checked where it runs' '"deny"' "$(check test "$project" '(cd /tmp && ls); git commit -m change')"
+expect 'a commit after a command substitution cd is checked where it runs' '"deny"' "$(check test "$project" 'x=$(cd /tmp; pwd); git commit -m change')"
+expect 'a commit after pushd and popd is checked where it runs' '"deny"' "$(check test "$project" 'pushd /tmp; popd; git commit -m change')"
+expect 'a commit after cd - is checked where it runs' '"deny"' "$(check test "$project" 'cd /tmp; cd -; git commit -m change')"
+expect 'a commit through --git-dir is checked' '"deny"' "$(check test "$project" 'git --git-dir .git commit -m change')"
+expect 'a commit after an unknown cd is denied' 'Cannot tell which repository' "$(check test "$project" 'cd $UNSET_REPO && git commit -m change')"
 
 record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"Bash","tool_input":{"command":"grep -rn \"scanner review\" ."}}'
 expect 'a gate command that is only searched for is not recorded' '"deny".*data, review, scan' "$(check test "$project" 'git commit -m change')"
+record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"Bash","tool_input":{"command":"git status # scanner review"}}'
+expect 'a gate command named only in a comment is not recorded' '"deny".*data, review, scan' "$(check test "$project" 'git commit -m change')"
 
 record '{"session_id":"test","hook_event_name":"SubagentStop","agent_type":"code-reviewer"}'
 record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"Bash","tool_input":{"command":"scanner review --base main > out.txt"}}'
@@ -95,7 +108,12 @@ expect 'a second commit of the same change is allowed' '^$' "$(check test "$proj
 record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"Write","tool_input":{"file_path":"'"$other"'/notes.txt"}}'
 expect 'an edit in another repository keeps the gates' '^$' "$(check test "$project" 'git commit -m change')"
 
-record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"Edit","tool_input":{"file_path":"'"$project"'/app.txt"}}'
+edit_app() {
+  record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"Edit","tool_input":{"file_path":"'"$project"'/app.txt"}}'
+}
+
+printf 'change\n' >"$project/app.txt"
+edit_app
 expect 'an edit after the gates makes them run again' '"deny".*data, review, scan' "$(check test "$project" 'git commit -m change')"
 
 record "{\"session_id\":\"test\",\"hook_event_name\":\"PostToolUse\",\"tool_name\":\"Bash\",\"tool_input\":{\"command\":\"\\\"\$HOME/bin/query-ro.sh\\\" main \\\"SELECT 1\\\"\"}}"
@@ -108,8 +126,50 @@ done
 wait
 expect 'parallel records are all kept' '^$' "$(check test "$project" 'git commit -m change')"
 
+printf 'user notes\n' >"$project/notes-user-draft.md"
+printf 'saved by the user\n' >>"$project/app.txt"
+expect 'the user'"'"'s own changes keep the gates' '^$' "$(check test "$project" 'git commit -m change')"
+
+printf '{}\n' >"$project/notes.ipynb"
 record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"NotebookEdit","tool_input":{"notebook_path":"'"$project"'/notes.ipynb"}}'
 expect 'a notebook edit makes the gates run again' '"deny"' "$(check test "$project" 'git commit -m change')"
+
+record_all_gates() {
+  record '{"session_id":"test","hook_event_name":"SubagentStop","agent_type":"code-reviewer"}'
+  record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"Bash","tool_input":{"command":"scanner review"}}'
+  record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"Bash","tool_input":{"command":"query-ro.sh main"}}'
+}
+
+record_all_gates
+expect 'gates run after the last edit allow the commit' '^$' "$(check test "$project" 'git commit -m change')"
+
+printf 'written by a shell command\n' >>"$project/app.txt"
+expect 'a change made outside the edit tools keeps the gates' '^$' "$(check test "$project" 'git commit -m change')"
+
+printf '{"session_id":"test","hook_event_name":"SubagentStart","agent_id":"reviewer-1","agent_type":"code-reviewer","cwd":"%s"}' "$project" | sh "$hook" start
+edit_app
+record '{"session_id":"test","hook_event_name":"SubagentStop","agent_id":"reviewer-1","agent_type":"code-reviewer"}'
+record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"Bash","tool_input":{"command":"scanner review"}}'
+record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"Bash","tool_input":{"command":"query-ro.sh main"}}'
+expect 'a review of files changed during it does not count' '"deny".*: review\.' "$(check test "$project" 'git commit -m change')"
+
+printf '{"session_id":"test","cwd":"%s","tool_use_id":"scan-1","tool_input":{"command":"scanner review"}}' "$project" | sh "$hook" check
+edit_app
+record '{"session_id":"test","hook_event_name":"SubagentStop","agent_type":"code-reviewer"}'
+record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"Bash","tool_use_id":"scan-1","tool_input":{"command":"scanner review"}}'
+record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"Bash","tool_input":{"command":"query-ro.sh main"}}'
+expect 'a gate command whose files changed while it ran does not count' '"deny".*: scan\.' "$(check test "$project" 'git commit -m change')"
+
+record "{\"session_id\":\"test\",\"hook_event_name\":\"PostToolUse\",\"tool_name\":\"Bash\",\"tool_input\":{\"command\":\"cd $other && other-scanner\"}}"
+expect 'a gate run after cd counts for that repository' '^$' "$(check test "$other" 'git commit -m change')"
+
+edit_app
+record_all_gates
+edit_app
+record '{"session_id":"test","hook_event_name":"SubagentStop","agent_type":"code-reviewer"}'
+record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"Bash","tool_input":{"command":"query-ro.sh main"}}'
+record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"Bash","cwd":"'"$other"'","tool_input":{"command":"scanner review"}}'
+expect 'a shell gate run in another repository does not count here' '"deny".*: scan\.' "$(check test "$project" 'git commit -m change')"
 
 rm "$XDG_CONFIG_HOME/agents/commit-gate"
 expect 'no settings file is silent' '^$' "$(check test "$project" 'git commit -m change')"
