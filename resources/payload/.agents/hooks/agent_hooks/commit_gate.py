@@ -3,6 +3,7 @@ from __future__ import annotations
 import fnmatch
 import functools
 import os
+import pathlib
 import re
 import time
 from collections.abc import Callable, Iterator
@@ -13,6 +14,7 @@ from agent_hooks import edits, event, locations, repository, shell
 from agent_hooks.state import JsonStore
 
 GATE_SOURCES = {"Bash", "Skill", "Agent"}
+REGULAR_FILE_MODES = {"100644", "100755"}
 UNKNOWN_REPOSITORY = "Cannot tell which repository this commit is for. Run git commit from the repository, or pass git -C a literal path."
 
 
@@ -48,18 +50,91 @@ def load_gates() -> list[Gate]:
     return gates
 
 
-def git_target(command: shell.SimpleCommand) -> tuple[str | None, str]:
-    global_options, subcommand, _ = shell.git_invocation(command.words)
+def load_waivers() -> list[tuple[str, str]]:
+    config = locations.config_file("commit-gate")
+
+    if not config.is_file():
+        return []
+
+    lines = (line.split() for line in config.read_text().splitlines())
+
+    return [(parts[0], parts[1]) for parts in lines if parts[2:] == ["skip", "whitespace"]]
+
+
+def git_target(command: shell.SimpleCommand) -> tuple[str | None, str, list[str]]:
+    global_options, subcommand, arguments = shell.git_invocation(command.words)
     directories = global_options.values.get("-C", []) + global_options.values.get("--work-tree", [])
     target = functools.reduce(lambda current, path: shell.resolve(current, path, command.variables), directories, command.directory)
 
-    return target, subcommand
+    return target, subcommand, arguments
 
 
-def commit_directories(command: str, directory: str) -> list[str | None]:
+def commits(command: str, directory: str) -> list[tuple[str | None, list[str]]]:
     targets = (git_target(simple_command) for simple_command in shell.commands(command, directory) if simple_command.name == "git")
 
-    return [target for target, subcommand in targets if subcommand == "commit"]
+    return [(target, arguments) for target, subcommand, arguments in targets if subcommand == "commit"]
+
+
+def without_whitespace(text: str) -> str:
+    return re.sub(r"\s+", "", text)
+
+
+def working_file(root: str, path: str) -> str:
+    try:
+        return pathlib.Path(root, path).read_text(errors="replace")
+    except OSError:
+        return ""
+
+
+def whitespace_only_file(root: str, path: str) -> bool:
+    versions = {
+        without_whitespace(repository.git_output(root, "show", "HEAD:" + path)),
+        without_whitespace(repository.git_output(root, "show", ":" + path)),
+        without_whitespace(working_file(root, path)),
+    }
+
+    return len(versions) == 1
+
+
+def raw_changes(root: str, *arguments: str) -> list[tuple[str, str]]:
+    fields = repository.git_fields(root, "diff", "--raw", "-z", "--no-renames", *arguments, "HEAD")
+
+    return [(fields[index], fields[index + 1]) for index in range(0, len(fields) - 1, 2)]
+
+
+def content_only(header: str) -> bool:
+    old_mode, new_mode, *_, status = header.lstrip(":").split()
+
+    return status == "M" and old_mode == new_mode and old_mode in REGULAR_FILE_MODES
+
+
+def has_binary_change(root: str, *arguments: str) -> bool:
+    counts = repository.git_fields(root, "diff", "--numstat", "-z", "--no-renames", *arguments, "HEAD")
+
+    return any(count.startswith("-\t-\t") for count in counts)
+
+
+def whitespace_only_change(root: str) -> bool:
+    changes = raw_changes(root) + raw_changes(root, "--cached")
+
+    if not changes or has_binary_change(root) or has_binary_change(root, "--cached"):
+        return False
+
+    return all(content_only(header) and whitespace_only_file(root, path) for header, path in changes)
+
+
+def amends(arguments: list[str]) -> bool:
+    return any(len(argument) > 3 and "--amend".startswith(argument) for argument in arguments)
+
+
+def waived_gates(root: str, arguments: list[str]) -> set[str]:
+    name = repository.repository_name(root)
+    waived = {gate_name for repository_pattern, gate_name in load_waivers() if fnmatch.fnmatch(name, repository_pattern)}
+
+    if not waived or amends(arguments) or not whitespace_only_change(root):
+        return set()
+
+    return waived
 
 
 def visited_directories(command: str, directory: str) -> set[str]:
@@ -163,10 +238,14 @@ def missing_gates(root: str, gates: list[Gate], gate_times: dict[str, float], la
     return [gate_name for gate_name in required if gate_times.get(gate_key(root, gate_name), 0.0) <= last_edit]
 
 
-def commit_denial(session: str, root: str, gates: list[Gate]) -> str:
+def commit_denial(session: str, root: str, gates: list[Gate], arguments: list[str]) -> str:
     gate_times = ledger(session).load().get("gate_times", {})
     last_edit = edits.last_edit(session, root)
     missing = missing_gates(root, gates, gate_times, last_edit)
+
+    if missing:
+        waived = waived_gates(root, arguments)
+        missing = [gate_name for gate_name in missing if gate_name not in waived]
 
     if not missing:
         return ""
@@ -183,13 +262,13 @@ def commit_denial(session: str, root: str, gates: list[Gate]) -> str:
 def commit_denials(hook_event: dict[str, Any], gates: list[Gate], command: str) -> Iterator[str]:
     session = event.session_name(hook_event)
 
-    for directory in commit_directories(command, hook_event.get("cwd") or os.getcwd()):
+    for directory, arguments in commits(command, hook_event.get("cwd") or os.getcwd()):
         if directory is None:
             yield UNKNOWN_REPOSITORY
             continue
 
         root = repository.toplevel(directory)
-        yield commit_denial(session, root, gates) if root else ""
+        yield commit_denial(session, root, gates, arguments) if root else ""
 
 
 def check(hook_event: dict[str, Any], gates: list[Gate], command: str) -> None:

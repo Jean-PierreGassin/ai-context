@@ -171,6 +171,72 @@ record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"Bash",
 record '{"session_id":"test","hook_event_name":"PostToolUse","tool_name":"Bash","cwd":"'"$other"'","tool_input":{"command":"scanner review"}}'
 expect 'a shell gate run in another repository does not count here' '"deny".*: scan\.' "$(check test "$project" 'git commit -m change')"
 
+readonly layout="$temporary_root/layout-app"
+mkdir -p "$layout"
+git -C "$layout" init -q
+printf 'call(one, two);\nother();\n' >"$layout/app.txt"
+git -C "$layout" add app.txt
+git -C "$layout" -c user.email=test@example.com -c user.name=test commit -q -m init
+
+cat >>"$XDG_CONFIG_HOME/agents/commit-gate" <<'EOF'
+layout-app scan Bash \bscanner\s+review\b
+layout-app review Agent ^code-reviewer$
+layout-app scan skip whitespace
+EOF
+
+edit_layout() {
+  record '{"session_id":"layout","hook_event_name":"PostToolUse","tool_name":"Edit","tool_input":{"file_path":"'"$layout"'/app.txt"}}'
+}
+
+printf 'call(\n    one,\n    two\n);\nother();\n' >"$layout/app.txt"
+edit_layout
+expect 'a whitespace-only change keeps the gates that are not waived' '"deny".*: review\.' "$(check layout "$layout" 'git commit -am layout')"
+record '{"session_id":"layout","hook_event_name":"SubagentStop","agent_type":"code-reviewer"}'
+expect 'a whitespace-only change skips a waived gate' '^$' "$(check layout "$layout" 'git commit -am layout')"
+git -C "$layout" add app.txt
+expect 'a staged whitespace-only change skips a waived gate' '^$' "$(check layout "$layout" 'git commit -m layout')"
+expect 'an amend never skips a gate' '"deny".*: scan\.' "$(check layout "$layout" 'git commit --amend -m layout')"
+
+printf 'call(one, three);\nother();\n' >"$layout/app.txt"
+edit_layout
+record '{"session_id":"layout","hook_event_name":"SubagentStop","agent_type":"code-reviewer"}'
+expect 'a code change needs the waived gate' '"deny".*: scan\.' "$(check layout "$layout" 'git commit -am code')"
+
+git -C "$layout" add app.txt
+printf 'call(one, two);\nother();\n' >"$layout/app.txt"
+expect 'a staged code change behind a reverted file needs the waived gate' '"deny".*: scan\.' "$(check layout "$layout" 'git commit -m code')"
+
+git -C "$layout" reset -q
+printf 'call( one, two );\nother();\n' >"$layout/app.txt"
+printf 'new\n' >"$layout/new.txt"
+git -C "$layout" add new.txt
+edit_layout
+record '{"session_id":"layout","hook_event_name":"SubagentStop","agent_type":"code-reviewer"}'
+expect 'a new file needs the waived gate' '"deny".*: scan\.' "$(check layout "$layout" 'git commit -am layout')"
+
+git -C "$layout" reset -q
+rm "$layout/new.txt"
+git -C "$layout" checkout -q -- app.txt
+chmod +x "$layout/app.txt"
+edit_layout
+record '{"session_id":"layout","hook_event_name":"SubagentStop","agent_type":"code-reviewer"}'
+expect 'a mode change needs the waived gate' '"deny".*: scan\.' "$(check layout "$layout" 'git commit -am mode')"
+
+chmod -x "$layout/app.txt"
+printf 'call(\n    one,\n    two\n);\nother();\n' >"$layout/app.txt"
+edit_layout
+record '{"session_id":"layout","hook_event_name":"SubagentStop","agent_type":"code-reviewer"}'
+expect 'an abbreviated amend never skips a gate' '"deny".*: scan\.' "$(check layout "$layout" 'git commit --amen -am layout')"
+
+git -C "$layout" checkout -q -- app.txt
+printf '\000a b\n' >"$layout/data.bin"
+git -C "$layout" add data.bin
+git -C "$layout" -c user.email=test@example.com -c user.name=test commit -q -m binary
+printf '\000ab\n' >"$layout/data.bin"
+edit_layout
+record '{"session_id":"layout","hook_event_name":"SubagentStop","agent_type":"code-reviewer"}'
+expect 'a binary change needs the waived gate' '"deny".*: scan\.' "$(check layout "$layout" 'git commit -am binary')"
+
 rm "$XDG_CONFIG_HOME/agents/commit-gate"
 expect 'no settings file is silent' '^$' "$(check test "$project" 'git commit -m change')"
 
