@@ -131,7 +131,7 @@ if [[ "$installation_state" == installed ]]; then
     add_result 'Configuration' 'PASS' 'Claude JSON, Codex JSON, and TOML are valid'
 
     safety_errors=
-    jq -e '(.permissions.deny // []) | index("Read(auth.json)") != null' \
+    jq -e '(.permissions.deny // []) | index("Edit(.env)") != null' \
       "$claude_settings" >/dev/null 2>&1 || safety_errors+='.claude/settings.json deny rules, '
     python3 -c \
       'import pathlib, sys, tomllib; data=tomllib.loads(pathlib.Path(sys.argv[1]).read_text()); assert data.get("approvals_reviewer") == "auto_review"' \
