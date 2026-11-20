@@ -42,3 +42,27 @@ Use a dedicated review agent, never a general-purpose one, sized to the effort: 
 - Mark each finding as confirmed or plausible
 - At `low`, report only confirmed findings
 - Do not edit files; report "no findings" when nothing survives verification
+
+## Self-review report
+
+At `high` effort, or when the user asks for the report, the caller turns the reviewer's findings into the
+`review-report` page in `"mode": "self"` once the reviewer returns. The reviewer itself stays read-only.
+
+1. Sort each finding: a correctness defect is Critical, a behaviour change the goal or ticket does not cover is
+   Decision, and a standards, naming, placement, or complexity problem is Structure. Drop plausible findings you
+   cannot confirm.
+2. Give each one evidence. Quote the problem lines at the head commit, taking uncommitted work through the
+   `review-report` snapshot script. A Critical, or a Decision about behaviour, also needs the same scratch test run
+   on the target branch in a temporary worktree and on the change, with both outputs saved; keep it as Critical only
+   when the change behaves as claimed and the target does not, otherwise keep what the code shows as Structure.
+   When the problem shows on a page, capture both sides as the `review-report` skill describes.
+3. Load the `review-report` skill and build a draft with the merge base with the target, the head or snapshot
+   commit, and the output name `<repo>-<branch>`. Each flag's `comment` says what to fix.
+4. **Self-correct.** Read the `<name>.md` beside the page and look at the page screenshots the check step saved. Fix each
+   Critical and Code quality flag in the code, following its `Fix:` line, and run the change-scoped checks. Leave
+   every Check the scope flag for the user: it is a decision about behaviour, not a defect. Then review the new diff
+   again from step 1 with a fresh reviewer. Stop after two fix rounds, or sooner when only scope checks remain.
+5. Audit and build the final page from the last round, as the `review-report` skill describes, then remove the
+   temporary worktree and scratch files.
+6. Reply with the report's path, what the fix rounds changed, and the remaining flags as one-line bullets with their
+   `file:line`. Commit nothing: show the diff and wait for approval as usual.
