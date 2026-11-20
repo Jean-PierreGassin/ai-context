@@ -51,6 +51,7 @@ edit_event() {
 expect 'a passing edit is silent' '^$' "$(run_hook edit "$(edit_event "$project/src/good.txt")")"
 expect 'an unmatched file is silent' '^$' "$(run_hook edit "$(edit_event "$project/README.md")")"
 expect 'a failing edit blocks' '"decision": "block".*src/bad.txt' "$(run_hook edit "$(edit_event "$project/src/bad.txt")")"
+expect 'the same failure is not reported again' '^$' "$(run_hook edit "$(edit_event "$project/src/bad.txt")")"
 expect 'a failing turn blocks' '"decision": "block".*bad.txt' "$(run_hook turn '{"session_id":"test"}')"
 expect 'a missing checker is skipped' '^0$' "$(run_hook turn '{"session_id":"test"}' | grep -c missing-checker || true)"
 expect 'a repeated failure stops blocking' '"systemMessage"' "$(run_hook turn '{"session_id":"test","stop_hook_active":true}')"
@@ -58,14 +59,52 @@ expect 'a repeated failure stops blocking' '"systemMessage"' "$(run_hook turn '{
 printf 'fixed\n' >"$project/src/bad.txt"
 run_hook edit "$(edit_event "$project/src/bad.txt")" >/dev/null
 expect 'a fixed turn is silent' '^$' "$(run_hook turn '{"session_id":"test"}')"
-expect 'a clean turn clears its state' '^$' "$(find "$XDG_STATE_HOME" -name 'test.json')"
+expect 'a clean turn clears its state' '^$' "$(find "$XDG_STATE_HOME/agents/verify-changes" -name 'test.json')"
 expect 'another session is unaffected' '^$' "$(run_hook turn '{"session_id":"other"}')"
+
+bash_event='{"session_id":"bash","tool_name":"Bash","tool_use_id":"one","cwd":"'"$project"'","tool_input":{"command":"git pull"}}'
+printf 'broken\n' >"$project/src/good.txt"
+expect 'a file changed by a shell command is not checked' '^$' "$(run_hook edit "$bash_event")"
+expect 'a shell change is not checked at the end of the turn' '^$' "$(run_hook turn '{"session_id":"bash"}')"
+printf 'clean\n' >"$project/src/good.txt"
+
+printf 'broken\n' >"$project/src/café.txt"
+expect 'a non-ASCII path is checked' '"decision": "block".*src/caf[^"]*\.txt' "$(run_hook edit "$(edit_event "$project/src/café.txt")")"
+rm "$project/src/café.txt"
+run_hook turn '{"session_id":"test"}' >/dev/null
+
+cat >"$XDG_CONFIG_HOME/agents/verify-changes" <<'EOF'
+turn * src/*.txt date +%N; false
+EOF
+run_hook edit "$(edit_event "$project/src/good.txt")" >/dev/null
+expect 'a turn check with changing output blocks once' '"decision": "block"' "$(run_hook turn '{"session_id":"test"}')"
+expect 'a turn check with changing output stops blocking after one retry' '"systemMessage"' "$(run_hook turn '{"session_id":"test","stop_hook_active":true}')"
 
 cat >"$XDG_CONFIG_HOME/agents/verify-changes" <<'EOF'
 env export VERIFY_MARKER="loaded from env"
 edit * README.md printf 'marker=%s' "$VERIFY_MARKER"; false
 EOF
 expect 'the env line is applied to checks' 'marker=loaded from env' "$(run_hook edit '{"session_id":"env","tool_input":{"file_path":"'"$project"'/README.md"}}')"
+
+cat >"$XDG_CONFIG_HOME/agents/verify-changes" <<'EOF'
+edit * README.md cat "$ADDED_LINES"; false
+EOF
+readme_event() {
+  printf '{"session_id":"lines","tool_name":"Edit","tool_use_id":"%s","tool_input":{"file_path":"%s/README.md"}}' "$1" "$project"
+}
+
+printf 'notes\nwork in progress by the user\n' >"$project/README.md"
+run_hook before-tool "$(readme_event added)"
+printf 'notes\nwork in progress by the user\nadded by the agent\n' >"$project/README.md"
+added_output="$(run_hook edit "$(readme_event added)")"
+expect 'checks receive the lines the edit added' 'README.md:3"' "$added_output"
+expect 'the user'"'"'s uncommitted lines are not passed as added' '^0$' "$(printf '%s' "$added_output" | grep -c 'README.md:2' || true)"
+
+run_hook before-tool "$(readme_event moved)"
+printf 'added by the agent\nnotes\nwork in progress by the user\n' >"$project/README.md"
+expect 'moved lines are passed to checks as added' 'README.md:1' "$(run_hook edit "$(readme_event moved)")"
+
+expect 'an edit without a capture passes no added lines' '^$' "$(run_hook edit "$(readme_event uncaptured)" | grep -o 'README.md:[0-9]' || true)"
 
 cat >"$XDG_CONFIG_HOME/agents/verify-changes" <<'EOF'
 handoff * src/*.txt ! grep -l broken $FILES
