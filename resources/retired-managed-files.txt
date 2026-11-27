@@ -1,3 +1,32 @@
 # Git blob SHA<TAB>path for managed files removed from the payload.
 # Matching files are removed on install; changed files are preserved.
 d7b75a56e573b730354ab1d87c176b349f151540	.claude/output-styles/efficient.md
+ff216f5a6789ca27142a9901a6113e86751567f7	.agents/checks/php-style-check.py
+e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	.agents/hooks/agent_hooks/__init__.py
+84a0e0f5ca2b6c207fd0008064ac28c8ccad0d1f	.agents/hooks/agent_hooks/added_lines.py
+4b0e78c8e2f89f147499dbe6a27aa28aa50b9c5e	.agents/hooks/agent_hooks/andon.py
+55137fcadb62aa97c7f6dea94690533f1b4729f8	.agents/hooks/agent_hooks/ask_first.py
+4a7ae2f0196166f5d92b5d3577a9ecba18fc1b37	.agents/hooks/agent_hooks/block_no_verify.py
+70664450cb067bdc06d0aba98746eb9fa66920fa	.agents/hooks/agent_hooks/block_shell_edits.py
+754f747fb6f7e9896f44e6717949340007a47efd	.agents/hooks/agent_hooks/commit_gate.py
+19a217f373052c762f8013d17771ae5fe2857b9e	.agents/hooks/agent_hooks/completion.py
+b36438f3eebdb15a4ecf04e0526b4411e868358d	.agents/hooks/agent_hooks/edits.py
+b61e7c76fed6891f792630aa6d3715e47ef02e50	.agents/hooks/agent_hooks/event.py
+9f979f538a73ee9b5275296491a22867656cc64c	.agents/hooks/agent_hooks/handoff_passes.py
+64c72dbea57b5b097608fa50f2b9491d9210ad5d	.agents/hooks/agent_hooks/locations.py
+ec71227cce30cd84f7ad7c0dc4f4b8dabb66673d	.agents/hooks/agent_hooks/main.py
+1a4ffb4307851a764009f98c26fb39c9aefb23b9	.agents/hooks/agent_hooks/patterns.py
+05b72677f65036f6bd7563f35224c9433094e074	.agents/hooks/agent_hooks/reported_once.py
+341c24e493b15e5a427421d16376dd63aecbe3b3	.agents/hooks/agent_hooks/repository.py
+984bf260af2f06449a0e517c39887e1cee286a02	.agents/hooks/agent_hooks/shell.py
+ef5b71fb83f38439a41cf4c12d841046818eee10	.agents/hooks/agent_hooks/state.py
+45ac9c648032a4f9b946fdca017c9ac6150f89d2	.agents/hooks/agent_hooks/third_party/andon/LICENSE
+db20a898ad727d7f58fb7b6be16255d06bff2394	.agents/hooks/agent_hooks/third_party/andon/claim_check_hook.py
+8a754347fb37191cd54e06b901d663c975040ea8	.agents/hooks/agent_hooks/tool_changes.py
+1a57bbeb538901b6ef193e2d72cba807b59e3dc8	.agents/hooks/agent_hooks/verify_changes.py
+84813b3d765c0351d124ac0b270250ab13fc8be1	.agents/hooks/agent_hooks/weakening.py
+25240ee9815569dcc35306a9101ccd13c2efcc86	.agents/hooks/ask-first.sh
+b5acfdcf0911831f27e7fd42a107c1aae1bf2a34	.agents/hooks/block-no-verify.sh
+34b2dc556a5b051cc69b4563e949928aba6c55b8	.agents/hooks/block-shell-edits.sh
+e6d0f45942dbbb5dbdb095f491ac6b3c8dc29aa1	.agents/hooks/commit-gate.sh
+eac454f911e615190fb817b3a5813e8d6eb27ecb	.agents/hooks/verify-changes.sh

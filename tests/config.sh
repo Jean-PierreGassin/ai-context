@@ -47,3 +47,21 @@ jq -e '.permissions == {"ask":[],"deny":["Read(.env)"],"additionalDirectories":[
 rm "$target"
 merge_json_file "$desired" "$target" '.claude/settings.json'
 jq -e '.outputStyle == "Concise" and .newSetting == true' "$target" >/dev/null
+
+# Entries that run a retired managed hook script are dropped; the user's own hooks and current ones stay.
+# shellcheck disable=SC2016 # the fixtures contain literal $HOME text
+printf '{"hooks":{"Stop":[{"matcher":"","hooks":[{"type":"command","command":"bash \\"$HOME/.agents/hooks/play-sound.sh\\""}]}]}}\n' >"$desired"
+# shellcheck disable=SC2016 # the fixture contains literal $HOME text
+printf '%s\n' '{"hooks":{
+  "PreToolUse":[{"matcher":"Bash","hooks":[
+    {"type":"command","command":"sh \"$HOME/.agents/hooks/commit-gate.sh\" check"},
+    {"type":"command","command":"~/mine/audit.sh"}]}],
+  "SubagentStart":[{"matcher":"","hooks":[{"type":"command","command":"sh \"$HOME/.agents/hooks/commit-gate.sh\" start"}]}],
+  "Stop":[{"matcher":"","hooks":[
+    {"type":"command","command":"sh \"$HOME/.agents/hooks/verify-changes.sh\" turn"},
+    {"type":"command","command":"bash \"$HOME/.agents/hooks/play-sound.sh\""}]}]}}' >"$target"
+merge_json_file "$desired" "$target" '.claude/settings.json'
+jq -e '.hooks | has("SubagentStart") | not' "$target" >/dev/null
+jq -e '[.hooks.PreToolUse[].hooks[].command] == ["~/mine/audit.sh"]' "$target" >/dev/null
+jq -e '[.hooks.Stop[].hooks[].command | select(test("verify-changes"))] | length == 0' "$target" >/dev/null
+jq -e '[.hooks.Stop[].hooks[].command | select(test("play-sound"))] | length == 1' "$target" >/dev/null

@@ -617,9 +617,9 @@
       ]
     },
     {
-      "id": "fixes-hook-feedback-before-next-edit",
+      "id": "fixes-check-feedback-before-next-edit",
       "category": "normal",
-      "prompt": "While adding a refund reason field, the edit hook reports a formatter failure and a static analysis error on the file just changed.",
+      "prompt": "While adding a refund reason field, the checks run after the edit report a formatter failure and a static analysis error on the file just changed.",
       "expected_output": "Both are fixed before the next file is edited.",
       "expectations": [
         "Fixes the reported failures on that file before editing another file",

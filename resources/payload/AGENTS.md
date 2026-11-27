@@ -47,6 +47,11 @@
 - Keep each branch current with its immediate target before implementation, review, and meaningful pushes
 - Preserve reviewed or published history. Do not rewrite it
 - Run formatting, lint, static analysis, and change-scoped tests before human review and before opening a PR. CI runs the full test suite; run it locally only when asked
+- Fix a failing check on the change you just made before the next edit
+- Never make checks easier to pass: no skipped tests, suppressed errors, loosened config or weaker assertions. If one is truly needed, say why
+- Commit only once lint, static analysis and review have run since your last edit. Never bypass git hooks with `--no-verify`
+- Edit files with the edit tools, not `sed -i`, `perl -i` or heredocs redirected into a file
+- Call work done or fixed only after its checks pass; otherwise say what is still unverified
 - Do the work in the main session. Delegate only reviews: use `review-code` in one fresh subagent with no inherited context, giving it only the overall goal, the diff range and the paths of any user preference files the user's instructions list
 - Run reviewers as a dedicated review agent, never a general-purpose one, with a model and reasoning effort sized to the review's effort
 - Prefer language server or IDE integrations over text search for definitions, references, symbols, and diagnostics when they are available
@@ -66,4 +71,5 @@
 - Assign the ticket to me and move it to In Progress before writing code when the project workflow requires it
 - Before opening a PR, show the exact proposed title, main template context, target branch, and Draft/Ready state. Wait for approval unless already specified
 - Move the ticket to In Review and link the PR when it is ready for review
-- Never post a PR or ticket comment without explicit approval for that specific comment
+- Never post a PR or ticket comment, review or message without explicit approval for that specific post
+- Ask before reading a secret, for example from a vault or password manager

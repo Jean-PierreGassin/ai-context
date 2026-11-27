@@ -10,6 +10,12 @@ replace_config_file() {
   atomic_copy "$source_path" "$target_path"
 }
 
+# Names of hook scripts removed from the payload. Merged settings drop the entries that still run them.
+retired_hook_scripts() {
+  awk -F '\t' '$2 ~ /^[.](agents|claude|codex)\/hooks\/[A-Za-z0-9_.-]+[.]sh$/ { sub(/.*\//, "", $2); print $2 }' \
+    "$repository_root/resources/retired-managed-files.txt" | jq -Rsc 'split("\n") | map(select(length > 0))'
+}
+
 merge_json_file() {
   local desired_path="$1" target_path="$2" display_path="$3" merged_path
   merged_path="$temporary_root/merged-json"
@@ -18,7 +24,7 @@ merge_json_file() {
     rm -f "$merged_path"; record_failure "invalid or incompatible JSON in $display_path was left unchanged"; return 0
   fi
   if [[ -f "$target_path" ]]; then
-    jq -s '
+    jq -s --argjson retired "$(retired_hook_scripts)" '
       def hook_scripts:
         [(.hooks // [])[]? | (.command // "") | scan("[A-Za-z0-9_.-]+[.]sh")] | unique;
       def managed_hook_scripts:
@@ -31,12 +37,23 @@ merge_json_file() {
           | if ($incoming | length) == 0 then
               (if index($entry) == null then . + [$entry] else . end)
             else [.[] | select((managed_hook_scripts - $incoming) == managed_hook_scripts)] + [$entry] end);
+      def runs_retired_script:
+        (.command // "") | [scan("[.](?:claude|codex|agents)/hooks/([A-Za-z0-9_.-]+[.]sh)")[0]]
+        | any(. as $script | $retired | index($script));
+      def drop_retired_hooks:
+        if type == "array" then
+          map(if (.hooks | type) == "array" then .hooks |= map(select(runs_retired_script | not)) else . end)
+          | map(select((.hooks | type) != "array" or (.hooks | length) > 0))
+        else . end;
       . as [$existing, $desired]
       | $existing * $desired
       | if ($desired.hooks | type) == "object" then
           .hooks = reduce ($desired.hooks | keys_unsorted[]) as $event (($existing.hooks // {});
             .[$event] = merge_hook_event((($existing.hooks // {})[$event] // []);
                                          ($desired.hooks[$event] // [])))
+        else . end
+      | if (.hooks | type) == "object" then
+          .hooks |= with_entries(.value |= drop_retired_hooks | select(.value | length > 0))
         else . end
     ' "$target_path" "$desired_path" >"$merged_path"
   else
