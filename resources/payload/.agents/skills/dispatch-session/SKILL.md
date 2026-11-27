@@ -16,13 +16,11 @@ Dispatch only when `use-worktrees` says the work needs its own worktree. Small c
 
 ## Size each session
 
-Pick the model and effort for the work, and pass them as `--model` and `--effort`:
+Run every session on the latest Sonnet (`--model sonnet`) and pick the effort for the work with `--effort`:
 
-- Design, debugging with an unknown cause, or anything the handoff leaves open: the default model at its default
-  effort or above
-- Mechanical, fully specified work, such as applying a settled plan, a rename, or a dependency bump: a smaller, faster
-  model at low or medium effort
-- Never raise effort to compensate for a vague handoff. Fix the handoff
+- Design, debugging with an unknown cause, or anything the handoff leaves open: `medium`
+- Mechanical, fully specified work, such as applying a settled plan, a rename, or a dependency bump: `low`
+- Never go above Sonnet at medium effort, and never raise effort to compensate for a vague handoff. Fix the handoff
 
 ## Process
 
@@ -33,7 +31,7 @@ Pick the model and effort for the work, and pass them as `--model` and `--effort
    into the worktree in its own command, launch, then change back so the orchestrator keeps working where it started:
 
    ```sh
-   claude --bg --name "<title>" --model "<model>" --effort "<level>" "Read <path handoff reported> and continue the work it describes."
+   claude --bg --name "<title>" --model sonnet --effort "<level>" "Read <path handoff reported> and continue the work it describes."
    ```
 
    The name is the session's title in every session list, and a named session is never retitled. Make it say what
