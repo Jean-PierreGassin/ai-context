@@ -19,11 +19,26 @@ read.
 2. Inspect project standards, formatter and linter configuration, and the nearest equivalent capability. Follow project conventions, using shared and language-specific preferences to fill gaps
 3. Resolve the execution location before editing and use the project's command interface for project commands
 4. Use a plan for multi-step work, migrations, replacements, or work spanning sessions
-5. Implement the smallest coherent change yourself, keeping it independently deployable and safe to release without dependent changes. Do not hand parts of it to other agents
-6. Run formatting, lint, and static analysis on the changed files, and the tests covering the change, since they may change the diff
-7. Start one `review-code` reviewer, at `high` for a branch going up for a PR and `low` otherwise, giving it only the overall goal, the diff range and the paths of any user preference files the user's instructions list
-8. Fix confirmed findings, rerun the gates if the diff changed, and present the resulting diff for approval with its evidence
-9. Keep the diff focused and preserve reviewed or published history
+5. Define the end state before implementing, as described in [Verification loop](#verification-loop)
+6. Implement the smallest coherent change yourself, keeping it independently deployable and safe to release without dependent changes. Do not hand parts of it to other agents
+7. Run formatting, lint, and static analysis on the changed files, and the tests covering the change, since they may change the diff
+8. Start one `review-code` reviewer, at `high` for a branch going up for a PR and `low` otherwise, giving it only the overall goal, the diff range and the paths of any user preference files the user's instructions list
+9. Fix confirmed findings, rerun the gates if the diff changed, and present the resulting diff for approval with its evidence
+10. Keep the diff focused and preserve reviewed or published history
+
+## Verification loop
+
+Make done something a command can decide, so the work can loop to it without the user.
+
+- State the end state as a pass/fail check before writing the change: a failing test written with `write-tests` for
+  behaviour, or a command and its expected output where a test does not fit, such as a build, a migration, or a
+  config change
+- Run the check first and confirm it fails for the reason the change addresses. A check that already passes, or fails
+  for another reason, defines nothing: fix it before implementing
+- Loop: change, rerun the check, read the failure, fix. Do not stop between attempts to report or ask
+- Done means the check passes and the gates still pass. Never weaken, skip, or rewrite the check to make it pass
+- Leave the loop early only for a decision that is the user's, or when repeated attempts fail for the same reason; then
+  report the check, the last failure, and what was tried
 
 ## Verify while writing
 

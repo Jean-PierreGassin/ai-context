@@ -33,7 +33,7 @@ Project-enforced conventions override the `write-code` defaults.
 
 Run the review in one fresh agent with no inherited context, giving it only the goal, the diff range, the effort, and the paths of any user preference files the user's instructions list. Do not split the review across several agents.
 
-Use a dedicated review agent, never a general-purpose one, sized to the effort: a fast mid-tier model at `low`, and the strongest available model with high reasoning effort at `high`. In Claude Code, use the `code-reviewer` agent and override its model to `opus` and its effort to `high` for a `high` review.
+Use a dedicated review agent, never a general-purpose one, on the latest Sonnet sized to the effort: low reasoning effort at `low`, and medium reasoning effort at `high`. Never go above Sonnet at medium effort. In Claude Code, use the `code-reviewer` agent, which runs Sonnet at medium effort, and override its effort to `low` for a `low` review.
 
 ## Report
 

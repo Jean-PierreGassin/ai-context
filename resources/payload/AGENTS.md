@@ -3,6 +3,8 @@
 - Use commas, colons, or separate sentences in place of em dashes
 - Use emojis only when they are asked for
 - Keep responses and deliverables as short as the task permits; keep caveats brief
+- My prompts are often short voice-to-text. Read them for intent and ignore transcription slips
+- Prefer a diagram, an interactive HTML page, or terse ASD-STE100 style text to paragraphs of prose
 
 ## Scope
 
@@ -41,6 +43,7 @@
 - Use `write-plan` for multi-step work, migrations, replacements, or work that spans sessions
 - Before editing, use `use-worktrees` to choose or restore the execution location
 - Before project or operational commands, use `run-commands`
+- Before changing code, define the end state as a check that passes or fails: a failing test, or a command and its expected output. Run it to see it fail, then change, rerun and fix until it passes, without waiting on me between attempts. Stop only when it passes or a decision is mine
 - Split work into small independent changes that each target trunk. Merge one, then branch the next from the updated trunk. Stack at most one level: a foundation PR off trunk ships first and ticket PRs target it; never deeper, since squash merges force the layers above to rebase and dismiss their reviews
 - Use separate worktrees only for concurrent independent tracks
 - When work started from a shared or root checkout needs its own worktree per `use-worktrees`, use `dispatch-session`: this session orchestrates and the work runs in a background session launched inside the worktree
@@ -52,8 +55,10 @@
 - Commit only once lint, static analysis and review have run since your last edit. Never bypass git hooks with `--no-verify`
 - Edit files with the edit tools, not `sed -i`, `perl -i` or heredocs redirected into a file
 - Call work done or fixed only after its checks pass; otherwise say what is still unverified
-- Do the work in the main session. Delegate only reviews: use `review-code` in one fresh subagent with no inherited context, giving it only the overall goal, the diff range and the paths of any user preference files the user's instructions list
+- The main session runs on the latest Opus at medium effort and orchestrates: it owns intent, high-level planning and every decision, and delegates bulk execution and research to subagents with a brief that leaves nothing open
+- Delegate reviews through `review-code` in one fresh subagent with no inherited context, giving it only the overall goal, the diff range and the paths of any user preference files the user's instructions list
 - Run reviewers as a dedicated review agent, never a general-purpose one, with a model and reasoning effort sized to the review's effort
+- Run every subagent and dispatched session on the latest Sonnet, at `low` effort for mechanical work and `medium` for research or open-ended work. Never go above that
 - Prefer language server or IDE integrations over text search for definitions, references, symbols, and diagnostics when they are available
 - Use a headless browser (for example Playwright) for visual checks and browser work. Use a visible browser such as Claude in Chrome only when I ask for it
 - Finish each change as a clean, reviewable diff. After approval, commit the approved diff without introducing new changes
