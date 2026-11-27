@@ -43,6 +43,22 @@ Use a dedicated review agent, never a general-purpose one, on the latest Sonnet 
 - At `low`, report only confirmed findings
 - Do not edit files; report "no findings" when nothing survives verification
 
+## Recurring findings
+
+A mistake that review catches twice should become a rule a machine runs, not an instruction an agent has to remember.
+The caller does this once the reviewer returns.
+
+1. For each confirmed finding, check whether it recurs: the same mistake elsewhere in the diff, in earlier fixes
+   (`git log -S` or `-G` on the pattern), or the user says it keeps happening
+2. For each recurring one, propose the most deterministic rule that catches it, first that fits:
+   - The project's own linter or static analysis rule, so CI enforces it for everyone
+   - A `verify-changes` `edit` check, or a rule added to an existing check script such as `php-style-check.py`
+   - A `weakening` `added` or `changed` pattern, for a change that makes checks easier to pass
+3. Prove the rule: it flags the finding's lines and passes on the fixed code and the rest of the changed files
+4. Show the exact rule and the file it goes in. Add it only once the user approves, since user config and project
+   lint config are theirs
+5. Fall back to a Markdown instruction only when no deterministic rule can catch the mistake, and say why
+
 ## Self-review report
 
 At `high` effort, or when the user asks for the report, the caller turns the reviewer's findings into the

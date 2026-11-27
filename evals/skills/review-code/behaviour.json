@@ -85,6 +85,28 @@
         "Builds drafts between rounds and audits only the final build",
         "Commits nothing and shows the diff for approval"
       ]
+    },
+    {
+      "id": "turns-recurring-finding-into-a-lint-rule",
+      "category": "normal",
+      "prompt": "Review my change. Goal: add a refund export. The reviewer flags a `new` nested inside a call's arguments, and the last two review fix commits fixed the same thing.",
+      "expected_output": "The finding is reported, and because it recurs, an exact deterministic rule is proposed with its target file, proved on the finding's lines, and left for approval.",
+      "expectations": [
+        "Checks history or the diff to confirm the mistake recurs before proposing a rule",
+        "Proposes a deterministic rule, preferring the project's linter, then a verify-changes check or an existing check script, over a Markdown instruction",
+        "Shows that the rule flags the finding's lines and passes on the fixed code",
+        "Shows the exact rule and file, and does not add it before the user approves"
+      ]
+    },
+    {
+      "id": "one-off-finding-gets-no-rule",
+      "category": "proportionality",
+      "prompt": "Review the uncommitted change at low effort. Goal: fix the invoice total rounding. The reviewer finds one off-by-one error that has not appeared before.",
+      "expected_output": "The finding is reported with no rule proposed.",
+      "expectations": [
+        "Reports the confirmed finding",
+        "Does not propose a lint rule, hook check, or Markdown instruction for a mistake that has not recurred"
+      ]
     }
   ]
 }

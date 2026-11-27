@@ -56,12 +56,14 @@ printf '%s\n' '{"hooks":{
   "PreToolUse":[{"matcher":"Bash","hooks":[
     {"type":"command","command":"sh \"$HOME/.agents/hooks/commit-gate.sh\" check"},
     {"type":"command","command":"~/mine/audit.sh"}]}],
+  "PostToolUse":[{"matcher":"Edit","hooks":[
+    {"type":"command","command":"sh \"$HOME/.agents/hooks/ask-first.sh\""},
+    {"type":"command","command":"sh \"$HOME/.agents/hooks/verify-changes.sh\" edit"}]}],
   "SubagentStart":[{"matcher":"","hooks":[{"type":"command","command":"sh \"$HOME/.agents/hooks/commit-gate.sh\" start"}]}],
   "Stop":[{"matcher":"","hooks":[
-    {"type":"command","command":"sh \"$HOME/.agents/hooks/verify-changes.sh\" turn"},
     {"type":"command","command":"bash \"$HOME/.agents/hooks/play-sound.sh\""}]}]}}' >"$target"
 merge_json_file "$desired" "$target" '.claude/settings.json'
 jq -e '.hooks | has("SubagentStart") | not' "$target" >/dev/null
 jq -e '[.hooks.PreToolUse[].hooks[].command] == ["~/mine/audit.sh"]' "$target" >/dev/null
-jq -e '[.hooks.Stop[].hooks[].command | select(test("verify-changes"))] | length == 0' "$target" >/dev/null
+jq -e '[.hooks.PostToolUse[].hooks[].command] == ["sh \"$HOME/.agents/hooks/verify-changes.sh\" edit"]' "$target" >/dev/null
 jq -e '[.hooks.Stop[].hooks[].command | select(test("play-sound"))] | length == 1' "$target" >/dev/null
