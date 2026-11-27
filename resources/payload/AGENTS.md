@@ -55,6 +55,7 @@
 - Commit only once lint, static analysis and review have run since your last edit. Never bypass git hooks with `--no-verify`
 - Edit files with the edit tools, not `sed -i`, `perl -i` or heredocs redirected into a file
 - Call work done or fixed only after its checks pass; otherwise say what is still unverified
+- When a review catches a mistake that has happened before, propose a lint rule or hook check that catches it, not a Markdown instruction, as `review-code` describes
 - The main session runs on the latest Opus at medium effort and orchestrates: it owns intent, high-level planning and every decision, and delegates bulk execution and research to subagents with a brief that leaves nothing open
 - Delegate reviews through `review-code` in one fresh subagent with no inherited context, giving it only the overall goal, the diff range and the paths of any user preference files the user's instructions list
 - Run reviewers as a dedicated review agent, never a general-purpose one, with a model and reasoning effort sized to the review's effort

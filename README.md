@@ -85,16 +85,120 @@ Every install and rollback saves the previous state.
 
 ## Hooks
 
-Working rules, such as fixing a failed check before the next edit, never weakening checks to pass, never skipping
-commit hooks, and asking before posting or reading secrets, are plain-English instructions in `AGENTS.md` rather
-than programmatic hooks. The package installs only two small hooks:
+Rules a machine can check run as hooks; working rules that need judgement, such as asking before posting or reading
+secrets, are plain-English instructions in `AGENTS.md`. Besides the checks below, `migration-generator` refuses a new
+Laravel migration written by hand and points the agent to `php artisan make:migration`, and `play-sound` plays a sound
+when an interactive turn ends.
 
-- `migration-generator` refuses a new Laravel migration written by hand and points the agent to
-  `php artisan make:migration`, so the generator supplies the timestamp and the project's stub
-- `play-sound` plays a sound when an interactive turn ends
+Installing over an earlier version removes the retired `ask-first` and `commit-gate` hooks and the settings entries
+that ran them. A retired file you changed is left in place.
 
-Installing over an earlier version removes the retired hook scripts and the settings entries that ran them. A retired
-file you changed is left in place.
+## Change checks
+
+The `verify-changes` hook runs your checks on the files an agent changes, so problems surface while it works rather
+than at review. It runs nothing until `${XDG_CONFIG_HOME:-$HOME/.config}/agents/verify-changes` exists:
+
+```text
+env . "$HOME/.config/my-env.sh"
+edit * *.py ruff check $FILES
+turn my-app src/*.ts npx eslint $FILES
+handoff my-app * npx tsc --noEmit
+```
+
+Each check line is `<phase> <repository> <path glob> <command>`:
+
+- `edit` runs after every edit or write, on that file. Keep these to checks that take about a second
+- `turn` runs once when the agent finishes a turn, on every file it changed since the last clean run
+- `handoff` runs when the agent calls `verify-changes.sh handoff` before handing work back, on every file changed
+  since the branch left trunk, untracked files included. Put slow, whole-change checks here, such as the full static
+  analysis run CI does
+- `<repository>` matches the origin repository's name, `*` for any; `<path glob>` matches the path from the
+  repository root
+- `$ADDED_LINES` in an `edit` check names a file listing each line the edit added, moved lines included, one
+  `path:line` per line, so a check can judge only what the agent wrote and leave your uncommitted work alone
+- `$FILES` expands to the matching files, quoted. A check sees whole files, your uncommitted lines included, so use
+  `$ADDED_LINES` when a rule should judge only the agent's lines. Commands run from the repository root at low
+  priority, one at a time per repository, and a command that is not installed is skipped
+- `env` is an optional command run before each check, for example to load the project's toolchain
+
+A failed check is reported back to the agent once; the same output is not reported again. A failed turn check blocks
+the agent once, and after one fix attempt it is shown to you and no longer blocks. State is kept per session, so
+parallel sessions and worktrees never share results.
+
+Only the Edit and Write tools count as the agent's changes. Files changed only by a shell command, by you, or by a
+branch switch or pull are never checked. `block-shell-edits` keeps agents on the edit tools. Each hook exits before
+starting Python while its config file is absent.
+
+### Recurring review findings
+
+When a review catches a mistake that has happened before, `review-code` proposes a deterministic rule for it instead
+of a Markdown instruction: a project lint rule first, then an `edit` check or a rule in an existing check script, then
+a `weakening` pattern. It proves the rule on the finding's lines and adds it only once you approve.
+
+### PHP style check
+
+`~/.agents/checks/php-style-check.py` is a ready-made `edit` check for PHP. It judges only the lines in
+`$ADDED_LINES`: chains with more than one link on a line, `new` nested in arguments, lines over 120 characters,
+control blocks without a blank line above, broken calls with several arguments on a line, comment prose, and
+functions with more than three returns. Text inside strings and heredocs gets only the line length rule:
+
+```text
+edit my-app *.php python3 -I "$HOME/.agents/checks/php-style-check.py" $FILES
+```
+
+### Weakened verification
+
+The same hook points out changes that make the work easier to pass rather than more correct. It reads
+`${XDG_CONFIG_HOME:-$HOME/.config}/agents/weakening`:
+
+```text
+added my-app *.ts @ts-(ignore|expect-error)
+added my-app tests/*.ts \b(it|describe)\.skip\(
+changed my-app tsconfig.json
+```
+
+- `added <repository> <path glob> <pattern>` matches lines the edit adds. A line that was only moved or re-indented
+  does not count
+- `changed <repository> <path glob>` matches files the edit writes
+
+Each finding is reported once per session, and the agent undoes it or says why it is needed. Nothing is refused, so an
+unattended agent never stalls waiting for an answer.
+
+### Finished-work claims
+
+When a turn ends on a claim that the work is finished, such as "Done." or "Fixed the tests.", and the agent edited a
+repository with handoff checks after `verify-changes.sh handoff` last started a passing run there, the agent is told
+once, then runs the handoff checks or says what is still unverified. Your own changes never re-open the check. A
+session that edited no such repository since its last pass is never stopped.
+
+Claims are found by the detector from [Andon](https://github.com/PrimeFoldTools/Andon), copied unchanged under its
+MIT license into `.agents/hooks/agent_hooks/third_party/andon/`, with its claim corpus in `tests/third_party/andon/`.
+
+### Response rules
+
+`${XDG_CONFIG_HOME:-$HOME/.config}/agents/response-rules` lists patterns a reply must not contain, one
+`<name> <pattern>` per line. Code and quoted blocks are ignored. A reply that breaks a rule is sent back once to be
+written again; the rewritten reply is not checked again.
+
+```text
+em-dash —
+```
+
+## Shell edits
+
+The `block-shell-edits` hook refuses `sed -i`, `perl -i` and heredocs written to a file when the target file is in a
+repository listed in `${XDG_CONFIG_HOME:-$HOME/.config}/agents/block-shell-edits`, one repository name or glob per
+line, and points the agent to the Edit and Write tools, which the change checks follow line by line:
+
+```text
+my-app
+```
+
+A heredoc counts as a file write only when `cat` or `tee` writes it to a file. The hook follows `cd`, expands globs,
+and finds `-i` anywhere among the options. Files outside those repositories, such as scratch files in `/tmp`,
+heredocs fed to a command, such as `git commit -F -` or `python3 - > out.txt`, quoted text, such as
+`grep 'sed -i'`, and `perl -I` or `-M` options are allowed. Edits it cannot resolve, such as through `find -exec`
+or `xargs`, are let through. It runs nothing without the file.
 
 ## Check and restore
 

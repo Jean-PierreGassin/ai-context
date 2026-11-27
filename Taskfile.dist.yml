@@ -92,4 +92,11 @@ tasks:
       - python3 ./tests/review_report.py
       - bash ./tests/config.sh
       - bash ./tests/retired-managed-files.sh
+      - bash ./tests/verify-changes.sh
+      - bash ./tests/block-no-verify.sh
+      - bash ./tests/block-shell-edits.sh
+      - bash ./tests/weakening.sh
+      - bash ./tests/php-style-check.sh
+      - bash ./tests/completion.sh
+      - python3 ./tests/claims.py
       - ./tests/shell.sh
