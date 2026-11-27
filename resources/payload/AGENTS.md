@@ -41,6 +41,7 @@
 - Use `write-plan` for multi-step work, migrations, replacements, or work that spans sessions
 - Before editing, use `use-worktrees` to choose or restore the execution location
 - Before project or operational commands, use `run-commands`
+- Before changing code, define the end state as a check that passes or fails: a failing test, or a command and its expected output. Run it to see it fail, then change, rerun and fix until it passes, without waiting on me between attempts. Stop only when it passes or a decision is mine
 - Split work into small independent changes that each target trunk. Merge one, then branch the next from the updated trunk. Stack at most one level: a foundation PR off trunk ships first and ticket PRs target it; never deeper, since squash merges force the layers above to rebase and dismiss their reviews
 - Use separate worktrees only for concurrent independent tracks
 - When work started from a shared or root checkout needs its own worktree per `use-worktrees`, use `dispatch-session`: this session orchestrates and the work runs in a background session launched inside the worktree

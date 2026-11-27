@@ -47,6 +47,17 @@
         "Does not ask whether to copy",
         "Does not repeat the prompt in the reply or in the copy command"
       ]
+    },
+    {
+      "id": "done-is-a-runnable-check",
+      "category": "normal",
+      "prompt": "Hand off the rest of the import retry work. The parser fix is done; the retry backoff and the dead-letter queue are left.",
+      "expected_output": "Each remaining piece ends in a command and the result that means it passed, with an instruction to loop until it does.",
+      "expectations": [
+        "Gives every remaining piece a test or command and the result that means it is done",
+        "Tells the receiver to loop on that check until it passes",
+        "Does not define any piece's done in prose alone"
+      ]
     }
   ]
 }
