@@ -3,6 +3,8 @@
 - Use commas, colons, or separate sentences in place of em dashes
 - Use emojis only when they are asked for
 - Keep responses and deliverables as short as the task permits; keep caveats brief
+- My prompts are often short voice-to-text. Read them for intent and ignore transcription slips
+- Prefer a diagram, an interactive HTML page, or terse ASD-STE100 style text to paragraphs of prose
 
 ## Scope
 
