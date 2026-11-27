@@ -44,6 +44,30 @@
         "Ends each finding with its status, date and source",
         "Ends with a Gaps bullet"
       ]
+    },
+    {
+      "id": "cites-raw-note-behind-wiki",
+      "category": "normal",
+      "prompt": "What did we decide about AXS price enrichment? The vault's AGENTS.md defines a Wiki/ layer, and Wiki/Decisions.md lists the decision with a link to a raw meeting note.",
+      "expected_output": "The decision from the wiki, cited to the raw meeting note it links to.",
+      "expectations": [
+        "Reads the vault's AGENTS.md and the wiki index or decisions page before grepping raw notes",
+        "Opens the raw note the wiki claim cites",
+        "Cites the raw note, not the wiki page",
+        "Edits no wiki page or raw note"
+      ]
+    },
+    {
+      "id": "ingests-after-approved-write-back",
+      "category": "normal",
+      "prompt": "Yes, save that batch-size finding to the vault. Its AGENTS.md defines raw note rules and an ingest.",
+      "expected_output": "A new raw note named and frontmattered per the schema, followed by the schema's ingest without a second prompt.",
+      "expectations": [
+        "Names the new note and fills its frontmatter as the schema's raw note rules say",
+        "Runs the ingest without asking for approval again",
+        "Reports the wiki pages, index.md and log.md entries the ingest changed",
+        "Edits no existing raw note body"
+      ]
     }
   ]
 }
