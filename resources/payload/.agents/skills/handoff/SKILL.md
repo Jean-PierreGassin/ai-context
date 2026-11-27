@@ -27,6 +27,8 @@ stack and know nothing about this task.
 - Use exact paths, commands, branch names, ticket keys, and symbol names
 - Mark anything unverified as unverified; never present a guess as state
 - Mark the first piece to start with
+- State each piece's done as a check the receiver can run: a test or command and the result that means it passed. Tell
+  the receiver to loop on it until it passes. Never define done as prose alone
 - Write no preamble, summary, or commentary inside the prompt
 
 ## Template
@@ -49,8 +51,8 @@ stack and know nothing about this task.
 - {Decision}: {reason}
 
 ## Remaining work
-1. {Piece}: {what done means}. Files: `{path}`. Start here
-2. {Piece}: {what done means}
+1. {Piece}. Done when `{command}` {expected result}. Files: `{path}`. Start here
+2. {Piece}. Done when `{command}` {expected result}
 
 ## Constraints and traps
 - {Constraint, trap, or dead end}

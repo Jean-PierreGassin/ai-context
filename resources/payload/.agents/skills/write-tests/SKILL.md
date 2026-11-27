@@ -20,6 +20,8 @@ Write tests that prove meaningful behaviour and follow the project's existing te
 - Assert observable behaviour and business rules, not implementation details
 - Test only behaviour the change adds, not framework internals, trivial accessors, or untouched behaviour
 - Prove each new test fails without the change
+- When a test defines the end state for a code change, write it before the change and run it to see it fail for the
+  reason the change addresses
 - Mock real boundaries only; use real value objects
 - Never reconstruct a class or its dependencies by hand: resolve the subject from the container and mock collaborators
 - Keep tests short: move long input to fixtures and equivalent scenarios to data providers or table cases
