@@ -131,19 +131,31 @@ Done when every evidence point has a status and every Superseded point names its
 
 ## 7. Report
 
+Report one `•` bullet per finding: a short title naming the point, a colon, then one or two plain sentences that
+synthesise it across sources, ending with the status, date, and source. The first bullet answers the question; the last
+is `Gaps`.
+
 ```markdown
-**Answer:** <one or two sentences. "No record found" when nothing answers it.>
-
-**Evidence**
-- <date> · <Decided|Proposed|Discussed|Superseded> · <what> · <source>
-
-**Gaps:** <sources skipped or unavailable, and open questions>
+• <Finding title>: <one or two sentences stating the point>. (<Decided|Proposed|Discussed|Superseded>, <date>, <source>)
+• <Finding title>: <one or two sentences stating the point>. (<status>, <date>, <source>)
+• Gaps: <sources skipped or unavailable, and open questions>
 ```
+
+For example:
+
+```markdown
+• Archiving Instead of Soft Deletes: Customer records are archived, not soft-deleted. The March proposal was replaced
+  when archiving shipped. (Decided, 2026-05-12, acme/crm#412)
+• Soft Deletes Proposed: The billing sync proposed a `deleted_at` column on customers. (Superseded by archiving,
+  2026-03-04, `Meetings/2026-03-04 Billing Sync.md#Customers`)
+• Gaps: Notion was skipped because it is unauthenticated.
+```
+
+A Superseded bullet names what replaced it. When nothing answers the question, the first bullet is
+`No Record Found:` followed by every source searched and the terms used.
 
 Sources are a vault path relative to the vault plus heading (`Meetings/2026-09-30 Billing Sync.md#Refund
 Rules`), a Slack permalink, a Notion URL, or `owner/repo#n`.
-
-"No record found" lists every source searched and the terms used.
 
 ---
 

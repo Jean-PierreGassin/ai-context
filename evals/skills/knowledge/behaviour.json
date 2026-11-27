@@ -32,6 +32,18 @@
         "Continues with the remaining sources",
         "Names the unavailable vault under gaps"
       ]
+    },
+    {
+      "id": "reports-titled-findings",
+      "category": "normal",
+      "prompt": "How do we store project context for agents? A vault note says we use linked Markdown files instead of a graph database.",
+      "expected_output": "Bulleted findings, each a short title, a colon, and one or two sentences, ending with status, date and source.",
+      "expectations": [
+        "Writes each finding as a bullet starting with a short title and a colon",
+        "Keeps each finding to one or two sentences",
+        "Ends each finding with its status, date and source",
+        "Ends with a Gaps bullet"
+      ]
     }
   ]
 }
