@@ -44,8 +44,8 @@ Make done something a command can decide, so the work can loop to it without the
 
 Check each change as it is made instead of only at the end, without slowing the work or interrupting the user.
 
-- Treat feedback from the `verify-changes` hook as a failed check on the change just made: fix it before the next
-  edit, or say in one line why the rule does not apply
+- Run the project's fast checks (formatter, linter, static analysis) on each file after changing it. Treat a failure as
+  a failed check on the change just made: fix it before the next edit, or say in one line why the rule does not apply
 - When the IDE's MCP already has the current checkout open as a project, use its file-problems check on each file
   after editing it, and its symbol and caller tools to find existing helpers before adding one. Never open a project,
   window, or file in the IDE, and never bring it to the front: the user may be working in it
@@ -56,9 +56,8 @@ Check each change as it is made instead of only at the end, without slowing the 
 
 ## Before handing back
 
-- Run `sh <agents>/hooks/verify-changes.sh handoff` from the repository root, where `<agents>` is the project's
-  `.agents/` when it has one and `~/.agents/` otherwise. It runs the user's slower, whole-change checks once against
-  every file changed since the branch left trunk. Fix what it reports
+- Run the slower, whole-change checks CI runs, such as full static analysis, once against every file changed since
+  the branch left trunk, untracked files included. Fix what they report
 - Prove each new or changed test guards the change: copy each changed non-test file aside, overwrite it with its
   trunk version (`git show <merge-base>:<path>`), run the tests and confirm they fail, then restore the copies and
   confirm they pass. A test that passes against trunk proves nothing: fix it or say why. Never use `git stash` or
