@@ -1,26 +1,19 @@
 ## Structure
 
-Use these three colored panels in this order:
+Three panels, in order:
 
-1. Bug Report panel (warning/yellow) - "Bug Report" bold + Summary sentence, numbered Steps to Reproduce, Expected vs
-   Actual
-2. Root Cause panel (info) - "Root Cause" bold + the mechanism, not just the symptom
-3. Fix panel (success/green) - "Fix" bold + bullet list with sub-points
+1. **Bug Report** (warning): summary, numbered steps to reproduce, expected vs actual.
+2. **Root Cause** (info): the mechanism, not just the symptom.
+3. **Fix** (success): what must be true afterwards.
 
-## Field rules
+## Rules
 
-- Title: the observable symptom, not the mechanism. Plain hyphen separator:
-  `Contact Export - CSV truncates rows for workspaces with 10k+ contacts`
-- Summary: use one sentence for the observable symptom. Put the diagnosis in Root Cause
-- Steps to Reproduce: numbered, the minimal path (least data/actions) that triggers the symptom
-- Expected vs Actual: one line each, stated as observable behavior, not code
-- Root Cause: name the specific condition responsible, in behavior terms rather than code names. Do not write "there
-  is a bug in X". If the cause is unknown, state that fact and create an investigation ticket. Do not guess
-- Fix: same rules as a Task ticket's Task panel (see `references/task.md`) - no code names,
-  outcome-focused (what must be true after the fix, not the exact diff). Tests must be pinned to the specific boundary
-  that was missed, not generic coverage
-- Dependencies/metadata: link the originating support/incident ticket in Root Cause, because that is where the evidence
-  lives. Inherit labels/severity from the incident if one exists
+- Title is the observable symptom, with a plain hyphen: `Contact Export - CSV truncates rows for large workspaces`.
+- Summary is one sentence of symptom. Diagnosis goes in Root Cause.
+- Steps are the smallest path that triggers it.
+- Root cause names the condition responsible, in behaviour terms.
+- Fix follows the [task](task.md) rules and pins tests to the boundary that was missed.
+- Link the originating support or incident ticket in Root Cause, and inherit its labels and severity.
 
 ## Skeleton
 
@@ -28,23 +21,22 @@ Use these three colored panels in this order:
 
 > **Bug Report**
 >
-> Summary: [observable symptom only].
+> Summary: [symptom].
 >
 > Steps to Reproduce:
-> 1. [minimal first action]
-> 2. [action that triggers the symptom]
+> 1. [step]
 >
-> Expected: [observable expected behavior].
+> Expected: [behaviour].
 >
-> Actual: [observable current behavior].
+> Actual: [behaviour].
 >
 > **Root Cause**
 >
-> [Evidence link and the behavior responsible, in plain terms.]
+> [Evidence link and the behaviour responsible.]
 >
 > **Fix**
 >
-> * [Area of behavior]
->   * [required outcome or constraint]
+> * [Area of behaviour]
+>   * [required outcome]
 > * Tests
->   * [regression scenario pinned to the missed boundary]
+>   * [regression scenario]

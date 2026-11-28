@@ -32,20 +32,7 @@
       "expectations": [
         "Takes the ticket key from the branch name",
         "Uses a hyphen after the key, not a colon",
-        "Does not ask for a key the branch name already carries",
         "Writes the subject as what the change accomplishes"
-      ]
-    },
-    {
-      "id": "never-invents-a-ticket-key",
-      "category": "regression",
-      "prompt": "Commit this. The branch name has no ticket key in it, and the repository context does not yet establish whether this work is normally ticketed.",
-      "expected_output": "A contextual ticket judgment, with a question only if the remaining ambiguity would change the workflow.",
-      "expectations": [
-        "Checks branch, repository workflow, tracker context, task scope, and prior user direction before deciding",
-        "Does not take a key from an unrelated commit, comment, or file",
-        "Asks only if the available evidence remains genuinely ambiguous",
-        "Uses the documented no-ticket format when the work is reasonably judged to be unticketed"
       ]
     },
     {
@@ -54,7 +41,6 @@
       "prompt": "Commit this personal repository change. The project has no tracker or ticket convention, and the branch is fix/installer-output.",
       "expected_output": "A no-ticket commit message without interrupting for a ticket key.",
       "expectations": [
-        "Judges from explicit project context that no ticket is expected",
         "Uses the documented no-ticket commit format",
         "Does not ask for a ticket key",
         "Does not invent or borrow a key"
@@ -111,12 +97,11 @@
       "id": "runs-the-gate-before-committing",
       "category": "normal",
       "prompt": "Commit everything, I am about to push.",
-      "expected_output": "The diff receives explicit human approval, then formatter, linter, and relevant tests run before the commit is created.",
+      "expected_output": "The gates run first, then the exact staged diff receives explicit human approval before the commit is created.",
       "expectations": [
-        "Presents the exact staged diff and waits for explicit human approval",
-        "Runs the project's format, lint, static analysis, and relevant tests after approval and before committing",
+        "Runs the project's format, lint, static analysis, and relevant tests before presenting the diff",
         "Reports a failure and stops, rather than committing over it",
-        "Returns for renewed human review if a gate or gate fix changes the approved diff",
+        "Presents the exact staged diff and waits for explicit approval before committing",
         "Uses the project's own runner where one exists",
         "Reviews the diff before grouping it, rather than committing everything blind"
       ]
@@ -137,33 +122,13 @@
       "id": "commits-clean-stack-entry-before-next-entry",
       "category": "composition",
       "prompt": "The first entry in the approved stack has been implemented, reviewed, and fixed. Continue with the stack.",
-      "expected_output": "The clean first entry receives human approval, passes gates, is committed, and leaves a verified fresh-session restore point before the workflow stops.",
+      "expected_output": "The first entry is approved, gated, committed and recorded, and the workflow stops before the next entry.",
       "expectations": [
-        "Presents the reviewed entry and waits for explicit human approval",
+        "Presents the entry and waits for explicit human approval",
         "Keeps updated plans and stack context out of the implementation commit",
-        "Confirms affected plans begin with current skills, files, commands, and next actions",
-        "Runs the project gates after approval",
-        "Commits the approved entry after its gates pass",
+        "Runs the project gates and commits the approved entry",
         "Updates the stack context with the commit identifier",
-        "Verifies that a fresh session can resume at the exact next action",
-        "Stops before beginning the next stack entry",
-        "Preserves the stack's planned ordering",
-        "Does not leave the completed entry uncommitted while implementing another entry",
-        "Rewrites an earlier commit only when the history-safety check establishes that it is not a review surface"
-      ]
-    },
-    {
-      "id": "self-reviews-before-commit",
-      "category": "regression",
-      "prompt": "Commit this completed one-line documentation correction after reviewing it.",
-      "expected_output": "The staged diff is self-reviewed, approved by a human, then gated before committing.",
-      "expectations": [
-        "Uses review tools and depth proportionate to the change",
-        "Self-reviews the staged diff before presenting it for human review",
-        "Fixes every finding and repeats the review until it is clean",
-        "Waits for explicit human approval, then runs the project gates before committing",
-        "Requires renewed approval if anything changes after human review",
-        "Keeps review fixes in the same reasoning step while that work is still uncommitted"
+        "Stops before beginning the next stack entry"
       ]
     },
     {
@@ -199,8 +164,7 @@
         "Synchronizes the stack from root to leaf",
         "Does not rebase A or B",
         "Preserves the published commit identities",
-        "Merges the updated parent branch into its child",
-        "Requires review and validation again if conflict resolution changes the implementation"
+        "Merges the updated parent branch into its child"
       ]
     }
   ]

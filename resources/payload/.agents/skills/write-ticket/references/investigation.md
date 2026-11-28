@@ -1,25 +1,20 @@
 ## Structure
 
-Use these three colored panels in this order:
+Three panels, in order:
 
-1. Question panel (note/blue) - "Question" bold + the specific question(s) to answer
-2. Background panel (info) - "Background" bold + what prompted this and what is already known
-3. Approach & Definition of Done panel (success/green) - "Approach & Definition of Done" bold + bullet list
+1. **Question** (note): the specific question to answer.
+2. **Background** (info): what prompted it and what is already known.
+3. **Approach & Definition of Done** (success): what to look at, and when to stop.
 
-Do not add a Task panel. An investigation produces a decision or answer, not shippable code. Use a Task ticket when the
-outcome is known and only the implementation is undecided.
+An investigation yields a decision, not shippable code. A known outcome is a task.
 
-## Field rules
+## Rules
 
-- Title: phrased as a short title for what we want to investigate: `Investigate nightly polling`
-- Question: one specific, answerable question. Bullet sub-questions if there are several, but keep the set narrow enough
-  to close in the time-box - "look into X" is not a question
-- Background: what triggered the need for an answer now (an incident, a scaling concern, a cost review, a stakeholder
-  ask) and what is already known or ruled out. Link related tickets
-- Approach & Definition of Done: bullets naming what to look at, measure, or prototype, plus explicit exit criteria - a
-  decision recorded, a recommendation written up, a follow-up story/task file
-- Dependencies/metadata: an investigation typically blocks the story/task that depends on its answer, not the other way
-  around - wire that link on the ticket it blocks, once known
+- Title is short: `Investigate nightly polling`.
+- The question is one answerable question that fits the time-box. "Look into X" is not a question.
+- Background says what triggered it now and what is known or ruled out. Link related tickets.
+- Exit criteria are explicit: a recorded decision, a recommendation, or a follow-up ticket.
+- The investigation blocks the ticket that needs its answer. Wire that link on the blocked ticket.
 
 ## Skeleton
 
@@ -27,14 +22,13 @@ outcome is known and only the implementation is undecided.
 
 > **Question**
 >
-> [Specific, answerable question within the time-box?]
+> [Answerable question?]
 >
 > **Background**
 >
-> [What prompted the investigation, what is known or ruled out, and any related ticket link.]
+> [What prompted it, what is known, related links.]
 >
 > **Approach & Definition of Done**
 >
-> * [Evidence to inspect, measure, or prototype]
-> * [Comparison or constraint to evaluate]
-> * [Explicit exit criterion: recorded decision, recommendation, or linked follow-up ticket]
+> * [What to inspect, measure or prototype]
+> * [Exit criterion]

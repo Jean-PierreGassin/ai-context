@@ -1,46 +1,27 @@
 ## Structure
 
-Use these three colored panels in this order:
+Three panels, in order:
 
-1. User Story panel (note/blue) - "User Story" bold + the user story sentence
-2. Background panel (info) - "Background" bold + context paragraphs
-3. Acceptance Criteria panel (success/green) - "Acceptance Criteria" bold + bullet list
+1. **User Story** (note): one sentence.
+2. **Background** (info): why the work exists.
+3. **Acceptance Criteria** (success): observable conditions.
 
-Do not add a Task panel. A user story defines business value from the user's perspective. Put implementation details in
-linked Task tickets. Use Acceptance Criteria for observable completion conditions, not implementation steps.
+A story holds business value. Implementation goes in linked [task](task.md) tickets.
 
-## Field rules
+## Rules
 
-- Title: descriptive summary only; no PR numbers, no em dashes. Plain hyphen separator:
-  `User Configuration - Migrations and models`
-- User Story: always from the end user's perspective (payroll officer, administrator, etc.), even for backend stories
-  with no UI. Format: `As a [role], I would like [capability], so that [benefit]`
-- Background: explain why the work exists and the architectural decisions shaping the approach. State which other
-  ticket(s) this depends on and why, if any. Link related tickets as hyperlinks, not plain text
-- Acceptance Criteria: bullet list of observable, testable conditions a user or QA could verify without reading the
-  code - what must be true when this is done, not which classes/migrations implement it. Cover the happy path, the
-  stated edge cases, and any explicit non-goals
-- Dependencies/metadata: link the Task ticket(s) that implement this story ("Implemented by") once they exist; wire
-  Blocks/blocked-by between those Task tickets to enforce delivery order; inherit labels from the parent; set story
-  points (Fibonacci) on creation
+- Title is a descriptive summary with a plain hyphen, and no PR numbers: `User Configuration - Migrations and models`.
+- Write the story from the end user's view, even for backend work: `As a [role], I would like [capability], so that [benefit]`.
+- Background says why the work exists, the decisions shaping it, and which tickets it depends on.
+- Acceptance criteria are things a user or QA can verify without reading code. Cover the happy path, stated edge cases and explicit non-goals.
+- Link its tasks as "Implemented by", wire blocked-by between them, inherit labels from the parent, and set story points on creation.
 
-## Story <-> Task linking
+## Splitting
 
-A story contains the business value. Put the technical breakdown in linked Task tickets. See `references/task.md`.
-
-- The story links out to the Task ticket(s) implementing it, via "Implemented by"
-- Each Task ticket links back to the story it implements, via its Description panel
-- When the underlying work is bigger than one Task ticket, split the technical work into thin vertical slices as
-  separate Task tickets - not a horizontal split by layer. Each slice should cut through every layer it touches so it is
-  independently implementable and testable, and later slices state what they are blocked by, both as a real link and as a
-  sentence in their Background
-- A Task that is genuine shared groundwork is valid as its own ticket. An example is a schema/model change that
-  supports multiple later Tasks. It does not need independent user-facing value because it enables those Tasks
-- Where the work replaces existing behavior or migrates a schema, API, or contract, the Tasks follow the change stack
-  (extract, abstract, add behavior, integrate, remove) rather than a user-facing slice per ticket, and each one says
-  which it is
-- If the underlying capability is actually multiple distinct pieces of user-facing value, not just implementation
-  layers, split into multiple stories instead, each with its own Acceptance Criteria and its own linked Task ticket(s)
+- Split large work into thin vertical slices that each cut through every layer they touch. Say in Background what blocks the later slices.
+- Shared groundwork, such as a schema change, can be its own task.
+- Work that replaces behaviour or migrates a contract follows the change stack (extract, abstract, add behaviour, integrate, remove), and each task names its step.
+- Several distinct pieces of user value become several stories.
 
 ## Skeleton
 
@@ -52,12 +33,11 @@ A story contains the business value. Put the technical breakdown in linked Task 
 >
 > **Background**
 >
-> [Why the work exists, its costly-to-reverse constraints, and linked dependencies.]
+> [Why, constraints, dependencies.]
 >
 > **Acceptance Criteria**
 >
-> * [Observable happy-path outcome]
-> * [Observable edge-case outcome]
-> * [Explicit non-goal, where needed]
-> * Implemented by [TASK-1](https://your-tracker.example/browse/TASK-1) and
->   [TASK-2](https://your-tracker.example/browse/TASK-2)
+> * [Happy-path outcome]
+> * [Edge-case outcome]
+> * [Non-goal]
+> * Implemented by [TASK-1](https://your-tracker.example/browse/TASK-1)

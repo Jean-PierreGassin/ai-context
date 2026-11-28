@@ -6,4 +6,4 @@ model: sonnet
 effort: medium
 ---
 
-Review the diff you are given by following the `review-code` skill. Work only from the goal, the diff range, and the effort in your prompt. Do not edit files, commit, or start other agents. Return the report the skill describes.
+Review the diff with the `review-code` skill, working only from the goal, diff range and effort in your prompt. You are read-only: edit nothing and start no other agents. Return the report the skill describes.

@@ -5,10 +5,14 @@
       "id": "outputs-only-the-prompt",
       "category": "normal",
       "prompt": "Hand this off. The first two plan entries are merged and the third is half done in a worktree.",
-      "expected_output": "The prompt saved to a handoff file and copied, followed by a one-line reply naming the file.",
+      "expected_output": "The prompt saved to the shared handoff file and a fresh, correctly titled session started on it, followed by a one-line reply.",
       "expectations": [
         "Writes no preamble or closing summary inside the prompt",
-        "Replies in a single line with the file path and whether the copy succeeded",
+        "Saves the prompt under the user state directory, outside every repository and worktree, not a session temp directory",
+        "Relocks the worktree with a reason naming the new session before starting it",
+        "Starts a new top-level session in this directory titled `<TICKET-KEY> - <Area> - <what it does>` or `<Area> - <what it does>`, without the repository name",
+        "Tells the new session to verify the handoff state, then stop this session by its id and never remove it",
+        "Replies in a single line with the new session's title and the file path, then makes no further edits",
         "Cites the persisted plan and context files by path instead of restating them",
         "Lists the remaining work as discrete pieces and marks where to start",
         "States the branch, HEAD, and working tree state as verified facts"
@@ -39,10 +43,11 @@
     {
       "id": "copies-the-saved-file",
       "category": "regression",
-      "prompt": "Write the handoff for this branch.",
+      "prompt": "Write the handoff for this branch so I can paste it into a new session myself.",
       "expected_output": "The prompt written once to the handoff file, then copied from that file without asking.",
       "expectations": [
-        "Writes the prompt to the handoff file under the temporary directory before copying",
+        "Writes the prompt to the handoff file before copying",
+        "Starts no new session",
         "Copies by redirecting the file into the platform's clipboard command",
         "Does not ask whether to copy",
         "Does not repeat the prompt in the reply or in the copy command"
@@ -57,6 +62,38 @@
         "Gives every remaining piece a test or command and the result that means it is done",
         "Tells the receiver to loop on that check until it passes",
         "Does not define any piece's done in prose alone"
+      ]
+    },
+    {
+      "id": "context-limit-continues-in-fresh-session",
+      "category": "regression",
+      "prompt": "A hook reports this session's context is over 250k tokens. The current step is finished; two pieces remain and one file is uncommitted.",
+      "expected_output": "A continue-mode handoff: state made reachable, a fresh titled session started, this session retired.",
+      "expectations": [
+        "Uses continue mode without asking",
+        "Records the uncommitted file in State instead of committing it without approval",
+        "Starts the new session on the same model and directory",
+        "Stops working in this session after the one-line reply"
+      ]
+    },
+    {
+      "id": "continue-without-session-cli-falls-back",
+      "category": "regression",
+      "prompt": "Hand this off to a fresh session. This harness cannot start new sessions.",
+      "expected_output": "The handoff falls back to paste mode: file written, copied, one-line reply.",
+      "expectations": [
+        "Falls back to paste mode instead of failing",
+        "Copies the saved file to the clipboard and replies with the path and whether the copy succeeded"
+      ]
+    },
+    {
+      "id": "brief-for-dispatch",
+      "category": "composition",
+      "prompt": "dispatch-session needs a brief for the ABC-204 export fix subagent.",
+      "expected_output": "The brief written to the handoff file and its path returned, with no session started or clipboard copy.",
+      "expectations": [
+        "Replies with the file path only",
+        "Starts no session and copies nothing"
       ]
     }
   ]

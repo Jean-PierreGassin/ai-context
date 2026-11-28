@@ -1,117 +1,47 @@
-# The Change Stack
+A **change stack** is an ordered sequence of small ship states. Each is valid, provable and has one review objective.
 
-A change stack is an ordered sequence of small, independently valid and provable ship states with one review objective each.
+Describe each change with:
 
-Read this reference when the work needs more than one checkpoint.
-
-## Record each change with
-
-- **Change** - the exact bounded thing this entry changes
-- **Purpose** - why this checkpoint exists in the path to the final state
-- **Kind** - mechanical, structural/refactor, behavioral, contract, user-facing, or cleanup
-- **Depends on** - the earlier changes that must land first, or "nothing"
-- **Ship state** - the valid state after this entry lands, including important work that remains unchanged
-- **Sets up** - what later checkpoint becomes possible or safer because this one landed, or "nothing"
-- **Proof** - the concrete validation that demonstrates this checkpoint independently
-- **Reviewer focus** - what an experienced reviewer should actually scrutinize here
-- **Rollback** - how this is reverted or disabled if it goes wrong, and what it takes with it
-
-Use brief values such as `Rollback: revert the commit` when accurate.
-
-Example:
+- **Change**: what it changes
+- **Purpose**: why it is on the path to the final state
+- **Kind**: mechanical, refactor, behavioral, contract, user-facing or cleanup
+- **Depends on**: earlier changes, or nothing
+- **Ship state**: the valid state after it lands
+- **Proof**: how it is shown to work alone
+- **Reviewer focus**: what a reviewer should scrutinize
+- **Rollback**: how it is reverted
 
 ```markdown
 ### 3. Migrate Platform A API client
 
-- **Change** - move Platform A's API client from the legacy client to the shared client
-- **Purpose** - establish the shared transport boundary before migrating higher-level Platform A consumers
-- **Kind** - structural/refactor
-- **Depends on** - 2, shared client compatibility layer
-- **Ship state** - Platform A's API client uses the shared client; other Platform A call sites and Platform B remain unchanged
-- **Sets up** - the next Platform A consumer can migrate without also changing its transport implementation
-- **Proof** - Platform A API client contract tests pass unchanged
+- **Change** - move Platform A's API client to the shared client
+- **Purpose** - set up the shared transport before migrating Platform A consumers
+- **Kind** - refactor
+- **Depends on** - 2
+- **Ship state** - Platform A's client uses the shared client; everything else is unchanged
+- **Proof** - Platform A client contract tests pass unchanged
 - **Reviewer focus** - request and response mapping at the client boundary
-- **Rollback** - revert the commit; Platform A API client returns to the legacy client
+- **Rollback** - revert the commit
 ```
 
-## Order so risk arrives late and alone
+## Order
 
-Prefer this order when the dependencies allow it:
+Let risk arrive late and alone: mechanical changes first, then refactors, then new boundaries, then one consumer at a time, then user-facing work, then cleanup. Put a guard test below the change it protects. Pull independent fixes out as their own change.
 
-1. Mechanical changes that establish required shape
-2. Structural refactoring with no behavior change
-3. New abstractions or compatibility boundaries
-4. One consumer, call site, platform, or behavior increment at a time
-5. User-facing integration
-6. Cleanup and removal after all consumers have moved
+## Size
 
-Keep a repeatable mechanical sweep together, but split independently provable structural steps.
+Size is a hint. Split at seams: where a reviewer would hold several concepts at once, or one part can be proved before the next starts. Keep a repeatable mechanical sweep together.
 
-## Rules that hold across the stack
+Check the split before proposing it: the final state is stated, all work belongs to a checkpoint, each ship state leaves the repository valid, and each review objective fits one sentence.
 
-- A guard lands below the change it guards. A parity or regression capture goes in a lower change than the refactor it
-  protects, so the test is demonstrably not authored against the new behavior
-- Pull genuinely independent fixes out of the stack entirely. If nothing depends on it, it is its own change off trunk
-- A file touched by several changes is fine in a linear stack. Say which changes share it
-- Where a change is deliberately behavior-preserving, say so and prove it
-- Finish one coherent migration boundary before moving to the next. For example, migrate and prove Platform A in small
-  checkpoints before beginning Platform B when the two platforms can move independently
+## Shipping
 
-## Keep reviews small
+Agree the split before creating branches or PRs. Every PR targets trunk. Open a dependent change after its prerequisite merges, branched from the updated trunk. `write-pr` owns each PR.
 
-No line or file count defines reviewability.
+## Working the stack
 
-Look for another seam when:
+When work shows the plan is wrong, fix the entry where the fact lives and update every later entry it touches. Record the decision once in `CONTEXT.md`.
 
-- the reviewer must hold several concepts in mind at once
-- one part can be proved before another starts
-- a failure after the change would not make it obvious which migration step caused it
-- two independently valid consumers or call sites are being moved together
-- structural setup and the consumer migration can ship separately
+A change to requirements, architecture or stack shape goes back to the user: say what moves, and offer the smallest alternative.
 
-Keep work together when splitting would leave either checkpoint invalid, misleading, or impossible to prove.
-
-Generated output may be larger when it is one repeatable operation that cannot be split meaningfully.
-
-## Validate the split before proposing it
-
-- State the intended final architecture or behavior first
-- Assign anticipated work to a specific checkpoint; unassigned work means the plan is incomplete
-- Check every checkpoint's ship state. The repository must remain valid after it lands
-- Check every checkpoint's proof. If the result cannot be demonstrated independently, find a better boundary or keep
-  the inseparable work together
-- Check every review objective. If it needs more than one sentence, split it again
-- Check the reverse failure too. If a reviewer must open the next checkpoint to understand this one, keep them together
-- Prefer another checkpoint when it materially reduces review effort or rollback scope
-
-## Shipping the stack
-
-Never create branches or PRs before the split is agreed. `write-pr` governs each change's review boundary.
-
-Ship the stack as a sequence, not as stacked PRs. Every PR targets trunk. Open a change that depends on an earlier one
-only after that one has merged, branching it from the updated trunk. Changes with no dependency on each other can be
-open at the same time, each off trunk. Squash merges make stacked PRs rebase and lose their reviews.
-
-### Reconcile implementation discoveries
-
-Treat the approved plan as living state, not a transcript of the first guess:
-
-- When repository inspection, implementation, or human review establishes a different fact, replace the stale
-  assumption in the entry where it belongs. Update its checklist, acceptance criteria, ship state, proof, reviewer
-  focus, or rollback as the finding requires
-- Trace the consequence through every later entry. Update affected dependencies, purpose, ship state, setup value,
-  requirements, tests, ordering, and rollback before continuing
-- Record the decision and its reason once in the stack context. Later entries should rely on that decision rather than
-  asking the next session to discover or debate it again
-- Leave unrelated findings out of the stack and report them separately
-
-A refinement stays within the agreed direction when it preserves the requirements, architecture, review objectives,
-and stack shape. If it changes any of those, adds scope, or creates broad side effects, stop and push back. Describe
-what would move, which later entries would change, and the smallest compatible alternative. Wait for explicit user
-approval of the revised plan before implementing the directional change.
-
-During implementation, complete entries in order. Self-review and adjust the current entry while it is uncommitted,
-then reconcile its findings across the persisted plans and stack context. Keep the live restore state current so a
-fresh session can recover mid-entry. Present the complete implementation diff for human review and wait for explicit
-approval. Run the project gates after approval, then commit it. Update the restore point with the commit identifier and
-verify that a fresh session can resume at the exact next action. Stop before starting the next entry.
+Complete entries in order. Self-review the current entry, update the plan and context, then present the diff for approval. After approval, run the gates and commit, record the commit in `CONTEXT.md`, and stop before the next entry.

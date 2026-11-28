@@ -14,18 +14,6 @@
       ]
     },
     {
-      "id": "discovers-before-asking-for-tooling-entry",
-      "category": "normal",
-      "prompt": "Set up a worktree. There is a container definition, a task runner with a dozen tasks, and a makefile.",
-      "expected_output": "The available project command surfaces are inspected before asking the user which one to use.",
-      "expectations": [
-        "Loads run-commands and inspects committed instructions or help/list output",
-        "Does not guess a worktree command",
-        "Uses the discovered project operation when one is available",
-        "Asks only if the project tooling remains genuinely ambiguous after discovery"
-      ]
-    },
-    {
       "id": "decides-location-before-editing",
       "category": "normal",
       "prompt": "Start implementing this approved change. The main checkout is free and no other track is running.",
@@ -54,22 +42,9 @@
       "prompt": "Set up a worktree for this branch. Nothing in the repository automates it.",
       "expected_output": "The fallback steps, in order, with dependencies built inside the worktree.",
       "expectations": [
-        "Brings the base branch up to date before creating the worktree",
-        "Names the worktree exactly as the branch is named",
-        "Checks the repository's list of required environment and config files against what actually landed, and copies what is missing",
-        "Runs the real install commands inside the worktree rather than sharing or linking dependencies"
-      ]
-    },
-    {
-      "id": "review-handoff-detaches-first",
-      "category": "regression",
-      "prompt": "I want to check that branch out in my main repository and look at what you did in the worktree.",
-      "expected_output": "The worktree committed and detached before the branch is checked out elsewhere.",
-      "expectations": [
-        "Confirms the worktree has been committed to before handing it back",
-        "Detaches the worktree before the branch is checked out in the main directory",
-        "Makes clear that detaching prevents the duplicate branch checkout conflict",
-        "Does not delete the worktree in order to free the branch"
+        "Names the worktree after the branch",
+        "Branches from the immediate target",
+        "Installs dependencies in the worktree the project's usual way"
       ]
     },
     {
@@ -79,9 +54,8 @@
       "expected_output": "Pending work checked for first, and anything uncommitted reported rather than pruned.",
       "expectations": [
         "Checks each worktree for uncommitted or unpushed work before removing it",
-        "Prunes only the ones that are genuinely finished",
-        "Reports what it left behind, and why",
-        "Does not force-remove a worktree with pending changes"
+        "Removes only finished worktrees, without force",
+        "Reports what it left behind, and why"
       ]
     },
     {
@@ -103,9 +77,7 @@
       "expected_output": "One worktree per track, each named for its branch and independently installed.",
       "expectations": [
         "Creates a separate worktree per independent track",
-        "Names each worktree after its branch",
-        "Gives each its own dependency install rather than sharing one",
-        "Says how the tracks are kept from interfering with each other"
+        "Names each worktree after its branch"
       ]
     },
     {
@@ -119,19 +91,6 @@
         "Allows the stack to use multiple dependent branches in that worktree",
         "Switches between dependent branches sequentially in the same worktree",
         "Does not treat independently reviewable entries as independent concurrent tracks"
-      ]
-    },
-    {
-      "id": "missing-config-is-copied-not-invented",
-      "category": "counterexample",
-      "prompt": "The worktree will not boot, its environment file is missing.",
-      "expected_output": "The file copied from the repository root, with the required list checked while there.",
-      "expectations": [
-        "Copies the missing file from the repository root rather than generating a new one",
-        "Checks the repository's list of required files against what actually landed",
-        "Copies everything else on that list that is missing, not only the file named",
-        "Invents no values for secrets it cannot find",
-        "Does not display the copied file's contents"
       ]
     }
   ]

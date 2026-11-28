@@ -9,6 +9,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 HOOK_MODULES = {
     "block-no-verify": "agent_hooks.block_no_verify",
     "block-shell-edits": "agent_hooks.block_shell_edits",
+    "context-handoff": "agent_hooks.context_handoff",
     "verify-changes": "agent_hooks.verify_changes",
 }
 

@@ -1,0 +1,28 @@
+[
+  {
+    "query": "Keep an eye on my PR and deal with any review comments or CI failures",
+    "should_trigger": true
+  },
+  {
+    "query": "CI failed on the PR I just opened",
+    "should_trigger": true
+  },
+  {
+    "query": "A reviewer left comments on PR 99, handle them",
+    "should_trigger": true
+  },
+  {
+    "query": "I just mentioned the review bot on my draft PR, it doesn't review drafts on its own",
+    "should_trigger": true
+  },
+  {
+    "query": "Open a PR for this branch against main",
+    "should_trigger": false,
+    "note": "Opening a PR routes to write-pr."
+  },
+  {
+    "query": "I want to review PR 482 myself in Plannotator",
+    "should_trigger": false,
+    "note": "The user reviewing someone's PR routes to review-in-plannotator."
+  }
+]

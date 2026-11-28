@@ -89,7 +89,6 @@ tasks:
       - python3 ./tests/merge_toml.py
       - ./tests/cli.sh
       - ./tests/evals.sh
-      - python3 ./tests/review_report.py
       - bash ./tests/config.sh
       - bash ./tests/retired-managed-files.sh
       - bash ./tests/verify-changes.sh
@@ -98,5 +97,6 @@ tasks:
       - bash ./tests/weakening.sh
       - bash ./tests/php-style-check.sh
       - bash ./tests/completion.sh
+      - bash ./tests/context-handoff.sh
       - python3 ./tests/claims.py
       - ./tests/shell.sh

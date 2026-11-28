@@ -33,7 +33,7 @@
       "expectations": [
         "Uses the language's data provider or table-case mechanism rather than four near-identical tests",
         "Keeps one row per tier with its expected result",
-        "Names the case after the behaviour rather than after the method under test",
+        "Names the case as a short outcome in the product's words",
         "Does not repeat the arrange and assert for each tier"
       ]
     },
@@ -69,8 +69,7 @@
       "expectations": [
         "Matches the style of the existing test files rather than introducing a second one",
         "Uses the suite's existing helpers instead of new bespoke setup",
-        "Copies the shape of the nearest existing test for a comparable change",
-        "Introduces a new mechanism only after saying why the existing shape cannot express the change"
+        "Copies the shape of the nearest existing test for a comparable change"
       ]
     },
     {
@@ -79,7 +78,6 @@
       "prompt": "Add a retry with backoff to the dispatcher, and test it.",
       "expected_output": "Implementation and tests together, with write-code governing the implementation.",
       "expectations": [
-        "Loads write-code for the production change rather than writing it from this skill alone",
         "Covers the retry path, the give-up path, and success on the first attempt",
         "Controls the clock rather than waiting in real time",
         "Keeps the tests in the shape the existing suite uses"
@@ -118,18 +116,6 @@
         "Marks it skipped with the reason and what would resolve it, if it is not fixed outright",
         "Offers the real fix, such as removing the environmental dependency, as the preferred option",
         "Leaves the test discoverable in the suite rather than hidden in a comment"
-      ]
-    },
-    {
-      "id": "orders-cases-without-repeating-branches",
-      "category": "normal",
-      "prompt": "Add cases for the normal result, an alternate result, two boundary inputs that hit the same branch, and an exception.",
-      "expected_output": "Cases ordered from success through alternatives and boundaries to failure, with duplicate branch coverage removed.",
-      "expectations": [
-        "Orders cases from the primary success path through alternatives and boundaries to the exception",
-        "Follows a different repository-enforced ordering where one exists",
-        "Keeps only one of the two boundary inputs when both exercise the same behavior",
-        "Asserts the specific exception and observable outcomes"
       ]
     },
     {

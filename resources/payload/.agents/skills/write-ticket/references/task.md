@@ -1,25 +1,20 @@
 ## Structure
 
-Use these three colored panels in this order:
+Three panels, in order:
 
-1. Description panel (info, blue) - "Description" bold + a direct technical statement of what is being built or changed
-2. Background panel (note, purple) - "Background" bold + context paragraphs
-3. Task panel (success/green) - "Task" bold + bullet list with sub-points
+1. **Description** (info): what is built or changed.
+2. **Background** (note): why this approach or slice.
+3. **Task** (success): the behaviours required.
 
-Do not add a User Story panel. A Task defines technical work. The parent story defines business value. If the Task
-implements part of a story, link that story in Background.
+A task is technical work. The parent story holds the business value, so link it.
 
-## Field rules
+## Rules
 
-- Title: descriptive summary of the technical work; no PR numbers, no em dashes. Plain hyphen separator
-- Description: one or two sentences stating directly what is being built or changed, in technical terms - not a user
-  story. Link the parent story/epic if this task implements a slice of one
-- Background: why this technical approach was chosen (an ask, a gap, a cost/reliability concern, an architectural
-  constraint). Link related tickets as hyperlinks
-- Task: a concise account of the work: top-level bullets name the area of behavior being changed, sub-bullets state
-  specific behaviors and constraints. Outcome-focused. No class, method, file or column names
-- Dependencies/metadata: unlike a story, a task is rarely split further - if it grows a natural sub-slice, it is probably
-  a story. Wire Blocks/blocked-by only if genuinely gated by other work; inherit labels from the parent
+- Title is a descriptive summary with a plain hyphen, and no PR numbers.
+- Description is one or two technical sentences, not a user story.
+- Background gives the ask, gap or constraint behind the approach. Link related tickets.
+- Task bullets name the area of behaviour, with sub-bullets for specifics. No class, method, file or column names.
+- Keep a task whole, and inherit labels from the parent.
 
 ## Skeleton
 
@@ -27,16 +22,15 @@ implements part of a story, link that story in Background.
 
 > **Description**
 >
-> [Direct technical outcome.] Implements [STORY-1](https://your-tracker.example/browse/STORY-1).
+> [Technical outcome.] Implements [STORY-1](https://your-tracker.example/browse/STORY-1).
 >
 > **Background**
 >
-> [Why this approach or slice exists.] Blocked by
-> [TASK-0](https://your-tracker.example/browse/TASK-0), where applicable.
+> [Why this slice.]
 >
 > **Task**
 >
-> * [Area of behavior]
->   * [required behavior or constraint]
+> * [Area of behaviour]
+>   * [required behaviour]
 > * Tests
 >   * [observable scenario]

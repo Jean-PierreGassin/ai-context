@@ -1,0 +1,38 @@
+{
+  "skill_name": "review-in-plannotator",
+  "evals": [
+    {
+      "id": "pr-review-explores-in-a-worktree",
+      "category": "normal",
+      "prompt": "I want to review PR 482 myself. Open it so I can ask questions.",
+      "expected_output": "The PR checked out in its own worktree and a Plannotator session open on it, with the user's annotations answered from the code.",
+      "expectations": [
+        "Checks the PR's head out into its own worktree through use-worktrees",
+        "Runs plannotator review with the PR URL from that worktree, in the background",
+        "Answers each annotation from the worktree's code with file:line",
+        "Posts nothing to GitHub without approval of the exact text"
+      ]
+    },
+    {
+      "id": "own-changes-only-on-yes",
+      "category": "regression",
+      "prompt": "The change is finished and its checks pass.",
+      "expected_output": "An offer to review the change in Plannotator, with no session opened until the user agrees.",
+      "expectations": [
+        "Offers a Plannotator review of the change",
+        "Does not run plannotator before the user agrees"
+      ]
+    },
+    {
+      "id": "own-changes-decision-followed",
+      "category": "normal",
+      "prompt": "Yes, open my changes in Plannotator.",
+      "expected_output": "plannotator review run from the repository root, and its decision followed.",
+      "expectations": [
+        "Runs plannotator review from the repository root in the background",
+        "Acts on annotated feedback",
+        "Does not treat an approved review as approval to commit, push or open a PR"
+      ]
+    }
+  ]
+}

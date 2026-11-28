@@ -60,29 +60,13 @@
       ]
     },
     {
-      "id": "high-effort-builds-the-self-review-report",
+      "id": "offers-plannotator-after-fixes",
       "category": "composition",
-      "prompt": "I'm done with the partial-bundles change, still uncommitted. Review it at high effort. Goal: count locked tickets in the bundle check.",
-      "expected_output": "The reviewer returns findings, then the caller verifies them and builds the review-report page in self mode with what to fix.",
+      "prompt": "Review my uncommitted change at high effort and fix what you find. Goal: count locked seats in the pack check.",
+      "expected_output": "Confirmed findings fixed, then an offer to review the change in Plannotator, opened only on yes.",
       "expectations": [
-        "Keeps the reviewer agent read-only and builds the report in the calling session",
-        "Takes the head from the review-report snapshot script without committing or staging",
-        "Keeps a finding as Critical only with saved runs on the target branch and on the change",
-        "Drops plausible findings it cannot confirm",
-        "Loads review-report with mode self and writes each flag's comment as what to fix"
-      ]
-    },
-    {
-      "id": "self-corrects-defects-but-not-scope",
-      "category": "composition",
-      "prompt": "Review my change at high effort and fix what you can. The report shows one Critical, one Check the scope, and one Code quality flag.",
-      "expected_output": "The caller fixes the Critical and Code quality flags from the report's Markdown, re-reviews, leaves the scope flag for the user, and audits only the last build.",
-      "expectations": [
-        "Reads the report's Markdown companion and its screenshots before fixing",
-        "Fixes the Critical and Code quality flags and runs change-scoped checks",
-        "Does not change behaviour to resolve the Check the scope flag and lists it for the user",
-        "Re-reviews the new diff with a fresh reviewer and stops after at most two fix rounds",
-        "Builds drafts between rounds and audits only the final build",
+        "Keeps the reviewer agent read-only and fixes in the calling session",
+        "Offers a Plannotator review of the change",
         "Commits nothing and shows the diff for approval"
       ]
     },
@@ -92,10 +76,9 @@
       "prompt": "Review my change. Goal: add a refund export. The reviewer flags a `new` nested inside a call's arguments, and the last two review fix commits fixed the same thing.",
       "expected_output": "The finding is reported, and because it recurs, an exact deterministic rule is proposed with its target file, proved on the finding's lines, and left for approval.",
       "expectations": [
-        "Checks history or the diff to confirm the mistake recurs before proposing a rule",
-        "Proposes a deterministic rule, preferring the project's linter, then a verify-changes check or an existing check script, over a Markdown instruction",
-        "Shows that the rule flags the finding's lines and passes on the fixed code",
-        "Shows the exact rule and file, and does not add it before the user approves"
+        "Confirms the mistake recurs before proposing a rule",
+        "Proposes a deterministic rule, preferring the project's linter, over a Markdown instruction",
+        "Shows the exact rule and file for approval and does not add it first"
       ]
     },
     {

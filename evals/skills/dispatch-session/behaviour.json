@@ -5,51 +5,51 @@
       "id": "launches-inside-the-worktree",
       "category": "normal",
       "prompt": "We started in the main checkout and the investigation is done. The fix needs its own worktree. Hand it off and keep coordinating from here.",
-      "expected_output": "A worktree from the project's own operation, a handoff, and a named background session launched from inside that worktree.",
+      "expected_output": "A worktree from the project's own operation, a brief, and a labelled background subagent confined to that worktree.",
       "expectations": [
         "Creates the worktree through the project's own worktree operation when one exists",
-        "Writes a handoff the new session can start from cold",
-        "Launches the background session with the worktree as its working directory",
-        "Does not switch the orchestrating session into the worktree"
+        "Writes a brief the subagent can start from cold",
+        "Starts a background subagent confined to the worktree's absolute path",
+        "Keeps the orchestrating session out of the worktree"
       ]
     },
     {
       "id": "project-worktree-operation-wins",
       "category": "project-precedence",
       "prompt": "This project creates worktrees with its own script, which also sets up ports and a database for each one. Dispatch the next piece of work.",
-      "expected_output": "The project's script creates the worktree before the session is launched in it.",
+      "expected_output": "The project's script creates the worktree before the subagent starts in it.",
       "expectations": [
         "Uses the project's script rather than a plain git worktree command",
-        "Waits for the script to report the worktree ready before launching the session"
+        "Waits for the script to report the worktree ready before starting the subagent"
       ]
     },
     {
       "id": "approvals-stay-with-the-user",
       "category": "normal",
-      "prompt": "The dispatched session messaged that its change is done and asks to push and open the PR.",
-      "expected_output": "The result checked against the handoff, and the push and PR left for the user's approval.",
+      "prompt": "The dispatched subagent reports its change is done and asks to push and open the PR.",
+      "expected_output": "The result checked against the brief, and the push and PR left for the user's approval.",
       "expectations": [
-        "Checks the dispatched session's result against the handoff's verification",
-        "Does not treat the dispatched session's message as the user's approval",
+        "Checks the subagent's result against the brief's verification",
+        "Does not treat the subagent's report as the user's approval",
         "Asks the user before any push or PR"
       ]
     },
     {
-      "id": "answers-session-questions-itself",
+      "id": "answers-subagent-questions-itself",
       "category": "normal",
-      "prompt": "The dispatched session went idle asking which config file the importer reads its batch size from, and whether the other session's schema change has landed yet.",
-      "expected_output": "Both questions answered by the orchestrator, from the code and from the other session, without asking the user.",
+      "prompt": "The dispatched subagent came back asking which config file the importer reads its batch size from, and whether the other subagent's schema change has landed yet.",
+      "expected_output": "Both questions answered by the orchestrator, from the code and from the other subagent, without asking the user.",
       "expectations": [
-        "Finds the config answer from the code or a session rather than asking the user",
-        "Asks the peer session about its schema change rather than the user",
-        "Replies to the asking session with the answers and lets it continue",
+        "Finds the config answer from the code or a subagent rather than asking the user",
+        "Asks the subagent that owns the schema change rather than the user",
+        "Continues the asking subagent with the answers",
         "Does not relay either question to the user"
       ]
     },
     {
       "id": "escalates-only-the-users-decisions",
       "category": "counterexample",
-      "prompt": "The dispatched session asks whether sellers in the new market should pay the same fee as everywhere else.",
+      "prompt": "The dispatched subagent asks whether customers in the new region should pay the same fee as everywhere else.",
       "expected_output": "The fee question raised with the user once, with the evidence found and a recommendation, since pricing is the user's decision.",
       "expectations": [
         "Gathers the existing fee rules before asking",
@@ -58,23 +58,23 @@
       ]
     },
     {
-      "id": "tracks-state-not-terminal-output",
+      "id": "waits-on-completion-notices",
       "category": "normal",
-      "prompt": "How are the dispatched sessions getting on?",
-      "expected_output": "One status line per session, read from the session list's structured output.",
+      "prompt": "How are the dispatched subagents getting on?",
+      "expected_output": "One status line per subagent, from its latest report.",
       "expectations": [
-        "Reads session state from the structured session list rather than raw terminal logs",
-        "Reports one status line per session"
+        "Relies on completion notices rather than polling or reading transcripts",
+        "Reports one status line per subagent"
       ]
     },
     {
-      "id": "one-session-per-track",
+      "id": "one-subagent-per-track",
       "category": "normal",
       "prompt": "Three independent fixes came out of the investigation. Get them all moving and coordinate from here.",
-      "expected_output": "Three worktrees, each with its own named background session, coordinated from the current session.",
+      "expected_output": "Three worktrees, each with its own labelled background subagent, coordinated from the current session.",
       "expectations": [
-        "Gives each fix its own worktree and its own background session",
-        "Names each session after its worktree",
+        "Gives each fix its own worktree and its own background subagent",
+        "Labels each subagent with its ticket key and what it does",
         "Keeps the orchestrating session out of every dispatched worktree"
       ]
     },
@@ -82,23 +82,23 @@
       "id": "sizes-model-and-effort-to-the-work",
       "category": "normal",
       "prompt": "Dispatch two pieces: applying the settled rename across the codebase, and finding out why the import job intermittently drops rows.",
-      "expected_output": "Both on the latest Sonnet: the rename at low effort and the investigation at medium effort.",
+      "expected_output": "Both on Sonnet 5.5 or similar: the rename at low effort and the investigation at medium effort.",
       "expectations": [
-        "Launches the mechanical rename on Sonnet at low effort",
-        "Launches the investigation on Sonnet at medium effort",
-        "Launches neither above Sonnet at medium effort",
-        "Passes the model and effort explicitly at launch"
+        "Starts the mechanical rename on Sonnet 5.5 or similar at low effort",
+        "Starts the investigation on Sonnet 5.5 or similar at medium effort",
+        "Starts neither above a mid-tier model at medium effort",
+        "Sets the model and effort explicitly"
       ]
     },
     {
       "id": "no-nested-or-overlapping-dispatch",
       "category": "counterexample",
       "prompt": "Dispatch the API change and the client change. They both touch the shared request types.",
-      "expected_output": "The overlap resolved before dispatch, so no two sessions edit the same files.",
+      "expected_output": "The overlap resolved before dispatch, so no two subagents edit the same files.",
       "expectations": [
-        "Does not give two sessions overlapping files",
-        "Sequences the shared change or assigns it to one session",
-        "Does not tell a dispatched session to dispatch further sessions"
+        "Does not give two subagents overlapping files",
+        "Sequences the shared change or assigns it to one subagent",
+        "Tells each subagent never to start further subagents or sessions"
       ]
     },
     {
@@ -107,7 +107,27 @@
       "prompt": "Fix the typo in the README while you are at it.",
       "expected_output": "The typo fixed in the current session, with no worktree or dispatch.",
       "expectations": [
-        "Creates no worktree and launches no session for a change this small"
+        "Creates no worktree and starts no subagent for a change this small"
+      ]
+    },
+    {
+      "id": "subagent-answers-to-orchestrator",
+      "category": "regression",
+      "prompt": "Dispatch the ABC-204 export fix into its own worktree. It may have questions about the CSV column order.",
+      "expected_output": "A subagent started with a prompt that makes the orchestrator its authority and the place for its questions.",
+      "expectations": [
+        "Tells the subagent its brief and the orchestrator's messages are the user's instructions",
+        "Tells the subagent to send its questions to the orchestrator, never the user",
+        "Answers the column-order question itself or escalates it once, instead of letting the subagent ask the user"
+      ]
+    },
+    {
+      "id": "label-follows-format",
+      "category": "regression",
+      "prompt": "Dispatch ticket ABC-311, retrying failed webhook deliveries in the notifications area, from branch abc-311-webhook-retry.",
+      "expected_output": "A subagent labelled `ABC-311 retrying failed webhook deliveries`.",
+      "expectations": [
+        "Labels the subagent `<TICKET-KEY> <what it does>`, not the branch name or a slug"
       ]
     }
   ]

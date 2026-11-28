@@ -1,111 +1,28 @@
 ---
 name: write-code
-description: Write, edit, or refactor application code. Use for implementation, bug fixes, or refactors; not for code review, tests-only work, planning, PR prose, or tickets.
+description: Write, edit, or refactor application code. Use for implementation, bug fixes, or refactors.
 ---
 
 # Write Code
 
-Write readable, cohesive code and keep the change within scope.
+Write readable, cohesive code and keep the change in scope.
 
-## User rules
-
-Read `${XDG_CONFIG_HOME:-$HOME/.config}/agents/write-code` when it exists. It holds the user's rules for designing,
-writing and verifying code, which win over this skill. A line holding only an absolute path names another rules file to
-read.
+Read `${XDG_CONFIG_HOME:-$HOME/.config}/agents/write-code` when it exists. Its rules win over this skill. A line holding only an absolute path names another rules file to read.
 
 ## Process
 
-1. Read `references/clean-code.md`, then only the language and framework references in scope
-2. Inspect project standards, formatter and linter configuration, and the nearest equivalent capability. Follow project conventions, using shared and language-specific preferences to fill gaps
-3. Resolve the execution location before editing and use the project's command interface for project commands
-4. Use a plan for multi-step work, migrations, replacements, or work spanning sessions
-5. Define the end state before implementing, as described in [Verification loop](#verification-loop)
-6. Implement the smallest coherent change yourself, keeping it independently deployable and safe to release without dependent changes. Do not hand parts of it to other agents
-7. Run formatting, lint, and static analysis on the changed files, and the tests covering the change, since they may change the diff
-8. Start one `review-code` reviewer, at `high` for a branch going up for a PR and `low` otherwise, giving it only the overall goal, the diff range and the paths of any user preference files the user's instructions list
-9. Fix confirmed findings, rerun the gates if the diff changed, and present the resulting diff for approval with its evidence
-10. Keep the diff focused and preserve reviewed or published history
+1. Read `references/clean-code.md`, then the reference for each language in scope: `php.md`, `laravel.md` (with `php.md`), `typescript.md`, `vue.md` (with `typescript.md`), `bash.md`, `go.md`.
+2. Look at the project's conventions, formatter and linter config, and the nearest similar code. Follow them; fill gaps from the references.
+3. Define done as a check a command can decide: a failing test (use `write-tests`) for behaviour, otherwise a command and its expected output. Run it first and confirm it fails for the right reason.
+4. Make the smallest coherent change yourself, safe to release on its own. Run formatting, lint, static analysis and the tests covering the change after each edit. Treat `verify-changes` hook feedback as a failed check and fix it before the next edit.
+5. Loop on the check until it passes, without stopping to report. Keep the check as strict as you wrote it.
+6. Run `sh <agents>/hooks/verify-changes.sh handoff` from the repository root, where `<agents>` is the project's `.agents/` or else `~/.agents/`. Fix what it reports.
+7. Prove each new or changed test guards the change: run it against the trunk version of the changed files and confirm it fails, then restore the files. Do this with copies, not `git stash` or `git checkout`.
+8. Run the change end to end on realistic data, then start one `review-code` reviewer: `high` for a branch going up for a PR, `low` otherwise. Fix confirmed findings.
+9. Present the diff for approval with an Evidence section: each command run and the output lines that show the result. Claim nothing works without it.
 
-## Verification loop
-
-Make done something a command can decide, so the work can loop to it without the user.
-
-- State the end state as a pass/fail check before writing the change: a failing test written with `write-tests` for
-  behaviour, or a command and its expected output where a test does not fit, such as a build, a migration, or a
-  config change
-- Run the check first and confirm it fails for the reason the change addresses. A check that already passes, or fails
-  for another reason, defines nothing: fix it before implementing
-- Loop: change, rerun the check, read the failure, fix. Do not stop between attempts to report or ask
-- Done means the check passes and the gates still pass. Never weaken, skip, or rewrite the check to make it pass
-- Leave the loop early only for a decision that is the user's, or when repeated attempts fail for the same reason; then
-  report the check, the last failure, and what was tried
-
-## Verify while writing
-
-Check each change as it is made instead of only at the end, without slowing the work or interrupting the user.
-
-- Treat feedback from the `verify-changes` hook as a failed check on the change just made: fix it before the next
-  edit, or say in one line why the rule does not apply. Without the hook, run the project's fast checks (formatter,
-  linter, static analysis) on each file after changing it
-- When the IDE's MCP already has the current checkout open as a project, use its file-problems check on each file
-  after editing it, and its symbol and caller tools to find existing helpers before adding one. Never open a project,
-  window, or file in the IDE, and never bring it to the front: the user may be working in it
-- When a test fails in a way the code does not explain, debug it through that project's debugger tools, if open,
-  before changing code. Remove every breakpoint you set before moving on
-- Run checks only in the current checkout, so parallel sessions in other worktrees never share or block each other's
-  runs
-
-## Before handing back
-
-- Run `sh <agents>/hooks/verify-changes.sh handoff` from the repository root, where `<agents>` is the project's
-  `.agents/` when it has one and `~/.agents/` otherwise. It runs the user's slower, whole-change checks once against
-  every file changed since the branch left trunk. Fix what it reports
-- Prove each new or changed test guards the change: copy each changed non-test file aside, overwrite it with its
-  trunk version (`git show <merge-base>:<path>`), run the tests and confirm they fail, then restore the copies and
-  confirm they pass. A test that passes against trunk proves nothing: fix it or say why. Never use `git stash` or
-  `git checkout` for this, since they can lose uncommitted work
-- Exercise the change end to end the way it will really run, on realistic data, and keep the command and its output
-- End the handoff with an **Evidence** section: each command run, and the lines of output that show the result.
-  Never say it works, passes, or is safe without that evidence
-
-## References
-
-Always read `references/clean-code.md`. Then read only the references that match the work.
-
-| In scope | Read |
-|---|---|
-| PHP | `references/php.md` |
-| Laravel | `references/laravel.md` and `references/php.md` |
-| TypeScript | `references/typescript.md` |
-| Vue | `references/vue.md` and `references/typescript.md` |
-| Bash | `references/bash.md` |
-| Go | `references/go.md` |
-
-Framework references add to the language reference. Do not load unrelated references.
+Use the open IDE's problem checks and symbol tools on the current checkout, without opening or focusing anything: the user may be working in it. Run checks in the current checkout so parallel sessions never block each other.
 
 ## Architecture
 
-For PHP application and business code, use Actions as the default use-case boundary:
-
-- One meaningful action per class
-- Keep each Action independently callable from any entry point that needs the use case
-- Accept a purpose-named input DTO
-- Return an `ActionResult` DTO when the action reports success or failure
-- `ActionResult` may expose action-specific result methods when needed
-- Keep the Action focused on its business responsibility and orchestration
-
-Use DTOs to pass structured data across meaningful boundaries. They usually originate at an entry point or replace an otherwise unwieldy structured array. Do not make DTOs the default return type merely because data crosses a class or layer boundary.
-
-Do not introduce repositories as the default architecture. Follow a project-specific architecture only where it is explicitly enforced or a higher-precedence skill requires it.
-
-For Laravel configuration, use Laravel's native config file structure and formatting. Do not apply generic PHP layout patterns to config files.
-
-## Defaults
-
-- Keep methods to at most 3 returns
-- Prefer guard clauses and early returns
-- Do not nest `if` statements
-- Keep language-specific whitespace and method-chain rules in the matching language reference
-- Use the project's coding style in tests and code
-
-Project-enforced formatters, linters, static analysis, CI, framework contracts, and committed docs override these defaults. Work-specific or plugin skills override these defaults when they apply.
+For PHP business code, make an Action the use-case boundary (`references/php.md`). Follow the project's own architecture where it is enforced, and let project tooling, framework contracts and committed docs override these defaults.
