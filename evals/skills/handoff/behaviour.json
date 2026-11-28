@@ -8,9 +8,10 @@
       "expected_output": "The prompt saved to the shared handoff file and a fresh, correctly titled session started on it, followed by a one-line reply.",
       "expectations": [
         "Writes no preamble or closing summary inside the prompt",
-        "Saves the prompt under the repository's git common dir, not a session temp directory",
-        "Starts a new top-level session in this directory titled `<TICKET-KEY> - <Area> - <what it does>` or `<project> - <what it does>`",
-        "Tells the new session to verify the handoff state, then stop this session by its id",
+        "Saves the prompt under the user state directory, outside every repository and worktree, not a session temp directory",
+        "Relocks the worktree with a reason naming the new session before starting it",
+        "Starts a new top-level session in this directory titled `<TICKET-KEY> - <Area> - <what it does>` or `<Area> - <what it does>`, without the repository name",
+        "Tells the new session to verify the handoff state, then stop this session by its id and never remove it",
         "Replies in a single line with the new session's title and the file path, then makes no further edits",
         "Cites the persisted plan and context files by path instead of restating them",
         "Lists the remaining work as discrete pieces and marks where to start",

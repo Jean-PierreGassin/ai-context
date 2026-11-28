@@ -9,4 +9,4 @@ Work in the main checkout by default. Reach for a worktree when the main checkou
 
 Create a worktree with the project's worktree operation, or branch from the immediate target and name the worktree after the branch. Copy the files the project's include list names without printing them, and install dependencies the project's usual way.
 
-Keep worktrees in place for review. Before removing one, confirm it holds no uncommitted or unpushed work, then remove it without `--force` and prune.
+Keep worktrees in place for review. Before removing one, confirm it holds no uncommitted or unpushed work, then `git worktree unlock` a handoff lock, remove it without `--force` and prune.

@@ -41,7 +41,7 @@ Drop sections with nothing true to say.
 
 ## Output
 
-Write the prompt once, with the file-writing tool, to `$(git rev-parse --git-common-dir)/agents/handoff/{branch}.md` as an absolute path (outside a repository: `${XDG_STATE_HOME:-$HOME/.local/state}/agents/handoff/{task-slug}.md`), replacing any earlier one. Every session and worktree of the repository can read it. Then finish by mode:
+Write the prompt once, with the file-writing tool, to `${XDG_STATE_HOME:-$HOME/.local/state}/agents/handoff/{repository directory name}-{branch with / as -}.md` as an absolute path (no repository: `{task-slug}.md`), replacing any earlier one. It lives outside every repository and worktree, so worktree guards and sandboxes let the write through and every session can read it. Then finish by mode:
 
 - **continue** (default, and at ~250k tokens): this session's work moves to a fresh session, below.
 - **paste**: the user wants text to paste, or a person takes over. Pipe the file into the clipboard command (`pbcopy`, `wl-copy`, `xclip -selection clipboard` or `clip.exe`) and reply in one line with the path and whether the copy worked.
@@ -50,9 +50,10 @@ Write the prompt once, with the file-writing tool, to `$(git rev-parse --git-com
 ### Continue
 
 1. Put everything the prompt cites where a new session in this directory can reach it: scratch output and decisions go into the prompt or a file under the handoff directory. Record uncommitted work in State; commits and pushes follow the usual approvals.
-2. Start a new top-level session in this directory on this session's model, titled `<TICKET-KEY> - <Area> - <what it does>` (without a ticket: `<project> - <what it does>`), with the prompt:
+2. Hand the worktree to the new session. A harness ties a worktree to the session that created it, and removing that session deletes the worktree, even while another session works in it. Replace its lock with one naming the handover: `git worktree unlock <path>` (it errors harmlessly on an unlocked worktree), then `git worktree lock --reason "handoff: owned by <new title>; previous session <this session's id> stopped" <path>`. Record the worktree and its lock in State.
+3. Start a new top-level session in this directory on this session's model, titled `<TICKET-KEY> - <Area> - <what it does>` (without a ticket: `<Area> - <what it does>`; never the repository name), with the prompt:
 
-   > Read `<absolute handoff path>` and continue the work it describes. First confirm the State it lists (branch, HEAD, working tree) matches what you see. Then stop the previous session `<this session's id>`.
+   > Read `<absolute handoff path>` and continue the work it describes. First confirm the State it lists (branch, HEAD, working tree, worktree lock) matches what you see. Then stop the previous session `<this session's id>`, and never remove it: removing it deletes the worktree.
 
    With the `claude` CLI: `claude --bg --name "<title>" --model <model> "<prompt>"`, this session's id from `$CLAUDE_CODE_SESSION_ID`, stopped by `claude stop <id>`. Other harnesses have equivalents; without one, use paste.
-3. Confirm the new session is listed under that title, reply in one line with the title and the file path, and finish there.
+4. Confirm the new session is listed under that title, reply in one line with the title and the file path, and finish there.
