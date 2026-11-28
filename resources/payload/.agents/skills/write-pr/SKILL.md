@@ -15,6 +15,7 @@ Read `${XDG_CONFIG_HOME:-$HOME/.config}/agents/write-pr` when it exists: the use
 4. Draft the title and main context, then show them with the target and Draft/Ready state for approval before opening.
 5. Fill the repository template with the approved context unchanged, open the PR in the approved state, and assign it to the author.
 6. Keep the body current as the PR changes.
+7. Start `watch-pr` right after opening a PR as Ready, or after requesting a review on a Draft, for example by mentioning a review bot.
 
 ## Content
 

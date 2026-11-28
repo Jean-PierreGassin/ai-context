@@ -1,0 +1,63 @@
+{
+  "skill_name": "watch-pr",
+  "evals": [
+    {
+      "id": "feedback-examined-then-proven",
+      "category": "normal",
+      "prompt": "The PR is open. A reviewer says the export drops rows with a null date, and another says a helper should be renamed for no stated reason. CI is green.",
+      "expected_output": "Each comment examined against the code, the valid one proven and fixed as a follow-up commit, and replies drafted with their proof for approval.",
+      "expectations": [
+        "Examines each comment against the code before changing anything",
+        "Proves the null-date claim with a failing test or other evidence before fixing it",
+        "Shows the fix with that check passing and the usual checks run, then commits and pushes it as a follow-up",
+        "Gives evidence for leaving the rename, or for making it, instead of complying unexamined",
+        "Drafts reviewer replies with their proof and posts none without approval of the exact text"
+      ]
+    },
+    {
+      "id": "ci-failure-fixed-without-asking",
+      "category": "normal",
+      "prompt": "CI on the open PR just failed in the static analysis job.",
+      "expected_output": "The failure reproduced locally, fixed, rerun to green and pushed as a follow-up, without asking first.",
+      "expectations": [
+        "Reproduces the failure locally with the failing command",
+        "Fixes it and reruns until it passes, without asking the user first",
+        "Runs the usual change-scoped checks before committing",
+        "Pushes the fix as a follow-up commit and gives a one-line status"
+      ]
+    },
+    {
+      "id": "conflict-keeps-published-history",
+      "category": "regression",
+      "prompt": "The PR now conflicts with main after another merge.",
+      "expected_output": "Main merged into the branch and the conflict resolved, with published commits left as they are.",
+      "expectations": [
+        "Merges the target into the branch instead of rebasing published commits",
+        "Does not force-push",
+        "Runs the checks covering the resolved files before pushing"
+      ]
+    },
+    {
+      "id": "starts-after-ready-or-draft-review-request",
+      "category": "composition",
+      "prompt": "Open the approved PR as Ready for review. Then, on the other Draft PR, mention the review bot so it reviews.",
+      "expected_output": "watch-pr started on both PRs straight away, without being asked.",
+      "expectations": [
+        "Starts watching the Ready PR right after opening it",
+        "Starts watching the Draft PR right after the review request",
+        "Does not ask whether to watch either PR"
+      ]
+    },
+    {
+      "id": "waits-on-events",
+      "category": "proportionality",
+      "prompt": "Keep an eye on PR 99 until it is merged.",
+      "expected_output": "A wait on the PR's events with one status line per check, ending in a short report when the PR merges or closes.",
+      "expectations": [
+        "Waits on PR events instead of polling on a short timer",
+        "Gives one status line per check",
+        "Stops and reports what changed once the PR merges or closes"
+      ]
+    }
+  ]
+}
