@@ -12,7 +12,10 @@ if [[ "${1:-}" == --task-run ]]; then
   shift
 fi
 if [[ "${1:-}" == --caller-dir ]]; then
-  [[ $# -ge 2 ]] || { printf 'ai-context: --caller-dir requires a path\n' >&2; exit 1; }
+  [[ $# -ge 2 ]] || {
+    printf 'ai-context: --caller-dir requires a path\n' >&2
+    exit 1
+  }
   caller_dir="$2"
   shift 2
 fi
@@ -112,11 +115,11 @@ case "$command_name" in
     fi
     exit 0
     ;;
-  -h|--help)
+  -h | --help)
     usage
     exit 0
     ;;
-  install|doctor|history|rollback) ;;
+  install | doctor | history | rollback) ;;
   *) fail "unknown command: $command_name" ;;
 esac
 
@@ -141,12 +144,12 @@ while [[ $# -gt 0 ]]; do
       scope=global
       selected_scope=global
       ;;
-    --force|-f) force=true ;;
+    --force | -f) force=true ;;
     --replace-config) replace_config=true ;;
     --dry-run) dry_run=true ;;
     --verbose) verbose=true ;;
-    --no-interaction|-n) interactive=false ;;
-    help|-h|--help)
+    --no-interaction | -n) interactive=false ;;
+    help | -h | --help)
       usage_command "$command_name"
       exit 0
       ;;
@@ -161,15 +164,15 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-if [[ "$command_name" != install \
-  && ("$force" == true || "$replace_config" == true || "$dry_run" == true || "$verbose" == true || "$interactive" == false) ]]; then
+if [[ "$command_name" != install &&
+  ("$force" == true || "$replace_config" == true || "$dry_run" == true || "$verbose" == true || "$interactive" == false) ]]; then
   fail "$command_name accepts only a scope and, for rollback, an optional snapshot"
 fi
 
 if [[ "$use_task" == true ]] && command -v task >/dev/null 2>&1; then
   task_sentinel_root="$(mktemp -d "${TMPDIR:-/tmp}/ai-context-task.XXXXXX")"
   task_sentinel="$task_sentinel_root/started"
-  task_invocation=(task --silent --taskfile "$repository_root/Taskfile.dist.yml" --dir "$repository_root" \
+  task_invocation=(task --silent --taskfile "$repository_root/Taskfile.dist.yml" --dir "$repository_root"
     "$command_name" "CALLER_DIR=$caller_dir" "TASK_SENTINEL=$task_sentinel")
   if [[ ${#command_arguments[@]} -gt 0 ]]; then
     task_invocation+=(-- "${command_arguments[@]}")
@@ -193,7 +196,7 @@ case "$command_name" in
     exec "$repository_root/scripts/install.sh" \
       "$scope" "$caller_dir" "$force" "$dry_run" "$interactive" "$replace_config" "$verbose"
     ;;
-  doctor|history)
+  doctor | history)
     exec "$repository_root/scripts/$command_name.sh" "$scope" "$caller_dir"
     ;;
   rollback)

@@ -1,0 +1,37 @@
+{
+  "skill_name": "verify",
+  "evals": [
+    {
+      "id": "verify-runs-handoff-and-mutation-check",
+      "category": "regression",
+      "prompt": "The bugfix and its regression test are written. Verify the work before presenting the diff.",
+      "expected_output": "Runs handoff checks, proves the regression test fails against trunk using prove-tests.py, and reports observed evidence.",
+      "expectations": [
+        "Runs verify-changes.sh handoff from the repo root",
+        "Uses scripts/prove-tests.py to prove the new test fails on trunk",
+        "Reports exact commands and observed output in Evidence"
+      ]
+    },
+    {
+      "id": "verify-ui-checks-browser-and-console",
+      "category": "normal",
+      "prompt": "The settings drawer UI change is finished. Verify it end to end before reporting done.",
+      "expected_output": "Runs handoff checks, walks the real UI flow in a headless browser, checks console/network errors, and inspects screenshots.",
+      "expectations": [
+        "Uses a headless browser tool to test the real flow",
+        "Checks console, page, and HTTP errors during the run",
+        "Inspects captured screenshots visually before reporting done"
+      ]
+    },
+    {
+      "id": "verify-stays-repo-agnostic",
+      "category": "counterexample",
+      "prompt": "Verify this Go CLI change before presenting it.",
+      "expected_output": "Runs handoff checks and verify-cli.py against the built CLI without assuming Node, PHP, or a specific task runner.",
+      "expectations": [
+        "Checks committed project instructions rather than assuming a specific task runner",
+        "Uses scripts/verify-cli.py to verify exit code and output on realistic input"
+      ]
+    }
+  ]
+}

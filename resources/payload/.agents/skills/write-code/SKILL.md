@@ -3,26 +3,20 @@ name: write-code
 description: Write, edit, or refactor application code. Use for implementation, bug fixes, or refactors.
 ---
 
-# Write Code
+Check `${XDG_CONFIG_HOME:-$HOME/.config}/agents/write-code` first. If it exists, its rules beat this skill. Any line that is just an absolute path points to another rules file to read.
 
-Write readable, cohesive code and keep the change in scope.
+## How to work
 
-Read `${XDG_CONFIG_HOME:-$HOME/.config}/agents/write-code` when it exists. Its rules win over this skill. A line holding only an absolute path names another rules file to read.
+1. Read `references/clean-code.md`, plus the reference for each language you're touching (`php.md`, `laravel.md` with `php.md`, `typescript.md`, `vue.md` with `typescript.md`, `bash.md`, `go.md`).
+2. Before editing, set up a check that proves when you're done: a failing test (`write-tests`) for behaviour, or a command and its expected output. Run it first and confirm it fails for the right reason.
+3. Make the smallest complete change that is safe to deploy on its own. After each edit, run formatting, lint, static analysis, and the tests covering the change. Treat `verify-changes` hook feedback as a failed check and fix it before editing again.
+4. Keep looping on the check until it passes without stopping to report. Keep the check as strict as you wrote it.
+5. When implementation looks done, run `verify` (handoff checks, proving new/changed tests fail against trunk, and end-to-end runtime or visual checks on realistic data).
+6. Run one `review-code` review (`high` for a PR branch, `low` otherwise) and fix confirmed findings.
+7. Present the diff for approval with an Evidence section showing each command run and the output lines that prove the result. Don't claim anything works without it.
 
-## Process
-
-1. Read `references/clean-code.md`, then the reference for each language in scope: `php.md`, `laravel.md` (with `php.md`), `typescript.md`, `vue.md` (with `typescript.md`), `bash.md`, `go.md`.
-2. Look at the project's conventions, formatter and linter config, and the nearest similar code. Follow them; fill gaps from the references.
-3. Define done as a check a command can decide: a failing test (use `write-tests`) for behaviour, otherwise a command and its expected output. Run it first and confirm it fails for the right reason.
-4. Make the smallest coherent change yourself, safe to release on its own. Run formatting, lint, static analysis and the tests covering the change after each edit. Treat `verify-changes` hook feedback as a failed check and fix it before the next edit.
-5. Loop on the check until it passes, without stopping to report. Keep the check as strict as you wrote it.
-6. Run `sh <agents>/hooks/verify-changes.sh handoff` from the repository root, where `<agents>` is the project's `.agents/` or else `~/.agents/`. Fix what it reports.
-7. Prove each new or changed test guards the change: run it against the trunk version of the changed files and confirm it fails, then restore the files. Do this with copies, not `git stash` or `git checkout`.
-8. Run the change end to end on realistic data, then start one `review-code` reviewer: `high` for a branch going up for a PR, `low` otherwise. Fix confirmed findings.
-9. Present the diff for approval with an Evidence section: each command run and the output lines that show the result. Claim nothing works without it.
-
-Use the open IDE's problem checks and symbol tools on the current checkout, without opening or focusing anything: the user may be working in it. Run checks in the current checkout so parallel sessions never block each other.
+If IDE diagnostics or symbol tools are available, use them on the current checkout, and run checks inside the current checkout so parallel sessions don't block each other.
 
 ## Architecture
 
-For PHP business code, make an Action the use-case boundary (`references/php.md`). Follow the project's own architecture where it is enforced, and let project tooling, framework contracts and committed docs override these defaults.
+For PHP business logic, put each use case behind an Action (`references/php.md`). Follow the project's own architecture where it's enforced, and let project tooling, framework contracts, and committed docs override these defaults.

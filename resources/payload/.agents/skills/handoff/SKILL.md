@@ -3,57 +3,37 @@ name: handoff
 description: Write a handoff prompt that lets an expert engineer continue the current work cold, and start the fresh session that takes over. Use when handing work to another session, agent or person, or when context passes ~250k tokens.
 ---
 
-Write the prompt a senior engineer needs to continue without the conversation: expert in the stack, new to this task.
+Write a handoff note that lets a senior engineer pick up this work cold: someone who knows the stack well, but hasn't seen this conversation.
 
-Gather the goal, what is done, what remains and the decisions made, then verify the current state (branch, HEAD, working tree, open PR, last validation result). Point to the plan, ticket and reference files by exact path or link rather than restating them. Split the remaining work into pieces that can be finished independently, and mark where to start.
+Run `python3 scripts/handoff-state.py` (in this skill's directory) to gather the verified location, branch, HEAD, working tree state, worktree locks, open PR, and exact output path. Link to plans, tickets, and reference files by exact path or URL instead of copying them in. Break the remaining work into independent pieces and mark where to start.
 
-Keep it to what changes the next action: decisions and their reasons, constraints, traps hit, dead ends. Write plain imperative facts, and label guesses as unverified. Give each piece a done check the receiver can run, a command and the result that means pass, and tell them to loop on it until it passes.
+Keep the note to what changes the next move:
+- Goal and why, in one or two sentences
+- Exact paths or links to read first, with a short note on what each holds
+- Verified state on disk (from `scripts/handoff-state.py`, plus what's done and the last validation command and result)
+- Decisions made and why
+- Remaining work split into independent pieces, marking where to start, with a concrete pass/fail command and expected result for each (tell the receiver to loop on it until it passes)
+- Constraints, gotchas, and dead ends
 
-```markdown
-# Handoff: {task}
+Write plain facts, flag anything unverified as a guess, and skip anything with nothing useful to say.
 
-## Goal
-{Outcome and why, in one or two sentences}
+## Saving and finishing
 
-## Read first
-- {Plan, context, ticket, or reference path or link}: {what it holds}
+Write the note once using the file-writing tool to the `Handoff path` printed by `scripts/handoff-state.py` (`${XDG_STATE_HOME:-$HOME/.local/state}/agents/handoff/{repository directory name}-{branch with / as -}.md`, or `{task-slug}.md` outside a repo), replacing any old one. Keeping it outside every repo and worktree avoids worktree guards and lets any session read it.
 
-## State
-- Location: {repository path or worktree}, branch `{branch}` at `{short SHA}`, {clean or uncommitted summary}
-- Done: {completed piece}
-- Validation: {last command run and its result}
+Then finish based on the mode:
 
-## Decisions
-- {Decision}: {reason}
+- **continue** (default, and at ~250k tokens): move this work to a fresh session (steps below).
+- **paste** (the user wants text to paste, or a human is taking over): run `bash scripts/handoff-finish.sh copy <handoff path>` and reply in one line with the path and whether copying worked.
+- **brief** (`dispatch-session` needs a subagent brief): reply with the file path.
 
-## Remaining work
-1. {Piece}. Done when `{command}` {expected result}. Files: `{path}`. Start here
-2. {Piece}. Done when `{command}` {expected result}
+### Moving to a fresh session
 
-## Constraints and traps
-- {Constraint, trap, or dead end}
-
-## Verify with
-`{command}`
-```
-
-Drop sections with nothing true to say.
-
-## Output
-
-Write the prompt once, with the file-writing tool, to `${XDG_STATE_HOME:-$HOME/.local/state}/agents/handoff/{repository directory name}-{branch with / as -}.md` as an absolute path (no repository: `{task-slug}.md`), replacing any earlier one. It lives outside every repository and worktree, so worktree guards and sandboxes let the write through and every session can read it. Then finish by mode:
-
-- **continue** (default, and at ~250k tokens): this session's work moves to a fresh session, below.
-- **paste**: the user wants text to paste, or a person takes over. Pipe the file into the clipboard command (`pbcopy`, `wl-copy`, `xclip -selection clipboard` or `clip.exe`) and reply in one line with the path and whether the copy worked.
-- **brief**: `dispatch-session` wants a subagent brief. Reply with the file path.
-
-### Continue
-
-1. Put everything the prompt cites where a new session in this directory can reach it: scratch output and decisions go into the prompt or a file under the handoff directory. Record uncommitted work in State; commits and pushes follow the usual approvals.
-2. Hand the worktree to the new session. A harness ties a worktree to the session that created it, and removing that session deletes the worktree, even while another session works in it. Replace its lock with one naming the handover: `git worktree unlock <path>` (it errors harmlessly on an unlocked worktree), then `git worktree lock --reason "handoff: owned by <new title>; previous session <this session's id> stopped" <path>`. Record the worktree and its lock in State.
-3. Start a new top-level session in this directory on this session's model, titled `<TICKET-KEY> - <Area> - <what it does>` (without a ticket: `<Area> - <what it does>`; never the repository name), with the prompt:
+1. Make sure everything the handoff mentions is reachable from a new session in this directory: put scratch outputs and decisions in the handoff or under the handoff directory. Record uncommitted work in state (commits and pushes still follow the usual approvals).
+2. Hand the worktree to the new session so removing this session won't delete the worktree while the new one is working in it. Run `bash scripts/handoff-finish.sh lock <worktree path> "<new title>" "<this session's id>"` and record the worktree and its lock in the handoff.
+3. Start a new top-level session in this directory on the same model, titled `<TICKET-KEY> - <Area> - <what it does>` (or `<Area> - <what it does>` with no ticket; never the repo name), with this prompt:
 
    > Read `<absolute handoff path>` and continue the work it describes. First confirm the State it lists (branch, HEAD, working tree, worktree lock) matches what you see. Then stop the previous session `<this session's id>`, and never remove it: removing it deletes the worktree.
 
-   With the `claude` CLI: `claude --bg --name "<title>" --model <model> "<prompt>"`, this session's id from `$CLAUDE_CODE_SESSION_ID`, stopped by `claude stop <id>`. Other harnesses have equivalents; without one, use paste.
-4. Confirm the new session is listed under that title, reply in one line with the title and the file path, and finish there.
+   With `claude`: `claude --bg --name "<title>" --model <model> "<prompt>"`, using `$CLAUDE_CODE_SESSION_ID` for this session's id and `claude stop <id>` to stop it. Other harnesses have equivalents; if there isn't one, fall back to paste.
+4. Confirm the new session shows up under that title, reply in one line with the title and file path, and stop there.

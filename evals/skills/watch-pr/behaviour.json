@@ -52,9 +52,9 @@
       "id": "waits-on-events",
       "category": "proportionality",
       "prompt": "Keep an eye on PR 99 until it is merged.",
-      "expected_output": "A wait on the PR's events with one status line per check, ending in a short report when the PR merges or closes.",
+      "expected_output": "Watches CI with gh pr checks --watch or a background monitor with one status line per check, ending in a short report when the PR merges or closes.",
       "expectations": [
-        "Waits on PR events instead of polling on a short timer",
+        "Uses gh pr checks --watch or a background monitor instead of tight polling loops",
         "Gives one status line per check",
         "Stops and reports what changed once the PR merges or closes"
       ]

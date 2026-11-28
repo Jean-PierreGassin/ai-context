@@ -113,7 +113,7 @@ install_project() {
   while IFS= read -r -d '' source_path; do
     local relative_path="${source_path#"$payload_root/"}"
     case "$relative_path" in
-      CLAUDE.md|.claude/settings.json|.codex/config.toml|.codex/hooks.json) continue ;;
+      CLAUDE.md | .claude/settings.json | .codex/config.toml | .codex/hooks.json) continue ;;
       .agents/skills/*)
         copy_managed_skill_file "$source_path" "$target_root/$relative_path" "$relative_path"
         continue

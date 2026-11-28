@@ -10,7 +10,7 @@ validate_retired_manifest_entry() {
   fi
 
   case "$relative_path" in
-    /*|..|../*|*/..|*/../*)
+    /* | .. | ../* | */.. | */../*)
       record_failure "unsafe retired managed file path $relative_path"
       return 1
       ;;

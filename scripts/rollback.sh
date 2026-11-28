@@ -35,7 +35,7 @@ select_snapshot() {
     printf 'Choice [1-%s]: ' "$snapshot_count" >&2
     read -r choice
     case "$choice" in
-      ''|*[!0-9]*) return 1 ;;
+      '' | *[!0-9]*) return 1 ;;
     esac
     ((choice >= 1 && choice <= snapshot_count)) || return 1
     selected_snapshot="$(printf '%s\n' "$history_output" | sed -n "${choice}p")"

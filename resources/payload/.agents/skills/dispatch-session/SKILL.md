@@ -7,25 +7,25 @@ This session is the orchestrator. Each piece of work runs in its own background 
 
 Dispatch work that `use-worktrees` says needs its own worktree. Small changes stay in this session.
 
-## Dispatch
+## How to dispatch
 
 1. Create the worktree the way `use-worktrees` describes, and wait until it is ready.
-2. Write the brief with `handoff` in brief mode, so the subagent can start cold.
-3. Start a background subagent labelled `<TICKET-KEY> <what it does>` (or `<project> <what it does>` without a ticket). Set its model and effort: Sonnet 5.5 or similar mid-tier model, `low` effort for mechanical, fully specified work, `medium` for anything open. Fix a vague brief rather than raising effort.
-4. Tell it to work only in the worktree's absolute path, read the brief, never start further subagents or sessions, and put every question in its report. Commit, push, PR and merge wait for the user's approval, which you relay. It ends with done, blocked (with the question) or failed, plus the verification result.
-5. Wait for its completion notice. On each report, check the result against the brief's verification, answer its question, and give the user one status line per subagent. Verify; leave the work to the subagent.
+2. Write the brief using `handoff` in brief mode so the subagent can start cold.
+3. Start a background subagent labelled `<TICKET-KEY> <what it does>` (or `<project> <what it does>` without a ticket). Run it on a mid-tier model: `low` effort for mechanical, fully specified work, `medium` for anything open. Fix a vague brief instead of bumping effort.
+4. Tell it to work only inside the worktree's absolute path, read the brief, never spawn further subagents or sessions, and put every question in its report. Commit, push, PR, and merge still wait for the user's approval, which you pass along. Have it end with done, blocked (with the question), or failed, plus the verification result.
+5. Wait for its completion notice. On each report, check the result against the brief's verification, answer its question, and give the user one status line per subagent. You verify; let the subagent do the work.
 
-A subagent's report is never the user's approval. Relay approvals only as the user gave them.
+A subagent's report is never the user's approval. Only relay approvals exactly as the user gave them.
 
-## Answer questions
+## Answering questions
 
-The user hears only what no subagent can settle. Answer from the brief, the conversation and memory. Otherwise find the answer in the code, docs, tickets and history, or ask the subagent that owns that work. Reply to the asker with the answer and evidence.
+The user only hears what no subagent can settle. Answer from the brief, the conversation, and memory; otherwise look it up in the code, docs, tickets, and history, or ask the subagent that owns that area. Reply to the asker with the answer and evidence.
 
-Escalate what is the user's to decide or grant: business logic, spend, scope, approvals, access no subagent can get. Ask once, with findings, options and a recommendation, batching questions from every subagent.
+Escalate only what is the user's call to decide or grant: business logic, spend, scope, approvals, or access no subagent can get. Ask once with findings, options, and a recommendation, batching questions across subagents.
 
 ## Rules
 
-- One subagent per worktree, and no two on overlapping files. Resolve overlap before dispatching.
-- Stay out of every dispatched worktree.
-- Remove a worktree through the project's teardown, after its work is merged or the user discards it.
-- Follow the shared-host rules before heavy work, and ask before running a fourth subagent.
+- One subagent per worktree, and no two on overlapping files. Sort out overlap before dispatching.
+- Stay out of every dispatched worktree yourself.
+- Remove a worktree through the project's teardown after its work is merged or the user discards it.
+- Before heavy work (full test suites, static analysis, builds, containers), check running processes and containers, run at most one full suite per project at a time with capped workers (using a host-wide lock), clean up your own containers and processes when done, and ask before running a fourth subagent.

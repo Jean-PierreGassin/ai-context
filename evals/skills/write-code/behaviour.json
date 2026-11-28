@@ -472,35 +472,12 @@
       ]
     },
     {
-      "id": "uses-open-ide-without-taking-focus",
-      "category": "proportionality",
-      "prompt": "Add a helper for formatting order totals. The IDE already has this checkout open, and the user is working in another window.",
-      "expected_output": "IDE tools used without touching the user's window.",
-      "expectations": [
-        "Uses the IDE's symbol tools to find an existing helper before adding one",
-        "Checks the changed file's problems through the IDE",
-        "Opens no project, window, or file in the IDE and does not bring it to the front"
-      ]
-    },
-    {
-      "id": "proves-tests-fail-without-the-change",
-      "category": "normal",
-      "prompt": "The new discount cap is implemented with two new tests, and the work has not been committed yet. Get it ready to hand back.",
-      "expected_output": "Tests shown failing against trunk and passing with the change.",
-      "expectations": [
-        "Runs the new tests against trunk's version of the changed code and shows them failing",
-        "Restores the change and shows the tests passing",
-        "Does not use git stash or git checkout on uncommitted files"
-      ]
-    },
-    {
       "id": "hands-back-with-evidence",
       "category": "normal",
       "prompt": "The export fix is done and the edit checks are clean. Hand it back.",
-      "expected_output": "Handoff checks run and an Evidence section.",
+      "expected_output": "Verification run via verify and an Evidence section.",
       "expectations": [
-        "Runs verify-changes.sh handoff before reporting",
-        "Exercises the change end to end on realistic data",
+        "Runs verify (including verify-changes.sh handoff and end-to-end checks) before reporting",
         "Ends with an Evidence section listing each command and the output that shows its result"
       ]
     },

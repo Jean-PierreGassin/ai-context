@@ -83,14 +83,13 @@
     {
       "id": "linear-stack-stays-in-one-worktree",
       "category": "regression",
-      "prompt": "Implement this approved three-entry change stack. Each entry depends on the previous one.",
-      "expected_output": "One execution location for the overall change, using one worktree if isolation is needed.",
+      "prompt": "Implement this approved three-entry sequential change where each entry depends on the previous one merging first.",
+      "expected_output": "One execution location for the overall change, branching each entry from updated trunk once the last merges.",
       "expectations": [
-        "Does not create one worktree per stack entry",
-        "Uses one worktree for the complete dependent stack when a worktree is chosen",
-        "Allows the stack to use multiple dependent branches in that worktree",
-        "Switches between dependent branches sequentially in the same worktree",
-        "Does not treat independently reviewable entries as independent concurrent tracks"
+        "Does not create one worktree per entry",
+        "Uses one checkout or one worktree for the complete sequential work",
+        "Branches each entry from updated trunk once the previous entry merges",
+        "Does not treat sequential entries as independent parallel tracks"
       ]
     }
   ]

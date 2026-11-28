@@ -8,7 +8,7 @@ main() {
   local repository_root
 
   case "$command_name" in
-    install|doctor|history|rollback) ;;
+    install | doctor | history | rollback) ;;
     *)
       printf 'ai-context: unsupported task command: %s\n' "$command_name" >&2
       return 1

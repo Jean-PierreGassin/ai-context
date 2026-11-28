@@ -7,8 +7,14 @@ ensure_directory() {
 
 reject_unsafe_target() {
   local target_path="$1" display_path="$2"
-  if [[ -L "$target_path" ]]; then record_failure "refused symlink at $display_path"; return 0; fi
-  if [[ -d "$target_path" ]]; then record_failure "refused directory at file path $display_path"; return 0; fi
+  if [[ -L "$target_path" ]]; then
+    record_failure "refused symlink at $display_path"
+    return 0
+  fi
+  if [[ -d "$target_path" ]]; then
+    record_failure "refused directory at file path $display_path"
+    return 0
+  fi
   return 1
 }
 
@@ -37,7 +43,10 @@ should_replace() {
   local relative_path="$1" response
   if [[ "$force_install" == true || "$is_dry_run" == true ]]; then return 0; fi
   if [[ "$is_interactive" == false || ! -t 0 ]]; then return 1; fi
-  if command -v gum >/dev/null 2>&1; then gum confirm "Replace changed managed file $relative_path?" --default=false; return; fi
+  if command -v gum >/dev/null 2>&1; then
+    gum confirm "Replace changed managed file $relative_path?" --default=false
+    return
+  fi
   printf 'Replace changed managed file %s? [y/N] ' "$relative_path" >&2
   read -r response
   [[ "$response" == y || "$response" == Y || "$response" == yes || "$response" == YES ]]
@@ -53,7 +62,10 @@ copy_managed_file() {
   local source_path="$1" target_path="$2" display_path="$3"
   if reject_unsafe_target "$target_path" "$display_path"; then return 0; fi
   if [[ -f "$target_path" ]] && cmp -s "$source_path" "$target_path"; then return 0; fi
-  if [[ -e "$target_path" ]] && ! should_replace "$display_path"; then record_skip "left existing $display_path unchanged"; return 0; fi
+  if [[ -e "$target_path" ]] && ! should_replace "$display_path"; then
+    record_skip "left existing $display_path unchanged"
+    return 0
+  fi
   if [[ -e "$target_path" ]]; then
     record_change "replaced $display_path"
   else

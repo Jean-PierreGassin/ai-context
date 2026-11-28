@@ -48,133 +48,133 @@ add_result() {
 main() {
   render_header 'ai-context doctor' "$scope" "$target_root"
 
-missing_tools=
-command -v jq >/dev/null 2>&1 || missing_tools+='jq '
-if ! command -v python3 >/dev/null 2>&1 \
-  || ! python3 -c 'import sys; raise SystemExit(sys.version_info < (3, 11))' >/dev/null 2>&1; then
-  missing_tools+='Python-3.11+ '
-fi
-if [[ -n "$missing_tools" ]]; then
-  add_result 'Required tools' 'FAIL' "Install ${missing_tools% }"
-  failures=$((failures + 1))
-else
-  add_result 'Required tools' 'PASS' 'jq and Python 3.11+'
-fi
-
-optional_tools=
-command -v task >/dev/null 2>&1 || optional_tools+='Task '
-command -v gum >/dev/null 2>&1 || optional_tools+='Gum '
-if [[ -n "$optional_tools" ]]; then
-  add_result 'Optional UI' 'WARN' "${optional_tools% } missing; shell fallback is active"
-  warnings=$((warnings + 1))
-else
-  add_result 'Optional UI' 'PASS' 'Task and Gum'
-fi
-
-agent_tools=
-command -v codex >/dev/null 2>&1 || agent_tools+='Codex '
-command -v claude >/dev/null 2>&1 || agent_tools+='Claude '
-if [[ -n "$agent_tools" ]]; then
-  add_result 'Agent CLIs' 'WARN' "${agent_tools% } not found"
-  warnings=$((warnings + 1))
-else
-  add_result 'Agent CLIs' 'PASS' 'Codex and Claude'
-fi
-
-if [[ -d "$target_root" && -w "$target_root" ]]; then
-  add_result 'Target' 'PASS' 'Writable'
-else
-  add_result 'Target' 'FAIL' 'Directory is missing or not writable'
-  failures=$((failures + 1))
-fi
-
-installed_parts=0
-missing_installation=
-if [[ -f "$agents_path" ]]; then installed_parts=$((installed_parts + 1)); else missing_installation+="$agents_display, "; fi
-if [[ -d "$skills_path" ]]; then installed_parts=$((installed_parts + 1)); else missing_installation+="$skills_display, "; fi
-if [[ -f "$claude_path" ]]; then installed_parts=$((installed_parts + 1)); else missing_installation+="$claude_display, "; fi
-if [[ "$installed_parts" -eq 0 ]]; then
-  installation_state=missing
-  add_result 'Installation' 'MISSING' "Missing: ${missing_installation%, }"
-  failures=$((failures + 1))
-elif [[ "$installed_parts" -lt 3 ]]; then
-  installation_state=partial
-  add_result 'Installation' 'FAIL' "Missing: ${missing_installation%, }"
-  failures=$((failures + 1))
-else
-  installation_state=installed
-  add_result 'Installation' 'PASS' 'Instructions and shared tools found'
-fi
-
-if [[ "$installation_state" == installed ]]; then
-  if grep -Fq "$claude_import" "$claude_path"; then
-    add_result 'Claude import' 'PASS' "$claude_import"
+  missing_tools=
+  command -v jq >/dev/null 2>&1 || missing_tools+='jq '
+  if ! command -v python3 >/dev/null 2>&1 \
+    || ! python3 -c 'import sys; raise SystemExit(sys.version_info < (3, 11))' >/dev/null 2>&1; then
+    missing_tools+='Python-3.11+ '
+  fi
+  if [[ -n "$missing_tools" ]]; then
+    add_result 'Required tools' 'FAIL' "Install ${missing_tools% }"
+    failures=$((failures + 1))
   else
-    add_result 'Claude import' 'FAIL' "Expected $claude_import in $claude_display"
+    add_result 'Required tools' 'PASS' 'jq and Python 3.11+'
+  fi
+
+  optional_tools=
+  command -v task >/dev/null 2>&1 || optional_tools+='Task '
+  command -v gum >/dev/null 2>&1 || optional_tools+='Gum '
+  if [[ -n "$optional_tools" ]]; then
+    add_result 'Optional UI' 'WARN' "${optional_tools% } missing; shell fallback is active"
+    warnings=$((warnings + 1))
+  else
+    add_result 'Optional UI' 'PASS' 'Task and Gum'
+  fi
+
+  agent_tools=
+  command -v codex >/dev/null 2>&1 || agent_tools+='Codex '
+  command -v claude >/dev/null 2>&1 || agent_tools+='Claude '
+  if [[ -n "$agent_tools" ]]; then
+    add_result 'Agent CLIs' 'WARN' "${agent_tools% } not found"
+    warnings=$((warnings + 1))
+  else
+    add_result 'Agent CLIs' 'PASS' 'Codex and Claude'
+  fi
+
+  if [[ -d "$target_root" && -w "$target_root" ]]; then
+    add_result 'Target' 'PASS' 'Writable'
+  else
+    add_result 'Target' 'FAIL' 'Directory is missing or not writable'
     failures=$((failures + 1))
   fi
 
-  config_errors=
-  [[ -f "$claude_settings" ]] && jq empty "$claude_settings" >/dev/null 2>&1 || config_errors+='.claude/settings.json, '
-  [[ -f "$codex_hooks" ]] && jq empty "$codex_hooks" >/dev/null 2>&1 || config_errors+='.codex/hooks.json, '
-  if [[ -f "$codex_settings" ]] && command -v python3 >/dev/null 2>&1; then
-    python3 -c 'import pathlib, sys, tomllib; tomllib.loads(pathlib.Path(sys.argv[1]).read_text())' \
-      "$codex_settings" >/dev/null 2>&1 || config_errors+='.codex/config.toml, '
-  else
-    config_errors+='.codex/config.toml, '
-  fi
-  if [[ -n "$config_errors" ]]; then
-    has_invalid_configuration=true
-    add_result 'Configuration' 'FAIL' "Invalid or missing: ${config_errors%, }"
+  installed_parts=0
+  missing_installation=
+  if [[ -f "$agents_path" ]]; then installed_parts=$((installed_parts + 1)); else missing_installation+="$agents_display, "; fi
+  if [[ -d "$skills_path" ]]; then installed_parts=$((installed_parts + 1)); else missing_installation+="$skills_display, "; fi
+  if [[ -f "$claude_path" ]]; then installed_parts=$((installed_parts + 1)); else missing_installation+="$claude_display, "; fi
+  if [[ "$installed_parts" -eq 0 ]]; then
+    installation_state=missing
+    add_result 'Installation' 'MISSING' "Missing: ${missing_installation%, }"
+    failures=$((failures + 1))
+  elif [[ "$installed_parts" -lt 3 ]]; then
+    installation_state=partial
+    add_result 'Installation' 'FAIL' "Missing: ${missing_installation%, }"
     failures=$((failures + 1))
   else
-    add_result 'Configuration' 'PASS' 'Claude JSON, Codex JSON, and TOML are valid'
+    installation_state=installed
+    add_result 'Installation' 'PASS' 'Instructions and shared tools found'
+  fi
 
-    safety_errors=
-    jq -e '(.permissions.deny // []) | index("Edit(.env)") != null' \
-      "$claude_settings" >/dev/null 2>&1 || safety_errors+='.claude/settings.json deny rules, '
-    python3 -c \
-      'import pathlib, sys, tomllib; data=tomllib.loads(pathlib.Path(sys.argv[1]).read_text()); assert data.get("approvals_reviewer") == "auto_review"' \
-      "$codex_settings" >/dev/null 2>&1 || safety_errors+='.codex/config.toml auto-review setting, '
-    if [[ -n "$safety_errors" ]]; then
-      add_result 'Safety settings' 'FAIL' "Missing: ${safety_errors%, }"
+  if [[ "$installation_state" == installed ]]; then
+    if grep -Fq "$claude_import" "$claude_path"; then
+      add_result 'Claude import' 'PASS' "$claude_import"
+    else
+      add_result 'Claude import' 'FAIL' "Expected $claude_import in $claude_display"
+      failures=$((failures + 1))
+    fi
+
+    config_errors=
+    [[ -f "$claude_settings" ]] && jq empty "$claude_settings" >/dev/null 2>&1 || config_errors+='.claude/settings.json, '
+    [[ -f "$codex_hooks" ]] && jq empty "$codex_hooks" >/dev/null 2>&1 || config_errors+='.codex/hooks.json, '
+    if [[ -f "$codex_settings" ]] && command -v python3 >/dev/null 2>&1; then
+      python3 -c 'import pathlib, sys, tomllib; tomllib.loads(pathlib.Path(sys.argv[1]).read_text())' \
+        "$codex_settings" >/dev/null 2>&1 || config_errors+='.codex/config.toml, '
+    else
+      config_errors+='.codex/config.toml, '
+    fi
+    if [[ -n "$config_errors" ]]; then
+      has_invalid_configuration=true
+      add_result 'Configuration' 'FAIL' "Invalid or missing: ${config_errors%, }"
       failures=$((failures + 1))
     else
-      add_result 'Safety settings' 'PASS' 'Claude deny rules and Codex auto-review'
+      add_result 'Configuration' 'PASS' 'Claude JSON, Codex JSON, and TOML are valid'
+
+      safety_errors=
+      jq -e '(.permissions.deny // []) | index("Edit(.env)") != null' \
+        "$claude_settings" >/dev/null 2>&1 || safety_errors+='.claude/settings.json deny rules, '
+      python3 -c \
+        'import pathlib, sys, tomllib; data=tomllib.loads(pathlib.Path(sys.argv[1]).read_text()); assert data.get("approvals_reviewer") == "auto_review"' \
+        "$codex_settings" >/dev/null 2>&1 || safety_errors+='.codex/config.toml auto-review setting, '
+      if [[ -n "$safety_errors" ]]; then
+        add_result 'Safety settings' 'FAIL' "Missing: ${safety_errors%, }"
+        failures=$((failures + 1))
+      else
+        add_result 'Safety settings' 'PASS' 'Claude deny rules and Codex auto-review'
+      fi
     fi
+  else
+    add_result 'Configuration' 'SKIP' 'Install context first'
   fi
-else
-  add_result 'Configuration' 'SKIP' 'Install context first'
-fi
 
-history_count=0
-if command -v python3 >/dev/null 2>&1; then
-  history_count="$(python3 "$repository_root/scripts/state.py" history \
-    --scope "$scope" --target "$target_root" --payload "$payload_root" --state-root "$state_root" 2>/dev/null \
-    | wc -l | tr -d ' ')"
-fi
-add_result 'Rollback history' 'INFO' "$history_count saved version(s)"
+  history_count=0
+  if command -v python3 >/dev/null 2>&1; then
+    history_count="$(python3 "$repository_root/scripts/state.py" history \
+      --scope "$scope" --target "$target_root" --payload "$payload_root" --state-root "$state_root" 2>/dev/null \
+      | wc -l | tr -d ' ')"
+  fi
+  add_result 'Rollback history' 'INFO' "$history_count saved version(s)"
 
-render_doctor_results "${results%$'\n'}"
-if [[ "$failures" -gt 0 ]]; then
-  install_options=
-  if [[ "$scope" == global ]]; then
-    install_options=' --global'
+  render_doctor_results "${results%$'\n'}"
+  if [[ "$failures" -gt 0 ]]; then
+    install_options=
+    if [[ "$scope" == global ]]; then
+      install_options=' --global'
+    fi
+    printf '\n'
+    error "Doctor: $failures problem(s), $warnings warning(s)"
+    render_section 'Next steps'
+    if [[ "${has_invalid_configuration:-false}" == true ]]; then
+      printf '  1. Review a full configuration replacement:\n'
+      printf '     ai-context install%s --replace-config --dry-run\n' "$install_options"
+    else
+      printf '  1. Review: ai-context install%s --dry-run\n' "$install_options"
+    fi
+    printf '  2. Apply:  ai-context install%s\n' "$install_options"
+    printf '  3. Verify: ai-context doctor%s\n' "$install_options"
+    exit 1
   fi
   printf '\n'
-  error "Doctor: $failures problem(s), $warnings warning(s)"
-  render_section 'Next steps'
-  if [[ "${has_invalid_configuration:-false}" == true ]]; then
-    printf '  1. Review a full configuration replacement:\n'
-    printf '     ai-context install%s --replace-config --dry-run\n' "$install_options"
-  else
-    printf '  1. Review: ai-context install%s --dry-run\n' "$install_options"
-  fi
-  printf '  2. Apply:  ai-context install%s\n' "$install_options"
-  printf '  3. Verify: ai-context doctor%s\n' "$install_options"
-  exit 1
-fi
-printf '\n'
   success "Doctor passed: $warnings warning(s)"
 }
 

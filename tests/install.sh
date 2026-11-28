@@ -44,7 +44,7 @@ run_dry_install() {
 }
 
 run_rollback() {
-  "$repository_root/scripts/rollback.sh" "$scope" "$caller_dir" "${1:-}" false
+  "$repository_root/scripts/rollback.sh" "$scope" "$caller_dir" "${1:-}" false </dev/null
 }
 
 assert_jq() {
@@ -103,8 +103,8 @@ assert_every_skill_resource_installed() {
   while IFS= read -r -d '' payload_skill_file; do
     relative_skill_file="${payload_skill_file#"$payload_root/.agents/skills/"}"
     for skill_root in .agents/skills .claude/skills; do
-      cmp -s "$payload_skill_file" "$project_root/$skill_root/$relative_skill_file" ||
-        fail "skill resource missing from the installed payload: $skill_root/$relative_skill_file"
+      cmp -s "$payload_skill_file" "$project_root/$skill_root/$relative_skill_file" \
+        || fail "skill resource missing from the installed payload: $skill_root/$relative_skill_file"
     done
   done < <(find "$payload_root/.agents/skills" -type f -print0)
 }
@@ -288,26 +288,26 @@ test_global_install() {
   reference_path="$global_root/.agents/skills/write-code/references/bash.md"
   reference_inode="$(file_inode "$reference_path")"
   LC_ALL=en_US.UTF-8 run_install >/dev/null
-  [[ "$(file_inode "$reference_path")" == "$reference_inode" ]] ||
-    fail 'global reinstall replaced a current skill file under a non-C collation'
+  [[ "$(file_inode "$reference_path")" == "$reference_inode" ]] \
+    || fail 'global reinstall replaced a current skill file under a non-C collation'
 
   [[ "$(cat "$global_root/.claude/CLAUDE.md")" == '@~/.agents/AGENTS.md' ]]
-  ! grep -Fq '# Personal' "$global_root/.claude/CLAUDE.md" ||
-    fail 'global install kept the personal CLAUDE.md content'
+  ! grep -Fq '# Personal' "$global_root/.claude/CLAUDE.md" \
+    || fail 'global install kept the personal CLAUDE.md content'
   [[ -f "$global_root/.agents/AGENTS.md" ]]
-  grep -Fq "Load each matching skill from \`~/.agents/skills\`" "$global_root/.agents/AGENTS.md"
-  ! grep -Fq "(.agents/skills/" "$global_root/.agents/AGENTS.md" ||
-    fail 'global install left a project-relative skills path in the instructions'
+  grep -Fq "Load matching skills from \`~/.agents/skills\`" "$global_root/.agents/AGENTS.md"
+  ! grep -Fq "(.agents/skills/" "$global_root/.agents/AGENTS.md" \
+    || fail 'global install left a project-relative skills path in the instructions'
   [[ -f "$global_root/.codex/AGENTS.md" ]]
-  cmp -s "$global_root/.agents/AGENTS.md" "$global_root/.codex/AGENTS.md" ||
-    fail 'global install left the shared and Codex instructions out of sync'
+  cmp -s "$global_root/.agents/AGENTS.md" "$global_root/.codex/AGENTS.md" \
+    || fail 'global install left the shared and Codex instructions out of sync'
   [[ -d "$global_root/.agents/skills/write-code" ]]
   cmp -s "$payload_root/.agents/skills/write-plan/references/change-stack.md" \
     "$global_root/.agents/skills/write-plan/references/change-stack.md"
 
   cmp -s "$payload_root/.agents/skills/write-plan/references/change-stack.md" \
-    "$global_root/.claude/skills/write-plan/references/change-stack.md" ||
-    fail 'global install left a Claude skill without its references'
+    "$global_root/.claude/skills/write-plan/references/change-stack.md" \
+    || fail 'global install left a Claude skill without its references'
 
   assert_jq '.enabledPlugins["personal@example"] == true' "$global_root/.claude/settings.json"
   assert_jq '[.hooks.Stop[].hooks[].command | select(test("[.]agents/hooks/play-sound[.]sh"))] | length == 1' \
@@ -400,8 +400,8 @@ test_task_runner_handoff() {
   (cd "$project_root" && "$repository_root/bin/ai-context" install --global --dry-run)
   grep -Fq 'CALLER_DIR=' "$fixture_root/task-call"
   grep -Fq 'install' "$fixture_root/task-call"
-  ! (cd "$project_root" && "$repository_root/bin/ai-context" install --global --project >/dev/null 2>&1) ||
-    fail 'conflicting scopes were accepted'
+  ! (cd "$project_root" && "$repository_root/bin/ai-context" install --global --project >/dev/null 2>&1) \
+    || fail 'conflicting scopes were accepted'
 }
 
 main() {
