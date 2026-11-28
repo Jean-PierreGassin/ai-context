@@ -1,0 +1,29 @@
+[
+  {
+    "query": "Everything looks good now, verify it works end to end before we wrap up",
+    "should_trigger": true
+  },
+  {
+    "query": "Prove the new tests actually fail without the fix and check the endpoint",
+    "should_trigger": true
+  },
+  {
+    "query": "Before I review this diff, make sure the UI and server logs are clean",
+    "should_trigger": true
+  },
+  {
+    "query": "Stage these changes and write a commit message",
+    "should_trigger": false,
+    "note": "Committing already-verified work belongs to git-commit."
+  },
+  {
+    "query": "Review the diff for logic bugs and style issues",
+    "should_trigger": false,
+    "note": "Static code review belongs to review-code."
+  },
+  {
+    "query": "Write unit tests for the new pricing rule",
+    "should_trigger": false,
+    "note": "Authoring tests belongs to write-tests."
+  }
+]
