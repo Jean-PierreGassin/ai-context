@@ -82,10 +82,10 @@
       "id": "sizes-model-and-effort-to-the-work",
       "category": "normal",
       "prompt": "Dispatch two pieces: applying the settled rename across the codebase, and finding out why the import job intermittently drops rows.",
-      "expected_output": "Both on Sonnet 5.5 or similar: the rename at low effort and the investigation at medium effort.",
+      "expected_output": "Both on a mid-tier model: the rename at low effort and the investigation at medium effort.",
       "expectations": [
-        "Starts the mechanical rename on Sonnet 5.5 or similar at low effort",
-        "Starts the investigation on Sonnet 5.5 or similar at medium effort",
+        "Starts the mechanical rename on a mid-tier model at low effort",
+        "Starts the investigation on a mid-tier model at medium effort",
         "Starts neither above a mid-tier model at medium effort",
         "Sets the model and effort explicitly"
       ]

@@ -1,8 +1,8 @@
 # PHP Test Patterns
 
-Use the repository's PHPUnit or Pest setup.
+Use the repo's PHPUnit or Pest setup.
 
-Use a data provider or Pest dataset when cases differ only by input and outcome, with descriptive row keys.
+Use a data provider or Pest dataset when cases only differ by input and expected outcome, with descriptive row keys:
 
 ```php
 #[DataProvider('tierDiscounts')]
@@ -23,5 +23,5 @@ public static function tierDiscounts(): array
 ```
 
 - Assert the specific exception: `throws()` in Pest, `expectException()` before the act in PHPUnit.
-- Fix the environment problem; a skip carries its reason.
-- Build real models and value objects. At an external boundary, use a fake that records what happened.
+- Fix environment issues rather than skipping; any skip must carry a reason.
+- At an external boundary, use a fake that records what happened.

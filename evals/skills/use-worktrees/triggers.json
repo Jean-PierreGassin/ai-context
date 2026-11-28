@@ -12,7 +12,7 @@
     "should_trigger": true
   },
   {
-    "query": "Run these two tracks in parallel worktrees so they do not block each other",
+    "query": "Create two separate worktrees so these tracks do not block each other",
     "should_trigger": true
   },
   {

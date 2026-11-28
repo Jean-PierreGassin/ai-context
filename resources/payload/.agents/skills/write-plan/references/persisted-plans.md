@@ -1,13 +1,13 @@
-Persist the approved plan so a fresh session resumes directly. Continue the task's existing plan when there is one.
+Save approved plans so a fresh session can pick them up cold. If the task already has a plan, continue from it.
 
-| File | Holds |
+| File | What it holds |
 |---|---|
-| `PLAN.md` | One change: objective, stack position, requirements, checklist, validation |
-| `CONTEXT.md` | Stack-level live state, kept current as work moves |
+| `PLAN.md` | One change: goal, position in stack, requirements, checklist, checks |
+| `CONTEXT.md` | Live stack-level state, updated as work progresses |
 
 ## Where plans live
 
-Plans are local working state shared by every worktree. Keep them out of commits.
+Plans are local working files shared across worktrees. Never commit them.
 
 ```text
 $(git rev-parse --git-common-dir)/agents/work/{type}/{ticket-or-slug}/
@@ -17,40 +17,38 @@ $(git rev-parse --git-common-dir)/agents/work/{type}/{ticket-or-slug}/
 └── ...
 ```
 
-`{type}` is `features`, `bugs`, `improvements` or `tasks`. `{ticket-or-slug}` is the branch's ticket key, else `{YYYY-MM-DD}-{short-description}`. This sits outside the worktree index, so no ignore rules are needed. Check before each commit that no plan path is staged.
+`{type}` is `features`, `bugs`, `improvements`, or `tasks`. `{ticket-or-slug}` is the branch's ticket key, or `{YYYY-MM-DD}-{short-description}`. Since this sits outside the worktree index, no gitignore rules are needed, though you should still make sure no plan file is staged before committing.
 
 ## Start here
 
-Open every `PLAN.md` with this section, so a fresh session starts without asking the user anything. Link material, do not copy it.
+Open every `PLAN.md` with a "Start here" section so a new session can get going without asking the user anything. Link to files instead of copying them in:
 
-- **Skills to load:** in order, with the references this change needs
-- **Read first:** the stack `CONTEXT.md`, relevant plans, project instructions
-- **Repository context:** the source, tests and config that shape decisions
-- **Ticket:** the key and link, or why there is none
-- **Execution environment:** checkout or worktree, working directory, how to enter the environment
-- **Commands:** baseline commands and the exact validation gates
-- **Begin with:** the first unchecked action
+- **Skills to load:** in order, plus the reference files this change needs
+- **Read first:** the stack `CONTEXT.md`, related plans, project instructions
+- **Repository context:** the source, tests, and config files that shape decisions
+- **Ticket:** key and link, or why there isn't one
+- **Execution environment:** checkout or worktree, working directory, how to enter it
+- **Commands:** baseline commands and exact validation checks
+- **Begin with:** the first unchecked item
 
 ## Live context
 
-Keep `CONTEXT.md` current throughout implementation. It records:
+Keep `CONTEXT.md` current as you work, replacing stale info rather than keeping a diary:
 
-- execution location, branch and its target, stack parent
-- the current entry and checklist item
+- execution location, branch and target branch, stack parent
+- current entry and checklist item
 - expected uncommitted files and why
-- last validation results and the latest commit
-- PR and review state, and the history policy (rewrite before review, append after)
-- decisions made and approaches rejected
-- the exact next action
-
-Replace stale state; keep no diary.
+- last check results and latest commit
+- PR and review state, and history policy (rewrite before review, append after)
+- decisions made and approaches ruled out
+- exact next action
 
 ## Resuming
 
-Read `CONTEXT.md`, re-enter the recorded location, check it against the repository, read the current `PLAN.md`, and continue from the next action. Bring the plan in line with the repository and say what changed.
+Read `CONTEXT.md`, go to the recorded location and verify it matches the repo, read the current `PLAN.md`, and pick up from the next action. Sync the plan with reality if anything drifted and mention what changed.
 
-## Commit checkpoints
+## Between checkpoints
 
-Before an entry goes to review, its plan and context record the ship state, proof, decisions, and the next action after the commit. After approval, run the gates and commit without the plan files, then record the commit and confirm a fresh session could resume. Stop before the next entry.
+Before sending an entry to review, make sure its plan and context record the current state, proof, decisions, and next action. Once committed (without plan files), record the commit, confirm a fresh session could resume from the notes, and stop before the next entry.
 
-A plan is complete when every item is checked and the user has approved the output.
+A plan is finished when every item is checked off and the user approves the output.

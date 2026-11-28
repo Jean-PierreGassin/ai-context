@@ -1,47 +1,47 @@
-A **change stack** is an ordered sequence of small ship states. Each is valid, provable and has one review objective.
+Prefer independent, focused PRs that target trunk and ship on their own (small and focused, not artificially tiny unless necessary). Only use a **change stack** when pieces genuinely cannot ship independently, structuring the work so independent or foundation pieces ship first and each step leaves the repo valid, can be proved on its own, and has one review focus.
 
-Describe each change with:
+Describe each step with:
 
 - **Change**: what it changes
-- **Purpose**: why it is on the path to the final state
-- **Kind**: mechanical, refactor, behavioral, contract, user-facing or cleanup
-- **Depends on**: earlier changes, or nothing
+- **Purpose**: why it moves us toward the final state
+- **Kind**: mechanical, refactor, behavioural, contract, user-facing, or cleanup
+- **Depends on**: earlier steps, or nothing
 - **Ship state**: the valid state after it lands
-- **Proof**: how it is shown to work alone
-- **Reviewer focus**: what a reviewer should scrutinize
-- **Rollback**: how it is reverted
+- **Proof**: how you verify it on its own
+- **Reviewer focus**: what reviewers should look closely at
+- **Rollback**: how to revert it
 
 ```markdown
 ### 3. Migrate Platform A API client
 
-- **Change** - move Platform A's API client to the shared client
-- **Purpose** - set up the shared transport before migrating Platform A consumers
-- **Kind** - refactor
-- **Depends on** - 2
-- **Ship state** - Platform A's client uses the shared client; everything else is unchanged
-- **Proof** - Platform A client contract tests pass unchanged
-- **Reviewer focus** - request and response mapping at the client boundary
-- **Rollback** - revert the commit
+- **Change**: move Platform A's API client onto the shared client
+- **Purpose**: set up the shared transport before migrating Platform A consumers
+- **Kind**: refactor
+- **Depends on**: 2
+- **Ship state**: Platform A's client uses the shared client; everything else stays the same
+- **Proof**: Platform A client contract tests pass unchanged
+- **Reviewer focus**: request and response mapping at the client boundary
+- **Rollback**: revert the commit
 ```
 
 ## Order
 
-Let risk arrive late and alone: mechanical changes first, then refactors, then new boundaries, then one consumer at a time, then user-facing work, then cleanup. Put a guard test below the change it protects. Pull independent fixes out as their own change.
+Push risk as late and isolated as possible: mechanical edits first, then refactors, then new boundaries, then one consumer at a time, then user-facing work, then cleanup. Put any guard test below the change it protects, and pull unrelated fixes out into their own change.
 
-## Size
+## Splitting
 
-Size is a hint. Split at seams: where a reviewer would hold several concepts at once, or one part can be proved before the next starts. Keep a repeatable mechanical sweep together.
+Keep each change small enough to review and prove cleanly. Split at seams where a reviewer would otherwise have to hold multiple concepts in their head, or where one piece can be verified before starting the next. Keep a repeatable mechanical sweep in one piece.
 
-Check the split before proposing it: the final state is stated, all work belongs to a checkpoint, each ship state leaves the repository valid, and each review objective fits one sentence.
+Before proposing the split, double-check that the final state is clear, every bit of work sits in a checkpoint, every checkpoint leaves the repo working, and each change's review focus fits in one sentence.
 
 ## Shipping
 
-Agree the split before creating branches or PRs. Every PR targets trunk. Open a dependent change after its prerequisite merges, branched from the updated trunk. `write-pr` owns each PR.
+Agree on the split before making branches or PRs. Every PR targets trunk; branch each dependent change from updated trunk after its prerequisite merges (`write-pr` handles each PR).
 
-## Working the stack
+## Working through the stack
 
-When work shows the plan is wrong, fix the entry where the fact lives and update every later entry it touches. Record the decision once in `CONTEXT.md`.
+If work reveals the plan is wrong, fix the affected entry and update any later steps it touches. Record the decision once in `CONTEXT.md`.
 
-A change to requirements, architecture or stack shape goes back to the user: say what moves, and offer the smallest alternative.
+Bring any change to requirements, architecture, or stack shape back to the user: explain what shifts and suggest the smallest alternative.
 
-Complete entries in order. Self-review the current entry, update the plan and context, then present the diff for approval. After approval, run the gates and commit, record the commit in `CONTEXT.md`, and stop before the next entry.
+Work through entries in order, updating the plan and `CONTEXT.md` after each one, and stop after committing an entry before starting the next.

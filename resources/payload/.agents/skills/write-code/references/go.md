@@ -1,21 +1,17 @@
 # Go
 
-Baseline: Google Go Style Guide and Effective Go. Read after `clean-code.md`; Go naming overrides generic naming.
+Follow Effective Go and Google's Go Style Guide after `clean-code.md` (Go naming beats generic naming).
 
-- Name packages for the capability they own: short, singular, lower-case, never `util` or `common`.
-- Use `MixedCaps` and keep initialisms (`ID`, `HTTP`). Accessors omit `Get`; predicates read `Valid`, `Empty`, without `Is`/`Has`.
+- Name packages after the capability they own: short, singular, lower-case, never `util` or `common`.
+- Use `MixedCaps` and keep initialisms (`ID`, `HTTP`). Omit `Get` on getters; name predicates `Valid` or `Empty` without `Is`/`Has`.
 - Define small interfaces in the consumer package and return concrete types.
-- Make the zero value useful. Add `NewType` to validate invariants or supply dependencies.
-- Pass `context.Context` first and propagate it through blocking work. Never store it in a struct.
+- Pass `context.Context` first and propagate it through blocking work; never store it in a struct.
 - Give every goroutine an owner that waits for it (`errgroup`).
-- Wrap errors with `%w` when callers need `errors.Is`/`errors.As`. Handle each error once: return, log or recover.
-- Use `time.Duration` for durations and field names in struct literals outside the defining package.
-- Exported declarations get doc comments starting with the declared name. Other comments explain why.
-- Leave alignment to `gofmt`/`goimports`.
+- Wrap errors with `%w` when callers need `errors.Is`/`errors.As`, and handle each error once (return, log, or recover).
 
-## Separate an operation from its error guard
+## Error guards
 
-One blank line between an operation and the `if` that checks it, and before each following phase. Wrap each error with the failed operation, lower-case and unpunctuated.
+Put one blank line between an operation and the `if` that checks its error, and before each following step. Wrap each error with the failed operation in lowercase without trailing punctuation:
 
 ```go
 customer, err := customers.Find(ctx, request.CustomerID)

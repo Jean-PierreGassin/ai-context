@@ -172,7 +172,7 @@
     {
       "id": "approval-gate-precedes-open",
       "category": "regression",
-      "prompt": "Open a PR for this completed branch. I have not seen the title or body yet and I did not say draft or ready.",
+      "prompt": "Open a PR for branch `feat/abc-123-export-filter` targeting `main`. Commit `ABC-123 - Filter archived rows from CSV export` touches `src/ExportQuery.php` (adds `whereNull('archived_at')`) and `tests/ExportQueryTest.php` (adds regression test). I have not seen the title or body yet and I did not say draft or ready.",
       "expected_output": "The exact title, main context, and target are shown, and the user is asked Draft or Ready before any PR is opened.",
       "expectations": [
         "Shows the exact proposed title",
@@ -185,13 +185,13 @@
     {
       "id": "approved-copy-is-not-regenerated",
       "category": "regression",
-      "prompt": "I approved the exact title and main context you showed me. Now open the draft PR using the repository template.",
+      "prompt": "I approved the exact title `ABC-123 - Filter archived rows from CSV export` and exact main context `Exclude soft-archived rows from the CSV export query so exported reports match active records.`. Repo template has `## Ticket`, `## Summary`, and `## Testing`. Now open the PR as Draft targeting `main`.",
       "expected_output": "The approved wording is inserted unchanged, with only required template and mechanical fields added around it.",
       "expectations": [
         "Uses the approved title wording unchanged",
         "Uses the approved main context unchanged",
         "Adds repository-required template fields without paraphrasing the approved context",
-        "Opens the PR as Draft"
+        "Opens or prepares the PR as Draft"
       ]
     }
   ]

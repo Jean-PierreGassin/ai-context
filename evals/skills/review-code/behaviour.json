@@ -41,12 +41,12 @@
     {
       "id": "uses-ide-diagnostics-when-available",
       "category": "regression",
-      "prompt": "Review the change on this branch. An IDE integration that reports file problems is connected.",
-      "expected_output": "The reviewer checks the IDE's reported problems on the changed files and includes the confirmed ones.",
+      "prompt": "Review this diff on `src/Pricing.php`: `line 14: return $total - $coupon->amount;` where `$coupon` can be `null` (`?Coupon $coupon`). Connected IDE diagnostics report: (1) `src/Pricing.php:14` possible null dereference on `$coupon->amount`; (2) `src/Legacy.php:3` unused import `DateTime` (not in the diff).",
+      "expected_output": "The reviewer verifies the IDE problem on the changed file and ignores the untouched file.",
       "expectations": [
-        "Queries the IDE integration for problems on each changed file",
-        "Verifies reported problems against the code before including them",
-        "Does not report IDE problems in files the diff does not touch"
+        "Includes the verified null-dereference defect on src/Pricing.php:14 with a failure case",
+        "Verifies the problem against the diff rather than blindly parroting all IDE output",
+        "Does not report the IDE warning in untouched src/Legacy.php:3"
       ]
     },
     {

@@ -21,11 +21,11 @@
     {
       "id": "no-hedging-or-narrative",
       "category": "regression",
-      "prompt": "We went back and forth on the caching approach before settling on one. Write the handoff.",
+      "prompt": "We went back and forth on caching before settling on Redis with a 5-minute TTL because worker nodes don't share local memory (in-memory APCu failed across containers). Repo: `/repos/billing`, branch `feat/abc-301-rate-cache` at `9a4c2d1`, clean tree, `pytest tests/test_cache.py` passed. Write the handoff note content.",
       "expected_output": "The settled decision and its reason, without the history of the discussion.",
       "expectations": [
-        "Records the chosen approach and why in one line",
-        "Records a rejected approach only when it warns the receiver off retrying it",
+        "Records the chosen Redis approach and why concisely",
+        "Records the rejected APCu approach as a trap to avoid",
         "Contains no hedging, filler, or account of how the session went"
       ]
     },
@@ -35,7 +35,7 @@
       "prompt": "Hand off the one remaining test fix. There is no plan file.",
       "expected_output": "A short prompt with only the sections that carry information.",
       "expectations": [
-        "Drops template sections that have nothing true to say",
+        "Omits sections that have nothing useful to say",
         "Does not invent plan or context references that do not exist",
         "Defines the single remaining piece and how to verify it"
       ]
@@ -43,14 +43,14 @@
     {
       "id": "copies-the-saved-file",
       "category": "regression",
-      "prompt": "Write the handoff for this branch so I can paste it into a new session myself.",
+      "prompt": "Write the handoff for `/repos/app` branch `fix/csv-encoding` at `31f8a10` (clean tree, remaining: add UTF-8 BOM in `src/export.py` verified by `pytest tests/test_export.py`) so I can paste it into a new session myself.",
       "expected_output": "The prompt written once to the handoff file, then copied from that file without asking.",
       "expectations": [
-        "Writes the prompt to the handoff file before copying",
+        "Targets the XDG handoff file path for the repo and branch before copying",
         "Starts no new session",
-        "Copies by redirecting the file into the platform's clipboard command",
+        "Copies the saved file via scripts/handoff-finish.sh copy (or clipboard redirection) without inline prompt text",
         "Does not ask whether to copy",
-        "Does not repeat the prompt in the reply or in the copy command"
+        "Replies in one line with the path and copy status rather than repeating the prompt in the reply"
       ]
     },
     {
@@ -67,23 +67,23 @@
     {
       "id": "context-limit-continues-in-fresh-session",
       "category": "regression",
-      "prompt": "A hook reports this session's context is over 250k tokens. The current step is finished; two pieces remain and one file is uncommitted.",
+      "prompt": "The handoff hook reports context is near the limit. Location: `/repos/app-wt` (branch `feat/abc-410-sync` at `7c11e2b`), 1 uncommitted file (`src/sync.py`), current step is finished, 2 pieces remain (`backoff` and `metrics` verified by `pytest tests/test_sync.py`), session id `sess-99`, model `sonnet`.",
       "expected_output": "A continue-mode handoff: state made reachable, a fresh titled session started, this session retired.",
       "expectations": [
         "Uses continue mode without asking",
-        "Records the uncommitted file in State instead of committing it without approval",
-        "Starts the new session on the same model and directory",
-        "Stops working in this session after the one-line reply"
+        "Records the uncommitted file `src/sync.py` in state instead of committing it without approval",
+        "Locks the worktree with scripts/handoff-finish.sh lock and launches a new top-level session on the same model and directory",
+        "Ends with the one-line reply rather than continuing implementation"
       ]
     },
     {
       "id": "continue-without-session-cli-falls-back",
       "category": "regression",
-      "prompt": "Hand this off to a fresh session. This harness cannot start new sessions.",
+      "prompt": "Hand off `/repos/app` branch `feat/audit-log` at `4b21c09` (remaining: wire middleware verified by `pytest tests/test_audit.py`) to a fresh session. This harness cannot start new sessions.",
       "expected_output": "The handoff falls back to paste mode: file written, copied, one-line reply.",
       "expectations": [
         "Falls back to paste mode instead of failing",
-        "Copies the saved file to the clipboard and replies with the path and whether the copy succeeded"
+        "Writes to the XDG handoff path, copies the saved file to the clipboard, and replies with the path and copy status"
       ]
     },
     {
