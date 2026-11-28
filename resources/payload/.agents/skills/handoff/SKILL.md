@@ -1,37 +1,13 @@
 ---
 name: handoff
-description: Write a handoff prompt that lets an expert engineer continue the current work cold. Use when handing work to another session, agent, or person.
+description: Write a handoff prompt that lets an expert engineer continue the current work cold, and start the fresh session that takes over. Use when handing work to another session, agent or person, or when context passes ~250k tokens.
 ---
 
-# Handoff
+Write the prompt a senior engineer needs to continue without the conversation: expert in the stack, new to this task.
 
-Write the prompt a senior engineer needs to continue this work without the conversation. Assume they are expert in the
-stack and know nothing about this task.
+Gather the goal, what is done, what remains and the decisions made, then verify the current state (branch, HEAD, working tree, open PR, last validation result). Point to the plan, ticket and reference files by exact path or link rather than restating them. Split the remaining work into pieces that can be finished independently, and mark where to start.
 
-## Process
-
-1. Establish the goal, what is done, what remains, and the agreed decisions from the session and the repository
-2. Verify current state: branch, HEAD, working tree, open PR, and the last validation result
-3. Locate the plan, context, ticket, and reference files already in use and cite them by exact path or link
-4. Split the remaining work into the pieces already defined, or into independently completable pieces when none exist
-5. Fill the [template](#template), dropping any section that has nothing true to say
-6. Save and copy the prompt as described in [Output](#output)
-
-## Rules
-
-- Write to the receiver as instructions in the imperative
-- State facts plainly. No hedging, filler, praise, or narrative of how the session went
-- Keep only what changes the next action: decisions and their reasons, constraints, traps already hit, and dead ends
-  not to retry
-- Reference the plan, context, and source files instead of restating them
-- Use exact paths, commands, branch names, ticket keys, and symbol names
-- Mark anything unverified as unverified; never present a guess as state
-- Mark the first piece to start with
-- State each piece's done as a check the receiver can run: a test or command and the result that means it passed. Tell
-  the receiver to loop on it until it passes. Never define done as prose alone
-- Write no preamble, summary, or commentary inside the prompt
-
-## Template
+Keep it to what changes the next action: decisions and their reasons, constraints, traps hit, dead ends. Write plain imperative facts, and label guesses as unverified. Give each piece a done check the receiver can run, a command and the result that means pass, and tell them to loop on it until it passes.
 
 ```markdown
 # Handoff: {task}
@@ -61,12 +37,22 @@ stack and know nothing about this task.
 `{command}`
 ```
 
+Drop sections with nothing true to say.
+
 ## Output
 
-Generate the prompt once. Never repeat it in the reply or in a command.
+Write the prompt once, with the file-writing tool, to `$(git rev-parse --git-common-dir)/agents/handoff/{branch}.md` as an absolute path (outside a repository: `${XDG_STATE_HOME:-$HOME/.local/state}/agents/handoff/{task-slug}.md`), replacing any earlier one. Every session and worktree of the repository can read it. Then finish by mode:
 
-1. Write the prompt with the file-writing tool to `${TMPDIR:-/tmp}/handoff/{repository}-{branch}.md`, overwriting any
-   earlier handoff at that path
-2. Copy the file without asking, by redirecting it into the platform command: `pbcopy < {file}` on macOS,
-   `wl-copy < {file}` or `xclip -selection clipboard < {file}` on Linux, and `clip.exe < {file}` on WSL or Windows
-3. Reply in one line with the file path and whether the copy succeeded
+- **continue** (default, and at ~250k tokens): this session's work moves to a fresh session, below.
+- **paste**: the user wants text to paste, or a person takes over. Pipe the file into the clipboard command (`pbcopy`, `wl-copy`, `xclip -selection clipboard` or `clip.exe`) and reply in one line with the path and whether the copy worked.
+- **brief**: `dispatch-session` wants a subagent brief. Reply with the file path.
+
+### Continue
+
+1. Put everything the prompt cites where a new session in this directory can reach it: scratch output and decisions go into the prompt or a file under the handoff directory. Record uncommitted work in State; commits and pushes follow the usual approvals.
+2. Start a new top-level session in this directory on this session's model, titled `<TICKET-KEY> - <Area> - <what it does>` (without a ticket: `<project> - <what it does>`), with the prompt:
+
+   > Read `<absolute handoff path>` and continue the work it describes. First confirm the State it lists (branch, HEAD, working tree) matches what you see. Then stop the previous session `<this session's id>`.
+
+   With the `claude` CLI: `claude --bg --name "<title>" --model <model> "<prompt>"`, this session's id from `$CLAUDE_CODE_SESSION_ID`, stopped by `claude stop <id>`. Other harnesses have equivalents; without one, use paste.
+3. Confirm the new session is listed under that title, reply in one line with the title and the file path, and finish there.

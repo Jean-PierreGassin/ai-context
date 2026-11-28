@@ -1,0 +1,24 @@
+[
+  {
+    "query": "I want to review PR 482 myself in Plannotator",
+    "should_trigger": true
+  },
+  {
+    "query": "Check out https://github.com/acme/shop/pull/91 so I can go through it and ask you questions",
+    "should_trigger": true
+  },
+  {
+    "query": "Yes, open my changes in Plannotator",
+    "should_trigger": true
+  },
+  {
+    "query": "Review my branch before I open the PR",
+    "should_trigger": false,
+    "note": "An agent review of the user's diff routes to review-code."
+  },
+  {
+    "query": "Write the PR description for this branch",
+    "should_trigger": false,
+    "note": "PR prose routes to write-pr."
+  }
+]

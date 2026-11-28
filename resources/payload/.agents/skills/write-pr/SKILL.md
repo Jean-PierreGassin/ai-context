@@ -1,52 +1,25 @@
 ---
 name: write-pr
-description: Draft, open, or edit pull requests. Use for PR titles, bodies, review focus, and PR state.
+description: Draft, open and edit pull requests. Use when writing a PR title, body or review focus, or changing a PR's state.
 ---
 
-# Write PR
+Keep each PR to one bounded review objective that is safe to release on its own. Offer a split when there are several.
 
-Keep each PR within one bounded review objective. Make each change standalone and safe to release without dependent changes.
-
-## User rules
-
-Read `${XDG_CONFIG_HOME:-$HOME/.config}/agents/write-pr` when it exists. It holds the user's rules for PRs and review
-feedback, which win over this skill.
+Read `${XDG_CONFIG_HOME:-$HOME/.config}/agents/write-pr` when it exists: the user's PR rules win over this skill.
 
 ## Process
 
-1. Check reviewability and propose a split when there is more than one bounded objective
-2. Bring the head branch current with its immediate target
-3. With all changes committed, run formatting, lint, static analysis and change-scoped tests; CI runs the full test suite
-4. Start one `review-code` reviewer at `high` on the branch diff against its target, giving it only the overall goal, the diff range and the paths of any user preference files the user's instructions list
-5. Fix failures and confirmed findings as follow-up changes, and rerun the gates before drafting
-6. Draft the exact title and main context
-7. Determine the target and Draft/Ready state
-8. Show the title, context, target, and state and obtain approval before opening the PR unless already specified
-9. Fill the repository template without silently changing approved context
-10. Open the PR in the approved state and assign it to the author
-11. Preserve review history and keep the body current as the PR changes
+1. Bring the branch current with its target.
+2. Run formatting, lint, static analysis and change-scoped tests. CI runs the full suite.
+3. Run one `review-code` review of the branch diff, and fix what it confirms.
+4. Draft the title and main context, then show them with the target and Draft/Ready state for approval before opening.
+5. Fill the repository template with the approved context unchanged, open the PR in the approved state, and assign it to the author.
+6. Keep the body current as the PR changes.
 
-## Title
+## Content
 
-Name the smallest meaningful review unit and what it does. Avoid broad initiative titles and generic wording.
+- **Title:** the smallest meaningful unit and what it does.
+- **Context:** why the unit exists, the state it establishes, and what stays unchanged. Skip implementation history.
+- **Review focus:** where reviewers should look, which work is mechanical, and neighbouring changes in the sequence.
 
-## Context
-
-Explain why the review unit exists, what state it establishes, and what adjacent behaviour remains unchanged when that
-prevents scope being overstated. Do not include implementation history or debugging chronology.
-
-## Review focus
-
-State where reviewers should focus and identify mechanical or behaviour-preserving work. Mention earlier or later changes in
-the sequence when they clarify the boundary.
-
-## Rules
-
-- Follow repository templates and enforced checks
-- Link a ticket when one exists; never invent a key
-- Keep the approved context intact when assembling the template
-- State established causes as facts and uncertainty as uncertainty
-- Put screenshots in the body for visible changes
-- Keep testing evidence out unless the template requires a minimal Testing field
-- Do not post comments without explicit approval
-- Use `git-commit` rules for commit subjects, not PR titles
+Use the repository template, else [body-template.md](assets/body-template.md). Link the ticket key, and state causes as facts and doubts as doubts. Add screenshots for visible changes. Get explicit approval before posting any comment. Commit subjects follow `git-commit`.

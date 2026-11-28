@@ -107,8 +107,7 @@
       "expectations": [
         "Uses the bug structure rather than the story's opening sentence",
         "Explains that the type structures are not interchangeable",
-        "Rejects the existing-ticket precedent in favour of the bug structure",
-        "Still captures the user impact, through the summary and the expected versus actual"
+        "Rejects the existing-ticket precedent in favour of the bug structure"
       ]
     },
     {
@@ -139,24 +138,11 @@
       "id": "substantial-work-judges-missing-ticket",
       "category": "composition",
       "prompt": "Implement this shippable migration over several sessions. I have not mentioned a ticket.",
-      "expected_output": "Repository and tracker context determine whether a ticket is expected, with a question only if consequential ambiguity remains.",
+      "expected_output": "The project workflow is checked for an existing ticket, and no key is invented.",
       "expectations": [
-        "Recognises the work as substantial and multi-session",
-        "Looks for an existing ticket and inspects the repository workflow before asking",
-        "Proceeds without prompting when context reasonably establishes that the work is unticketed",
-        "Asks only when uncertainty about the ticket would change the workflow",
+        "Looks for an existing ticket from the project workflow",
+        "Uses a real key or none",
         "Does not invent a ticket key"
-      ]
-    },
-    {
-      "id": "exploration-does-not-demand-ticket",
-      "category": "proportionality",
-      "prompt": "Try a disposable local experiment to see whether the parser can handle this shape.",
-      "expected_output": "The experiment proceeds without a ticket interruption.",
-      "expectations": [
-        "Recognises the work as exploratory and disposable",
-        "Does not ask for a ticket solely because code may be written",
-        "Keeps the work local and scoped to the experiment"
       ]
     }
   ]

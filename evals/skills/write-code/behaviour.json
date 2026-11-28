@@ -8,8 +8,7 @@
       "expected_output": "Idiomatic Rust that loads the shared clean-code reference and applies its decisions without importing another language's syntax or architecture.",
       "expectations": [
         "Loads references/clean-code.md even though no Rust-specific reference exists",
-        "Uses descriptive names, explicit contracts, cohesive units, and guard-style early exits where Rust supports them idiomatically",
-        "Uses the shared good and bad examples to make organization and responsibility decisions",
+        "Uses descriptive names, guard-style early exits, and units with one responsibility where Rust supports them idiomatically",
         "Does not copy PHP, TypeScript, or framework-specific syntax, tooling, or architecture into the Rust module",
         "Does not load unrelated language references solely because the target language lacks one"
       ]
@@ -21,22 +20,19 @@
       "expected_output": "The shared clean-code reference is loaded before the applicable language reference and both shape the implementation.",
       "expectations": [
         "Loads references/clean-code.md before the language reference",
-        "Uses shared guidance for placement, cohesion, responsibility, naming, control flow, and comments",
-        "Uses the language reference only for language-specific decisions",
-        "Does not treat the presence of a language reference as replacing the shared preferences"
+        "Uses shared guidance for placement, responsibility, naming, control flow, and comments",
+        "Uses the language reference for language-specific decisions"
       ]
     },
     {
-      "id": "self-review-audits-code-organization",
+      "id": "reviewer-runs-before-presenting",
       "category": "regression",
-      "prompt": "The implementation is written. Review it before showing me the diff.",
-      "expected_output": "A structured self-review checks organization and readability as well as correctness before human review.",
+      "prompt": "The implementation is written and its checks pass. Get it ready to show me.",
+      "expected_output": "One review-code reviewer runs on the change and confirmed findings are fixed before the diff is presented.",
       "expectations": [
-        "Audits whether new files belong to the capability that owns them",
-        "Audits package or module cohesion and each unit's responsibility",
-        "Audits names, dependency direction, control flow, error flow, comments, and tests",
-        "Fixes every finding in the current change before presenting it",
-        "Uses review depth proportionate to the implementation rather than applying a wording-only checklist"
+        "Starts one review-code reviewer, at high for a branch going up for a PR and low otherwise",
+        "Fixes confirmed findings before presenting the diff",
+        "Presents the diff for approval rather than committing it"
       ]
     },
     {
@@ -48,7 +44,6 @@
         "Places the new logic in the same kind of class as the nearest equivalent capability",
         "Introduces no architectural layer the project does not already have",
         "Reuses the project's existing conventions for getting data in and out",
-        "Does not restructure towards an arrangement a reference happens to demonstrate",
         "Keeps the change to the capability that was asked for"
       ]
     },
@@ -59,20 +54,18 @@
       "expected_output": "The class in a clear invoice-specific location, with no generic catch-all directory introduced.",
       "expectations": [
         "Inspects the repository structure before choosing the file location",
-        "Uses an existing owning domain or module when one exists",
-        "Creates the smallest clear domain-specific location when no project structure can guide placement",
+        "Creates the smallest clear domain-specific location",
         "Does not place the class in a generic utils, helpers, services, or common directory"
       ]
     },
     {
       "id": "enforced-tooling-beats-reference-preference",
       "category": "project-precedence",
-      "prompt": "The formatter config in this repository enables a file-level declaration that the language reference says never to add, and every existing file has it. Add a new class.",
-      "expected_output": "A file matching what the formatter enforces, with the deviation from the reference acknowledged in a sentence.",
+      "prompt": "The formatter config in this repository enables a file-level declaration that the language reference says to leave out, and every existing file has it. Add a new class.",
+      "expected_output": "A file matching what the formatter enforces.",
       "expectations": [
         "Matches what the enforced tooling produces rather than the reference's preference",
         "Does not strip the enforced construct from files it touches",
-        "States in one sentence that the enforced config overrides the reference",
         "Does not apply the reference rule and leave the formatter to undo it"
       ]
     },
@@ -80,12 +73,11 @@
       "id": "settled-preference-survives-older-surrounding-code",
       "category": "counterexample",
       "prompt": "This file uses generic variable names throughout and declares no types on anything. Add a method that returns the records past their retention window.",
-      "expected_output": "New code that follows the naming and typing rules, without reformatting what is around it.",
+      "expected_output": "New code with precise names and declared types, and the surrounding code left alone.",
       "expectations": [
         "Names what it introduces for what the values hold, rather than copying the surrounding generic names",
         "Declares types on the code it adds",
         "Does not rename or retype the surrounding code as a side effect",
-        "Does not offer to match the new code to the older style because the neighbours differ",
         "Does not treat unenforced surrounding style as project convention"
       ]
     },
@@ -93,10 +85,9 @@
       "id": "reformatting-preserves-the-contract",
       "category": "regression",
       "prompt": "Reformat this PHP signature onto one parameter per line without changing its contract: public function send(Notifier $notifier, string $recipient, ?string $label = null): DeliveryResult",
-      "expected_output": "The same signature across several lines, with every parameter and type exactly as it was.",
+      "expected_output": "The same signature with one parameter per line and a trailing comma.",
       "expectations": [
-        "Leaves every parameter's declared type exactly as given, including its nullability",
-        "Leaves every parameter name, order, and default exactly as given",
+        "Leaves every parameter's declared type, name, order, and default exactly as given",
         "Adds no parameter that was not in the original",
         "Changes only line breaks, indentation, and the trailing comma"
       ]
@@ -105,11 +96,10 @@
       "id": "small-change-stays-small",
       "category": "proportionality",
       "prompt": "A template throws a deprecation warning when one of the fields it formats is missing. Guard it.",
-      "expected_output": "The guard, applied wherever the block repeats, and nothing else.",
+      "expected_output": "A small guard and nothing else.",
       "expectations": [
         "Adds the guard and stops",
         "Introduces no helper, value object, or abstraction for a single missing-value check",
-        "Proposes no change stack or multi-step plan for a contained fix",
         "Applies the same guard to every repeated occurrence rather than only the first"
       ]
     },
@@ -117,11 +107,10 @@
       "id": "no-unrelated-refactor",
       "category": "counterexample",
       "prompt": "There is an off-by-one in the pagination offset. Fix it.",
-      "expected_output": "The fix alone, with anything else noticed but left in place.",
+      "expected_output": "Only the off-by-one is changed.",
       "expectations": [
         "Changes only what the off-by-one requires",
         "Does not reformat, reorder, or rename anything else in the file",
-        "Folds no unrelated cleanup into the same change",
         "Mentions anything else worth fixing rather than fixing it silently"
       ]
     },
@@ -129,35 +118,21 @@
       "id": "composes-with-write-tests",
       "category": "composition",
       "prompt": "Add the new eligibility rule, and cover it.",
-      "expected_output": "The implementation and its tests, with the test work governed by write-tests.",
+      "expected_output": "Implementation and tests, with the failing test written first through write-tests.",
       "expectations": [
         "Produces both the implementation and the tests",
-        "Loads write-tests for the test work rather than deciding coverage from this skill alone",
-        "Bases coverage on the branches the new code actually has, including its boundaries",
+        "Loads write-tests for the test work",
         "Follows the shape of the nearest existing test rather than inventing one"
-      ]
-    },
-    {
-      "id": "routes-large-change-to-write-plan",
-      "category": "composition",
-      "prompt": "Swap out the current implementation for the new one. It is used by a request path, a nightly job, and an admin preview.",
-      "expected_output": "A handoff to write-plan for the decomposition, before any code is written.",
-      "expectations": [
-        "Recognises this as several review objectives rather than one contained change",
-        "Routes to write-plan instead of starting the implementation",
-        "Does not decide the migration sequencing from within this skill",
-        "Does not begin editing every affected surface in one diff"
       ]
     },
     {
       "id": "validates-before-reporting-done",
       "category": "normal",
       "prompt": "Add the field to the response payload and let me know when it is done.",
-      "expected_output": "The change, with the project's own formatter, linter, and relevant tests run over it before it is called complete.",
+      "expected_output": "Checks run through the project's own commands before the change is reported done.",
       "expectations": [
         "Runs the project's formatter, linter, static analysis, and the tests covering the change",
-        "Uses the project's own runner where one exists rather than an ad hoc command",
-        "Names any check that could not run and says why",
+        "Uses the project's own runner rather than an ad hoc command",
         "Does not report the change as verified on the strength of having written it"
       ]
     },
@@ -165,7 +140,7 @@
       "id": "names-carry-the-explanation",
       "category": "normal",
       "prompt": "Pull this block out into its own method. It filters a collection down and sums what is left.",
-      "expected_output": "A named method whose name makes a comment unnecessary.",
+      "expected_output": "A well-named method with no narrating comments.",
       "expectations": [
         "Names the method with an active verb for what it does",
         "Names the intermediate values for what they hold rather than generically",
@@ -177,45 +152,30 @@
       "id": "comments-require-request-or-complexity",
       "category": "regression",
       "prompt": "Add a formatter for this response object. Include comments documenting that timestamps must remain UTC and absent optional fields must be omitted because those are external format constraints.",
-      "expected_output": "The formatter with comments because the user explicitly requested them, while keeping them narrow and non-redundant.",
+      "expected_output": "Comments because the user asked for them, focused on what the code cannot say.",
       "expectations": [
         "Writes comments because the user specifically requested them",
         "Keeps comments focused on information the code does not already state",
-        "Does not use the request as permission to narrate obvious syntax",
-        "Still uses clear names and structure"
+        "Does not use the request as permission to narrate obvious syntax"
       ]
     },
     {
       "id": "complexity-can-justify-a-comment",
       "category": "counterexample",
       "prompt": "Implement this protocol parser. One state transition must preserve a counterintuitive wire-compatibility rule, and extracting it would split the state machine across files.",
-      "expected_output": "Clear structured code with one narrow comment for the irreducible compatibility constraint.",
+      "expected_output": "Readable structure with one narrow comment for the compatibility rule.",
       "expectations": [
         "First uses names and structure to make the state machine readable",
-        "Adds only the narrow comment needed to preserve the irreducible compatibility knowledge",
-        "Does not fragment the cohesive state machine merely to avoid every comment",
+        "Adds only the narrow comment that explains what the code cannot",
         "Adds no comments that narrate ordinary control flow"
-      ]
-    },
-    {
-      "id": "non-obvious-reasoning-stays-out-of-the-file",
-      "category": "counterexample",
-      "prompt": "This retry threshold has to be exactly this value because of a downstream limit nobody would guess from reading the code. Raise it, and make sure whoever touches it next understands why.",
-      "expected_output": "The value named in code and the reasoning recorded outside it, with no explanatory comment added.",
-      "expectations": [
-        "Adds no rationale comment, inline or docblock, even though the reason is genuinely non-obvious",
-        "Gives the value a name of its own rather than leaving a bare literal",
-        "Carries the reasoning in what describes the change rather than beside the code",
-        "Does not substitute a docblock for the inline comment it declined to write"
       ]
     },
     {
       "id": "multiline-nested-calls-expose-flow",
       "category": "normal",
       "prompt": "Reformat this long expression where the result of one call is passed directly into another call.",
-      "expected_output": "Readable multiline code that exposes the evaluation flow without changing behavior.",
+      "expected_output": "A nested call on its own line or named, with the behaviour unchanged.",
       "expectations": [
-        "Splits long arguments one item per line with trailing commas",
         "Places a nested call on its own line or gives its result a descriptive intermediate name",
         "Preserves the original types, argument order, and behavior",
         "Does not extract trivial methods merely to shorten the expression"
@@ -225,71 +185,53 @@
       "id": "shared-layout-does-not-pad-for-alignment",
       "category": "normal",
       "prompt": "Clean up these declarations in a language without a dedicated write-code reference. The assignments and object keys have extra spaces so their separators line up vertically.",
-      "expected_output": "Ordinary language spacing without manual alignment padding.",
+      "expected_output": "Single spacing with semantic blank lines kept.",
       "expectations": [
         "Removes padding added only to align assignments or keys vertically",
-        "Uses the language formatter or ordinary single spacing for mechanical layout",
         "Preserves semantic blank lines between unrelated logical phases",
         "Does not collapse distinct phases into one dense block"
-      ]
-    },
-    {
-      "id": "php-parameters-and-conditional-flow",
-      "category": "normal",
-      "prompt": "Refactor this PHP method: its optional label comes before the required subject, a ternary supplies a default, and a switch selects the delivery mode.",
-      "expected_output": "Parameters ordered by meaning and importance with required before optional, null coalescing for the default, guard clauses for flow, and match for selection.",
-      "expectations": [
-        "Orders parameters by their meaning and importance",
-        "Places required parameters before optional parameters",
-        "Uses null coalescing rather than a ternary for the default",
-        "Uses guard clauses for conditional flow and match for value selection"
       ]
     },
     {
       "id": "php-per-then-project-format",
       "category": "project-precedence",
       "prompt": "Write a PHP method in a project with a configured formatter. Follow the PHP coding standard while writing, then format the completed code to match the project.",
-      "expected_output": "PHP written to PER, then formatted with the project's configured formatter and conventions.",
+      "expected_output": "PHP written to the standard and finished with the project formatter.",
       "expectations": [
         "Uses PER as the writing baseline for PHP",
         "Runs the project's configured formatter after writing the implementation",
-        "Accepts formatter output and enforced project conventions for final mechanical layout"
+        "Accepts formatter output for final mechanical layout"
       ]
     },
     {
-      "id": "php-loop-inputs-and-compact-calls",
+      "id": "php-no-ternary-and-named-checks",
       "category": "normal",
-      "prompt": "Clean up PHP code that constructs a query chain inside a foreach expression, splits an arrow from its method name across lines, and wraps a short one-argument require expression onto several lines.",
-      "expected_output": "A precomputed loop iterable, readable method calls, and short expressions kept compact.",
+      "prompt": "Refactor this PHP method: a nested ternary supplies a default, and a long condition combines type assertions with several || checks.",
+      "expected_output": "Null coalescing, guards or match, and named checks.",
       "expectations": [
-        "Defines the foreach iterable before entering the loop",
-        "Does not split a receiver from its ->method() call",
-        "Keeps short calls and require expressions on one line when they fit",
-        "Uses the project formatter for other mechanical line breaks"
+        "Uses null coalescing, guard clauses, or match in place of the ternary",
+        "Names each check before the condition rather than leaving a wrapped || expression"
       ]
     },
     {
-      "id": "php-complex-conditions-and-input-state",
+      "id": "php-chain-and-nested-call-layout",
       "category": "normal",
-      "prompt": "Refactor PHP logic with a nested ternary, a long condition combining type assertions and property comparisons, and a method receiving many related traversal-state arguments.",
-      "expected_output": "Straightforward branching, named validation steps, and a purpose-named DTO for the cohesive input state.",
+      "prompt": "Clean up PHP that calls a method chain of two links on one line and passes a nested method call as one of several arguments.",
+      "expected_output": "Each link after the first on its own line and the nested call hoisted into a variable.",
       "expectations": [
-        "Removes nested ternary control flow in favor of guards, early returns, or match for closed value selection",
-        "Reworks the long compound assertion into clear named checks or a focused matcher",
-        "Groups many related structured input values in a purpose-named DTO",
-        "Keeps unrelated values and dependencies explicit rather than bundling everything together",
-        "Gives extracted methods one clear responsibility"
+        "Keeps the receiver and first link on one line and starts each later link on its own line",
+        "Hoists the nested call into a named variable",
+        "Puts each argument of a multi-argument named call on its own line"
       ]
     },
     {
       "id": "php-enables-strict-api-comparison",
       "category": "normal",
       "prompt": "Check whether the string 'first' exists in a PHP array of elements, then find an invoice ID in an array of IDs.",
-      "expected_output": "Strict in_array and array_search calls that cannot match values through loose coercion.",
+      "expected_output": "Strict comparison on both lookups.",
       "expectations": [
         "Passes true for the strict argument to in_array",
         "Passes true for the strict argument to array_search",
-        "Uses named arguments where the PHP signature and project runtime support them",
         "Does not rely on loose equality or implicit coercion"
       ]
     },
@@ -297,19 +239,18 @@
       "id": "php-domain-data-uses-explicit-types",
       "category": "normal",
       "prompt": "Implement a PHP Action we own that accepts nested keyed invoice input and must return success or failure with optional invoice data.",
-      "expected_output": "A purpose-named input DTO and the project's Result pattern for the Action outcome.",
+      "expected_output": "An input DTO and an ActionResult.",
       "expectations": [
-        "Replaces the keyed input shape with a purpose-named DTO because the signature is owned",
-        "Returns a purpose-named Result that represents success, failure, and optional returned data",
-        "Does not use a DTO merely because the Action returns data",
-        "Does not rewrite a framework-defined array signature that the method must implement"
+        "Replaces the keyed input shape with a purpose-named DTO",
+        "Returns an ActionResult that represents success, failure, and optional returned data",
+        "Does not use a DTO merely because the Action returns data"
       ]
     },
     {
       "id": "php-exception-translation-retains-cause",
       "category": "regression",
       "prompt": "Translate a GatewayUnavailable exception into the domain's PaymentFailed exception in PHP.",
-      "expected_output": "A narrow catch and domain exception that retains the infrastructure exception as its previous cause.",
+      "expected_output": "A narrow catch and a domain exception carrying the cause.",
       "expectations": [
         "Catches the narrow infrastructure exception rather than Throwable",
         "Throws the purpose-named domain exception rather than a generic Exception",
@@ -318,169 +259,130 @@
       ]
     },
     {
+      "id": "php-loop-merges-once",
+      "category": "regression",
+      "prompt": "Collect the responses of each batch in a PHP foreach and return them as one flat array.",
+      "expected_output": "Pieces collected in the loop and merged once after it.",
+      "expectations": [
+        "Collects each batch's responses in the loop",
+        "Merges once after the loop",
+        "Does not call array_merge on each iteration"
+      ]
+    },
+    {
       "id": "logical-blocks-use-proportionate-whitespace",
       "category": "proportionality",
       "prompt": "Clean up this method whose validation, transformation, and persistence statements currently run together without spacing.",
-      "expected_output": "Related statements grouped into readable logical blocks separated by proportionate vertical whitespace.",
+      "expected_output": "Blank lines between phases and none between every statement.",
       "expectations": [
         "Keeps statements serving the same step together",
         "Separates distinct logical blocks with vertical whitespace",
-        "Does not insert blank lines between every statement",
-        "Leaves a cohesive operation unbroken where spacing would impede readability"
+        "Puts a blank line before each if, loop, or match",
+        "Does not insert blank lines between every statement"
       ]
     },
     {
       "id": "complexity-threshold-prompts-judgement",
       "category": "proportionality",
       "prompt": "This method has five parameters and four returns, but each return is a short guard and the complete flow fits on one screen. Clean it up.",
-      "expected_output": "A considered extraction only where it improves comprehension, without mechanical fragmentation.",
+      "expected_output": "Limits treated as a prompt to look for a seam, not a reason to split mechanically.",
       "expectations": [
-        "Treats the thresholds as signals to inspect rather than automatic failures",
-        "Combines guards only when they share an outcome without hiding distinct cases",
+        "Looks for a seam instead of treating the limits as automatic failures",
         "Extracts a cohesive responsibility if one exists",
         "Does not split by line count or replace a readable flow with trivial indirection"
-      ]
-    },
-    {
-      "id": "laravel-model-scope-and-repository-boundary",
-      "category": "normal",
-      "prompt": "In this Laravel project, overdue invoices are filtered in three queries. One query also joins account data and decides which reminder policy applies. Put this in the right places.",
-      "expected_output": "A reusable overdue model scope, query composition in the repository, and the business decision outside persistence.",
-      "expectations": [
-        "Moves the reusable model-subset constraint into a named model scope",
-        "Keeps the cross-model query composition in the established repository or query layer",
-        "Keeps reminder-policy selection out of the repository",
-        "Does not introduce a new architectural layer where the project has no equivalent"
       ]
     },
     {
       "id": "laravel-naming-comes-from-project-tooling",
       "category": "project-precedence",
       "prompt": "Add a Laravel endpoint in a project whose documented naming conventions and linter differ from common Laravel defaults.",
-      "expected_output": "Names that satisfy the project's documented conventions and enforced tooling without applying framework naming preferences.",
+      "expected_output": "Project naming, with Laravel guidance applied to framework behaviour only.",
       "expectations": [
         "Uses the naming conventions documented by the project",
         "Satisfies the formatter, linter, and static analysis rules that govern naming",
-        "Does not rename existing or new symbols to match Laravel defaults",
-        "Applies Laravel guidance only to framework behavior and responsibility boundaries"
-      ]
-    },
-    {
-      "id": "laravel-data-transfer-respects-framework-contracts",
-      "category": "project-precedence",
-      "prompt": "Add a Laravel write endpoint whose framework interface requires an array, then pass its validated input into an application Action whose signature we own.",
-      "expected_output": "The required framework array signature at the edge, converted into a purpose-named DTO for the owned Action input.",
-      "expectations": [
-        "Preserves the framework-defined array signature",
-        "Converts validated input into a purpose-named DTO at the owned application entrypoint",
-        "Does not use a DTO as the Action return type merely because it returns data",
-        "Uses the established Result pattern when the Action must represent success or failure with data"
+        "Does not rename existing or new symbols to match Laravel defaults"
       ]
     },
     {
       "id": "laravel-avoids-mass-assignment",
       "category": "normal",
       "prompt": "Persist a new Laravel model from already validated request data.",
-      "expected_output": "Explicit model attribute assignment followed by persistence, without create, fill, or other mass assignment.",
+      "expected_output": "Explicit attribute assignment.",
       "expectations": [
         "Assigns each intended model attribute explicitly",
-        "Does not pass the validated array to create or fill",
-        "Persists the model only after its intended attributes are visible in code",
-        "Does not weaken fillable or guarded configuration"
+        "Does not pass the validated array to create or fill"
       ]
     },
     {
-      "id": "laravel-helpers-and-purpose-built-methods",
+      "id": "laravel-config-and-helpers",
       "category": "normal",
-      "prompt": "Read a nested array value, fetch runtime configuration, resolve a runtime-selected handler, and split a collection into accepted and rejected records in Laravel.",
-      "expected_output": "Laravel helpers for array and configuration access, resolve for the runtime-selected dependency, and Collection partition for the two groups.",
+      "prompt": "Read a nested array value, fetch runtime configuration, and split a collection into accepted and rejected records in Laravel.",
+      "expected_output": "data_get, config(), and partition.",
       "expectations": [
-        "Allows data_get or an equivalent clear Laravel API for nested array access",
+        "Uses data_get for the nested array access",
         "Uses config for runtime configuration and never env outside a configuration file",
-        "Uses resolve for the dependency that genuinely requires runtime container selection",
         "Uses partition instead of duplicating filter and reject passes"
       ]
     },
     {
       "id": "laravel-related-writes-share-transaction-boundary",
       "category": "regression",
-      "prompt": "Issuing an invoice saves it and records its ledger entry through two repositories. Both writes must succeed or fail together.",
-      "expected_output": "One DB transaction at the established orchestration layer around both repository calls.",
+      "prompt": "Issuing an invoice saves it and records its ledger entry. Both writes must succeed or fail together.",
+      "expected_output": "One transaction in the orchestrating layer.",
       "expectations": [
-        "Places one transaction around the complete business operation",
-        "Keeps the transaction in the layer that orchestrates both writes",
-        "Does not put independent partial transactions inside each repository",
-        "Keeps business decisions out of the persistence repositories"
+        "Places one DB::transaction around the complete business operation",
+        "Keeps the transaction in the layer that orchestrates both writes"
       ]
     },
     {
       "id": "laravel-resource-uses-conditional-field-apis",
       "category": "normal",
       "prompt": "Return a Laravel API resource whose customer relation is optional and whose reference field may be null.",
-      "expected_output": "A JsonResource using whenLoaded for the relation and whenNotNull for the nullable field.",
+      "expected_output": "A JsonResource using conditional field APIs.",
       "expectations": [
-        "Uses a JsonResource rather than returning a model or raw response array from the controller",
+        "Uses a JsonResource rather than returning a model or raw array from the controller",
         "Uses whenLoaded for the optional customer relation",
-        "Uses whenNotNull for the nullable reference",
-        "Does not mutate the resource array through conditional branches"
+        "Uses whenNotNull for the nullable reference"
       ]
     },
     {
       "id": "typescript-narrows-instead-of-asserting",
       "category": "normal",
       "prompt": "Handle a browser input event in TypeScript and save the target value. The event target is not statically known to be an input.",
-      "expected_output": "An instanceof guard that narrows the event target before its value is used.",
+      "expected_output": "A narrowed target with no assertion.",
       "expectations": [
         "Narrows event.target with instanceof HTMLInputElement",
-        "Returns or otherwise handles the non-input case explicitly",
-        "Does not assert event.target with as HTMLInputElement",
-        "Does not coerce the value defensively after it has been narrowed"
+        "Does not assert event.target with as HTMLInputElement"
       ]
     },
     {
       "id": "typescript-variant-dispatch-is-exhaustive",
       "category": "regression",
       "prompt": "Map every member of a closed TypeScript invoice-status union to its handler.",
-      "expected_output": "One as-const literal definition and a Record keyed by the derived discriminant union.",
+      "expected_output": "An as-const map and an exhaustive Record.",
       "expectations": [
         "Defines each variant literal once in an as-const value map",
-        "Derives the discriminant union from the value map",
-        "Uses Record keyed by the union so missing handlers are a type error",
-        "Does not duplicate literals across a union, comparisons, and dispatch table"
+        "Derives the union from the value map",
+        "Uses Record keyed by the union so a missing handler is a type error"
       ]
     },
     {
       "id": "vue-derived-state-does-not-use-watch",
       "category": "normal",
       "prompt": "In a Vue component, keep an invoice total updated from a reactive list of line items.",
-      "expected_output": "A computed value derived directly from the reactive line items.",
+      "expected_output": "A computed total.",
       "expectations": [
         "Uses computed for the invoice total",
-        "Does not copy derived state into a ref",
-        "Does not use watch or watchEffect to update other reactive state",
-        "Keeps watch APIs available for external side-effect synchronization"
-      ]
-    },
-    {
-      "id": "configuration-categories-use-section-banners",
-      "category": "normal",
-      "prompt": "Create a new comment-capable configuration file with logging, cache, and queue settings. The repository has no existing banner convention.",
-      "expected_output": "Configuration grouped by category under compact three-line section banners.",
-      "expectations": [
-        "Groups logging, cache, and queue entries into distinct sections",
-        "Uses a three-line hash banner for each category",
-        "Keeps entries belonging to one category together",
-        "Does not apply comment syntax to a format that forbids comments"
+        "Does not use watch or watchEffect to update other reactive state"
       ]
     },
     {
       "id": "bash-command-substitution-preserves-status",
       "category": "regression",
       "prompt": "In a Bash function, assign the output of git rev-parse to a local repository_root and stop if git fails.",
-      "expected_output": "A separate local declaration and assignment whose status remains the command substitution's status.",
+      "expected_output": "A separate local declaration and assignment.",
       "expectations": [
         "Declares repository_root separately from the command substitution",
-        "Assigns the command substitution in a command whose status can fail",
         "Handles or propagates the git failure",
         "Does not mask failure with local, readonly, declare, or export"
       ]
@@ -489,35 +391,33 @@
       "id": "bash-filenames-remain-nul-delimited",
       "category": "normal",
       "prompt": "Run a Bash function for every file below a directory, including names with spaces and newlines.",
-      "expected_output": "A NUL-delimited find loop using read -r -d with quoted expansions.",
+      "expected_output": "A NUL-delimited find loop with quoted expansions.",
       "expectations": [
         "Uses find with -print0",
         "Reads with IFS= read -r -d ''",
         "Quotes the filename passed to the function",
-        "Does not parse ls or iterate over command-substitution text"
+        "Does not parse ls"
       ]
     },
     {
-      "id": "bash-follows-language-naming-and-string-tests",
+      "id": "bash-follows-language-naming",
       "category": "normal",
-      "prompt": "Add a Bash function with a local output directory, an exported cache directory, a force option flag, and a guard for an empty label.",
-      "expected_output": "CSE 374-style Bash names and an explicit -z string test without artificial boolean naming.",
+      "prompt": "Add a Bash function with a local output directory, an exported cache directory, and a force option flag.",
+      "expected_output": "CSE 374-style names without a boolean prefix on the option variable.",
       "expectations": [
         "Uses snake_case for the function and local variable",
         "Uses ALL_CAPS for the exported environment variable",
-        "Allows the option-state variable to be named force",
-        "Checks the empty label with quoted expansion and -z inside double brackets"
+        "Names the option-state variable force"
       ]
     },
     {
       "id": "go-semantic-whitespace-separates-error-guard",
       "category": "normal",
       "prompt": "Format a Go function that loads a customer, checks that error, creates an invoice, checks that error, saves it, and returns it.",
-      "expected_output": "One blank line between each operation and its error guard, and between unrelated phases.",
+      "expected_output": "One blank line between each operation and its error guard.",
       "expectations": [
         "Puts one blank line between each operation and the guard checking its error",
-        "Separates loading, creation, persistence, and final return into semantic paragraphs",
-        "Does not attach an error guard directly to the operation it checks",
+        "Wraps each error with the failed operation in lower-case text without trailing punctuation",
         "Does not insert blank lines between every statement"
       ]
     },
@@ -525,23 +425,19 @@
       "id": "go-interface-belongs-to-consumer",
       "category": "regression",
       "prompt": "A Go invoice package can consume either the production Postgres store or a runtime-selected in-memory store. Add the abstraction at their boundary.",
-      "expected_output": "A narrow interface in the consuming invoice package, while constructors return concrete implementations.",
+      "expected_output": "A narrow interface in the consuming package.",
       "expectations": [
-        "Defines the narrow interface in the consuming package",
-        "Includes only methods the consumer uses",
-        "Keeps the implementation constructor's return type concrete",
-        "Does not create a pointer to an interface or an interface in the provider package"
+        "Defines the interface in the consuming package",
+        "Keeps the implementation constructor's return type concrete"
       ]
     },
     {
       "id": "go-error-wrapping-is-api-design",
       "category": "normal",
-      "prompt": "Add context to a Go storage error. Callers may classify the underlying not-found error, but implementation errors at the HTTP boundary must remain hidden.",
-      "expected_output": "Percent-w wrapping where classification is supported and non-wrapping context at the encapsulation boundary.",
+      "prompt": "Add context to a Go storage error. Callers may classify the underlying not-found error.",
+      "expected_output": "%w wrapping where callers classify, handled once.",
       "expectations": [
-        "Wraps with %w where callers intentionally use errors.Is or errors.As",
-        "Does not expose an implementation error through %w at the HTTP boundary",
-        "Uses lower-case operation-focused error text without trailing punctuation",
+        "Wraps with %w because callers use errors.Is or errors.As",
         "Handles each error once rather than logging and returning it"
       ]
     },
@@ -549,109 +445,48 @@
       "id": "go-goroutine-has-owner-and-stop-condition",
       "category": "regression",
       "prompt": "Start a long-running Go processor in the background and make shutdown reliable.",
-      "expected_output": "A caller-owned goroutine tied to context cancellation and explicitly awaited.",
+      "expected_output": "A caller-owned goroutine tied to context cancellation and awaited.",
       "expectations": [
-        "Provides a cancellation or completion condition",
-        "Keeps ownership of waiting for the goroutine explicit",
-        "Propagates context into blocking work",
-        "Does not launch fire-and-forget work or use context.Background inside the component"
+        "Gives the goroutine an owner that waits for it, such as errgroup",
+        "Propagates the caller's context into blocking work"
       ]
     },
     {
       "id": "go-naming-overrides-generic-shapes",
       "category": "normal",
-      "prompt": "Implement a Go accessor for an invoice ID, a validity predicate, and a method receiver. Keep the code compatible with gofmt.",
-      "expected_output": "Idiomatic Go names such as InvoiceID, Valid, and a short receiver, with only gofmt-produced alignment.",
+      "prompt": "Implement a Go accessor for an invoice ID and a validity predicate.",
+      "expected_output": "InvoiceID and Valid.",
       "expectations": [
         "Preserves ID as a Go initialism",
         "Omits the Get prefix from the accessor",
-        "Allows Valid rather than mechanically requiring IsValid",
-        "Uses a short consistent receiver name and does not hand-pad declarations"
-      ]
-    },
-    {
-      "id": "commits-each-reviewed-stack-entry-before-continuing",
-      "category": "regression",
-      "prompt": "Implement the approved three-entry change stack. Review each entry as you go.",
-      "expected_output": "Each entry is self-reviewed, approved by a human, gated, committed, and made resumable before the workflow stops at the stack boundary.",
-      "expectations": [
-        "Implements only one stack entry at a time",
-        "Self-reviews and fixes the current entry before presenting it for human review",
-        "Reconciles implementation and review discoveries into the current and affected later plans",
-        "Updates an ignored stack context with settled decisions and the exact next action before review",
-        "Keeps each affected plan's context bootstrap aligned with the revised skills, files, commands, and next action",
-        "Waits for explicit human approval before running the project gates",
-        "Commits the approved entry after its gates pass",
-        "Updates the ignored stack context with the commit identifier",
-        "Verifies that the local checkpoint matches the commit and can resume in a fresh session at the exact next action",
-        "Stops before beginning the next stack entry",
-        "Returns for renewed human review if anything changes after approval",
-        "Does not defer all commits until the complete stack has been implemented",
-        "Folds an adjustment into its earlier commit when rewriting is safe"
-      ]
-    },
-    {
-      "id": "stops-only-for-entry-review",
-      "category": "regression",
-      "prompt": "Implement the approved three-entry stack. Keep me informed as you work, but I only want to respond when an entry is ready for review.",
-      "expected_output": "Informational progress updates while the current entry is completed, one review stop before its gates and commit, then a stop at the verified fresh-session boundary.",
-      "expectations": [
-        "Does not ask for permission to continue during implementation or self-review of an entry",
-        "Stops when the complete entry diff is ready for human review",
-        "Runs gates and commits immediately after approval without another continuation prompt",
-        "Verifies the persisted state can restore a fresh session to the exact next action",
-        "Stops before starting the next approved entry",
-        "Stops early only for a blocker or a decision that changes the agreed direction"
-      ]
-    },
-    {
-      "id": "laravel-action-composition-needs-one-operation",
-      "category": "counterexample",
-      "prompt": "This Laravel project uses Actions. Make PlaceOrderAction call ChargeCardAction, SendReceiptAction, UpdateAnalyticsAction, and RebuildSearchIndexAction so the controller stays one line.",
-      "expected_output": "Composition at the established orchestration boundary, with an Action calling Actions only where they form one business operation.",
-      "expectations": [
-        "Does not chain Actions merely to make the controller shorter",
-        "Keeps unrelated follow-up work at the established orchestration or event boundary",
-        "Allows focused Actions to compose only where the project treats them as one business operation",
-        "Keeps persistence concerns in the established persistence layer"
+        "Names the predicate Valid rather than IsValid"
       ]
     },
     {
       "id": "fixes-check-feedback-before-next-edit",
       "category": "normal",
       "prompt": "While adding a refund reason field, the checks run after the edit report a formatter failure and a static analysis error on the file just changed.",
-      "expected_output": "Both are fixed before the next file is edited.",
+      "expected_output": "Failures fixed before the next edit.",
       "expectations": [
-        "Fixes the reported failures on that file before editing another file",
-        "Explains in one line any reported rule it decides does not apply"
+        "Fixes the reported failures on that file before editing another file"
       ]
     },
     {
       "id": "uses-open-ide-without-taking-focus",
       "category": "proportionality",
       "prompt": "Add a helper for formatting order totals. The IDE already has this checkout open, and the user is working in another window.",
-      "expected_output": "Existing helpers are searched through the IDE and the new file checked there, without opening anything.",
+      "expected_output": "IDE tools used without touching the user's window.",
       "expectations": [
-        "Searches for an existing helper through the IDE before adding one",
+        "Uses the IDE's symbol tools to find an existing helper before adding one",
         "Checks the changed file's problems through the IDE",
         "Opens no project, window, or file in the IDE and does not bring it to the front"
-      ]
-    },
-    {
-      "id": "skips-ide-when-not-open",
-      "category": "counterexample",
-      "prompt": "Fix the off-by-one in the pagination helper. No IDE has this checkout open.",
-      "expected_output": "The fix is made and checked with the project's command-line gates only.",
-      "expectations": [
-        "Does not open the checkout in an IDE",
-        "Runs the project's formatting, lint, static analysis, and covering tests from the command line"
       ]
     },
     {
       "id": "proves-tests-fail-without-the-change",
       "category": "normal",
       "prompt": "The new discount cap is implemented with two new tests, and the work has not been committed yet. Get it ready to hand back.",
-      "expected_output": "Both tests are shown failing against trunk's code and passing with the change, with no work lost.",
+      "expected_output": "Tests shown failing against trunk and passing with the change.",
       "expectations": [
         "Runs the new tests against trunk's version of the changed code and shows them failing",
         "Restores the change and shows the tests passing",
@@ -662,30 +497,29 @@
       "id": "hands-back-with-evidence",
       "category": "normal",
       "prompt": "The export fix is done and the edit checks are clean. Hand it back.",
-      "expected_output": "The handoff checks run, then a report ending in an Evidence section.",
+      "expected_output": "Handoff checks run and an Evidence section.",
       "expectations": [
-        "Runs the handoff checks before reporting",
-        "Ends with an Evidence section listing each command and the output that shows its result",
-        "Makes no claim that it works without output to support it"
+        "Runs verify-changes.sh handoff before reporting",
+        "Exercises the change end to end on realistic data",
+        "Ends with an Evidence section listing each command and the output that shows its result"
       ]
     },
     {
       "id": "defines-failing-check-before-implementing",
       "category": "normal",
       "prompt": "Orders placed just before midnight are showing up on the wrong day in the daily sales report. Fix it.",
-      "expected_output": "A failing test reproducing the wrong-day order, seen to fail, then a fix iterated until that test passes.",
+      "expected_output": "A failing check first, then a loop to green.",
       "expectations": [
         "Writes a check that reproduces the bug before changing production code",
         "Runs the check and shows it failing for the reported reason before implementing",
-        "Reruns the check after each attempt and keeps fixing until it passes, without stopping to ask between attempts",
-        "Reports done only once the check and the gates pass"
+        "Reruns the check after each attempt and keeps fixing until it passes, without stopping to ask between attempts"
       ]
     },
     {
       "id": "untestable-change-uses-command-check",
       "category": "proportionality",
       "prompt": "Bump the build so it targets the newer runtime version the deploy platform now requires.",
-      "expected_output": "A command with a stated expected result as the end state, rather than a unit test invented for a config change.",
+      "expected_output": "A command and its expected output as the check.",
       "expectations": [
         "States the end state as a command and the output that means it passed",
         "Does not invent a unit test for a change no test can meaningfully cover",
@@ -696,11 +530,11 @@
       "id": "never-weakens-the-check-to-pass",
       "category": "regression",
       "prompt": "The test you wrote for the rounding fix still fails after three attempts. The assertion expects 10.05 and the code returns 10.04.",
-      "expected_output": "Further work on the code, or a report of the check and its last failure, with the assertion left as it is.",
+      "expected_output": "The check kept as strict as written while the code is fixed.",
       "expectations": [
-        "Leaves the check's expected result unchanged unless the expectation itself is shown to be wrong",
+        "Leaves the check's expected result unchanged",
         "Does not skip, delete, or loosen the test to make it pass",
-        "When it stops, reports the check, the last failure, and what was tried"
+        "Keeps working on the code until the check passes"
       ]
     }
   ]

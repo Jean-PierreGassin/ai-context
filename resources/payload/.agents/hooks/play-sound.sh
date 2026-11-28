@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-# Cross-platform completion sound for agent hooks.
-# Plays the first working backend for the current OS, then falls back to the
-# terminal bell. Playback runs detached and the script always exits 0, so the
-# hook returns immediately and a missing audio backend never blocks it.
+# Completion sound for agent hooks: first working backend for the OS, else the
+# terminal bell. Runs detached and always exits 0, so a missing backend never blocks.
 
 set -u
 

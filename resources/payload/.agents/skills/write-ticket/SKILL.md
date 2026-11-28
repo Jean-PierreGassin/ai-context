@@ -1,48 +1,25 @@
 ---
 name: write-ticket
-description: Write or edit tracker tickets and decide when substantial work needs one. Use for stories, bugs, tasks, and investigations.
+description: Write or edit tracker tickets. Use when drafting a story, bug, task or investigation, or deciding whether substantial work needs a ticket.
 ---
 
-# Write Ticket
+A ticket says what outcome we want, which rules make it correct, and which constraints are expensive to reverse. `write-plan` owns the order of the work.
 
-A ticket defines the outcome, correctness rules, and constraints that are expensive to reverse. `write-plan` defines implementation order.
+Find the existing ticket from the project workflow. Use its real key.
 
-## Process
+Pick the type, then follow its reference exactly, even when older tickets differ:
 
-1. Use the project workflow and task scope to find or justify a ticket. Proceed when clearly unticketed, ask only when ambiguity changes delivery, and never invent a ticket or key
-2. Determine the type: story, bug, task, or investigation
-3. Read the matching reference. Follow its structure and field rules exactly. Do not copy another type's structure
-4. Apply the shared principles to every type. Existing tickets do not override these principles
-5. Check the draft against the type's field rules and shared principles before finishing
-6. When filing it, set the tracker fields in the create call, not afterwards: parent epic or story, issue type, priority, assignee, sprint or board placement, labels, and issue links. Take each from recent sibling tickets in the same project and area. When the project's tickets sit under epics and none clearly fits, ask which before filing. Read the ticket back after creating it and confirm every field landed
+- [story](references/story.md): a new user-facing capability, the what and why.
+- [bug](references/bug.md): existing behaviour is wrong and reproducible.
+- [task](references/task.md): one technical slice, linked to its story.
+- [investigation](references/investigation.md): an open question, not a shippable outcome.
 
-## Shared principles
+## Principles
 
-### Outcome-focused, not implementation
+- **Outcome, not implementation.** Describe behaviour, correctness rules, edge cases and test scenarios in domain language, so the ticket survives a change of design. Leave out code, signatures and implementation order. That belongs in a plan.
+- **Project-specific only.** Keep business rules and non-obvious constraints. Review already enforces standard practice.
+- **Self-contained.** Someone new can start without the conversation. Link related tickets as hyperlinks.
 
-Include outcomes, correctness rules, edge cases, affected entry points, test scenarios, and costly decisions. Exclude algorithms, internal signatures, incidental framework mechanics, and implementation order.
+## Filing
 
-Do not include code, pseudocode, diffs, or coded instructions. Describe contracts and constraints in domain language. The ticket must remain valid when the implementation changes.
-
-### Don't restate standard practice
-
-Do not restate framework or architecture practice enforced in review. Keep project-specific business rules, non-obvious constraints, and missable edge cases.
-
-### Make it self-contained
-
-- Use the business's domain terms
-- Link related tickets as hyperlinks, not plain text keys
-- Include enough context, behavior, constraints, and acceptance criteria to start without reconstructing the conversation
-
-## References
-
-Each reference gives that type's panel structure, field rules, and a compact skeleton:
-
-| Type | Read | Use it for |
-|---|---|---|
-| Story | `references/story.md` | A new user-facing capability: the what and why, linking out to its Tasks |
-| Bug | `references/bug.md` | Existing behavior is wrong, reproducible, and root-cause-driven |
-| Task | `references/task.md` | The technical how, one implementation slice, linking back to its story |
-| Investigation | `references/investigation.md` | An open question to answer or a decision to make, not a shippable outcome |
-
-Read the matching reference before drafting that ticket type.
+Copy tracker fields (parent, type, priority, assignee, labels, links) from recent sibling tickets. Read the ticket back and confirm the fields landed.

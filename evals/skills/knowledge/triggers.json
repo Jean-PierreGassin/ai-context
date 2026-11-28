@@ -1,6 +1,6 @@
 [
   {
-    "query": "What did we decide about retrying failed payouts?",
+    "query": "What did we decide about retrying failed invoice webhooks?",
     "should_trigger": true
   },
   {

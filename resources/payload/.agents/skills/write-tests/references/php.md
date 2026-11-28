@@ -1,42 +1,27 @@
 # PHP Test Patterns
 
-Use the repository's PHPUnit or Pest setup. `write-tests` controls coverage and structure.
+Use the repository's PHPUnit or Pest setup.
 
-## Parameterized cases
-
-Use a PHPUnit data provider or Pest dataset when cases differ only by input and expected outcome. Give each row a
-descriptive key when the runner displays it.
+Use a data provider or Pest dataset when cases differ only by input and outcome, with descriptive row keys.
 
 ```php
 #[DataProvider('tierDiscounts')]
 public function test_discount_rate_matches_tier(string $tier, float $expectedRate): void
 {
     $customer = new Customer(tier: $tier);
-    $discountRate = $customer->discountRate();
 
-    $this->assertSame($expectedRate, $discountRate);
+    $this->assertSame($expectedRate, $customer->discountRate());
 }
 
 public static function tierDiscounts(): array
 {
     return [
         'gold' => ['gold', 0.10],
-        'silver' => ['silver', 0.05],
         'none' => ['none', 0.0],
     ];
 }
 ```
 
-## Exceptions and skips
-
-Assert the specific exception. In Pest, attach `throws()` to the test declaration; in PHPUnit, call
-`expectException()` before the act.
-
-Use `markTestSkipped()` only when you cannot remove the environment dependency. State the cause and restoration
-condition.
-
-## Fixtures and boundaries
-
-Load large arrays or JSON through a purpose-named fixture helper so the test exposes only relevant setup. Construct
-real models and value objects. Use a fake or recording implementation at an external boundary when its observable
-effect must be asserted.
+- Assert the specific exception: `throws()` in Pest, `expectException()` before the act in PHPUnit.
+- Fix the environment problem; a skip carries its reason.
+- Build real models and value objects. At an external boundary, use a fake that records what happened.

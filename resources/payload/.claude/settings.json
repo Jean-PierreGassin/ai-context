@@ -63,6 +63,11 @@
           },
           {
             "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/.agents/hooks/context-handoff.sh\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/.agents/hooks/play-sound.sh\"",
             "timeout": 10
           }

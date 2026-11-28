@@ -1,31 +1,10 @@
 ---
 name: run-commands
-description: Run project, harness, and environment commands through the correct interface. Use for tests, formatting, services, task runners, diagnostics, infrastructure, or any other command the project environment supplies.
+description: Run project and environment commands through the project's own interface. Use for tests, formatting, services, task runners, diagnostics, or infrastructure.
 ---
 
-# Run Commands
+Use the project's own interface: read its committed instructions, then run its harness, task runner or internal CLI, preferring read-only discovery. Vendor tools cover what that interface can't. Take project commands from its docs and help output.
 
-Use the project's own interface before lower-level tools.
-
-## Process
-
-1. Identify the working directory and execution environment
-2. Read committed instructions that define how commands run
-3. Discover the project's harness, scripts, task runner, task files, internal CLI, or other supplied command interface
-4. Prefer its read-only discovery and execution paths
-5. Fall back to lower-level or vendor tools only when the project interface cannot perform the operation
-
-## Shape
-
-- Run one plain command per invocation so permission and isolation checks can verify it. Do not chain, loop, or embed commands in scripts to save a call
-- Run commands from the intended execution location rather than pointing them at another checkout
-- Use the quiet or machine-readable mode the project documents for a command when one exists
-- Run lint and static analysis when a PR is getting ready (CI runs the full test suite; run it locally only when asked), in the background while other work continues. Static analysis and lint belong on the commit hook, never bypassed; tests do not belong there
-- Wait for completion notifications from background work instead of polling with sleeps, and stop only work that is still running
-
-## Safety
-
-- Read-only discovery does not authorize mutation
-- Do not mutate remote or production state unless requested or already authorized by the active workflow
-- Prefer existing read-only access before asking for more access
-- Do not invent project commands
+- Run one plain command per call, from the intended checkout, so permission checks can verify it.
+- Run lint and static analysis in the background while other work continues, and wait for the completion notice. CI runs the full test suite.
+- Treat read-only access as read-only. Remote and production changes come from the user or the active workflow.

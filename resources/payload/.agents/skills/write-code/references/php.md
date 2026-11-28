@@ -1,280 +1,10 @@
 # PHP
 
-## Always apply
+Follow the project's PHP standards, PER for gaps, then run the project formatter. A style check on changed lines enforces the layout rules below.
 
-### Use Actions for application and business use cases
+## Actions and DTOs
 
-Prefer one meaningful use case per Action class. An Action accepts a purpose-named input DTO and returns an `ActionResult`
-when it reports success or failure. `ActionResult` may expose action-specific result methods when needed.
-
-Keep the Action focused on the use case and its orchestration. Do not introduce repositories as the default application
-architecture.
-
-### Declare strict types in new files
-
-Do not add strict types incidentally to an existing file. This declaration changes scalar coercion for calls from that
-file. Add it only in a deliberate, tested migration.
-
-Bad, in a new file:
-
-```php
-<?php
-
-namespace App\Invoice;
-```
-
-Good:
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Invoice;
-```
-
-### Make signatures and calls readable
-
-Follow project PHP standards. Use PER where they leave gaps, then run the project formatter.
-
-- Name boolean arguments and arguments that share a type
-- Once a call names an argument and takes more than one, put each argument on its own line
-- Once a signature passes 120 characters, put each parameter on its own line
-- Start a multi-line array's contents on the line after its opening bracket
-
-Bad:
-
-```php
-function render(?string $label, TemplateEngine $engine, array $rows, string $template): string {}
-
-$output = render(null, $engine, $rows, 'invoice');
-```
-
-Good:
-
-```php
-function render(
-    TemplateEngine $engine,
-    string $template,
-    array $rows,
-    ?string $label = null,
-): string {}
-
-$output = render(
-    engine: $engine,
-    template: 'invoice',
-    rows: $rows,
-);
-
-$invoice = $invoiceStore->find(invoiceId: $invoiceId);
-```
-
-For third-party and inherited calls, use named arguments when they clarify literal values.
-
-Bad:
-
-```php
-hash('sha256', $verifier, true);
-```
-
-Good:
-
-```php
-hash(
-    algo: 'sha256',
-    data: $verifier,
-    binary: true,
-);
-```
-
-Follow framework-native calling and formatting conventions.
-
-Bad:
-
-```php
-require dirname(
-    __DIR__,
-    2,
-).'/vendor/autoload.php';
-```
-
-Good:
-
-```php
-require dirname(__DIR__, 2) . '/vendor/autoload.php';
-```
-
-### Format method chains
-
-Keep the receiver and its first link on one line, and start every later link on its own line, even for two calls.
-Property links count. A receiver with one link stays inline. Hoist a chain out of a condition rather than splitting it
-there.
-
-Bad:
-
-```php
-return $invoiceStore->forCustomer($customerId)->find($invoiceId);
-```
-
-Good:
-
-```php
-return $invoiceStore->forCustomer($customerId)
-    ->find($invoiceId);
-```
-
-Do not nest a call in an argument list that sits on one line. Hoist it into a named variable.
-
-Bad:
-
-```php
-return Redirect::away($chatGpt->callbackRedirect($request->query->all()), status: 302);
-```
-
-Good:
-
-```php
-$query = $request->query
-    ->all();
-$callbackUrl = $chatGpt->callbackRedirect($query);
-
-return Redirect::away($callbackUrl);
-```
-
-### Name intermediate values
-
-Do not nest several transformations or hide compound checks in wrapped expressions. Name each meaningful result before
-using it.
-
-Bad:
-
-```php
-$challenge = rtrim(
-    strtr(
-        base64_encode(hash('sha256', $verifier, true)),
-        '+/',
-        '-_',
-    ),
-    '=',
-);
-
-if (! is_string($accessToken)
-    || ! is_string($refreshToken)
-    || ! is_numeric($expiresIn)) {
-    return null;
-}
-```
-
-Good:
-
-```php
-$verifierHash = hash(
-    algo: 'sha256',
-    data: $verifier,
-    binary: true,
-);
-
-$encodedHash = base64_encode($verifierHash);
-$urlSafeHash = strtr($encodedHash, '+/', '-_');
-$challenge = rtrim($urlSafeHash, '=');
-
-$hasAccessToken = is_string($accessToken);
-$hasRefreshToken = is_string($refreshToken);
-$hasExpiry = is_numeric($expiresIn);
-
-if (! $hasAccessToken || ! $hasRefreshToken || ! $hasExpiry) {
-    return null;
-}
-```
-
-Name a check when the name explains a call or computation. Write a compound condition of plain comparisons directly in
-the `if`, not as an assigned boolean such as `$isStartable = $a === X && $b !== Y;`.
-
-### Use framework helpers
-
-Do not add custom global helper functions. Use the framework's helpers, or inject a class.
-
-### Import class names
-
-Bad:
-
-```php
-function issue(\App\Billing\InvoiceStore $store): \App\Billing\Invoice {}
-```
-
-Good:
-
-```php
-use App\Billing\Invoice;
-use App\Billing\InvoiceStore;
-
-function issue(InvoiceStore $store): Invoice {}
-```
-
-### Promote constructor properties
-
-Bad:
-
-```php
-class InvoiceIssuer
-{
-    private InvoiceStore $store;
-
-    public function __construct(InvoiceStore $store)
-    {
-        $this->store = $store;
-    }
-}
-```
-
-Good:
-
-```php
-class InvoiceIssuer
-{
-    public function __construct(
-        private InvoiceStore $store,
-    ) {}
-}
-```
-
-Do not use `final` unless a contract requires it. `readonly` is fine.
-
-### Interpolate strings
-
-Bad:
-
-```php
-$message = 'Invoice ' . $invoiceNumber . ' is overdue';
-```
-
-Good:
-
-```php
-$message = "Invoice $invoiceNumber is overdue";
-$owner = "Owned by {$invoice->customer->name}";
-```
-
-Use braces only where a property or method chain needs them.
-
-### Use DTOs at meaningful data boundaries
-
-Use DTOs for cohesive structured input at meaningful boundaries.
-
-For Actions, use a purpose-named input DTO when structured input is needed and return the project's `ActionResult` when the
-Action reports success or failure.
-
-Bad:
-
-```php
-/** @param array{customer: array{name: string}} $input */
-function issueInvoice(array $input): array
-{
-    return ['success' => true, 'data' => $input];
-}
-```
-
-Good:
+One use case per Action class. An Action takes a purpose-named input DTO and returns `ActionResult` when it reports success or failure. Use a DTO for cohesive structured input at a boundary (in place of a keyed array), not to wrap a natural return value. No repositories by default.
 
 ```php
 function issueInvoice(IssueInvoiceData $input): ActionResult
@@ -289,141 +19,81 @@ function issueInvoice(IssueInvoiceData $input): ActionResult
 }
 ```
 
-Do not use a DTO to wrap a natural return value or to shorten a list of unrelated parameters.
+## Calls and signatures
 
-Bad:
-
-```php
-function find(
-    array $body,
-    ?array $context,
-    array $visited,
-    array $path,
-    array &$queryPaths,
-    array &$unresolved,
-    bool $conditional,
-): ?Result {}
-```
-
-Good:
+- Add `declare(strict_types=1);` to new files.
+- Name boolean arguments and arguments that share a type. Use named arguments on third-party calls when they clarify literals.
+- A call that names an argument and takes more than one puts each argument on its own line, and never breaks after the first argument.
+- A signature over 120 characters puts each parameter on its own line.
+- A multi-line array starts its contents on the line after the opening bracket.
+- Short calls stay on one line.
 
 ```php
-function find(TraversalContext $traversalContext): Result {}
-```
+function render(
+    TemplateEngine $engine,
+    string $template,
+    array $rows,
+    ?string $label = null,
+): string {}
 
-### Use enums for named values
-
-Search for an existing domain representation before adding another. Use an enum when the value belongs to a set.
-Otherwise assign it to a named local variable rather than adding a constant or leaving a bare literal. Keep a
-constant for a value shared across methods or a long list.
-
-Bad:
-
-```php
-if ($invoice->status === 'overdue') {
-    scheduleReminder(
-        invoice: $invoice,
-        delayDays: 7,
-    );
-}
-```
-
-Good:
-
-```php
-$reminderDelayDays = 7;
-
-if ($invoice->status === InvoiceStatus::Overdue) {
-    scheduleReminder(
-        invoice: $invoice,
-        delayDays: $reminderDelayDays,
-    );
-}
-```
-
-### Enable strict comparison modes
-
-When a PHP API offers an explicit strict-comparison or strict-validation argument, enable it. Do not allow loose
-coercion to make values of different types compare as equal.
-
-Bad:
-
-```php
-$isFirst = in_array(
-    needle: 'first',
-    haystack: $elements,
-);
-$position = array_search(
-    needle: $invoiceId,
-    haystack: $invoiceIds,
+$output = render(
+    engine: $engine,
+    template: 'invoice',
+    rows: $rows,
 );
 ```
 
-Good:
+## Chains and nesting
+
+Keep the receiver and its first link on one line, and start every later link on its own line, property links included. Hoist a chain out of a condition.
 
 ```php
-$isFirst = in_array(
-    needle: 'first',
-    haystack: $elements,
-    strict: true,
-);
-$position = array_search(
-    needle: $invoiceId,
-    haystack: $invoiceIds,
-    strict: true,
+return $invoiceStore->forCustomer($customerId)
+    ->find($invoiceId);
+```
+
+Hoist any call or `new` nested in a one-line or multi-argument list into a named variable (a sole simple `new Foo($x)` may stay).
+
+```php
+$query = $request->query
+    ->all();
+$callbackUrl = $oauthProvider->callbackRedirect($query);
+
+return Redirect::away($callbackUrl);
+```
+
+## Name intermediate values
+
+Name each meaningful result before using it. Use named checks, guards or `match` in place of nested transformations and wrapped `||` conditions. A compound condition of plain comparisons stays directly in the `if`.
+
+```php
+$verifierHash = hash(
+    algo: 'sha256',
+    data: $verifier,
+    binary: true,
 );
 
-if ($position === false) {
-    throw InvoiceNotFound::withId(invoiceId: $invoiceId);
+$encodedHash = base64_encode($verifierHash);
+$urlSafeHash = strtr($encodedHash, '+/', '-_');
+$challenge = rtrim($urlSafeHash, '=');
+
+$hasAccessToken = is_string($accessToken);
+$hasRefreshToken = is_string($refreshToken);
+
+if (! $hasAccessToken || ! $hasRefreshToken) {
+    return null;
 }
 ```
 
-Apply the same preference to other APIs whose strict option prevents coercion or ambiguous validation.
+## House conventions
 
-### Prefer `match` for value selection
-
-Bad:
-
-```php
-switch ($status) {
-    case InvoiceStatus::Draft:
-        $label = 'Draft';
-        break;
-    case InvoiceStatus::Issued:
-        $label = 'Issued';
-        break;
-}
-```
-
-Good:
-
-```php
-$label = match ($status) {
-    InvoiceStatus::Draft => 'Draft',
-    InvoiceStatus::Issued => 'Issued',
-};
-```
-
-Introduce polymorphic dispatch when type branching repeats, implementations multiply, or a real extension seam is
-required. A contained exhaustive `match` is clearer for a closed variant.
-
-### Do not use ternaries
-
-Use `??` for defaults, `match` (including `match (true)`) for value selection, and guard clauses for control flow. This
-includes the short `?:` form.
-
-Bad:
-
-```php
-$label = $requestedLabel ? $requestedLabel : 'Invoice';
-$result = $invoice->isPayable()
-    ? ($invoice->hasDiscount()
-        ? $gateway->chargeDiscounted($invoice)
-        : $gateway->charge($invoice))
-    : PaymentResult::declined();
-```
-
-Good:
+- No custom global helper functions: use the framework's or inject a class.
+- Promote constructor properties and import class names.
+- No `final`. `readonly` is fine.
+- Interpolate strings (`"Invoice $invoiceNumber is overdue"`).
+- Pass the strict argument wherever an API has one (`in_array(..., strict: true)`).
+- `match` for value selection. Polymorphism when type branching repeats or a real extension seam exists.
+- No ternaries, `?:` included. Use `??`, `match`, or guard clauses.
 
 ```php
 $label = $requestedLabel ?? 'Invoice';
@@ -432,110 +102,12 @@ if (! $invoice->isPayable()) {
     return PaymentResult::declined();
 }
 
-if ($invoice->hasDiscount()) {
-    return $gateway->chargeDiscounted($invoice);
-}
-
 return $gateway->charge($invoice);
 ```
 
-### Keep loop inputs and chains readable
+## Loops
 
-Resolve the iterable before the loop. Keep `->method()` with its receiver.
-
-Bad:
-
-```php
-foreach ($this->finder
-    ->find(criteria: $criteria) as $invoice) {
-    $this->process(invoice: $invoice);
-}
-```
-
-Good:
-
-```php
-$invoices = $this->finder->find(criteria: $criteria);
-
-foreach ($invoices as $invoice) {
-    $this->process(invoice: $invoice);
-}
-```
-
-### Keep type and shape checks understandable
-
-Use `match` for closed type selection. Break compound assertions into guards or focused predicates.
-
-Bad:
-
-```php
-if (! $initialization instanceof Expr\Assign
-    || ! $initialization->var instanceof Expr\Variable
-    || ! is_string($initialization->var->name)
-    || ! $condition instanceof Expr\BinaryOp\Smaller
-    || ! $condition->left instanceof Expr\Variable
-    || $condition->left->name !== $initialization->var->name
-    || ! $condition->right instanceof Node\Scalar\LNumber
-    || ! $increment instanceof Expr\PostInc
-    || ! $increment->var instanceof Expr\Variable
-    || $increment->var->name !== $initialization->var->name) {
-    return null;
-}
-```
-
-Good:
-
-```php
-$variableName = $this->initializationVariableName($initialization);
-
-if ($variableName === null) {
-    return null;
-}
-
-if (! $this->conditionUsesVariable($condition, $variableName)) {
-    return null;
-}
-
-if (! $this->incrementUsesVariable($increment, $variableName)) {
-    return null;
-}
-```
-
-### Use collection pipelines when they clarify a transformation
-
-Bad:
-
-```php
-$invoiceIds = [];
-
-foreach ($invoices as $invoice) {
-    if ($invoice->isOverdue()) {
-        $invoiceIds[] = $invoice->id;
-    }
-}
-```
-
-Good:
-
-```php
-$overdueInvoices = array_filter($invoices, fn (Invoice $invoice): bool => $invoice->isOverdue());
-$invoiceIds = array_map(fn (Invoice $invoice): InvoiceId => $invoice->id, $overdueInvoices);
-```
-
-Keep a loop when it better preserves short-circuiting, keys, ordering, memory use, or intent. Do not force a pipeline
-that is harder to scan.
-
-Do not merge inside a loop. Collect the pieces and merge once after it.
-
-Bad:
-
-```php
-foreach ($batches as $batch) {
-    $responses = array_merge($responses, $this->send($batch));
-}
-```
-
-Good:
+Resolve the iterable before the loop. Collect pieces inside a loop and merge once after it, never `array_merge` per iteration.
 
 ```php
 $responsesByBatch = [];
@@ -547,22 +119,9 @@ foreach ($batches as $batch) {
 return array_merge(...$responsesByBatch);
 ```
 
-### Keep exception boundaries explicit
+## Failure
 
-Throw a narrow domain exception for business failure. When translating an infrastructure exception, retain it as
-`$previous`. Handle an error once rather than logging and rethrowing the same event at every layer.
-
-Bad:
-
-```php
-try {
-    $gateway->charge($invoice);
-} catch (Throwable) {
-    throw new Exception('Payment failed');
-}
-```
-
-Good:
+Throw a narrow domain exception for business failure. Catch the narrow infrastructure exception, rethrow the domain one with it as `previous`, and handle each error once. Use `JSON_THROW_ON_ERROR` and translate `JsonException` into a domain exception.
 
 ```php
 try {
@@ -575,59 +134,6 @@ try {
 }
 ```
 
-### Make JSON failure visible
+## Layout
 
-Bad:
-
-```php
-$payload = json_decode(
-    json: $body,
-    associative: true,
-);
-```
-
-Good:
-
-```php
-try {
-    $payload = json_decode(
-        json: $body,
-        associative: true,
-        flags: JSON_THROW_ON_ERROR,
-    );
-} catch (JsonException $exception) {
-    throw InvalidWebhookPayload::fromJsonException(exception: $exception);
-}
-```
-
-Use `JSON_THROW_ON_ERROR` for encoding too.
-
-### Keep declarations and layout semantic
-
-- Group properties by role
-- Order methods as the constructor, public methods, then private helpers
-- Put short declarations before expanded declarations within one group
-- Extract repeated multi-step operations into one shared helper
-- Group DTOs, collections, services, and other roles into their own namespaces
-
-Bad:
-
-```php
-$total        = $invoice->total();
-$discountRate = $customer->discountRate();
-
-if ($discountRate > 0) {
-    $total = $total->discountedBy($discountRate);
-}
-```
-
-Good:
-
-```php
-$total = $invoice->total();
-$discountRate = $customer->discountRate();
-
-if ($discountRate > 0) {
-    $total = $total->discountedBy($discountRate);
-}
-```
+Group properties by role. Order methods: constructor, public, private helpers. Group DTOs, collections and services in their own namespaces.

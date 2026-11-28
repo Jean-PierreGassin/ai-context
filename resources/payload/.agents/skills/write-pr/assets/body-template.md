@@ -1,74 +1,47 @@
 # PR Body Template
 
-Use this only when the repository has no template. Put `Ticket:` at the top of its context section when applicable;
-omit the line for intentionally unticketed work.
-
-The main context is written and approved before this template is assembled. Insert that approved text under
-`Description` without regenerating or broadening it.
+For repositories without a template. Put `Ticket:` first. Write and approve the main context first, then insert it verbatim under `Description`.
 
 ```text
-Ticket: [TICKET-KEY](https://tracker.example/browse/TICKET-KEY)
+Ticket: [ABC-123](https://tracker.example/browse/ABC-123)
 
 Change Type: Feature | Bugfix | Improvement | Task | Story | Chore | Hotfix
 
 Description:
-[Approved main context: why this exact review unit exists, the state it establishes, what remains unchanged when that
-matters to the boundary, and what it enables next in a sequence.]
+[Approved main context: why this review unit exists, the state it establishes, what stays unchanged, what it enables next.]
 
-**Review focus:** [Identify the risk to review. Identify mechanical work that needs no detailed review.]
+**Review focus:** [The risk to review, and the mechanical work that needs no detailed review.]
 ```
-
-Use a combined change type only when the PR genuinely spans both types.
 
 ## Main context
 
-Do not default to diff narration such as:
-
-```text
-This PR updates...
-This PR removes...
-The changes in this PR...
-While investigating...
-```
-
-Prefer direct context about the bounded change itself.
-
-For one checkpoint in a sequence, make the scope explicit when the larger migration continues afterward:
+Write direct context about the bounded change. For one checkpoint in a sequence, state the scope:
 
 ```text
 Platform A's API client still depends directly on the legacy client.
 
 This change migrates only that API client to the shared client. Other Platform A consumers and Platform B remain unchanged.
 
-This allows the next Platform A consumer to migrate without also changing its transport dependency.
+This allows the next consumer to migrate without also changing its transport dependency.
 ```
 
 ## Review focus
 
-Put one or two lines at the end of the body. Identify the risk. Identify work that needs no detailed review.
+One or two lines at the end of the body.
 
 ```text
-**Review focus:** The eligibility boundary, particularly rounding on part-shipped orders. The supporting extraction is
-a pure move with no behavior change, covered by the existing suite passing unchanged.
+**Review focus:** The eligibility boundary, particularly rounding on part-shipped orders. The supporting extraction is a pure move, covered by the existing suite passing unchanged.
 ```
 
-For one change in a sequence, name the earlier or later changes when that helps define the review boundary.
+Name the neighbouring changes that define the boundary, and give a rollback when a revert is not enough:
 
 ```text
-**Review focus:** The new pricing rules only. They have no callers yet, the earlier flag still defaults to the old
-behavior, and the later cutover enables them.
-```
-
-If reverting is not sufficient, give the rollback method in the same place.
-
-```text
-**Rollback:** Restore the legacy pricing setting, no deploy and no data migration needed.
+**Rollback:** Restore the legacy pricing setting, no deploy needed.
 ```
 
 ## Bug bodies
 
-If a bug PR has reproduction steps and a change list, keep the approved main context first. Put supporting details under
-separate bold headings.
+Approved context first, then:
 
 ```text
 **Reproduction**

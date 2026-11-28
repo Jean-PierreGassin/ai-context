@@ -1,42 +1,19 @@
 ---
 name: write-tests
-description: Write, edit, or assess tests and coverage. Use when test changes or test coverage decisions are required.
+description: Write, edit, or assess tests and coverage. Use when adding or changing tests, or deciding what needs coverage.
 ---
 
 # Write Tests
 
-Write tests that prove meaningful behaviour and follow the project's existing test style.
+Prove the behaviour that matters, in the style the project already uses.
 
-## Process
+Read the one language reference in `references/` that applies (`php.md`, `typescript.md`, `go.md`). Find the nearest existing test and follow its shape.
 
-1. Read only the language reference in `references/`
-2. Find the nearest equivalent test and follow its shape
-3. Cover meaningful success, alternatives, boundaries, and failure outcomes
-4. Use minimal setup, one clear action, and focused assertions
-5. Use the project's formatter and test runner through its established command interface
-
-## Principles
-
-- Assert observable behaviour and business rules, not implementation details
-- Test only behaviour the change adds, not framework internals, trivial accessors, or untouched behaviour
-- Prove each new test fails without the change
-- When a test defines the end state for a code change, write it before the change and run it to see it fail for the
-  reason the change addresses
-- Mock real boundaries only; use real value objects
-- Never reconstruct a class or its dependencies by hand: resolve the subject from the container and mock collaborators
-- Keep tests short: move long input to fixtures and equivalent scenarios to data providers or table cases
-- Name each test in one short plain-English clause stating its outcome in the product's words
-- Put helpers and datasets after the last test; setup hooks stay at the top
-- Anchor a frozen clock to the present; never to a literal date
-- Keep tests consistent with the project's coding style
-- Do not hide or remove failing tests; state an environment dependency or reason when a test cannot run
-
-## References
-
-| In scope | Read |
-|---|---|
-| PHP | `references/php.md` |
-| TypeScript | `references/typescript.md` |
-| Go | `references/go.md` |
-
-Read only the reference for the language in scope.
+- Test observable behaviour and business rules, not implementation details. Cover success, alternatives, boundaries and failures, once each.
+- Test what the change adds, not framework internals, trivial accessors or untouched code.
+- Each new test should fail without the change. When a test defines the end state, write it first and watch it fail for the right reason.
+- Mock real boundaries. Use real value objects, and get the subject from the container with mocked collaborators.
+- Keep tests short. Move long input to fixtures and equivalent cases to data providers or table cases.
+- Name each test as a short plain-English outcome in the product's words.
+- Anchor a frozen clock to the present, not a literal date.
+- Run the formatter and tests through the project's usual commands. Keep a failing test visible and say what blocks it.

@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # Author: Jean-Pierre Gassin (https://github.com/Jean-PierreGassin)
 #
-# Custom status line for Claude Code with a two-line layout
+# Two-line Claude Code status line
 # Line 1: repo (cyan) // branch (magenta) · git state in words
 # Line 2: context window bar (green, then gold, then red) · session cost · model
 
 input=$(cat)
 
 # ---------------------------------------------------------------------------
-# Colours (ANSI — the status line renders in a real terminal)
+# Colours (ANSI: renders in a real terminal)
 # ---------------------------------------------------------------------------
 RESET='\033[0m'
 
@@ -27,7 +27,7 @@ BOLD_WHITE='\033[1;38;2;248;248;242m'
 GOLD='\033[38;2;255;193;7m'
 
 # ---------------------------------------------------------------------------
-# Parse JSON input — single jq call for performance
+# Parse JSON input in one jq call
 # ---------------------------------------------------------------------------
 _parse=$(echo "${input}" | jq -r '[
   (.session_id // ""),
@@ -43,7 +43,7 @@ _parse=$(echo "${input}" | jq -r '[
 IFS=$'\x1f' read -r session_id cwd model_name used ctx_size ctx_tokens total_cost effort <<< "${_parse}"
 
 # ---------------------------------------------------------------------------
-# LINE 1 — Location (repo and branch inside a repository, otherwise the path)
+# LINE 1: repo and branch, else the path
 # ---------------------------------------------------------------------------
 BRANCH_NAME_LIMIT=48
 
@@ -155,7 +155,7 @@ if [[ -n "${status_output}" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# LINE 2 — Model segment (blue) with reasoning effort when supplied
+# LINE 2: model (blue), plus reasoning effort when supplied
 # ---------------------------------------------------------------------------
 model_part="${BLUE}${model_name}${RESET}"
 if [[ -n "${effort}" ]]; then
@@ -163,7 +163,7 @@ if [[ -n "${effort}" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# LINE 2 — Context window bar (green, then gold, then red — time to /compact)
+# LINE 2: context bar (green, gold, then red: time to /compact)
 # ---------------------------------------------------------------------------
 CONTEXT_COMPACT_NOW_PERCENT=75
 CONTEXT_COMPACT_SOON_PERCENT=40
@@ -245,7 +245,7 @@ if [[ -n "${used}" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# LINE 2 — Session cost (from .cost.total_cost_usd supplied by Claude Code)
+# LINE 2: session cost from .cost.total_cost_usd
 # ---------------------------------------------------------------------------
 cost_line=""
 if [[ -n "${total_cost}" && "${total_cost}" != "null" ]]; then

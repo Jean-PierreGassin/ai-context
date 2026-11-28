@@ -2,29 +2,14 @@
   "skill_name": "write-plan",
   "evals": [
     {
-      "id": "plan-output-uses-asd-ste100-style",
-      "category": "regression",
-      "prompt": "Write the implementation plan. Keep exact commands, paths, and API names, but make the plan easy to read.",
-      "expected_output": "A concise plan that applies ASD-STE100 principles without changing technical identifiers or claiming verified compliance.",
-      "expectations": [
-        "Uses short active sentences",
-        "Keeps one instruction or topic in each sentence",
-        "Uses consistent terms and avoids ambiguous pronouns and dense noun groups",
-        "Preserves exact commands, paths, API names, and project terms",
-        "Does not claim verified ASD-STE100 compliance without full validation"
-      ]
-    },
-    {
       "id": "small-bug-stays-one-change",
       "category": "proportionality",
       "prompt": "A page throws a deprecation warning when one of the fields it formats is missing. Plan the fix.",
-      "expected_output": "A single-entry plan with a short stack position, no strategy selection, and no multi-PR sequence.",
+      "expected_output": "A single-entry plan with no strategy selection and no multi-PR sequence.",
       "expectations": [
         "Records the work as one change rather than a stack",
         "Selects no decomposition strategy for a change with nothing to decompose",
-        "Keeps the stack position section to a few lines",
-        "Does not propose separate mechanical and behavioural changes for a two-line guard",
-        "Creates no persisted plan files unless the work has to survive a session boundary"
+        "Does not propose separate mechanical and behavioural changes for a two-line guard"
       ]
     },
     {
@@ -36,73 +21,44 @@
         "Produces an ordered stack rather than one large change",
         "Records purpose, kind, dependencies, reviewer focus, and rollback for each entry",
         "Puts mechanical and structural changes ahead of behavioural and user-facing ones",
-        "Assigns every anticipated file to exactly one change",
-        "Ships each change as its own PR off trunk, opening a dependent change only after its prerequisite merges",
-        "Confirms the split with the user before detailing each change"
+        "Assigns all anticipated work to a checkpoint",
+        "Ships each change as its own PR off trunk, opening a dependent change after its prerequisite merges",
+        "Agrees the split with the user before creating branches or PRs"
       ]
     },
     {
       "id": "replacement-uses-branch-by-abstraction",
       "category": "normal",
       "prompt": "Replace the existing implementation with a new one. Both have to run side by side while we move consumers across gradually.",
-      "expected_output": "A branch-by-abstraction sequence ending in removal of the old implementation and the switch.",
+      "expected_output": "A branch-by-abstraction sequence ending in removal of the old implementation.",
       "expectations": [
-        "Introduces an abstraction over the current implementation before adding the new one",
-        "Keeps the old implementation working and in use until consumers are switched",
-        "Puts the cutover behind a switch so rollback is configuration rather than a deploy",
-        "Ends with removal of the old implementation and then the switch",
-        "Identifies which steps are mechanical and can be large without being risky"
+        "Introduces a seam over the current implementation before adding the new one",
+        "Keeps the old implementation working and in use until consumers are moved",
+        "Moves one consumer at a time, proving each",
+        "Ends with removal of the old implementation"
       ]
     },
     {
       "id": "contract-change-uses-expand-and-contract",
       "category": "normal",
       "prompt": "One response field needs to become two, and we have external clients on the current shape.",
-      "expected_output": "An expand, migrate, contract sequence with a deprecation window for the old field.",
+      "expected_output": "An expand, migrate, contract sequence.",
       "expectations": [
         "Adds the new shape alongside the old rather than changing it in place",
-        "Keeps each phase deployable on its own and safe against a mix of old and new clients",
+        "Keeps each phase deployable on its own",
         "Moves clients across before removing anything",
-        "Removes the old shape only after the deprecation window",
-        "Proposes a breaking change only if the user requires one, saying what makes the safe path unworkable"
+        "Removes the old shape last"
       ]
     },
     {
       "id": "implemented-stack-persists-restore-state",
       "category": "proportionality",
-      "prompt": "Plan this with me now. I will implement it straight after, in this session.",
-      "expected_output": "A contained change can remain in conversation, while an implemented stack persists per-change plans and one stack context for per-commit restoration.",
+      "prompt": "Plan this multi-change stack with me now. I will implement it straight after, in this session.",
+      "expected_output": "Per-change plans and one stack context persisted so each approved commit is resumable.",
       "expectations": [
-        "Creates no persisted plan files for a contained change that stays inside one session",
-        "Persists one PLAN.md per stack entry and one stack-level CONTEXT.md when implementing a change stack, even in one session",
+        "Persists one PLAN.md per stack entry and one stack-level CONTEXT.md",
         "Explains that each approved stack commit must be resumable after a context reset",
-        "Still produces the split and the ordering",
-        "Creates the files for any work that will otherwise carry over"
-      ]
-    },
-    {
-      "id": "reviews-through-plannotator",
-      "category": "composition",
-      "prompt": "Show me the proposed plan so I can review and refine it now.",
-      "expected_output": "Concise Markdown submitted through the installed Plannotator host integration and revised until approval.",
-      "expectations": [
-        "Returns the plan normally so the installed Plannotator host integration can intercept it",
-        "Uses concise Markdown rather than generating a custom HTML artifact",
-        "Incorporates feedback and resubmits the plan until the user approves it",
-        "Does not invoke Plannotator manually through a sandboxed shell command"
-      ]
-    },
-    {
-      "id": "plannotator-unavailable-falls-back",
-      "category": "regression",
-      "prompt": "Review this plan with me, but the Plannotator integration is unavailable.",
-      "expected_output": "Plan review continues in conversation, with the broken installation reported rather than blocking the task.",
-      "expectations": [
-        "Continues plan review in conversation",
-        "Reports that the Plannotator installation needs repair",
-        "Leaves dependency installation to the package installer",
-        "Does not recreate the removed HTML artifact workflow",
-        "Does not block delivery of the Markdown plan"
+        "Still produces the split and the ordering"
       ]
     },
     {
@@ -114,7 +70,6 @@
         "Identifies that the single PR carries several review objectives",
         "Separates the mechanical rename from the behavioural change",
         "Places the contract and user-facing changes after the behaviour they depend on",
-        "Names what a reviewer would have to hold in their head under the original draft",
         "Offers the split rather than only criticising the draft"
       ]
     },
@@ -126,7 +81,6 @@
       "expectations": [
         "Slices vertically, so each change is usable end to end",
         "Declines to split into a persistence change, then a data-access change, then a service change",
-        "States that a split forcing the reviewer to reassemble the feature has gone too far",
         "Keeps the slice count proportional to the actual review risk"
       ]
     },
@@ -137,8 +91,8 @@
       "expected_output": "One mechanical change, with the reason it should exceed the heuristic rather than be batched.",
       "expectations": [
         "Keeps the mechanical sweep as one change with one review objective",
-        "Explains why arbitrary batching would reduce reviewability or change coherence",
-        "Treats the size figures as a signal to look for a seam, not a limit to obey"
+        "Explains why arbitrary batching would reduce reviewability",
+        "Treats size as a hint to look for a seam, not a limit to obey"
       ]
     },
     {
@@ -148,26 +102,19 @@
       "expected_output": "Investigation first, then a plan built on what it establishes.",
       "expectations": [
         "Recognises the cause is unknown and does not plan against a guess",
-        "Waits for the finding before choosing a decomposition strategy",
-        "Says what the plan would look like under each candidate cause, if a plan is needed now"
+        "Settles the facts from evidence before choosing a decomposition"
       ]
     },
     {
       "id": "implementation-commits-between-stack-entries",
       "category": "composition",
       "prompt": "The plan is approved. Implement its three-change stack now, reviewing each change before moving on.",
-      "expected_output": "Implementation follows the approved order, obtains human approval for the current entry, runs gates, commits it, verifies the fresh-session restore point, and stops before the next entry.",
+      "expected_output": "Each entry is self-reviewed, approved, gated, committed and recorded, then work stops before the next entry.",
       "expectations": [
-        "Loads git-commit alongside write-code for implementation",
-        "Self-reviews and adjusts the current entry before presenting its diff for human review",
-        "Waits for explicit human approval before running the project gates",
-        "Commits the approved entry after its gates pass",
-        "Returns to human review if a gate or gate fix changes the approved diff",
-        "Updates the stack context with the commit identifier and exact next action",
-        "Verifies a fresh session can resume without repeating investigation or decisions",
-        "Stops before beginning the next stack entry",
-        "Does not carry an uncommitted completed entry into another stack entry",
-        "Allows a corrective entry to be folded into an earlier commit when rewriting is safe"
+        "Self-reviews the current entry and updates the plan and context before presenting its diff for approval",
+        "Waits for explicit approval before running the gates and committing",
+        "Updates the stack context with the commit and the exact next action",
+        "Stops before beginning the next stack entry"
       ]
     },
     {
@@ -176,10 +123,10 @@
       "prompt": "Plan the export feature.",
       "expected_output": "The existing plan for the same work found and continued, rather than a second one started.",
       "expectations": [
-        "Looks for existing planning docs before creating anything",
+        "Looks for an existing plan before creating anything",
         "Continues the existing plan and says what changed, rather than starting another one",
         "Reads the stack context before the current plan when resuming",
-        "Verifies the persisted state against the repository and reports where they disagree"
+        "Checks the persisted state against the repository and reports where they disagree"
       ]
     },
     {
@@ -188,56 +135,49 @@
       "prompt": "While implementing entry two, repository inspection shows the planned adapter already exists under a different abstraction. This changes entry two's checklist and the tests and dependency described in entries three and four. Continue the stack.",
       "expected_output": "The established fact replaces the stale assumption in entry two and every affected later plan before implementation continues.",
       "expectations": [
-        "Updates the existing entry two plan rather than creating a parallel plan or workaround",
-        "Propagates the consequence into the tests, dependency, and implementation details of entries three and four",
-        "Removes superseded assumptions instead of preserving contradictory instructions",
-        "Records the decision and reasoning once in the stack context so later sessions do not rediscover it",
-        "Keeps the revision within the agreed direction because its objectives and stack shape are unchanged"
+        "Updates the existing entry two plan rather than creating a parallel plan",
+        "Propagates the consequence into entries three and four",
+        "Removes superseded assumptions instead of keeping contradictory instructions",
+        "Records the decision and reasoning once in the stack context"
       ]
     },
     {
       "id": "directional-change-gets-pushback",
       "category": "counterexample",
       "prompt": "During entry two I decided replacing the persistence layer would be cleaner. It changes the architecture, expands four later entries, and adds a data migration. Fold it into the approved stack and keep going.",
-      "expected_output": "Implementation stops and the directional change is challenged before the approved stack is revised.",
+      "expected_output": "Implementation stops and the directional change goes back to the user before the approved stack is revised.",
       "expectations": [
         "Identifies the architecture change, migration, added scope, and downstream expansion",
-        "Pushes back with the concrete side effects rather than silently revising the plan",
+        "Says concretely what would move and which later entries change",
         "Offers the smallest alternative compatible with the approved direction",
-        "Waits for explicit user approval before changing the stack or implementing the new direction",
-        "Updates every affected plan only if the user approves the directional change"
+        "Waits for explicit user approval before changing the stack"
       ]
     },
     {
       "id": "commit-is-a-resumable-checkpoint",
       "category": "regression",
       "prompt": "Entry two has been implemented and is ready for human review. Make sure I can clear context immediately after it is approved and committed, then continue entry three without repeating anything.",
-      "expected_output": "Ignored local plans and stack context identify completed work, settled decisions, downstream changes, and the exact next action, then the workflow stops at the committed restore point.",
+      "expected_output": "Local plans and stack context identify completed work, decisions, and the exact next action, then the workflow stops at the committed restore point.",
       "expectations": [
-        "Updates the current ignored plan and stack context before presenting the implementation diff for human review",
-        "Records critical decisions and removes superseded assumptions",
-        "Updates all affected later entries before the commit",
+        "Updates the current plan and stack context before presenting the diff for review",
+        "Records decisions and removes superseded assumptions",
         "Names entry three and its exact first action as the restore point",
-        "Runs gates after approval and commits the reviewed implementation without agent-working files",
-        "Updates the ignored stack context with the commit identifier after the commit",
-        "Verifies after the commit that a fresh session can resume from the persisted state",
-        "Stops before beginning entry three",
-        "Does not create a recursive metadata-only commit to record that the work commit happened"
+        "Commits the reviewed implementation without the plan files",
+        "Records the commit in the stack context and checks a fresh session could resume",
+        "Stops before beginning entry three"
       ]
     },
     {
       "id": "persisted-plan-starts-with-context-bootstrap",
       "category": "regression",
       "prompt": "Write the persisted plan so I can clear all context, point a fresh agent at PLAN.md, and have it start without asking me what to load or inspect.",
-      "expected_output": "The plan begins with a selective, executable context-loading sequence and the first implementation action.",
+      "expected_output": "The plan begins with a context-loading section and the first implementation action.",
       "expectations": [
-        "Places the context-loading section first, immediately after the plan title",
-        "Lists every applicable skill and relevant skill reference in load order",
-        "Lists the stack CONTEXT.md, relevant plans, project instructions, source, tests, contracts, and configuration to read in order",
-        "Explains briefly why each repository file is relevant instead of inventorying the repository",
-        "Names the working directory, useful baseline or discovery commands, and exact validation gates",
-        "Ends the bootstrap with the first unchecked implementation action",
-        "Does not ask the user to resupply context already available from the listed sources"
+        "Places the Start here section first, right after the plan title",
+        "Lists the skills to load in order",
+        "Lists the stack CONTEXT.md, relevant plans, project instructions and key source to read",
+        "Names the execution environment, baseline commands and exact validation gates",
+        "Ends with the first unchecked implementation action"
       ]
     },
     {
@@ -248,7 +188,6 @@
       "expectations": [
         "Records that the work is intentionally unticketed and why",
         "Does not invent a ticket key or placeholder link",
-        "Does not ask for a ticket when the supplied context already settles the decision",
         "Includes ticket context in the fresh-session bootstrap"
       ]
     },
@@ -256,14 +195,12 @@
       "id": "persisted-plans-remain-untracked",
       "category": "regression",
       "prompt": "Persist this multi-entry implementation plan in the repository so another session can resume it, then prepare the first code commit.",
-      "expected_output": "Plans and stack context stored under `$(git rev-parse --git-common-dir)/agents/work`, outside the worktree index, and excluded from the implementation commit without changing `.gitignore` or local excludes.",
+      "expected_output": "Plans and stack context stored under `$(git rev-parse --git-common-dir)/agents/work`, outside the worktree index and out of the commit.",
       "expectations": [
-        "Resolves the Git common directory through git rev-parse --git-common-dir instead of assuming .git is a directory",
-        "Stores plans under agents/work/{type}/{ticket-or-slug} beneath the Git common directory",
+        "Resolves the location with git rev-parse --git-common-dir",
+        "Stores plans under agents/work/{type}/{ticket-or-slug} beneath it",
         "Keeps one stack-level CONTEXT.md and one PLAN.md per ordered change",
-        "Does not add .gitignore or local exclude rules for the plan location",
-        "Verifies no PLAN.md or CONTEXT.md path is tracked or staged inside the worktree before committing",
-        "Keeps the local restore state current without including it in the code commit"
+        "Checks that no PLAN.md or CONTEXT.md path is staged before committing"
       ]
     }
   ]

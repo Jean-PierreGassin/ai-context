@@ -2,19 +2,6 @@
   "skill_name": "write-pr",
   "evals": [
     {
-      "id": "pr-uses-asd-ste100-style",
-      "category": "regression",
-      "prompt": "Write this PR title and body in ASD-STE100. Preserve the ticket key, commands, URLs, and repository template labels.",
-      "expected_output": "A concise PR draft that applies ASD-STE100 principles and preserves exact technical terms.",
-      "expectations": [
-        "Uses short active sentences",
-        "Keeps one topic or instruction in each sentence",
-        "Uses consistent terms and avoids ambiguous pronouns and dense noun groups",
-        "Preserves exact ticket keys, commands, URLs, identifiers, and template labels",
-        "Does not claim verified ASD-STE100 compliance without full validation"
-      ]
-    },
-    {
       "id": "complete-feature-pr",
       "category": "normal",
       "prompt": "Open the PR for ticket ABC-123 on branch ABC-123-scheduled-report-exports. It adds a schedule on a saved report, a queued run, and a control on the reports page. The ticket URL is https://tracker.example/browse/ABC-123.",
@@ -49,7 +36,6 @@
         "Leads the proposal with the bounded export fix rather than debugging chronology",
         "States the established mechanism rather than narrating a guess at it",
         "Uses numbered reproduction steps after the approved main context where the final template needs them",
-        "Includes a link to evidence where one is available",
         "Waits for title, context, and review-state approval before opening"
       ]
     },
@@ -74,8 +60,6 @@
         "States that the diff is a move with no behavior change",
         "Backs the claim rather than only asserting it",
         "Names what this extraction enables next when useful",
-        "Targets trunk rather than stacking on another PR's branch",
-        "Does not ask the reviewer to judge later changes in this PR",
         "Waits for approval before opening"
       ]
     },
@@ -110,10 +94,7 @@
       "expected_output": "A body describing the exact resulting state, with the session's decisions left out.",
       "expectations": [
         "Describes what the bounded change contains, not what was considered and dropped",
-        "Omits any deliberately-out-of-scope section",
-        "Appends no assistant session link",
-        "Says nothing about how the change was arrived at during the session",
-        "Offers to put omissions in the ticket or an approved comment if they matter"
+        "Says nothing about how the change was arrived at during the session"
       ]
     },
     {
@@ -124,7 +105,6 @@
       "expectations": [
         "Uses the repository template's headings and vocabulary rather than the fallback template",
         "Puts the ticket line in the template's context section",
-        "Writes no more than a bare acknowledgement under a forced Testing heading",
         "Does not append the fallback template's sections alongside the repository's",
         "Preserves the approved main context wording"
       ]
@@ -139,18 +119,6 @@
         "Says the rename is mechanical and needs no scrutiny",
         "Backs the mechanical claim rather than only asserting it",
         "Does not spread attention evenly across the whole diff"
-      ]
-    },
-    {
-      "id": "no-test-evidence-in-the-body",
-      "category": "counterexample",
-      "prompt": "Write the PR body, and mention that the whole suite passes and that I checked it locally against staging.",
-      "expected_output": "A body with no verification section, and the reason for leaving it out.",
-      "expectations": [
-        "Leaves out suite counts, coverage numbers, and how it was verified locally",
-        "Keeps any evidence that the defect exists, such as a link to a failing run",
-        "Says why verification does not belong in the body",
-        "Allows the review focus to cite existing coverage where that clears a mechanical section"
       ]
     },
     {
