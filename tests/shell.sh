@@ -11,7 +11,7 @@ error() {
 
 collect_scripts() {
   printf '%s\0' "$repository_root/bin/ai-context"
-  find "$repository_root/scripts" "$repository_root/tests" -type f -name '*.sh' -print0 | sort -z
+  find "$repository_root/scripts" "$repository_root/tests" "$repository_root/resources/payload/.agents/skills" -type f -name '*.sh' -print0 | sort -z
 }
 
 main() {
@@ -27,6 +27,9 @@ main() {
   done < <(collect_scripts)
 
   shellcheck "${scripts[@]}"
+  if command -v shfmt >/dev/null 2>&1; then
+    shfmt -d -i 2 -ci -bn "${scripts[@]}"
+  fi
   printf 'shell tests passed (%d scripts)\n' "${#scripts[@]}"
 }
 

@@ -89,7 +89,10 @@ render_doctor_results() {
 confirm_action() {
   local prompt="$1"
   if [[ "$is_interactive" == false || ! -t 0 || ! -t 1 ]]; then return 0; fi
-  if command -v gum >/dev/null 2>&1; then gum confirm "$prompt" --default=false; return; fi
+  if command -v gum >/dev/null 2>&1; then
+    gum confirm "$prompt" --default=false
+    return
+  fi
   local response
   printf '%s [y/N] ' "$prompt" >&2
   read -r response
@@ -139,5 +142,11 @@ record_change() {
   fi
 }
 
-record_skip() { skipped_count=$((skipped_count + 1)); warn "$1"; }
-record_failure() { failure_count=$((failure_count + 1)); error "$1"; }
+record_skip() {
+  skipped_count=$((skipped_count + 1))
+  warn "$1"
+}
+record_failure() {
+  failure_count=$((failure_count + 1))
+  error "$1"
+}

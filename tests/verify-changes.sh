@@ -111,7 +111,10 @@ handoff * src/*.txt ! grep -l broken $FILES
 EOF
 printf 'broken\n' >"$project/src/bad.txt"
 expect 'a failing handoff reports the file' 'Handoff checks failed.*bad.txt' "$(cd "$project" && sh "$hook" handoff || true)"
-expect 'a failing handoff exits non-zero' '^1$' "$(cd "$project" && sh "$hook" handoff >/dev/null; printf '%s' "$?")"
+expect 'a failing handoff exits non-zero' '^1$' "$(
+  cd "$project" && sh "$hook" handoff >/dev/null
+  printf '%s' "$?"
+)"
 printf 'fixed\n' >"$project/src/bad.txt"
 expect 'a passing handoff says so' 'Handoff checks passed' "$(cd "$project" && sh "$hook" handoff)"
 

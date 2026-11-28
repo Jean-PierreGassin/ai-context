@@ -75,7 +75,10 @@ printf 'clean\n' >"$project/src/app.txt"
 
 edit "$docs/guide.md"
 printf 'more notes\n' >>"$docs/guide.md"
-expect 'a repository without handoff checks never blocks a claim' '^$' "$(cd "$project" && sh "$hook" handoff >/dev/null; stop 'Done.')"
+expect 'a repository without handoff checks never blocks a claim' '^$' "$(
+  cd "$project" && sh "$hook" handoff >/dev/null
+  stop 'Done.'
+)"
 
 printf 'changed by the user or a shell command\n' >"$project/src/app.txt"
 run_hook edit "{\"session_id\":\"test\",\"tool_name\":\"Bash\",\"cwd\":\"$project\",\"tool_input\":{\"command\":\"git pull\"}}" >/dev/null
